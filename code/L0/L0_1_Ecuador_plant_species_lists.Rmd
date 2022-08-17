@@ -1,0 +1,40 @@
+---
+title: "Ecuador plant species list"
+authors: "Hazel Anderson"
+collaborators: "None"
+data input: "None"
+data output: "Ecuador_plant_species_list.csv"
+project: "Frugivoria"
+date: "2022-08-17"
+output: html_document
+---
+# Set Working directory & file path
+```{r}
+setwd()
+data_path <- 'G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0'
+```
+
+# Load required packages
+```{r}
+library(BIEN)
+library(kewr)
+library(gbifdb)
+```
+
+
+# Pull data from various sources
+
+## BIEN
+```{r}
+Ecuador <- BIEN_occurrence_country("Ecuador")
+```
+
+## Kew
+```{r}
+
+```
+
+## GBIF
+```{r}
+
+```
