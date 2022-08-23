@@ -10,31 +10,32 @@ output: html_document
 ---
 # Set Working directory & file path
 ```{r}
-setwd()
+#setwd() *WHAT SHOULD THIS BE???
 data_path <- 'G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0'
 ```
 
 # Load required packages
 ```{r}
 library(BIEN)
-library(kewr)
-library(gbifdb)
 ```
 
 
-# Pull data from various sources
+# Pull Ecuador plant species lists from various sources
 
 ## BIEN
 ```{r}
-Ecuador <- BIEN_occurrence_country("Ecuador")
+Ecuador_BIEN <- BIEN_occurrence_country("Ecuador")
+write.csv(Ecuador_BIEN, "Ecuador_BIEN_species_list.csv")
 ```
 
-## Kew
-```{r}
 
+## Kew Plants of the World Online
+```{r}
+library(readxl)
+Ecuador_POWO <- read_excel("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/PlantsOfTheWorldOnline_Ecuador_species.xlsx")
 ```
 
 ## GBIF
 ```{r}
-
+Ecuador_GBIF <- read.csv("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/GBIF_Ecuador_PlantSpeciesList.csv")
 ```
