@@ -2,21 +2,21 @@
 title: "Ecuador plant species list"
 authors: "Hazel Anderson"
 collaborators: "None"
-data input: "None"
-data output: "Ecuador_plant_species_list.csv"
+data input: "PlantsOfTheWorldOnline_Ecuador_species.xlsx and GBIF_Ecuador_PlantSpeciesList.csv"
+data output: "Ecuador_unique_species_list.csv"
 project: "Frugivoria"
 date: "2022-08-17"
 output: html_document
 ---
-# Set Working directory & file path
+# Set Working directory
 ```{r}
-#setwd() *WHAT SHOULD THIS BE???
-data_path <- 'G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0'
+setwd('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 ```
 
 # Load required packages
 ```{r}
 library(BIEN)
+library(tidyr)
 ```
 
 
@@ -33,10 +33,34 @@ write.csv(Ecuador_BIEN, "Ecuador_BIEN_species_list.csv")
 ```{r}
 library(readxl)
 Ecuador_POWO <- read_excel("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/PlantsOfTheWorldOnline_Ecuador_species.xlsx")
+#won't read in csv version for some reason
 ```
 
 ## GBIF
 ```{r}
 Ecuador_GBIF <- read.csv("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/GBIF_Ecuador_PlantSpeciesList.csv")
+```
+
+# Combine data
+```{r}
+species_GBIF <- as.list(Ecuador_GBIF$species)
+species_BIEN <- as.list(Ecuador_BIEN$scrubbed_species_binomial)
+species_POWO <- as.list(Ecuador_POWO$genus)
+genus_POWO <- as.list(Ecuador_POWO$species)
+
+#need to combine species_POWO and genus_POWO
+species_POWO <- as.list(paste(genus_POWO, species_POWO, sep=" "))
+
+#combine all 3 species list together
+all_species <- c(species_BIEN, species_GBIF, species_POWO)
+
+#remove duplicates
+unique_species <- unique(all_species)
 
 ```
+
+# Output data to csv
+```{r}
+write.csv(unique_species, "Ecuador_unique_species_list.csv")
+```
+
