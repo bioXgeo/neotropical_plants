@@ -8,15 +8,20 @@ project: "Frugivoria"
 date: "2022-08-17"
 output: html_document
 ---
-# Set Working directory
+# Set file paths
 ```{r}
-setwd('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 ```
 
 # Load required packages
 ```{r}
-library(BIEN)
-library(tidyr)
+for (package in c("BIEN", "tidyr")) {
+  if (!require(package, character.only=T, quietly=T)) {
+    install.packages(package)
+    library(package, character.only=T)
+  }
+}
 ```
 
 

@@ -8,15 +8,20 @@ project: "Frugivoria"
 date: "2022-08-31"
 output: html_document
 ---
-# Set Working directory
+# Set file paths
 ```{r}
-setwd('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 ```
 
-# Load required packages
+# Install and load required packages
 ```{r}
-library(jsonlite)
-library(rredlist)
+for (package in c("httr", "jsonlite", "rredlist")) {
+  if (!require(package, character.only=T, quietly=T)) {
+    install.packages(package)
+    library(package, character.only=T)
+  }
+}
 ```
 
 ```{r}
@@ -32,5 +37,10 @@ list <- ecuador_species$result[1]
 # Get codes for the different species groups
 grp_codes <- GET(url = paste0(api_url, 'comp-group/list?token=', token))
 code <-fromJSON(content(grp_codes, as = 'text'), simplifyDataFrame = TRUE, flatten = TRUE)$result
+
+# Get species list of all plants across all countries. 
+all_plants <-rl_comp_groups(group = c('mangrove_plants', 'seagrasses', 'cycads', 'magnolias', 'conifers', 'cacti'), key = token)
+
+
 ```
 
