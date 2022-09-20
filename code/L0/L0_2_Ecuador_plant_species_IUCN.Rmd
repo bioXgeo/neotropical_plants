@@ -23,17 +23,24 @@ for (package in c("httr", "jsonlite", "rredlist", "dplyr")) {
   }
 }
 ```
-
+# Set up token and api url
 ```{r}
 ## Token for accessing IUCN data through their API
 ## User must obtain a token (https://apiv3.iucnredlist.org/api/v3/token) before using the 'rredlist package'.
 token <- 'f632af67ee5eef8446a8cb0ca394e1f1cb369ca5eab626edc4ea46e5698deb25'
 api_url <- 'https://apiv3.iucnredlist.org/api/v3/'
 
+```
+
+# Ecuador species list
+```{r}
 #Ecuador
 ecuador_species <- rl_sp_country("EC", key = token, parse = TRUE)
 ecuador_species <- ecuador_species$result[1]
+```
 
+# Plant species list
+```{r}
 # Get codes for the different species groups
 grp_codes <- GET(url = paste0(api_url, 'comp-group/list?token=', token))
 code <-fromJSON(content(grp_codes, as = 'text'), simplifyDataFrame = TRUE, flatten = TRUE)$result
@@ -42,23 +49,43 @@ code <-fromJSON(content(grp_codes, as = 'text'), simplifyDataFrame = TRUE, flatt
 ```{r}
 # Get species list of all plants across all countries
 mangrove_plants <- rl_comp_groups(group = 'mangrove_plants', key = token)
-p1 <- mangrove_plants$result[1]
+p1 <- as.data.frame(mangrove_plants$result)
 seagrasses<- rl_comp_groups(group = 'seagrasses', key = token)
-p2 <- seagrasses$result[1]
+p2 <- as.data.frame(seagrasses$result)
 cycads <- rl_comp_groups(group = 'cycads', key = token)
-p3 <- cycads$result[1]
+p3 <- as.data.frame(cycads$result)
 magnolias <- rl_comp_groups(group = 'magnolias', key = token)
-p4 <- magnolias$result[1]
+p4 <- as.data.frame(magnolias$result)
 confiers <- rl_comp_groups(group = 'conifers', key = token)
-p5 <- confiers$result[1]
+p5 <- as.data.frame(confiers$result)
 cacti <- rl_comp_groups(group = 'cacti', key = token)
-p6 <- cacti$result[1]
+p6 <- as.data.frame(cacti$result)
 
 all_plants <- rbind(p1, p2, p3, p4, p5, p6)
 ```
 
+# Generate Ecuador plant list
 ```{r}
 ecuador_plants <- merge(all_plants, ecuador_species, by="taxonid")
 ecuador_plants_unique <- distinct(ecuador_plants, scientific_name, .keep_all = TRUE)
+```
+
+# Summary of data
+```{r}
+#need better summary info
+summary(ecuador_plants)
+```
+
+# Write data to csv
+```{r}
+ecuador_plants_ICUN <- file.path(output_path,"ecuador_plants_IUCN.csv")
+write.csv(ecuador_plants, ecuador_plants_ICUN)
+```
+
+
+```{r}
+all_habitat_plants <- ecuador_plants %>%
+  rowwise %>%
+  do(rl_habitats(.$taxonid))
 ```
 
