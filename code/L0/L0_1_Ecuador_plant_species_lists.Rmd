@@ -16,7 +16,7 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 
 # Load required packages
 ```{r}
-for (package in c("BIEN", "tidyr")) {
+for (package in c("BIEN", "tidyr", "mde")) {
   if (!require(package, character.only=T, quietly=T)) {
     install.packages(package)
     library(package, character.only=T)
@@ -25,49 +25,43 @@ for (package in c("BIEN", "tidyr")) {
 ```
 
 
-# Pull Ecuador plant species lists from various sources
+# Get data for Ecuador from BIEN database
 
-## BIEN
 ```{r}
-Ecuador_BIEN <- BIEN_occurrence_country("Ecuador")
-Ecuador_BIEN_species_list <- file.path(output_path,"Ecuador_BIEN_species_list.csv") 
-write.csv(Ecuador_BIEN, file = Ecuador_BIEN_species_list)
+# occurrence data
+Ecuador_BIEN_occ <- BIEN_occurrence_country("Ecuador")
+# species list
+Ecuador_BIEN_species_list <- BIEN_list_country(country = "Ecuador")
+# trait data
+Ecuador_BIEN_traits <- BIEN_trait_country("Ecuador")
 ```
 
-
-## Kew Plants of the World Online
+## Data summary
 ```{r}
-library(readxl)
-Ecuador_POWO <- read_excel("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/PlantsOfTheWorldOnline_Ecuador_species.xlsx")
-#won't read in csv version for some reason
+summary(Ecuador_BIEN_occ)
+na_summary(Ecuador_BIEN_occ, exclude_cols = c("date_collected"))
 ```
 
-## GBIF
 ```{r}
-Ecuador_GBIF <- read.csv("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/GBIF_Ecuador_PlantSpeciesList.csv")
+summary(Ecuador_BIEN_species_list)
+na_summary(Ecuador_BIEN_species_list)
 ```
 
-# Combine data
 ```{r}
-species_GBIF <- as.list(Ecuador_GBIF$species)
-species_BIEN <- as.list(Ecuador_BIEN$scrubbed_species_binomial)
-species_POWO <- as.list(Ecuador_POWO$genus)
-genus_POWO <- as.list(Ecuador_POWO$species)
-
-#need to combine species_POWO and genus_POWO
-species_POWO <- as.list(paste(genus_POWO, species_POWO, sep=" "))
-
-#combine all 3 species list together
-all_species <- c(species_BIEN, species_GBIF, species_POWO)
-
-#remove duplicates
-unique_species <- unique(all_species)
-
+summary(Ecuador_BIEN_traits)
+na_summary(Ecuador_BIEN_traits)
 ```
 
-# Output data to csv
+# Write data to csv
 ```{r}
-Ecuador_unique_species_list <- file.path(output_path,"Ecuador_unique_species_list.csv") 
-write.csv(unique_species, file = Ecuador_unique_species_list)
+Ecuador_BIEN_occurrence_path <- file.path(output_path,"Ecuador_BIEN_occurrence.csv") 
+write.csv(Ecuador_BIEN_occ, file = Ecuador_BIEN_occurrence_path)
+
+Ecuador_BIEN_species_list_path <- file.path(output_path, "Ecuador_BIEN_species_list.csv")
+write.csv(Ecuador_BIEN_species_list, file = Ecuador_BIEN_species_list_path)
+
+Ecuador_BIEN_traits_path <- file.path(output_path, "Ecuador_BIEN_traits.csv")
+write.csv(Ecuador_BIEN_traits, file = Ecuador_BIEN_traits_path)
 ```
+
 
