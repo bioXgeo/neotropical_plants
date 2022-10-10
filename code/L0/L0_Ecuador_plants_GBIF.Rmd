@@ -55,4 +55,8 @@ d <- occ_download_get("0065583-220831081235567", path = output_path) %>%
 summary(d)
 na_summary(d, exclude_cols = c("gbifID"))
 ```
-
+# Write data to csv
+```{r}
+Ecuador_GBIF_path <- file.path(output_path,"Ecuador_GBIF_occurences.csv") 
+write.csv(d, file = Ecuador_GBIF_path)
+```
