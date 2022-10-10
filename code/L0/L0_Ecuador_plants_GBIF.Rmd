@@ -18,6 +18,7 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 # Install and load required packages
 ```{r}
 library(rgbif)
+library(mde)
 ```
 
 # Set GBIF User information
@@ -42,5 +43,16 @@ pred("occurrenceStatus","PRESENT"),
 pred_not(pred_in("basisOfRecord",c("FOSSIL_SPECIMEN","LIVING_SPECIMEN"))),
 format = "SIMPLE_CSV"
 )
+```
+# Retrive GBIF download, save file, and load into r
+```{r}
+d <- occ_download_get("0065583-220831081235567", path = output_path) %>%
+  occ_download_import()
+```
+
+# Summary 
+```{r}
+summary(d)
+na_summary(d, exclude_cols = c("gbifID"))
 ```
 
