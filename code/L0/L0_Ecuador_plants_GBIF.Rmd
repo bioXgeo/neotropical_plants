@@ -1,0 +1,46 @@
+---
+title: "Ecuador plant species GBIF"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "None"
+data output: "TBD"
+project: "Frugivoria"
+date: "2022-10-10"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Install and load required packages
+```{r}
+library(rgbif)
+```
+
+# Set GBIF User information
+```{r}
+#only run once
+#install.packages("usethis")
+#usethis::edit_r_environ()
+```
+# Get Taxon Key for Plants
+```{r}
+name_backbone("Plantae")
+```
+
+
+```{r}
+occ_download(
+pred("taxonKey", 6), 
+pred("hasGeospatialIssue", FALSE),
+pred("hasCoordinate", TRUE),
+pred("country","EC"),
+pred("occurrenceStatus","PRESENT"), 
+pred_not(pred_in("basisOfRecord",c("FOSSIL_SPECIMEN","LIVING_SPECIMEN"))),
+format = "SIMPLE_CSV"
+)
+```
+
