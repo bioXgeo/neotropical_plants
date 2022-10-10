@@ -1,9 +1,9 @@
 ---
-title: "Ecuador plant species list"
-authors: "Hazel Anderson"
+title: "Ecuador plant species BIEN data"
+authors: "Hazel J. Anderson"
 collaborators: "None"
-data input: "PlantsOfTheWorldOnline_Ecuador_species.xlsx and GBIF_Ecuador_PlantSpeciesList.csv"
-data output: "Ecuador_unique_species_list.csv"
+data input: "none"
+data output: "Ecuador_BIEN_species_list.csv, Ecuador_BIEN_occurrence.csv, Ecuador_BIEN_traits.csv"
 project: "Frugivoria"
 date: "2022-08-17"
 output: html_document

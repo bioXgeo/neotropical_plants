@@ -1,9 +1,9 @@
 ---
-title: "Ecudor plant species IUCN statuses"
-author: "Hazel Anderson"
+title: "Ecudor plant species IUCN data"
+author: "Hazel J. Anderson"
 collaborators: "None"
-data input: "Ecuador_unique_species_list.csv"
-data output: "TBD"
+data input: "None"
+data output: "Ecuador_IUCN_plant_species.csv, Ecuador_IUCN_plant_occ.csv, Ecuador_IUCN_plant_habitat.csv"
 project: "Frugivoria"
 date: "2022-08-31"
 output: html_document
