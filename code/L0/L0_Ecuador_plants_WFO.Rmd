@@ -1,0 +1,33 @@
+---
+title: "Ecuador plant species WorldFlora"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "TBD"
+data output: "TBD"
+project: "Frugivoria"
+date: "2022-10-11"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(WorldFlora)
+```
+
+
+```{r}
+if(! file.exists(file.path(data_path,'WFO.zip'))){
+ download.file("http://104.198.143.165/files/WFO_Backbone/_WFOCompleteBackbone/WFO_Backbone.zip", dest=file.path(data_path,"WFO.zip"), mode="wb") 
+}
+```
+
+```{r}
+unzip (file.path(data_path,"WFO.zip"), exdir = data_path)
+```
+
