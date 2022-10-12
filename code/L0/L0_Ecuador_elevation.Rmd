@@ -18,19 +18,17 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 
 # Install and load required packages
 ```{r}
-library(elevatr)
-library(sf)
-library(raster)
+library(geodata)
 ```
-# Take location coordinates and convert to sf object
-```{r}
-#x= long, y = lat
-ecuador <- data.frame(x = -79.3666965, y = -1.3397668) %>%
-  st_as_sf(coords = c("x", "y"), crs = 4326)
-```
-
 
 ```{r}
-elevation <- get_elev_raster(ecuador, z = 9)
+ecuador_outline <- gadm(country = "ECU", level=1, path = data_path, version="latest", resolution=1)
+
 ```
 
+
+# Download elevation data for Ecuador
+```{r}
+ecuador <- elevation_30s(country = "ECU", path = data_path)
+ecuador
+```
