@@ -17,9 +17,7 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 
 # Load required packages
 ```{r}
-install.packages("remotes")
-library("remotes")
-install_github("LimaRAF/plantR")
+#remotes::install_github("LimaRAF/plantR")
 library("plantR")
 ```
 
@@ -35,7 +33,7 @@ nrow(gbif_data)
 # Standardize data
 ```{r}
 # Field names
-occs <- formatDwc(gbif_data = gbif_data, drop = TRUE)
+occs <- formatDwc(gbif_data = gbif_data)
 dim(occs)
 ```
 
@@ -54,11 +52,38 @@ occs <- formatTax(occs)
 ```{r}
 # Locality information
 occs <- validateLoc(occs)
+unique(occs$loc.check)
+```
+
+```{r}
 # Geographical coordinates
 occs <- validateCoord(occs)
+unique(occs$geo.check)
+table(occs$cult.check)
+```
+
+
+```{r}
 # Species taxonomy and identification
 occs <- validateTax(occs)
+table(occs$tax.check)/dim(occs)[1]
+```
+
+```{r}
 # Duplicate specimens
+dups <- prepDup(occs, 
+                comb.fields =   list(c("family","col.last.name","col.number","col.loc"),
+     c("family","col.last.name","col.number","col.year")))
+dups <- getDup(dups)
+head(dups[order(dups$dup.ID),],6)
+table(dups$dup.prop)
+occs <- cbind.data.frame(occs, 
+                         dups[,c("dup.ID", "dup.numb", "dup.prop")],
+                         stringsAsFactors = FALSE)
+occs <- mergeDup(occs)
+table(occs$tax.check, occs$tax.check1)
+table(occs$geo.check, occs$geo.check1)
+table(occs$loc.check, occs$loc.check1)
 occs <- validateDup(occs)
 ```
 
@@ -66,9 +91,11 @@ occs <- validateDup(occs)
 ```{r}
 summ <- summaryData(occs)
 flags <- summaryFlags(occs)
+spp.check <- checkList(occs)
 ```
 
 ```{r}
+saveData(occs, by = "family")
 Ecuador_GBIF_path <- file.path(output_path,"Ecuador_GBIF_occurences_plantR.csv") 
 write.csv(d, file = Ecuador_GBIF_path)
 ```
