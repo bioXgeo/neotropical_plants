@@ -16,19 +16,34 @@ data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 ```
 
-# Install and load required packages
+# Load required packages
 ```{r}
 library(geodata)
+library(elevatr)
 ```
 
+
+# Download elevation data for Ecuador using geodata
 ```{r}
+# get outline of Ecuador
 ecuador_outline <- gadm(country = "ECU", level=1, path = data_path, version="latest", resolution=1)
+ecuador_outline
 
+# get elevation data for Ecuador
+ecuador_geodata <- elevation_30s(country = "ECU", path = data_path)
+ecuador_geodata
+
+# look at elevation data
+plot(ecuador_geodata)
+
+#save elevation data to file
+ecuador_geodata_elevation_path <- file.path(output_path,"ecuador_geodata_elevation.RData") 
+save(ecuador_geodata, file = ecuador_geodata_elevation_path)
 ```
 
-
-# Download elevation data for Ecuador
+# Download elevation data for Ecuador using 'elevatr'
 ```{r}
-ecuador <- elevation_30s(country = "ECU", path = data_path)
-ecuador
+#NEED TO CONVERT ecuador_outline to spatial dataframe
+ecuador_outline.df <- as.data.frame(ecuador_outline)
+ecuador_elevatr <- get_elev_raster(ecuador_outline.df, z= 5)
 ```
