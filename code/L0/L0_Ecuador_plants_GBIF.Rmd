@@ -3,7 +3,7 @@ title: "Ecuador plant species GBIF"
 author: "Hazel J. Anderson"
 collaborators: "None"
 data input: "None"
-data output: "TBD"
+data output: "Ecuador_GBIF_occurences.csv"
 project: "Frugivoria"
 date: "2022-10-10"
 output: html_document
@@ -19,6 +19,8 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 ```{r}
 library(rgbif)
 library(mde)
+library(DataExplorer)
+library(summarytools)
 ```
 
 # Set GBIF User information
@@ -53,8 +55,33 @@ d <- occ_download_get("0065583-220831081235567", path = output_path) %>%
 # Summary 
 ```{r}
 summary(d)
+```
+
+```{r}
+# using mde package
 na_summary(d, exclude_cols = c("gbifID"))
 ```
+
+```{r}
+# using DataExplorer package
+plot_str(d)
+introduce(d)
+plot_intro(d)
+plot_missing(d)
+plot_bar(d)
+```
+
+```{r}
+# using summarytools package
+dfSummary(d, 
+          plain.ascii  = FALSE, 
+          style        = "grid", 
+          graph.magnif = 0.75, 
+          valid.col    = FALSE,
+          tmp.img.dir  = "/tmp")
+```
+
+
 # Write data to csv
 ```{r}
 Ecuador_GBIF_path <- file.path(output_path,"Ecuador_GBIF_occurences.csv") 
