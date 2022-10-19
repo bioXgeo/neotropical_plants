@@ -2,8 +2,8 @@
 title: "Ecuador plant species WorldFlora"
 author: "Hazel J. Anderson"
 collaborators: "None"
-data input: "TBD"
-data output: "TBD"
+data input: "None"
+data output: "WFO_Backbone"
 project: "Frugivoria"
 date: "2022-10-11"
 output: html_document
@@ -22,12 +22,10 @@ library(WorldFlora)
 
 
 ```{r}
-if(! file.exists(file.path(data_path,'WFO.zip'))){
- download.file("http://104.198.143.165/files/WFO_Backbone/_WFOCompleteBackbone/WFO_Backbone.zip", dest=file.path(data_path,"WFO.zip"), mode="wb") 
-}
-```
+dir.create(file.path(data_path, "WFO_Backbone"))
+WFO_path <- file.path(data_path, "WFO_Backbone")
+setwd(WFO_path)
+WFO.download()
 
-```{r}
-unzip (file.path(data_path,"WFO.zip"), exdir = data_path)
 ```
 
