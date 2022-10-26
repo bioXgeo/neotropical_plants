@@ -78,30 +78,33 @@ plot_bar(Ecuador_BIEN_traits)
 
 ### using summarytools package
 ```{r}
-dfSummary(Ecuador_BIEN_occ, 
-          plain.ascii  = FALSE, 
-          style        = "grid", 
-          graph.magnif = 0.75, 
-          valid.col    = FALSE,
-          tmp.img.dir  = "/tmp")
+Ecuador_BIEN_occ_summary <- dfSummary(Ecuador_BIEN_occ, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(Ecuador_BIEN_occ_summary, method = "render")
+view(Ecuador_BIEN_occ_summary, file = file.path(output_path,"Ecuador_BIEN_occ_summary.html"))
 ```
 
 ```{r}
-dfSummary(Ecuador_BIEN_species_list, 
-          plain.ascii  = FALSE, 
-          style        = "grid", 
-          graph.magnif = 0.75, 
-          valid.col    = FALSE,
-          tmp.img.dir  = "/tmp")
+Ecuador_BIEN_species_list_summary <- dfSummary(Ecuador_BIEN_species_list, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(Ecuador_BIEN_species_list_summary, method = "render")
+view(Ecuador_BIEN_species_list_summary, file = file.path(output_path,"Ecuador_BIEN_species_list_summary.html"))
 ```
 
 ```{r}
-dfSummary(Ecuador_BIEN_traits, 
-          plain.ascii  = FALSE, 
-          style        = "grid", 
-          graph.magnif = 0.75, 
-          valid.col    = FALSE,
-          tmp.img.dir  = "/tmp")
+Ecuador_BIEN_traits_summary <- dfSummary(Ecuador_BIEN_traits, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(Ecuador_BIEN_traits_summary, method = "render")
+view(Ecuador_BIEN_traits_summary, file = file.path(output_path,"Ecuador_BIEN_traits_summary.html"))
 ```
 
 # Write data to csv
