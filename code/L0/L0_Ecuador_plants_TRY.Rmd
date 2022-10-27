@@ -1,0 +1,12 @@
+---
+title: "Ecuador plant species TRY data"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "None"
+data output: "TBD"
+project: "Frugivoria"
+date: "2022-10-27"
+output: html_document
+---
+
+Public data path "G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/TRY_Ecuador_PublicData_10192020.txt"
