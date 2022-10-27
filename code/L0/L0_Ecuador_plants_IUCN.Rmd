@@ -1,5 +1,5 @@
 ---
-title: "Ecudor plant species IUCN data"
+title: "Ecuador plant species IUCN data"
 author: "Hazel J. Anderson"
 collaborators: "None"
 data input: "None"
