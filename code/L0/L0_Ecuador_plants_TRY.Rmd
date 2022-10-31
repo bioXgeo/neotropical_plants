@@ -9,4 +9,35 @@ date: "2022-10-27"
 output: html_document
 ---
 
-Public data path "G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/TRY_Ecuador_PublicData_10192020.txt"
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(rtry)
+```
+
+# Read in TRY data
+Data was obtained from https://www.try-db.org/TryWeb/Prop0.php 
+```{r}
+data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/TRY_Ecuador_PublicData_10192020.txt")
+```
+# Explore TRY data
+```{r}
+# explore by trait id and trait name
+TRYdata_explore_trait <- rtry_explore(data, TraitID, TraitName)
+TRYdata_explore_trait
+
+# explore by species id, species name, trait id, and trait name
+TRYdata_explore_species <- rtry_explore(data, AccSpeciesID, AccSpeciesName, TraitID, TraitName)
+TRYdata_explore_species
+
+# explore by data id, data name, trait id, and trait name sorted by trait id
+TRYdata_explore_anc <- rtry_explore(data, DataID, DataName, TraitID, TraitName, sortBy = TraitID)
+TRYdata_explore_anc
+```
+
