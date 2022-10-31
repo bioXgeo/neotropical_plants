@@ -16,13 +16,15 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 
 # Install and load required packages
 ```{r}
-for (package in c("httr", "jsonlite", "rredlist", "dplyr", "mde")) {
-  if (!require(package, character.only=T, quietly=T)) {
-    install.packages(package)
-    library(package, character.only=T)
-  }
-}
+library(httr)
+library(jsonlite)
+library(rredlist)
+library(dplyr)
+library(mde)
+library(DataExplorer)
+library(summarytools)
 ```
+
 # Set up token and api url
 ```{r}
 ## Token for accessing IUCN data through their API
