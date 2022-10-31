@@ -79,6 +79,13 @@ dfSummary(d,
           graph.magnif = 0.75, 
           valid.col    = FALSE,
           tmp.img.dir  = "/tmp")
+d_summary <- dfSummary(d, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(d_summary, method = "render")
+view(d_summary, file = file.path(output_path,"Ecuador_GBIF_occurences_summary.html"))
 ```
 
 
