@@ -120,6 +120,61 @@ summary(ecuador_IUCN_plant_habitat)
 na_summary(ecuador_IUCN_plant_habitat)
 ```
 
+### using DataExplorer package
+```{r}
+plot_str(ecuador_plants)
+introduce(ecuador_plants)
+plot_intro(ecuador_plants)
+plot_missing(ecuador_plants)
+plot_bar(ecuador_plants)
+```
+
+```{r}
+plot_str(ecuador_IUCN_plant_occ)
+introduce(ecuador_IUCN_plant_occ)
+plot_intro(ecuador_IUCN_plant_occ)
+plot_missing(ecuador_IUCN_plant_occ)
+plot_bar(ecuador_IUCN_plant_occ)
+```
+
+```{r}
+plot_str(ecuador_IUCN_plant_habitat)
+introduce(ecuador_IUCN_plant_habitat)
+plot_intro(ecuador_IUCN_plant_habitat)
+plot_missing(ecuador_IUCN_plant_habitat)
+plot_bar(ecuador_IUCN_plant_habitat)
+```
+
+### using summarytools package
+```{r}
+ecuador_plants_summary <- dfSummary(ecuador_plants, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(ecuador_plants_summary, method = "render")
+view(ecuador_plants_summary, file = file.path(output_path,"ecuador_plants_summary.html"))
+```
+
+```{r}
+ecuador_IUCN_plant_occ_summary <- dfSummary(ecuador_IUCN_plant_occ, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(ecuador_IUCN_plant_occ_summary, method = "render")
+view(ecuador_IUCN_plant_occ_summary, file = file.path(output_path,"ecuador_IUCN_plant_occ_summary.html"))
+```
+
+```{r}
+ecuador_IUCN_plant_habitat_summary <- dfSummary(ecuador_IUCN_plant_habitat, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(ecuador_IUCN_plant_habitat_summary, method = "render")
+view(ecuador_IUCN_plant_habitat_summary, file = file.path(output_path,"ecuador_IUCN_plant_habitat_summary.html"))
+```
 
 # Write data to csv
 ```{r}
