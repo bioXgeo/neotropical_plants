@@ -17,21 +17,116 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 
 # Load required packages
 ```{r}
-library(taxize)
-library(taxList)
+library(bdc)
 ```
 
 # Read in BIEN data
 ```{r}
 Ecuador_BIEN_occurrence <- read.csv(file.path(data_path,"Ecuador_BIEN_occurrence.csv"))
-
 Ecuador_BIEN_species_list <- read.csv(file.path(data_path, "Ecuador_BIEN_species_list.csv"))
-
 Ecuador_BIEN_traits_path <- read.csv(file.path(data_path, "Ecuador_BIEN_traits.csv"))
 ```
 
+# Pre-filter
+```{r}
+# Flag records missing species names
+check_pf <-
+  bdc_scientificName_empty(
+  data = Ecuador_BIEN_occ,
+  sci_name = "scrubbed_species_binomial")
+```
 
 ```{r}
+# Flag records missing partial or complete information on geographic coordinates
+check_pf <- bdc_coordinates_empty(
+  data = check_pf,
+  lat = "latitude",
+  lon = "longitude")
+```
 
+```{r}
+# Flag records with out-of-range coordinates: latitude > 90 or -90; longitude >180 or -180
+check_pf <- bdc_coordinates_outOfRange(
+  data = check_pf,
+  lat = "latitude",
+  lon = "longitude")
+
+```
+```{r}
+# Deriving country names for records missing country names
+check_pf <- bdc_country_from_coordinates(
+  data = check_pf,
+  lat = "latitude",
+  lon = "longitude",
+  country = "country")
+```
+
+```{r}
+# Country names are standardized against a list of country names in several languages retrieved from Wikipedia
+check_pf <- bdc_country_standardized(
+  data = check_pf,
+  country = "country"
+)
+```
+
+```{r}
+# Correcting latitude and longitude transposed
+check_pf <-
+  bdc_coordinates_transposed(
+    data = check_pf,
+    id = "database_id",
+    sci_names = "scrubbed_species_binomial",
+    lat = "decimalLatitude",
+    lon = "decimalLongitude",
+    country = "country_suggested",
+    countryCode = "countryCode",
+    border_buffer = 0.2, # in decimal degrees (~22 km at the equator)
+    save_outputs = FALSE
+  )
+```
+
+```{r}
+# Records outside one or multiple reference countries
+check_pf <-
+  bdc_coordinates_country_inconsistent(
+    data = check_pf,
+    country_name = "Ecuador",
+    country = "country_suggested",
+    lon = "longitude",
+    lat = "latitude",
+    dist = 0.1 # in decimal degrees (~11 km at the equator)
+  )
+```
+
+```{r}
+# Report
+check_pf <- bdc_summary_col(data = check_pf)
+report <-
+  bdc_create_report(data = check_pf,
+                    database_id = "database_id",
+                    workflow_step = "prefilter",
+                    save_report = FALSE)
+report
+```
+
+```{r}
+# Figures
+figures <-
+bdc_create_figures(data = check_pf,
+                   database_id = "database_id",
+                   workflow_step = "prefilter",
+                   save_figures = FALSE)
+
+# Check figures using
+figures$.coordinates_country_inconsistent
+
+```
+
+```{r}
+# Filter out flags
+output <-
+  check_pf %>%
+  dplyr::filter(.summary == TRUE) %>%
+  bdc_filter_out_flags(data = ., col_to_remove = "all")
 ```
 
