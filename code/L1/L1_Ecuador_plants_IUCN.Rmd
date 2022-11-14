@@ -1,0 +1,57 @@
+---
+title: "Ecuador plant species IUCN Cleaning"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "Ecuador_IUCN_plant_occ.csv, Ecuador_IUCN_plant_species.csv"
+data output: "TBD"
+project: "Frugivoria"
+date: "2022-11-14"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Load required packages
+```{r}
+library(WorldFlora)
+library(taxize)
+```
+
+# Read in IUCN occurrence data
+```{r}
+iucn_occ <- read.csv(file.path(data_path,"Ecuador_IUCN_plant_occ.csv"))
+iucn_names <- read.csv(file.path(data_path, "Ecuador_IUCN_plant_species.csv"))
+iucn_data <- merge(iucn_names, iucn_occ, by = "taxonid")
+iucn_data$X.x <- NULL
+iucn_data$X.y <- NULL
+```
+
+# Read in World Flora Backbone
+```{r}
+WFO.backbone <- read.delim(file.path(data_path,"WFO_Backbone/classification.txt"))
+```
+
+# Prepare IUCN data for analysis with WFO.match
+```{r}
+iucn_data.prepare <- WFO.prepare(spec.data = iucn_data, spec.full = "scientific_name", verbose = TRUE)
+```
+
+# Standarize plant names according to the World Flora Online taxonimic backbone
+```{r}
+iucn_data.standard <- WFO.match(spec.data = iucn_data.prepare, WFO.data = WFO.backbone, spec.name = "scientific_name", counter = TRUE)
+```
+
+# Resolve IUCN data taxonomic names with taxize
+```{r}
+iucn_data.resolved <- gnr_resolve(iucn_data$scientific_name)
+```
+
+# Merge resolved and standardized data
+```{r}
+
+```
+
