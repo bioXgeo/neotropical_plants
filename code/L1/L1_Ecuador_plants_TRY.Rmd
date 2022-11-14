@@ -1,0 +1,33 @@
+---
+title: "Ecuador plant trait TRY Cleaning"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "Ecuador_TRY_plant_traits.csv"
+data output: "TBD"
+project: "Frugivoria"
+date: "2022-11-14"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Load required packages
+```{r}
+library(rtry)
+```
+
+# Read in IUCN occurrence data
+```{r}
+try_data <- read.csv(file.path(data_path,"Ecuador_TRY_plant_traits.csv"))
+```
+
+# Explore data
+```{r}
+TRYdata_explore_trait <- rtry_explore(try_data, TraitID, TraitName)
+View(TRYdata_explore_trait)
+```
+
