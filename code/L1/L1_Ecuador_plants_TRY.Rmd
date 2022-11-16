@@ -25,9 +25,32 @@ library(rtry)
 try_data <- read.csv(file.path(data_path,"Ecuador_TRY_plant_traits.csv"))
 ```
 
-# Explore data
+# Transform to wide table
 ```{r}
-TRYdata_explore_trait <- rtry_explore(try_data, TraitID, TraitName)
-View(TRYdata_explore_trait)
+#-------------------------------------------------
+# Exclude
+# 1. All entries with "" in TraitID
+# 2. Potential categorical traits that don't have a StdValue
+# 3. Traits that have not yet been standardized in TRY
+# Then select the relevant columns for transformation
+# Note: The complete.cases() is used to ensure the cases are complete,
+#       i.e. have no missing values
+#-------------------------------------------------
+num_traits <- rtry_select_row(try_data, complete.cases(TraitID) & complete.cases(StdValue))
+num_traits <- rtry_select_col(num_traits, ObservationID, AccSpeciesID, AccSpeciesName, TraitID, TraitName, StdValue, UnitName)
+# Extract the unique value of latitude (DataID 59) and the corresponding ObservationID
+workdata_lat <- rtry_select_anc(try_data, 59)
+
+# Extract the unique value of longitude (DataID 60) and the corresponding ObservationID
+workdata_lon <- rtry_select_anc(try_data, 60)
+
+# To merge the extracted ancillary data with the numerical traits
+# Merge the relevant data frames based on the ObservationID using rtry_join_left (left join)
+num_traits_georef <- rtry_join_left(num_traits, workdata_lat, baseOn = ObservationID)
+num_traits_georef <- rtry_join_left(num_traits_georef, workdata_lon, baseOn = ObservationID)
+
+# Perform wide table transformation on TraitID, TraitName and UnitName
+# With cell values to be the mean values calculated for StdValue
+num_traits_georef_wider <- rtry_trans_wider(num_traits_georef, names_from = c(TraitID, TraitName, UnitName), values_from = c(StdValue), values_fn = list(StdValue = mean))
 ```
 
