@@ -28,17 +28,17 @@ library(summarytools)
 
 ```{r}
 # occurrence data
-Ecuador_BIEN_occ <- BIEN_occurrence_country("Ecuador")
+Ecuador_BIEN_occ <- BIEN_occurrence_country("Ecuador", all.taxonomy = TRUE, observation.type = TRUE, collection.info = TRUE)
 # species list
 Ecuador_BIEN_species_list <- BIEN_list_country(country = "Ecuador")
 # trait data
-Ecuador_BIEN_traits <- BIEN_trait_country("Ecuador")
+Ecuador_BIEN_traits <- BIEN_trait_country("Ecuador", all.taxonomy = TRUE)
 ```
 
 ## Data summary
 ```{r}
 summary(Ecuador_BIEN_occ)
-na_summary(Ecuador_BIEN_occ, exclude_cols = c("date_collected"))
+na_summary(Ecuador_BIEN_occ, exclude_cols = c("date_collected", "date_identified"))
 ```
 
 ```{r}
@@ -56,16 +56,14 @@ na_summary(Ecuador_BIEN_traits)
 plot_str(Ecuador_BIEN_occ)
 introduce(Ecuador_BIEN_occ)
 plot_intro(Ecuador_BIEN_occ)
-plot_missing(Ecuador_BIEN_occ)
-plot_bar(Ecuador_BIEN_occ)
+#plot_missing(Ecuador_BIEN_occ)
+#plot_bar(Ecuador_BIEN_occ)
 ```
 
 ```{r}
 plot_str(Ecuador_BIEN_species_list)
 introduce(Ecuador_BIEN_species_list)
 plot_intro(Ecuador_BIEN_species_list)
-plot_missing(Ecuador_BIEN_species_list)
-plot_bar(Ecuador_BIEN_species_list)
 ```
 
 ```{r}
