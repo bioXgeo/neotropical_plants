@@ -20,10 +20,20 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 library(rtry)
 ```
 
-# Read in IUCN occurrence data
+# Import TRY data
 ```{r}
 try_data <- read.csv(file.path(data_path,"Ecuador_TRY_plant_traits.csv"))
 ```
+
+```{r}
+rtry_explore(try_data, DataID, DataName, TraitID, TraitName, sortBy = TraitID)
+```
+
+```{r}
+# Remove duplicates
+workdata <- rtry_remove_dup(try_data)
+```
+
 
 # Transform to wide table
 ```{r}
@@ -36,7 +46,7 @@ try_data <- read.csv(file.path(data_path,"Ecuador_TRY_plant_traits.csv"))
 # Note: The complete.cases() is used to ensure the cases are complete,
 #       i.e. have no missing values
 #-------------------------------------------------
-num_traits <- rtry_select_row(try_data, complete.cases(TraitID) & complete.cases(StdValue))
+num_traits <- rtry_select_row(workdata, complete.cases(TraitID) & complete.cases(StdValue))
 num_traits <- rtry_select_col(num_traits, ObservationID, AccSpeciesID, AccSpeciesName, TraitID, TraitName, StdValue, UnitName)
 # Extract the unique value of latitude (DataID 59) and the corresponding ObservationID
 workdata_lat <- rtry_select_anc(try_data, 59)
@@ -52,5 +62,12 @@ num_traits_georef <- rtry_join_left(num_traits_georef, workdata_lon, baseOn = Ob
 # Perform wide table transformation on TraitID, TraitName and UnitName
 # With cell values to be the mean values calculated for StdValue
 num_traits_georef_wider <- rtry_trans_wider(num_traits_georef, names_from = c(TraitID, TraitName, UnitName), values_from = c(StdValue), values_fn = list(StdValue = mean))
+```
+
+# Export preprocessed TRY data
+```{r}
+# Export the data into a CSV file
+ecuador_TRY_plant_traits_path <- file.path(output_path,"Ecuador_TRY_plant_traits.csv")
+write.csv(num_traits_georef_wider, file = ecuador_TRY_plant_traits_path)
 ```
 
