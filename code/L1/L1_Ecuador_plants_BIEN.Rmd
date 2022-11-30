@@ -32,7 +32,7 @@ Ecuador_BIEN_traits_path <- read.csv(file.path(data_path, "Ecuador_BIEN_traits.c
 # Flag records missing species names
 check_pf <-
   bdc_scientificName_empty(
-  data = Ecuador_BIEN_occ,
+  data = Ecuador_BIEN_occurrence,
   sci_name = "scrubbed_species_binomial")
 ```
 
