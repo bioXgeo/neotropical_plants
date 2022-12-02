@@ -64,7 +64,7 @@ num_traits_georef <- rtry_join_left(num_traits_georef, workdata_lon, baseOn = Ob
 num_traits_georef_wider <- rtry_trans_wider(num_traits_georef, names_from = c(TraitID, TraitName, UnitName), values_from = c(StdValue), values_fn = list(StdValue = mean))
 ```
 
-# Export preprocessed TRY data
+# Export TRY data
 ```{r}
 # Export the data into a CSV file
 ecuador_TRY_plant_traits_path <- file.path(output_path,"Ecuador_TRY_plant_traits.csv")
