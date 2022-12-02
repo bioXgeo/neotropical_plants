@@ -1,9 +1,9 @@
 ---
-title: "Ecuador plant species BIEN occurrence cleaning"
+title: "Ecuador plant species BIEN trait cleaning"
 author: "Hazel J. Anderson"
 collaborators: "None"
-data input: "Ecuador_BIEN_occurrence.csv"
-data output: "Ecuador_BIEN_plant_occ_cleaned.csv", "Ecuador_BIEN_plant_occ_unresolved.csv"
+data input: "Ecuador_BIEN_traits.csv"
+data output: "TBD"
 project: "Frugivoria"
 date: "2022-10-10"
 output: html_document
@@ -21,12 +21,13 @@ library(bdc)
 library(bdDwC)
 ```
 
-# Read in BIEN occ data
+# Read in BIEN trait data
 ```{r}
-database <- read.csv(file.path(data_path,"Ecuador_BIEN_occurrence.csv"))
+database <- read.csv(file.path(data_path, "Ecuador_BIEN_traits.csv"))
 ```
 
-# Configure BIEN data to Darwin Core Standards
+
+# Configure BIEN trait data to Darwin Core Standards
 ```{r}
 # darwinizing a dataset
 config <- read.csv(file.path(output_path,"configuration table.csv"))
@@ -366,8 +367,9 @@ output <-
 # Save output data to csv
 ```{r}
 # Export the data into a CSV file
-ecuador_BIEN_plant_occ_cleaned_path <- file.path(output_path,"Ecuador_BIEN_plant_occ_cleaned.csv")
-write.csv(output, file = ecuador_BIEN_plant_occ_cleaned_path)
-ecuador_BIEN_plant_occ_unresolved_path <- file.path(output_path,"Ecuador_BIEN_plant_occ_unresolved.csv")
-write.csv(unresolved_names, file = ecuador_BIEN_plant_occ_unresolved_path)
+ecuador_BIEN_plant_traits_cleaned_path <- file.path(output_path,"Ecuador_BIEN_plant_traits_cleaned.csv")
+write.csv(output, file = ecuador_BIEN_plant_traits_cleaned_path)
+ecuador_BIEN_plant_traits_unresolved_path <- file.path(output_path,"Ecuador_BIEN_plant_traits_unresolved.csv")
+write.csv(unresolved_names, file = ecuador_BIEN_plant_traits_unresolved_path)
 ```
+
