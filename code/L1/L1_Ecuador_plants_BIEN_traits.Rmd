@@ -30,7 +30,7 @@ database <- read.csv(file.path(data_path, "Ecuador_BIEN_traits.csv"))
 # Configure BIEN trait data to Darwin Core Standards
 ```{r}
 # darwinizing a dataset
-config <- read.csv(file.path(output_path,"configuration table.csv"))
+config <- read.csv(file.path(output_path,"Ecuador_plant_BIEN_trait_ConfigurationTable.csv"))
 
 # rename dataset fields
 database <- renameUserData(database, config)
