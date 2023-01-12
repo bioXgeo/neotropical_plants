@@ -21,6 +21,7 @@ library(tidyr)
 library(mde)
 library(DataExplorer)
 library(summarytools)
+library(bdvis)
 ```
 
 
@@ -56,8 +57,6 @@ na_summary(Ecuador_BIEN_traits)
 plot_str(Ecuador_BIEN_occ)
 introduce(Ecuador_BIEN_occ)
 plot_intro(Ecuador_BIEN_occ)
-#plot_missing(Ecuador_BIEN_occ)
-#plot_bar(Ecuador_BIEN_occ)
 ```
 
 ```{r}
@@ -104,6 +103,21 @@ Ecuador_BIEN_traits_summary <- dfSummary(Ecuador_BIEN_traits,
 print(Ecuador_BIEN_traits_summary, method = "render")
 view(Ecuador_BIEN_traits_summary, file = file.path(output_path,"Ecuador_BIEN_traits_summary.html"))
 ```
+```{r}
+#using bdvis package
+Ecuador_BIEN_occ <- format_bdvis(Ecuador_BIEN_occ, Latitude = "latitude", Longitude = "longitude", Date_collected = "date_collected", Scientific_name = "verbatim_scientific_name")
+bdsummary(Ecuador_BIEN_occ)
+```
+```{r}
+bdcalendarheat(Ecuador_BIEN_occ)
+bdcomplete(Ecuador_BIEN_occ)
+distrigraph(Ecuador_BIEN_occ, ptype = "species")
+distrigraph(Ecuador_BIEN_occ, ptype = "efforts")
+distrigraph(Ecuador_BIEN_occ, ptype = "cell")
+distrigraph(Ecuador_BIEN_occ, ptype = "effortspecies")
+mapgrid(Ecuador_BIEN_occ, ptype = "species", region = "Ecuador")
+```
+
 
 # Write data to csv
 ```{r}
