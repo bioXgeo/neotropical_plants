@@ -30,13 +30,14 @@ try_data <- read.csv(file.path(data_path,"Ecuador_TRY_plant_traits.csv"))
 # Configure TRY data to Darwin Core Standards
 ```{r}
 # darwinizing a dataset
-config <- read.csv(file.path(output_path,"Ecuador_plant_TRY_trait_ConfigurationTable"))
+config <- read.csv(file.path(output_path,"Ecuador_plant_TRY_trait_ConfigurationTable.csv"))
 
 # rename dataset fields
 database <- renameUserData(database, config)
 ```
 
 # Pre-filter
+Modified from https://brunobrr.github.io/bdc/articles/prefilter.html
 ```{r}
 # Flag records missing species names
 check_pf <-
@@ -156,6 +157,7 @@ database <-
 
 
 # Flagging common time issues
+Modified from https://brunobrr.github.io/bdc/articles/time.html
 ```{r}
 check_time <-
   bdc_eventDate_empty(data = database, eventDate = "verbatimEventDate")
@@ -207,6 +209,7 @@ database <-
 
 
 # Flagging common spatial issues
+Modified from https://brunobrr.github.io/bdc/articles/space.html
 ```{r}
 check_space <-
   bdc_coordinates_precision(
@@ -303,6 +306,7 @@ database <-
 ```
 
 # Clean and parse species names
+Modified from https://brunobrr.github.io/bdc/articles/taxonomy.html
 ```{r}
 parse_names <-
   bdc_clean_names(sci_names = database$scientificName, save_outputs = FALSE)
@@ -375,6 +379,7 @@ workdata <- rtry_remove_dup(try_data)
 
 
 # Transform to wide table
+Modified from https://cran.r-project.org/web/packages/rtry/vignettes/rtry-workflow-general.html
 ```{r}
 #-------------------------------------------------
 # Exclude
