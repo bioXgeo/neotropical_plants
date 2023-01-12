@@ -1,0 +1,29 @@
+---
+title: "Ecuador plant species GIFT data"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "None"
+data output: "TBD"
+project: "Frugivoria"
+date: "2023-01-12"
+output: html_document
+---
+
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+remotes::install_github("https://github.com/BioGeoMacro/GIFT",
+dependencies = TRUE)
+library(GIFT)
+library(mde)
+library(DataExplorer)
+library(summarytools)
+```
+
+# Get data for Ecuador from GIFT database
