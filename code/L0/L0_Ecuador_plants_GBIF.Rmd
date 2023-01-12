@@ -21,6 +21,7 @@ library(rgbif)
 library(mde)
 library(DataExplorer)
 library(summarytools)
+library(bdvis)
 ```
 
 # Set GBIF User information
@@ -73,19 +74,30 @@ plot_bar(d)
 
 ```{r}
 # using summarytools package
-dfSummary(d, 
-          plain.ascii  = FALSE, 
-          style        = "grid", 
-          graph.magnif = 0.75, 
-          valid.col    = FALSE,
-          tmp.img.dir  = "/tmp")
 d_summary <- dfSummary(d, 
             na.col       = FALSE,
             style        = "multiline",
             plain.ascii  = TRUE,
             graph.magnif = .8)
 print(d_summary, method = "render")
-view(d_summary, file = file.path(output_path,"Ecuador_GBIF_occurences_summary.html"))
+view(d_summary, file = file.path(output_path,"Ecuador_BIEN_traits_summary.html"))
+```
+
+```{r}
+#using bdvis package
+d <- format_bdvis(d, , Latitude = "Latitude", Longitude = "Longitude", Date_collected = "Date_collected", Scientific_name = "scientificName")
+bdsummary(d)
+d$Date_collected <- as.Date(d$Date_collected)
+bdcalendarheat(d)
+chronohorogram(d)
+getcellid(d, gridscale = 10)
+distrigraph(d, ptype = "species")
+distrigraph(d, ptype = "efforts")
+distrigraph(d, ptype = "cell")
+distrigraph(d, ptype = "effortspecies")
+tempolar(d, timescale = "m")
+bdcomplete(d)
+mapgrid(d, ptype = "species", region = "Ecuador")
 ```
 
 
