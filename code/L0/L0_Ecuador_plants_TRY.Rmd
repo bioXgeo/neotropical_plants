@@ -3,7 +3,7 @@ title: "Ecuador plant species TRY data"
 author: "Hazel J. Anderson"
 collaborators: "None"
 data input: "None"
-data output: "TBD"
+data output: "Ecuador_TRY_plant_traits.csv"
 project: "Frugivoria"
 date: "2022-10-27"
 output: html_document
@@ -67,7 +67,7 @@ ecuador_TRY_plant_traits_summary <- dfSummary(data,
             plain.ascii  = TRUE,
             graph.magnif = .8)
 print(ecuador_TRY_plant_traits_summary, method = "render")
-view(ecuador_TRY_plant_traits_summary, file = file.path(output_path,"ecuador_TRY_plant_traits_summary.html"))
+view(ecuador_TRY_plant_traits_summary, file = file.path(output_path,"Ecuador_TRY_summary.html"))
 # gives the following error: Error in withCallingHandlers(expr, warning = function(w) if (inherits(w, : 
 #   invalid multibyte string at '<b0>45''
 ```
