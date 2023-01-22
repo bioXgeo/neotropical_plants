@@ -49,7 +49,7 @@ format = "SIMPLE_CSV"
 ```
 # Retrive GBIF download, save file, and load into r
 ```{r}
-d <- occ_download_get("0065583-220831081235567", path = output_path) %>%
+d <- occ_download_get("0253091-220831081235567", path = output_path) %>%
   occ_download_import()
 ```
 
@@ -85,17 +85,18 @@ view(d_summary, file = file.path(output_path,"Ecuador_BIEN_traits_summary.html")
 
 ```{r}
 #using bdvis package
-d <- format_bdvis(d, , Latitude = "Latitude", Longitude = "Longitude", Date_collected = "Date_collected", Scientific_name = "scientificName")
+d <- format_bdvis(d, , Latitude = "decimalLatitude", Longitude = "decimalLongitude", Date_collected = "eventDate", Scientific_name = "scientificName", Family = "family", Genus = "genus")
+```
+
+```{r}
 bdsummary(d)
 d$Date_collected <- as.Date(d$Date_collected)
 bdcalendarheat(d)
-chronohorogram(d)
 getcellid(d, gridscale = 10)
 distrigraph(d, ptype = "species")
 distrigraph(d, ptype = "efforts")
 distrigraph(d, ptype = "cell")
 distrigraph(d, ptype = "effortspecies")
-tempolar(d, timescale = "m")
 bdcomplete(d)
 mapgrid(d, ptype = "species", region = "Ecuador")
 ```
