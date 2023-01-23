@@ -74,31 +74,34 @@ plot_bar(d)
 
 ```{r}
 # using summarytools package
-d_summary <- dfSummary(d, 
-            na.col       = FALSE,
-            style        = "multiline",
-            plain.ascii  = TRUE,
-            graph.magnif = .8)
-print(d_summary, method = "render")
-view(d_summary, file = file.path(output_path,"Ecuador_BIEN_traits_summary.html"))
+# ERROR -- Error in hist.default(data, breaks = breaks_x, plot = FALSE) :
+# some 'x' not counted; maybe 'breaks' do not span range of 'x'
+#d_summary <- dfSummary(d, 
+#            na.col       = FALSE,
+#            style        = "multiline",
+#            plain.ascii  = TRUE,
+#            graph.magnif = .8)
+#print(d_summary, method = "render")
+#view(d_summary, file = file.path(output_path,"Ecuador_BIEN_traits_summary.html"))
 ```
 
 ```{r}
 #using bdvis package
-d <- format_bdvis(d, , Latitude = "decimalLatitude", Longitude = "decimalLongitude", Date_collected = "eventDate", Scientific_name = "scientificName", Family = "family", Genus = "genus")
+d <- format_bdvis(d, Latitude = "decimalLatitude", Longitude = "decimalLongitude", Date_collected = "eventDate", Scientific_name = "scientificName", Family = "family", Genus = "genus")
+bdsummary(d)
 ```
 
 ```{r}
-bdsummary(d)
-d$Date_collected <- as.Date(d$Date_collected)
-bdcalendarheat(d)
-getcellid(d, gridscale = 10)
-distrigraph(d, ptype = "species")
-distrigraph(d, ptype = "efforts")
-distrigraph(d, ptype = "cell")
-distrigraph(d, ptype = "effortspecies")
-bdcomplete(d)
-mapgrid(d, ptype = "species", region = "Ecuador")
+## ERROR - Error in !dbPreExists : invalid argument type
+## ERROR - Error in postgresqlNewConnection(drv, ...) :
+# RPosgreSQL error: could not connect postgres@localhost:5432 on dbname "test": could not connect to server: Connection refused (0x0000274D/10061)
+#bdcalendarheat(d)
+#distrigraph(d, ptype = "species")
+#distrigraph(d, ptype = "efforts")
+#distrigraph(d, ptype = "cell")
+#distrigraph(d, ptype = "effortspecies")
+#bdcomplete(d)
+#mapgrid(d, ptype = "species", region = "Ecuador")
 ```
 
 
