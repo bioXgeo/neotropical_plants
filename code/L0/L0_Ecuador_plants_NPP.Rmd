@@ -1,0 +1,74 @@
+---
+title: "Ecuador plant species Neotropical Plant Portal data"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "None"
+data output: "Ecuador_NPP_plant_occ.csv"
+project: "Frugivoria"
+date: "2023-1-23"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(DataExplorer)
+library(summarytools)
+library(bdvis)
+```
+
+# Read in Neotropical Plant Portal data
+Data was obtained from https://serv.biokic.asu.edu/neotrop/plantae/collections/map/index.php?clid=1&cltype=vouchers&taxonfilter=&db=all&type=1&reset=1
+```{r}
+npp_data <- read.csv(file.path(data_path,"NeotropicalPlantPortal_SymbOutput_2022-11-28_084151_DwC-A/occurrences.csv"))
+```
+
+# Summary of data
+```{r}
+summary(npp_data)
+```
+
+### using DataExplorer package
+```{r}
+plot_str(npp_data)
+introduce(npp_data)
+plot_intro(npp_data)
+plot_missing(npp_data)
+```
+
+### using summarytools package
+```{r}
+ecuador_NPP_plant_occ_summary <- dfSummary(npp_data, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(ecuador_NPP_plant_occ_summary, method = "render")
+view(ecuador_NPP_plant_occ_summary, file = file.path(output_path,"Ecuador_NPP_summary.html"))
+```
+
+```{r}
+#using bdvis package
+d <- format_bdvis(npp_data, , Latitude = "decimalLatitude", Longitude = "decimalLongitude", Date_collected = "eventDate", Scientific_name = "scientificName")
+bdsummary(d)
+
+bdcalendarheat(d)
+getcellid(d, gridscale = 10)
+distrigraph(d, ptype = "species")
+distrigraph(d, ptype = "efforts")
+distrigraph(d, ptype = "cell")
+distrigraph(d, ptype = "effortspecies")
+bdcomplete(d)
+mapgrid(d, ptype = "species", region = "Ecuador")
+```
+
+# Write data to csv
+```{r}
+ecuador_npp_path <- file.path(output_path,"Ecuador_NPP_plant_occ.csv")
+write.csv(npp_data, file = ecuador_npp_path)
+```
