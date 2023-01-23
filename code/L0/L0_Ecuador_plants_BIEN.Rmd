@@ -18,21 +18,22 @@ output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 ```{r}
 library(BIEN)
 library(tidyr)
-library(mde)
+library(dplyr)
 library(DataExplorer)
 library(summarytools)
 library(bdvis)
+library(visdat)
 ```
 
 
 # Get data for Ecuador from BIEN database
 ```{r}
 # occurrence data
-Ecuador_BIEN_occ <- BIEN_occurrence_country("Ecuador", all.taxonomy = TRUE, observation.type = TRUE, collection.info = TRUE)
+Ecuador_BIEN_occ <- BIEN_occurrence_country("Ecuador", all.taxonomy = TRUE, observation.type = TRUE, collection.info = TRUE, political.boundaries = TRUE, native.status = TRUE)
 # species list
 Ecuador_BIEN_species_list <- BIEN_list_country(country = "Ecuador")
 # trait data
-Ecuador_BIEN_traits <- BIEN_trait_country("Ecuador", all.taxonomy = TRUE)
+Ecuador_BIEN_traits <- BIEN_trait_country("Ecuador", all.taxonomy = TRUE, political.boundaries = TRUE, source.citation = TRUE)
 ```
 
 ```{r}
@@ -43,17 +44,26 @@ Ecuador_BIEN_occ <- subset (Ecuador_BIEN_occ, select = -date_collected)
 ## Data summary
 ```{r}
 summary(Ecuador_BIEN_occ)
-na_summary(Ecuador_BIEN_occ, exclude_cols = c("date_collected", "date_identified"))
 ```
 
 ```{r}
 summary(Ecuador_BIEN_species_list)
-na_summary(Ecuador_BIEN_species_list)
 ```
 
 ```{r}
 summary(Ecuador_BIEN_traits)
-na_summary(Ecuador_BIEN_traits)
+```
+
+```{r}
+glimpse(Ecuador_BIEN_occ)
+```
+
+```{r}
+glimpse(Ecuador_BIEN_species_list)
+```
+
+```{r}
+glimpse(Ecuador_BIEN_traits)
 ```
 
 ### using DataExplorer package
@@ -61,6 +71,8 @@ na_summary(Ecuador_BIEN_traits)
 plot_str(Ecuador_BIEN_occ)
 introduce(Ecuador_BIEN_occ)
 plot_intro(Ecuador_BIEN_occ)
+plot_missing(Ecuador_BIEN_occ)
+plot_bar(Ecuador_BIEN_occ)
 ```
 
 ```{r}
@@ -73,6 +85,7 @@ plot_intro(Ecuador_BIEN_species_list)
 plot_str(Ecuador_BIEN_traits)
 introduce(Ecuador_BIEN_traits)
 plot_intro(Ecuador_BIEN_traits)
+plot_missing(Ecuador_BIEN_traits)
 plot_bar(Ecuador_BIEN_traits)
 ```
 
@@ -124,6 +137,23 @@ bdsummary(Ecuador_BIEN_occ)
 #mapgrid(Ecuador_BIEN_occ, ptype = "species", region = "Ecuador")
 ```
 
+```{r}
+#using visdat package
+vis_dat(Ecuador_BIEN_occ, warn_large_data = FALSE)
+vis_miss(Ecuador_BIEN_occ, warn_large_data = FALSE)
+Ecuador_BIEN_occ %>%
+  select_if(is.numeric)%>%
+  vis_cor(warn_large_data = FALSE)
+```
+
+```{r}
+#using visdat package
+vis_dat(Ecuador_BIEN_traits, warn_large_data = FALSE)
+vis_miss(Ecuador_BIEN_traits, warn_large_data = FALSE)
+Ecuador_BIEN_traits %>%
+  select_if(is.numeric)%>%
+  vis_cor(warn_large_data = FALSE)
+```
 
 # Write data to csv
 ```{r}
