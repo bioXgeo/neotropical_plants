@@ -1,11 +1,11 @@
 ---
-title: "Ecuador plant species BIEN data"
+title: "Northern Andes plant species BIEN data"
 authors: "Hazel J. Anderson"
 collaborators: "None"
 data input: "none"
-data output: "Ecuador_BIEN_species_list.csv, Ecuador_BIEN_occurrence.csv, Ecuador_BIEN_traits.csv"
+data output: "NorthAndes_BIEN_species_list.csv, NorthAndes_BIEN_occurrence.csv, NorthAndes_BIEN_traits.csv"
 project: "Frugivoria"
-date: "2022-08-17"
+date: "2023-02-13"
 output: html_document
 ---
 # Set file paths
@@ -41,130 +41,155 @@ Ecuador_BIEN_traits <- BIEN_trait_country("Ecuador", all.taxonomy = TRUE, politi
 Ecuador_BIEN_occ <- subset (Ecuador_BIEN_occ, select = -date_collected)
 ```
 
-## Data summary
+# Get data for Venezuela from BIEN database
 ```{r}
-summary(Ecuador_BIEN_occ)
+# occurrence data
+Venezuela_BIEN_occ <- BIEN_occurrence_country("Venezuela", all.taxonomy = TRUE, observation.type = TRUE, collection.info = TRUE, political.boundaries = TRUE, native.status = TRUE)
+# species list
+Venezuela_BIEN_species_list <- BIEN_list_country(country = "Venezuela")
+# trait data
+Venezuela_BIEN_traits <- BIEN_trait_country("Venezuela", all.taxonomy = TRUE, political.boundaries = TRUE, source.citation = TRUE)
 ```
 
 ```{r}
-summary(Ecuador_BIEN_species_list)
+#remove duplicate data_collected column from Ecuador_BIEN_occ
+Venezuela_BIEN_occ <- subset (Venezuela_BIEN_occ, select = -date_collected)
+```
+
+# Get data for Colombia from BIEN database
+```{r}
+# occurrence data
+Colombia_BIEN_occ <- BIEN_occurrence_country("Colombia", all.taxonomy = TRUE, observation.type = TRUE, collection.info = TRUE, political.boundaries = TRUE, native.status = TRUE)
+# species list
+Colombia_BIEN_species_list <- BIEN_list_country(country = "Colombia")
+# trait data
+Colombia_BIEN_traits <- BIEN_trait_country("Colombia", all.taxonomy = TRUE, political.boundaries = TRUE, source.citation = TRUE)
 ```
 
 ```{r}
-summary(Ecuador_BIEN_traits)
+#remove duplicate data_collected column from Ecuador_BIEN_occ
+Colombia_BIEN_occ <- subset (Colombia_BIEN_occ, select = -date_collected)
+```
+
+# Combine BIEN data for Ecuador, Colombia, and Venezuela
+```{r}
+NorthAndes_BIEN_occ <- rbind(Ecuador_BIEN_occ, Venezuela_BIEN_occ, Colombia_BIEN_occ)
+NorthAndes_BIEN_species_list <- rbind(Ecuador_BIEN_species_list, Venezuela_BIEN_species_list, Colombia_BIEN_species_list)
+NorthAndes_BIEN_traits <- rbind(Ecuador_BIEN_traits, Venezuela_BIEN_traits, Colombia_BIEN_traits)
+```
+
+
+# Data summary
+```{r}
+glimpse(NorthAndes_BIEN_occ)
 ```
 
 ```{r}
-glimpse(Ecuador_BIEN_occ)
+glimpse(NorthAndes_BIEN_species_list)
 ```
 
 ```{r}
-glimpse(Ecuador_BIEN_species_list)
-```
-
-```{r}
-glimpse(Ecuador_BIEN_traits)
+glimpse(NorthAndes_BIEN_traits)
 ```
 
 ### using DataExplorer package
 ```{r}
-plot_str(Ecuador_BIEN_occ)
-introduce(Ecuador_BIEN_occ)
-plot_intro(Ecuador_BIEN_occ)
-plot_missing(Ecuador_BIEN_occ)
-plot_bar(Ecuador_BIEN_occ)
+plot_str(NorthAndes_BIEN_occ)
+introduce(NorthAndes_BIEN_occ)
+plot_intro(NorthAndes_BIEN_occ)
+plot_missing(NorthAndes_BIEN_occ)
+plot_bar(NorthAndes_BIEN_occ)
 ```
 
 ```{r}
-plot_str(Ecuador_BIEN_species_list)
-introduce(Ecuador_BIEN_species_list)
-plot_intro(Ecuador_BIEN_species_list)
+plot_str(NorthAndes_BIEN_species_list)
+introduce(NorthAndes_BIEN_species_list)
+plot_intro(NorthAndes_BIEN_species_list)
 ```
 
 ```{r}
-plot_str(Ecuador_BIEN_traits)
-introduce(Ecuador_BIEN_traits)
-plot_intro(Ecuador_BIEN_traits)
-plot_missing(Ecuador_BIEN_traits)
-plot_bar(Ecuador_BIEN_traits)
+plot_str(NorthAndes_BIEN_traits)
+introduce(NorthAndes_BIEN_traits)
+plot_intro(NorthAndes_BIEN_traits)
+plot_missing(NorthAndes_BIEN_traits)
+plot_bar(NorthAndes_BIEN_traits)
 ```
 
 ```{r}
 # using summarytools package
-Ecuador_BIEN_occ_summary <- dfSummary(Ecuador_BIEN_occ, 
+NorthAndes_BIEN_occ_summary <- dfSummary(NorthAndes_BIEN_occ, 
             na.col       = FALSE,
             style        = "multiline",
             plain.ascii  = TRUE,
             graph.magnif = .8)
-print(Ecuador_BIEN_occ_summary, method = "render")
-view(Ecuador_BIEN_occ_summary, file = file.path(output_path,"Ecuador_BIEN_occ_summary.html"))
+print(NorthAndes_BIEN_occ_summary, method = "render")
+view(NorthAndes_BIEN_occ_summary, file = file.path(output_path,"NorthAndes_BIEN_occ_summary.html"))
 ```
 
 ```{r}
-Ecuador_BIEN_species_list_summary <- dfSummary(Ecuador_BIEN_species_list, 
+NorthAndes_BIEN_species_list_summary <- dfSummary(NorthAndes_BIEN_species_list, 
             na.col       = FALSE,
             style        = "multiline",
             plain.ascii  = TRUE,
             graph.magnif = .8)
-print(Ecuador_BIEN_species_list_summary, method = "render")
-view(Ecuador_BIEN_species_list_summary, file = file.path(output_path,"Ecuador_BIEN_species_list_summary.html"))
+print(NorthAndes_BIEN_species_list_summary, method = "render")
+view(NorthAndes_BIEN_species_list_summary, file = file.path(output_path,"NorthAndes_BIEN_species_list_summary.html"))
 ```
 
 ```{r}
-Ecuador_BIEN_traits_summary <- dfSummary(Ecuador_BIEN_traits, 
+NorthAndes_BIEN_traits_summary <- dfSummary(NorthAndes_BIEN_traits, 
             na.col       = FALSE,
             style        = "multiline",
             plain.ascii  = TRUE,
             graph.magnif = .8)
-print(Ecuador_BIEN_traits_summary, method = "render")
-view(Ecuador_BIEN_traits_summary, file = file.path(output_path,"Ecuador_BIEN_traits_summary.html"))
+print(NorthAndes_BIEN_traits_summary, method = "render")
+view(NorthAndes_BIEN_traits_summary, file = file.path(output_path,"NorthAndes_BIEN_traits_summary.html"))
 ```
 ```{r}
 #using bdvis package
-Ecuador_BIEN_occ <- format_bdvis(Ecuador_BIEN_occ, Latitude = "latitude", Longitude = "longitude", Date_collected = "date_collected", Scientific_name = "verbatim_scientific_name")
-bdsummary(Ecuador_BIEN_occ)
+NorthAndes_BIEN_occ_vis <- format_bdvis(NorthAndes_BIEN_occ, Latitude = "latitude", Longitude = "longitude", Date_collected = "date_collected", Scientific_name = "verbatim_scientific_name")
+bdsummary(NorthAndes_BIEN_occ_vis)
 ```
 ```{r}
 ## ERROR - Error in !dbPreExists : invalid argument type
 ## ERROR - Error in postgresqlNewConnection(drv, ...) :
 # RPosgreSQL error: could not connect postgres@localhost:5432 on dbname "test": could not connect to  server: Connection refused (0x0000274D/10061)
-#bdcalendarheat(Ecuador_BIEN_occ)
-#bdcomplete(Ecuador_BIEN_occ)
-#distrigraph(Ecuador_BIEN_occ, ptype = "species")
-#distrigraph(Ecuador_BIEN_occ, ptype = "efforts")
-#distrigraph(Ecuador_BIEN_occ, ptype = "cell")
-#distrigraph(Ecuador_BIEN_occ, ptype = "effortspecies")
-#mapgrid(Ecuador_BIEN_occ, ptype = "species", region = "Ecuador")
+
+#bdcomplete(NorthAndes_BIEN_occ_vis)
+#distrigraph(NorthAndes_BIEN_occ_vis, ptype = "species")
+#distrigraph(NorthAndes_BIEN_occ_vis, ptype = "efforts")
+#distrigraph(NorthAndes_BIEN_occ_vis, ptype = "cell")
+#distrigraph(NorthAndes_BIEN_occ_vis, ptype = "effortspecies")
 ```
 
 ```{r}
 #using visdat package
-vis_dat(Ecuador_BIEN_occ, warn_large_data = FALSE)
-vis_miss(Ecuador_BIEN_occ, warn_large_data = FALSE)
-Ecuador_BIEN_occ %>%
+vis_dat(NorthAndes_BIEN_occ, warn_large_data = FALSE)
+vis_miss(NorthAndes_BIEN_occ, warn_large_data = FALSE)
+NorthAndes_BIEN_occ %>%
   select_if(is.numeric)%>%
   vis_cor(warn_large_data = FALSE)
 ```
 
 ```{r}
 #using visdat package
-vis_dat(Ecuador_BIEN_traits, warn_large_data = FALSE)
-vis_miss(Ecuador_BIEN_traits, warn_large_data = FALSE)
-Ecuador_BIEN_traits %>%
+vis_dat(NorthAndes_BIEN_traits, warn_large_data = FALSE)
+vis_miss(NorthAndes_BIEN_traits, warn_large_data = FALSE)
+NorthAndes_BIEN_traits %>%
   select_if(is.numeric)%>%
   vis_cor(warn_large_data = FALSE)
 ```
 
 # Write data to csv
 ```{r}
-Ecuador_BIEN_occurrence_path <- file.path(output_path,"Ecuador_BIEN_occurrence.csv") 
-write.csv(Ecuador_BIEN_occ, file = Ecuador_BIEN_occurrence_path)
+NorthAndes_BIEN_occurrence_path <- file.path(output_path,"NorthAndes_BIEN_occurrence.csv") 
+write.csv(NorthAndes_BIEN_occ, file = NorthAndes_BIEN_occurrence_path)
 
-Ecuador_BIEN_species_list_path <- file.path(output_path, "Ecuador_BIEN_species_list.csv")
-write.csv(Ecuador_BIEN_species_list, file = Ecuador_BIEN_species_list_path)
+NorthAndes_BIEN_species_list_path <- file.path(output_path, "NorthAndes_BIEN_species_list.csv")
+write.csv(NorthAndes_BIEN_species_list, file = NorthAndes_BIEN_species_list_path)
 
-Ecuador_BIEN_traits_path <- file.path(output_path, "Ecuador_BIEN_traits.csv")
-write.csv(Ecuador_BIEN_traits, file = Ecuador_BIEN_traits_path)
+NorthAndes_BIEN_traits_path <- file.path(output_path, "NorthAndes_BIEN_traits.csv")
+write.csv(NorthAndes_BIEN_traits, file = NorthAndes_BIEN_traits_path)
 ```
 
 
