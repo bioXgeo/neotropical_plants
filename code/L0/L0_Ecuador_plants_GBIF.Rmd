@@ -1,11 +1,11 @@
 ---
-title: "Ecuador plant species GBIF"
+title: "Northern Andes plant species GBIF"
 author: "Hazel J. Anderson"
 collaborators: "None"
 data input: "None"
-data output: "Ecuador_GBIF_occurences.csv"
+data output: "NorthAndes_GBIF_occurences.csv"
 project: "Frugivoria"
-date: "2022-10-10"
+date: "2023-02-13"
 output: html_document
 ---
 
@@ -18,10 +18,10 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 # Install and load required packages
 ```{r}
 library(rgbif)
-library(mde)
 library(DataExplorer)
 library(summarytools)
 library(bdvis)
+library(visdat)
 ```
 
 # Set GBIF User information
@@ -41,26 +41,20 @@ occ_download(
 pred("taxonKey", 6), 
 pred("hasGeospatialIssue", FALSE),
 pred("hasCoordinate", TRUE),
-pred("country","EC"),
-pred("occurrenceStatus","PRESENT"), 
+pred_in("country",c("EC","CO","VE")), 
 pred_not(pred_in("basisOfRecord",c("FOSSIL_SPECIMEN","LIVING_SPECIMEN"))),
 format = "SIMPLE_CSV"
 )
 ```
 # Retrive GBIF download, save file, and load into r
 ```{r}
-d <- occ_download_get("0253091-220831081235567", path = output_path) %>%
+d <- occ_download_get("0282867-220831081235567", path = output_path) %>%
   occ_download_import()
 ```
 
 # Summary 
 ```{r}
-summary(d)
-```
-
-```{r}
-# using mde package
-na_summary(d, exclude_cols = c("gbifID"))
+glimpse(d)
 ```
 
 ```{r}
@@ -87,26 +81,33 @@ plot_bar(d)
 
 ```{r}
 #using bdvis package
-d <- format_bdvis(d, Latitude = "decimalLatitude", Longitude = "decimalLongitude", Date_collected = "eventDate", Scientific_name = "scientificName", Family = "family", Genus = "genus")
-bdsummary(d)
+d_vis <- format_bdvis(d, Latitude = "decimalLatitude", Longitude = "decimalLongitude", Date_collected = "eventDate", Scientific_name = "scientificName", Family = "family", Genus = "genus")
+bdsummary(d_vis)
 ```
 
 ```{r}
 ## ERROR - Error in !dbPreExists : invalid argument type
 ## ERROR - Error in postgresqlNewConnection(drv, ...) :
 # RPosgreSQL error: could not connect postgres@localhost:5432 on dbname "test": could not connect to server: Connection refused (0x0000274D/10061)
-#bdcalendarheat(d)
-#distrigraph(d, ptype = "species")
-#distrigraph(d, ptype = "efforts")
-#distrigraph(d, ptype = "cell")
-#distrigraph(d, ptype = "effortspecies")
-#bdcomplete(d)
-#mapgrid(d, ptype = "species", region = "Ecuador")
+#bdcalendarheat(d_vis)
+#distrigraph(d_vis, ptype = "species")
+#distrigraph(d_vis, ptype = "efforts")
+#distrigraph(d_vis, ptype = "cell")
+#distrigraph(d_vis, ptype = "effortspecies")
+#bdcomplete(d_vis)
 ```
 
+```{r}
+#using visdat package
+vis_dat(d, warn_large_data = FALSE)
+vis_miss(d, warn_large_data = FALSE)
+d %>%
+  select_if(is.numeric)%>%
+  vis_cor(warn_large_data = FALSE)
+```
 
 # Write data to csv
 ```{r}
-Ecuador_GBIF_path <- file.path(output_path,"Ecuador_GBIF_occurences.csv") 
-write.csv(d, file = Ecuador_GBIF_path)
+NorthAndes_GBIF_path <- file.path(output_path,"NorthAndes_GBIF_occurences.csv") 
+write.csv(d, file = NorthAndes_GBIF_path)
 ```
