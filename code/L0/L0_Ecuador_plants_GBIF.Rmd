@@ -22,6 +22,7 @@ library(DataExplorer)
 library(summarytools)
 library(bdvis)
 library(visdat)
+library(dplyr)
 ```
 
 # Set GBIF User information
