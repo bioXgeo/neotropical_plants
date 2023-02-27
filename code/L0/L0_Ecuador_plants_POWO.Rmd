@@ -19,16 +19,19 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 ```{r}
 library(kewr)
 library(dplyr)
+library(DataExplorer)
+library(summarytools)
 ```
 
 # Search Plants of the World Online [https://powo.science.kew.org/] for species in Ecuador
 ## Best to break up request into smaller chunks so R handle it without timing out
 ```{r}
-Ecuador_POWO_page1 <- search_powo(list(distribution="Ecuador"), limit = 5000)
+Ecuador_POWO_page1 <- search_powo(list(distribution="Ecuador"), limit = 4000)
 Ecuador_POWO_page2 <- request_next(Ecuador_POWO_page1)
 Ecuador_POWO_page3 <- request_next(Ecuador_POWO_page2)
 Ecuador_POWO_page4 <- request_next(Ecuador_POWO_page3)
 Ecuador_POWO_page5 <- request_next(Ecuador_POWO_page4)
+Ecuador_POWO_page6 <- request_next(Ecuador_POWO_page5)
 ```
 
 # Combine pages
@@ -38,7 +41,8 @@ Ecuador_POWO <- bind_rows(
   tidy(Ecuador_POWO_page2),
   tidy(Ecuador_POWO_page3),
   tidy(Ecuador_POWO_page4),
-  tidy(Ecuador_POWO_page5)
+  tidy(Ecuador_POWO_page5),
+  tidy(Ecuador_POWO_page6)
 )
 ```
 
@@ -47,6 +51,27 @@ Ecuador_POWO <- bind_rows(
 summary(Ecuador_POWO)
 na_summary(Ecuador_POWO, exclude_cols = c("accepted", "url", "images"))
 ```
+
+```{r}
+# using DataExplorer package
+plot_str(Ecuador_POWO)
+introduce(Ecuador_POWO)
+plot_intro(Ecuador_POWO)
+plot_missing(Ecuador_POWO)
+plot_bar(Ecuador_POWO)
+```
+
+```{r}
+# using summarytools package
+Ecuador_POWO_summary <- dfSummary(Ecuador_POWO, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(Ecuador_POWO_summary, method = "render")
+view(Ecuador_POWO_summary, file = file.path(output_path,"Ecuador_POWO_summary.html"))
+```
+
 
 # Write data to csv
 ```{r}
