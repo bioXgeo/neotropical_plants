@@ -1,11 +1,11 @@
 ---
-title: "Ecuador plant species IUCN data"
+title: "Northern Andes plant species IUCN data"
 author: "Hazel J. Anderson"
 collaborators: "None"
 data input: "None"
-data output: "Ecuador_IUCN_plant_species.csv, Ecuador_IUCN_plant_occ.csv, Ecuador_IUCN_plant_habitat.csv"
+data output: "NorthAndes_IUCN_plant_species.csv, NorthAndes_IUCN_plant_occ.csv, NorthAndes_IUCN_plant_habitat.csv"
 project: "Frugivoria"
-date: "2022-08-31"
+date: "2023-02-27"
 output: html_document
 ---
 # Set file paths
@@ -34,11 +34,20 @@ api_url <- 'https://apiv3.iucnredlist.org/api/v3/'
 
 ```
 
-# Ecuador species list
+# North Andes species list
 ```{r}
 #Ecuador
 ecuador_species <- rl_sp_country("EC", key = token, parse = TRUE)
 ecuador_species <- ecuador_species$result[1]
+#Colombia
+colombia_species <- rl_sp_country("CO", key = token, parse = TRUE)
+colombia_species <- colombia_species$result[1]
+#Venezuela
+venezuela_species <- rl_sp_country("VE", key = token, parse = TRUE)
+venezuela_species <- venezuela_species$result[1]
+
+#combine all 3
+northAndes_species <- rbind(ecuador_species, colombia_species, venezuela_species)
 ```
 
 # Plant species list
@@ -66,12 +75,12 @@ p6 <- as.data.frame(cacti$result)
 all_plants <- rbind(p1, p2, p3, p4, p5, p6)
 ```
 
-# Generate Ecuador plant species list
+# Generate Northern Andes plant species list
 ```{r}
-ecuador_plants <- merge(all_plants, ecuador_species, by="taxonid")
+northAndes_plants <- merge(all_plants, northAndes_species, by="taxonid")
 ```
 
-# Get occurences for Ecuador using species list
+# Get occurences for Northern Andes using species list
 ```{r}
 get_occ <- function(ID) {
   rl_occ_country<- rl_occ_country(id=ID,key=token)$result
@@ -81,10 +90,10 @@ get_occ <- function(ID) {
     data.frame(taxonid=ID)
   }
 }
-ecuador_IUCN_plant_occ <- ecuador_plants %>%
+northAndes_IUCN_plant_occ <- northAndes_plants %>%
   rowwise %>%
   do(get_occ(.$taxonid))
-ecuador_IUCN_plant_occ <- as.data.frame(ecuador_IUCN_plant_occ)
+northAndes_IUCN_plant_occ <- as.data.frame(northAndes_IUCN_plant_occ)
 ```
 
 # Get habitat for species list
@@ -97,95 +106,95 @@ get_habitat <- function(ID) {
     data.frame(taxonid=ID)
   }
 }
-ecuador_IUCN_plant_habitat <- ecuador_plants %>%
+northAndes_IUCN_plant_habitat <- northAndes_plants %>%
   rowwise %>%
   do(get_habitat(.$taxonid))
-ecuador_IUCN_plant_habitat <- as.data.frame(ecuador_IUCN_plant_habitat)
+northAndes_IUCN_plant_habitat <- as.data.frame(northAndes_IUCN_plant_habitat)
 ```
 
 
 # Summary of data
 ```{r}
-summary(ecuador_plants)
-na_summary(ecuador_plants, exclude_cols = c("subpopulation"))
+summary(northAndes_plants)
+na_summary(northAndes_plants, exclude_cols = c("subpopulation"))
 ```
 
 ```{r}
-summary(ecuador_IUCN_plant_occ)
-na_summary(ecuador_IUCN_plant_occ)
+summary(northAndes_IUCN_plant_occ)
+na_summary(northAndes_IUCN_plant_occ)
 ```
 
 ```{r}
-summary(ecuador_IUCN_plant_habitat)
-na_summary(ecuador_IUCN_plant_habitat)
+summary(northAndes_IUCN_plant_habitat)
+na_summary(northAndes_IUCN_plant_habitat)
 ```
 
 ### using DataExplorer package
 ```{r}
-plot_str(ecuador_plants)
-introduce(ecuador_plants)
-plot_intro(ecuador_plants)
-plot_missing(ecuador_plants)
-plot_bar(ecuador_plants)
+plot_str(northAndes_plants)
+introduce(northAndes_plants)
+plot_intro(northAndes_plants)
+plot_missing(northAndes_plants)
+plot_bar(northAndes_plants)
 ```
 
 ```{r}
-plot_str(ecuador_IUCN_plant_occ)
-introduce(ecuador_IUCN_plant_occ)
-plot_intro(ecuador_IUCN_plant_occ)
-plot_missing(ecuador_IUCN_plant_occ)
-plot_bar(ecuador_IUCN_plant_occ)
+plot_str(northAndes_IUCN_plant_occ)
+introduce(northAndes_IUCN_plant_occ)
+plot_intro(northAndes_IUCN_plant_occ)
+plot_missing(northAndes_IUCN_plant_occ)
+plot_bar(northAndes_IUCN_plant_occ)
 ```
 
 ```{r}
-plot_str(ecuador_IUCN_plant_habitat)
-introduce(ecuador_IUCN_plant_habitat)
-plot_intro(ecuador_IUCN_plant_habitat)
-plot_missing(ecuador_IUCN_plant_habitat)
-plot_bar(ecuador_IUCN_plant_habitat)
+plot_str(northAndes_IUCN_plant_habitat)
+introduce(northAndes_IUCN_plant_habitat)
+plot_intro(northAndes_IUCN_plant_habitat)
+plot_missing(northAndes_IUCN_plant_habitat)
+plot_bar(northAndes_IUCN_plant_habitat)
 ```
 
 ### using summarytools package
 ```{r}
-ecuador_plants_summary <- dfSummary(ecuador_plants, 
+northAndes_plants_summary <- dfSummary(northAndes_plants, 
             na.col       = FALSE,
             style        = "multiline",
             plain.ascii  = TRUE,
             graph.magnif = .8)
-print(ecuador_plants_summary, method = "render")
-view(ecuador_plants_summary, file = file.path(output_path,"ecuador_plants_summary.html"))
+print(northAndes_plants_summary, method = "render")
+view(northAndes_plants_summary, file = file.path(output_path,"northAndes_plants_summary.html"))
 ```
 
 ```{r}
-ecuador_IUCN_plant_occ_summary <- dfSummary(ecuador_IUCN_plant_occ, 
+northAndes_IUCN_plant_occ_summary <- dfSummary(northAndes_IUCN_plant_occ, 
             na.col       = FALSE,
             style        = "multiline",
             plain.ascii  = TRUE,
             graph.magnif = .8)
-print(ecuador_IUCN_plant_occ_summary, method = "render")
-view(ecuador_IUCN_plant_occ_summary, file = file.path(output_path,"ecuador_IUCN_plant_occ_summary.html"))
+print(northAndes_IUCN_plant_occ_summary, method = "render")
+view(northAndes_IUCN_plant_occ_summary, file = file.path(output_path,"northAndes_IUCN_plant_occ_summary.html"))
 ```
 
 ```{r}
-ecuador_IUCN_plant_habitat_summary <- dfSummary(ecuador_IUCN_plant_habitat, 
+northAndes_IUCN_plant_habitat_summary <- dfSummary(northAndes_IUCN_plant_habitat, 
             na.col       = FALSE,
             style        = "multiline",
             plain.ascii  = TRUE,
             graph.magnif = .8)
-print(ecuador_IUCN_plant_habitat_summary, method = "render")
-view(ecuador_IUCN_plant_habitat_summary, file = file.path(output_path,"ecuador_IUCN_plant_habitat_summary.html"))
+print(northAndes_IUCN_plant_habitat_summary, method = "render")
+view(northAndes_IUCN_plant_habitat_summary, file = file.path(output_path,"northAndes_IUCN_plant_habitat_summary.html"))
 ```
 
 # Write data to csv
 ```{r}
-ecuador_ICUN_species_list_path <- file.path(output_path,"Ecuador_IUCN_plant_species.csv")
-write.csv(ecuador_plants, file = ecuador_ICUN_species_list_path)
+northAndes_ICUN_species_list_path <- file.path(output_path,"northAndes_IUCN_plant_species.csv")
+write.csv(northAndes_plants, file = northAndes_ICUN_species_list_path)
 
-ecuador_IUCN_plant_occ_path <- file.path(output_path, "Ecuador_IUCN_plant_occ.csv")
-write.csv(ecuador_IUCN_plant_occ, file = ecuador_IUCN_plant_occ_path)
+northAndes_IUCN_plant_occ_path <- file.path(output_path, "northAndes_IUCN_plant_occ.csv")
+write.csv(northAndes_IUCN_plant_occ, file = northAndes_IUCN_plant_occ_path)
 
-ecuador_IUCN_plant_habitat_path <- file.path(output_path, "Ecuador_IUCN_plant_habitat.csv")
-write.csv(ecuador_IUCN_plant_habitat, file = ecuador_IUCN_plant_habitat_path)
+northAndes_IUCN_plant_habitat_path <- file.path(output_path, "northAndes_IUCN_plant_habitat.csv")
+write.csv(northAndes_IUCN_plant_habitat, file = northAndes_IUCN_plant_habitat_path)
 ```
 
 
