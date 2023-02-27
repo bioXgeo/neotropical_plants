@@ -24,6 +24,7 @@ library(bdvis)
 ```
 
 # Read in the configuration table
+Using bdc package; modified from https://brunobrr.github.io/bdc/articles/integrate_datasets.html
 ```{r}
 metadata <-
   readr::read_csv(file.path(data_path, "occ_metadata.csv"),
@@ -31,7 +32,7 @@ metadata <-
 ```
 
 # Read in BIEN, GBIF, and IUCN occurrence data
-
+Using bdc package; modified from https://brunobrr.github.io/bdc/articles/integrate_datasets.html
 ```{r}
 database <-
 bdc_standardize_datasets(metadata = metadata,
