@@ -3,7 +3,7 @@ title: "Northern Andes plant species IUCN data"
 author: "Hazel J. Anderson"
 collaborators: "None"
 data input: "None"
-data output: "NorthAndes_IUCN_plant_species.csv, NorthAndes_IUCN_plant_occ.csv, NorthAndes_IUCN_plant_habitat.csv"
+data output: "NorthAndes_IUCN_plant_species.csv, NorthAndes_IUCN_plant_occ.csv"
 project: "Frugivoria"
 date: "2023-02-27"
 output: html_document
@@ -16,100 +16,37 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 
 # Install and load required packages
 ```{r}
-library(httr)
-library(jsonlite)
-library(rredlist)
 library(dplyr)
 library(mde)
 library(DataExplorer)
 library(summarytools)
 ```
 
-# Set up token and api url
+# Read in IUCN data
+Data was obtained from https://www.iucnredlist.org/search?dl=true&permalink=bd0e6db7-6fb0-4ad3-ad6c-63da82cc0999
 ```{r}
-## Token for accessing IUCN data through their API
-## User must obtain a token (https://apiv3.iucnredlist.org/api/v3/token) before using the 'rredlist package'.
-token <- 'f632af67ee5eef8446a8cb0ca394e1f1cb369ca5eab626edc4ea46e5698deb25'
-api_url <- 'https://apiv3.iucnredlist.org/api/v3/'
-
+assessments <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/assessments.csv"))
+common_names <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/common_names.csv"))
+conservation_needed <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/conservation_needed.csv"))
+countries <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/countries.csv"))
+credits <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/credits.csv"))
+dois <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/dois.csv"))
+fao <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/fao.csv"))
+habitats <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/habitats.csv"))
+plant_specific <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/plant_specific.csv"))
+references <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/references.csv"))
+research_needed <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/research_needed.csv"))
+simple_summary <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/simple_summary.csv"))
+synonyms <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/synonyms.csv"))
+taxonomy <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/taxonomy.csv"))
+threats <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/threats.csv"))
+usetrade <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/usetrade.csv"))
+points_data <- read.csv(file.path(data_path,"IUCN/Northern Andes 3 - Range data Points/points_data.csv"))
 ```
 
-# North Andes species list
+the different tables joined using the "internalTaxonId" when viewing taxon information, or the "assessmentID" field to see assessment information, especially in cases where downloads include multiple assesments for a taxon (e.g. regional and global assessments).
 ```{r}
-#Ecuador
-ecuador_species <- rl_sp_country("EC", key = token, parse = TRUE)
-ecuador_species <- ecuador_species$result[1]
-#Colombia
-colombia_species <- rl_sp_country("CO", key = token, parse = TRUE)
-colombia_species <- colombia_species$result[1]
-#Venezuela
-venezuela_species <- rl_sp_country("VE", key = token, parse = TRUE)
-venezuela_species <- venezuela_species$result[1]
 
-#combine all 3
-northAndes_species <- rbind(ecuador_species, colombia_species, venezuela_species)
-```
-
-# Plant species list
-```{r}
-# Get codes for the different species groups
-grp_codes <- GET(url = paste0(api_url, 'comp-group/list?token=', token))
-code <-fromJSON(content(grp_codes, as = 'text'), simplifyDataFrame = TRUE, flatten = TRUE)$result
-```
-
-```{r}
-# Get species list of all plants across all countries
-mangrove_plants <- rl_comp_groups(group = 'mangrove_plants', key = token)
-p1 <- as.data.frame(mangrove_plants$result)
-seagrasses<- rl_comp_groups(group = 'seagrasses', key = token)
-p2 <- as.data.frame(seagrasses$result)
-cycads <- rl_comp_groups(group = 'cycads', key = token)
-p3 <- as.data.frame(cycads$result)
-magnolias <- rl_comp_groups(group = 'magnolias', key = token)
-p4 <- as.data.frame(magnolias$result)
-confiers <- rl_comp_groups(group = 'conifers', key = token)
-p5 <- as.data.frame(confiers$result)
-cacti <- rl_comp_groups(group = 'cacti', key = token)
-p6 <- as.data.frame(cacti$result)
-
-all_plants <- rbind(p1, p2, p3, p4, p5, p6)
-```
-
-# Generate Northern Andes plant species list
-```{r}
-northAndes_plants <- merge(all_plants, northAndes_species, by="taxonid")
-```
-
-# Get occurences for Northern Andes using species list
-```{r}
-get_occ <- function(ID) {
-  rl_occ_country<- rl_occ_country(id=ID,key=token)$result
-  if (class(rl_occ_country) == 'data.frame') {
-    data.frame(taxonid=ID, rl_occ_country)
-  } else {
-    data.frame(taxonid=ID)
-  }
-}
-northAndes_IUCN_plant_occ <- northAndes_plants %>%
-  rowwise %>%
-  do(get_occ(.$taxonid))
-northAndes_IUCN_plant_occ <- as.data.frame(northAndes_IUCN_plant_occ)
-```
-
-# Get habitat for species list
-```{r}
-get_habitat <- function(ID) {
-  habitat_by_sp<- rl_habitats(id=ID,key=token)$result
-  if (class(habitat_by_sp) == 'data.frame') {
-    data.frame(taxonid=ID, habitat_by_sp)
-  } else {
-    data.frame(taxonid=ID)
-  }
-}
-northAndes_IUCN_plant_habitat <- northAndes_plants %>%
-  rowwise %>%
-  do(get_habitat(.$taxonid))
-northAndes_IUCN_plant_habitat <- as.data.frame(northAndes_IUCN_plant_habitat)
 ```
 
 
