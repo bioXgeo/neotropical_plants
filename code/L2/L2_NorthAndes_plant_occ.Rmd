@@ -1,0 +1,81 @@
+---
+title: "Ecuador plant occurrence data merging"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "TBD"
+data output: "TBD"
+project: "Frugivoria"
+date: "2022-11-30"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
+```
+
+# Load required packages
+```{r}
+library(bdc)
+library(DataExplorer)
+library(summarytools)
+library(bdvis)
+```
+
+# Read in the configuration table
+Using bdc package; modified from https://brunobrr.github.io/bdc/articles/integrate_datasets.html
+```{r}
+metadata <-
+  readr::read_csv(file.path(data_path, "occ_metadata.csv"),
+                  show_col_types = FALSE)
+```
+
+# Read in BIEN, GBIF, and IUCN occurrence data
+Using bdc package; modified from https://brunobrr.github.io/bdc/articles/integrate_datasets.html
+```{r}
+database <-
+bdc_standardize_datasets(metadata = metadata,
+                         format = "csv",
+                         overwrite = TRUE,
+                         save_database = FALSE)
+```
+
+# Summary of data
+```{r}
+summary(database)
+```
+
+### using DataExplorer package
+```{r}
+plot_str(database)
+introduce(database)
+plot_intro(database)
+plot_missing(database)
+```
+
+### using summarytools package
+```{r}
+database_summary <- dfSummary(database, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(database_summary, method = "render")
+view(database_summary, file = file.path(output_path,"database_summary.html"))
+```
+
+```{r}
+#using bdvis package
+d <- format_bdvis(d, , Latitude = "Latitude", Longitude = "Longitude", Date_collected = "Date_collected", Scientific_name = "AccSpeciesName")
+bdsummary(d)
+d$Date_collected <- as.Date(d$Date_collected)
+bdcalendarheat(d)
+getcellid(d, gridscale = 10)
+distrigraph(d, ptype = "species")
+distrigraph(d, ptype = "efforts")
+distrigraph(d, ptype = "cell")
+distrigraph(d, ptype = "effortspecies")
+bdcomplete(d)
+mapgrid(d, ptype = "species", region = "Ecuador")
+```

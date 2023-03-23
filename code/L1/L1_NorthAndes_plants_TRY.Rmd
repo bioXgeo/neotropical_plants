@@ -1,0 +1,417 @@
+---
+title: "Ecuador plant trait TRY Cleaning"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "Ecuador_TRY_plant_traits.csv"
+data output: "TBD"
+project: "Frugivoria"
+date: "2022-11-14"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Load required packages
+```{r}
+library(rtry)
+library(bdc)
+library(bdDwC)
+```
+
+# Import TRY data
+```{r}
+try_data <- read.csv(file.path(data_path,"Ecuador_TRY_plant_traits.csv"))
+```
+
+# Configure TRY data to Darwin Core Standards
+```{r}
+# darwinizing a dataset
+config <- read.csv(file.path(output_path,"Ecuador_plant_TRY_trait_ConfigurationTable.csv"))
+
+# rename dataset fields
+database <- renameUserData(database, config)
+```
+
+# Pre-filter
+Modified from https://brunobrr.github.io/bdc/articles/prefilter.html
+```{r}
+# Flag records missing species names
+check_pf <-
+  bdc_scientificName_empty(
+  data = database,
+  sci_name = "scientificName")
+```
+
+```{r}
+# Flag records missing partial or complete information on geographic coordinates
+check_pf <- bdc_coordinates_empty(
+  data = check_pf,
+  lat = "decimalLatitude",
+  lon = "decimalLongitude")
+```
+
+```{r}
+# Flag records with out-of-range coordinates: latitude > 90 or -90; longitude >180 or -180
+check_pf <- bdc_coordinates_outOfRange(
+  data = check_pf,
+  lat = "decimalLatitude",
+  lon = "decimalLongitude")
+
+```
+
+```{r}
+# Check record sources of your dataset using:
+check_pf %>%
+  dplyr::group_by(basisOfRecord) %>%
+  dplyr::summarise(n = dplyr::n())
+
+check_pf <- bdc_basisOfRecords_notStandard(
+  data = check_pf,
+  basisOfRecord = "basisOfRecord",
+  names_to_keep = "all")
+```
+
+
+```{r}
+# Deriving country names for records missing country names
+check_pf <- bdc_country_from_coordinates(
+  data = check_pf,
+  lat = "decimalLatitude",
+  lon = "decimalLongitude",
+  country = "country")
+```
+
+```{r}
+# Standardizing country names and getting country code information
+check_pf <- bdc_country_standardized(
+  data = check_pf,
+  country = "country"
+)
+```
+
+
+```{r}
+# Correcting latitude and longitude transposed
+check_pf <-
+  bdc_coordinates_transposed(
+    data = check_pf,
+    id = "collectionID",
+    sci_names = "scientificName",
+    lat = "decimalLatitude",
+    lon = "decimalLongitude",
+    country = "country_suggested",
+    countryCode = "countryCode",
+    border_buffer = 0.2, # in decimal degrees (~22 km at the equator)
+    save_outputs = FALSE
+  )
+```
+
+```{r}
+# Records outside one or multiple reference countries
+check_pf <-
+  bdc_coordinates_country_inconsistent(
+    data = check_pf,
+    country_name = "Ecuador",
+    country = "country_suggested",
+    lon = "decimalLongitude",
+    lat = "decimalLatitude",
+    dist = 0.1 # in decimal degrees (~11 km at the equator)
+  )
+```
+
+```{r}
+# Report
+check_pf <- bdc_summary_col(data = check_pf)
+report <-
+  bdc_create_report(data = check_pf,
+                    database_id = "database_id",
+                    workflow_step = "prefilter",
+                    save_report = FALSE)
+report
+```
+
+```{r}
+# Figures
+figures <-
+bdc_create_figures(data = check_pf,
+                   database_id = "database_id",
+                   workflow_step = "prefilter",
+                   save_figures = FALSE)
+
+# Check figures using
+figures$.coordinates_country_inconsistent
+
+```
+
+```{r}
+# Filter out flags
+database <-
+  check_pf %>%
+  dplyr::filter(.summary == TRUE) %>%
+  bdc_filter_out_flags(data = ., col_to_remove = "all")
+```
+
+
+# Flagging common time issues
+Modified from https://brunobrr.github.io/bdc/articles/time.html
+```{r}
+check_time <-
+  bdc_eventDate_empty(data = database, eventDate = "verbatimEventDate")
+```
+
+```{r}
+check_time <-
+  bdc_year_from_eventDate(data = check_time, eventDate = "verbatimEventDate")
+```
+
+```{r}
+check_time <-
+  bdc_year_outOfRange(data = check_time,
+                      eventDate = "year",
+                      year_threshold = 1800)
+```
+
+```{r}
+check_time <- bdc_summary_col(data = check_time)
+```
+
+```{r}
+report <-
+  bdc_create_report(data = check_time,
+                    database_id = "database_id",
+                    workflow_step = "time",
+                    save_report = FALSE)
+
+report
+```
+
+```{r}
+figures <-
+bdc_create_figures(data = check_time,
+                   database_id = "database_id",
+                   workflow_step = "time",
+                   save_figures = FALSE)
+
+# Check figures using
+figures$time_year_BAR
+```
+
+```{r}
+database <-
+  check_time %>%
+  dplyr::filter(.summary == TRUE) %>%
+  bdc_filter_out_flags(data = ., col_to_remove = "all")
+```
+
+
+# Flagging common spatial issues
+Modified from https://brunobrr.github.io/bdc/articles/space.html
+```{r}
+check_space <-
+  bdc_coordinates_precision(
+    data = database,
+    lon = "decimalLongitude",
+    lat = "decimalLatitude",
+    ndec = c(0, 1) # number of decimals to be tested
+  )
+```
+
+```{r}
+check_space <-
+  CoordinateCleaner::clean_coordinates(
+    x =  check_space,
+    lon = "decimalLongitude",
+    lat = "decimalLatitude",
+    species = "scientificName",
+    countries = ,
+    tests = c(
+      "capitals",     # records within 2km around country and province centroids
+      "centroids",    # records within 1km of capitals centroids
+      "duplicates",   # duplicated records
+      "equal",        # records with equal coordinates
+      "gbif",         # records within 1 degree (~111km) of GBIF headsquare
+      "institutions", # records within 100m of zoo and herbaria
+      "outliers",     # outliers
+      "zeros",        # records with coordinates 0,0
+      "urban"         # records within urban areas
+    ),
+    capitals_rad = 2000,
+    centroids_rad = 1000,
+    centroids_detail = "both", # test both country and province centroids
+    inst_rad = 100, # remove zoo and herbaria within 100m
+    outliers_method = "quantile",
+    outliers_mtp = 5,
+    outliers_td = 1000,
+    outliers_size = 10,
+    range_rad = 0,
+    zeros_rad = 0.5,
+    capitals_ref = NULL,
+    centroids_ref = NULL,
+    country_ref = NULL,
+    country_refcol = "countryCode",
+    inst_ref = NULL,
+    range_ref = NULL,
+    # seas_ref = continent_border,
+    # seas_scale = 110,
+    urban_ref = NULL,
+    value = "spatialvalid" # result of tests are appended in separate columns
+  )
+```
+
+```{r}
+check_space <- bdc_summary_col(data = check_space)
+
+check_space %>%
+  dplyr::filter(.summary == FALSE) %>% # map only records flagged as FALSE
+  bdc_quickmap(
+    data = .,
+    lon = "decimalLongitude",
+    lat = "decimalLatitude",
+    col_to_map = ".summary",
+    size = 0.9
+  )
+```
+
+
+```{r}
+report <-
+  bdc_create_report(data = check_space,
+                    database_id = "database_id",
+                    workflow_step = "space",
+                    save_report = FALSE)
+
+report
+```
+
+```{r}
+figures <-
+bdc_create_figures(data = check_space,
+                   database_id = "database_id",
+                   workflow_step = "space",
+                   save_figures = TRUE)
+
+# Check figures using
+figures$.rou
+```
+
+```{r}
+database <-
+  check_space %>%
+  dplyr::filter(.summary == TRUE) %>%
+  bdc_filter_out_flags(data = ., col_to_remove = "all")
+```
+
+# Clean and parse species names
+Modified from https://brunobrr.github.io/bdc/articles/taxonomy.html
+```{r}
+parse_names <-
+  bdc_clean_names(sci_names = database$scientificName, save_outputs = FALSE)
+```
+
+```{r}
+parse_names <-
+  parse_names %>%
+  dplyr::select(.uncer_terms, names_clean)
+
+database <- dplyr::bind_cols(database, parse_names)
+```
+
+```{r}
+query_names <- bdc_query_names_taxadb(
+  sci_name            = database$names_clean,
+  replace_synonyms    = TRUE, # replace synonyms by accepted names?
+  suggest_names       = TRUE, # try to found a candidate name for misspelled names?
+  suggestion_distance = 0.9, # distance between the searched and suggested names
+  db                  = "gbif", # taxonomic database
+  parallel            = FALSE, # should parallel processing be used?
+  ncores              = 2, # number of cores to be used in the parallelization process
+  export_accepted     = FALSE # save names linked to multiple accepted names
+)
+```
+
+```{r}
+database <-
+  database %>%
+  dplyr::rename(verbatim_scientificName = scientificName) %>%
+  dplyr::select(-names_clean) %>%
+  dplyr::bind_cols(., query_names)
+```
+
+```{r}
+report <-
+  bdc_create_report(data = database,
+                    database_id = "database_id",
+                    workflow_step = "taxonomy",
+                    save_report = FALSE)
+
+report
+```
+
+```{r}
+unresolved_names <-
+  bdc_filter_out_names(data = database,
+                       col_name = "notes",
+                       taxonomic_status = "accepted",
+                       opposite = TRUE)
+```
+
+```{r}
+output <-
+   bdc_filter_out_names(
+     data = database,
+     taxonomic_notes = "accepted",
+     opposite = FALSE
+   )
+```
+
+```{r}
+rtry_explore(try_data, DataID, DataName, TraitID, TraitName, sortBy = TraitID)
+```
+
+```{r}
+# Remove duplicates
+workdata <- rtry_remove_dup(try_data)
+```
+
+
+# Transform to wide table
+Modified from https://cran.r-project.org/web/packages/rtry/vignettes/rtry-workflow-general.html
+```{r}
+#-------------------------------------------------
+# Exclude
+# 1. All entries with "" in TraitID
+# 2. Potential categorical traits that don't have a StdValue
+# 3. Traits that have not yet been standardized in TRY
+# Then select the relevant columns for transformation
+# Note: The complete.cases() is used to ensure the cases are complete,
+#       i.e. have no missing values
+#-------------------------------------------------
+num_traits <- rtry_select_row(workdata, complete.cases(TraitID) & complete.cases(StdValue))
+num_traits <- rtry_select_col(num_traits, ObservationID, AccSpeciesID, AccSpeciesName, TraitID, TraitName, StdValue, UnitName)
+# Extract the unique value of latitude (DataID 59) and the corresponding ObservationID
+workdata_lat <- rtry_select_anc(try_data, 59)
+
+# Extract the unique value of longitude (DataID 60) and the corresponding ObservationID
+workdata_lon <- rtry_select_anc(try_data, 60)
+
+# To merge the extracted ancillary data with the numerical traits
+# Merge the relevant data frames based on the ObservationID using rtry_join_left (left join)
+num_traits_georef <- rtry_join_left(num_traits, workdata_lat, baseOn = ObservationID)
+num_traits_georef <- rtry_join_left(num_traits_georef, workdata_lon, baseOn = ObservationID)
+
+# Perform wide table transformation on TraitID, TraitName and UnitName
+# With cell values to be the mean values calculated for StdValue
+database <- rtry_trans_wider(num_traits_georef, names_from = c(TraitID, TraitName, UnitName), values_from = c(StdValue), values_fn = list(StdValue = mean))
+```
+
+# Export TRY data
+```{r}
+# Export the data into a CSV file
+ecuador_TRY_plant_traits_path <- file.path(output_path,"Ecuador_TRY_plant_traits_cleaned.csv")
+write.csv(#NEED#, file = ecuador_TRY_plant_traits_path)
+```
+

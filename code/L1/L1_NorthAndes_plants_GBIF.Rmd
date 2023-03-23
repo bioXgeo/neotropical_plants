@@ -18,7 +18,7 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 # Load required packages
 ```{r}
 #remotes::install_github("LimaRAF/plantR")
-library("plantR")
+library(plantR)
 ```
 
 # Read in GBIF data

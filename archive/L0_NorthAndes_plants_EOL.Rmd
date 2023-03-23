@@ -1,0 +1,10 @@
+
+
+```{r}
+library(traits)
+```
+
+```{r}
+traitbank(query = "MATCH (n:Trait) RETURN n LIMIT 1;")
+```
+
