@@ -19,7 +19,6 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 # Load required packages
 ```{r}
 library(rtry)
-library(mde)
 library(DataExplorer)
 library(summarytools)
 library(bdvis)
