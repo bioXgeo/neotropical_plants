@@ -23,7 +23,7 @@ library(summarytools)
 ```
 
 # Read in IUCN data
-Data was obtained from https://www.iucnredlist.org/search?dl=true&permalink=bd0e6db7-6fb0-4ad3-ad6c-63da82cc0999
+Data was obtained from https://www.iucnredlist.org/search?dl=true&permalink=a44f4942-2b56-47b9-8122-9896ac4af647
 ```{r}
 assessments <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/assessments.csv"))
 common_names <- read.csv(file.path(data_path,"IUCN/Northern Andes 2 - Search Results/common_names.csv"))
