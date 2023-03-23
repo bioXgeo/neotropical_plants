@@ -1,0 +1,148 @@
+---
+title: "Northern Andes plant species POWO"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "None"
+data output: "NorthAndes_POWO_species_list.csv"
+project: "Frugivoria"
+date: "2023-02-27"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+devtools::install_github("barnabywalker/kewr")
+library(kewr)
+library(dplyr)
+library(DataExplorer)
+library(summarytools)
+library(visdat)
+```
+
+# Search Plants of the World Online [https://powo.science.kew.org/] for species in Northern Andes
+Best to break up request into smaller chunks so R handle it without timing out
+## Ecuador
+```{r}
+Ecuador_POWO_page1 <- search_powo(list(distribution="Ecuador"), limit = 4000)
+Ecuador_POWO_page2 <- request_next(Ecuador_POWO_page1)
+Ecuador_POWO_page3 <- request_next(Ecuador_POWO_page2)
+Ecuador_POWO_page4 <- request_next(Ecuador_POWO_page3)
+Ecuador_POWO_page5 <- request_next(Ecuador_POWO_page4)
+Ecuador_POWO_page6 <- request_next(Ecuador_POWO_page5)
+```
+
+```{r}
+# Combine pages
+Ecuador_POWO <- bind_rows(
+  tidy(Ecuador_POWO_page1),
+  tidy(Ecuador_POWO_page2),
+  tidy(Ecuador_POWO_page3),
+  tidy(Ecuador_POWO_page4),
+  tidy(Ecuador_POWO_page5),
+  tidy(Ecuador_POWO_page6)
+)
+```
+
+## Colombia
+```{r}
+Colombia_POWO_page1 <- search_powo(list(distribution="Colombia"), limit = 4000)
+Colombia_POWO_page2 <- request_next(Colombia_POWO_page1)
+Colombia_POWO_page3 <- request_next(Colombia_POWO_page2)
+Colombia_POWO_page4 <- request_next(Colombia_POWO_page3)
+Colombia_POWO_page5 <- request_next(Colombia_POWO_page4)
+Colombia_POWO_page6 <- request_next(Colombia_POWO_page5)
+Colombia_POWO_page7 <- request_next(Colombia_POWO_page6)
+Colombia_POWO_page8 <- request_next(Colombia_POWO_page7)
+```
+
+```{r}
+# Combine pages
+Colombia_POWO <- bind_rows(
+  tidy(Colombia_POWO_page1),
+  tidy(Colombia_POWO_page2),
+  tidy(Colombia_POWO_page3),
+  tidy(Colombia_POWO_page4),
+  tidy(Colombia_POWO_page5),
+  tidy(Colombia_POWO_page6)
+)
+```
+
+## Venezuela
+```{r}
+Venezuela_POWO_page1 <- search_powo(list(distribution="Venezuela"), limit = 4000)
+Venezuela_POWO_page2 <- request_next(Venezuela_POWO_page1)
+Venezuela_POWO_page3 <- request_next(Venezuela_POWO_page2)
+Venezuela_POWO_page4 <- request_next(Venezuela_POWO_page3)
+Venezuela_POWO_page5 <- request_next(Venezuela_POWO_page4)
+Venezuela_POWO_page6 <- request_next(Venezuela_POWO_page5)
+```
+
+```{r}
+# Combine pages
+Venezuela_POWO <- bind_rows(
+  tidy(Venezuela_POWO_page1),
+  tidy(Venezuela_POWO_page2),
+  tidy(Venezuela_POWO_page3),
+  tidy(Venezuela_POWO_page4),
+  tidy(Venezuela_POWO_page5),
+  tidy(Venezuela_POWO_page6)
+)
+```
+
+## Combine Ecuador, Colombia, and Venezuela
+```{r}
+NorthAndes_POWO <- rbind(Ecuador_POWO,Colombia_POWO, Venezuela_POWO)
+```
+
+
+# Summary
+```{r}
+summary(NorthAndes_POWO)
+```
+
+```{r}
+# using DataExplorer package
+plot_str(NorthAndes_POWO)
+introduce(NorthAndes_POWO)
+plot_intro(NorthAndes_POWO)
+plot_missing(NorthAndes_POWO)
+plot_bar(NorthAndes_POWO)
+```
+
+```{r}
+# using summarytools package
+NorthAndes_POWO_summary <- dfSummary(NorthAndes_POWO, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(NorthAndes_POWO_summary, method = "render")
+view(ENorthAndes_POWO_summary, file = file.path(output_path,"Ecuador_POWO_summary.html"))
+```
+
+```{r}
+#using visdat package
+vis_dat(NorthAndes_POWO, warn_large_data = FALSE)
+vis_miss(NorthAndes_POWO, warn_large_data = FALSE)
+NorthAndes_POWO %>%
+  select_if(is.numeric)%>%
+  vis_cor(warn_large_data = FALSE)
+```
+
+# Write data to csv
+```{r}
+#convert NorthAndes_POWOO from tbl_df to dataframe
+NorthAndes_POWO <- as.data.frame(NorthAndes_POWO)
+# remove image column from dataframe
+NorthAndes_POWO <- NorthAndes_POWO %>% select(-images)
+
+NorthAndes_POWO_path <- file.path(output_path, "NorthAndes_POWO.csv")
+write.csv(NorthAndes_POWO, file = NorthAndes_POWO)
+```
+

@@ -1,0 +1,58 @@
+---
+title: "Ecuador plant species GIFT data"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "None"
+data output: "TBD"
+project: "Frugivoria"
+date: "2023-01-12"
+output: html_document
+---
+
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+remotes::install_github("https://github.com/BioGeoMacro/GIFT",dependencies = TRUE)
+library(GIFT)
+library(mde)
+library(DataExplorer)
+library(summarytools)
+```
+
+# Get data for Ecuador from GIFT database
+```{r}
+# retrive entity_ID for Ecuador
+regions <- GIFT_regions()
+str(regions)
+regions[regions$geo_entity %in% "Ecuador",]
+
+```
+
+```{r}
+Ecuador_shape <- GIFT_shape(entity_ID = 10348)
+```
+
+```{r}
+GIFT_data <- GIFT_checklist(floristic_group = 'all', geo_type = 'All', shp = Ecuador_shape, overlap = 'extent_intersect', taxonomic_group = TRUE)
+```
+
+```{r}
+richness <- GIFT_richness(what = "species_richness")
+trait_coverage <- GIFT_richness(what = "trait_coverage")
+```
+
+```{r}
+richness[richness$geo_entity %in% 10348,]
+trait_coverage[trait_coverage$geo_entity %in% 10348,]
+```
+
+```{r}
+
+```
+
