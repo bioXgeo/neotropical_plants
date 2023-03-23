@@ -79,7 +79,6 @@ plot_str(TRY_data)
 introduce(TRY_data)
 plot_intro(TRY_data)
 plot_missing(TRY_data)
-plot_bar(TRY_data)
 ```
 
 ### using summarytools package
