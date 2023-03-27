@@ -19,7 +19,6 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 ```{r}
 library(rgbif)
 library(DataExplorer)
-library(summarytools)
 library(bdvis)
 library(visdat)
 library(dplyr)
@@ -31,11 +30,11 @@ library(dplyr)
 #install.packages("usethis")
 #usethis::edit_r_environ()
 ```
+
 # Get Taxon Key for Plants
 ```{r}
 name_backbone("Plantae")
 ```
-
 
 ```{r}
 occ_download(
@@ -47,6 +46,7 @@ pred_not(pred_in("basisOfRecord",c("FOSSIL_SPECIMEN","LIVING_SPECIMEN"))),
 format = "SIMPLE_CSV"
 )
 ```
+
 # Retrive GBIF download, save file, and load into r
 ```{r}
 d <- occ_download_get("0282867-220831081235567", path = output_path) %>%
@@ -68,34 +68,9 @@ plot_bar(d)
 ```
 
 ```{r}
-# using summarytools package
-# ERROR -- Error in hist.default(data, breaks = breaks_x, plot = FALSE) :
-# some 'x' not counted; maybe 'breaks' do not span range of 'x'
-#d_summary <- dfSummary(d, 
-#            na.col       = FALSE,
-#            style        = "multiline",
-#            plain.ascii  = TRUE,
-#            graph.magnif = .8)
-#print(d_summary, method = "render")
-#view(d_summary, file = file.path(output_path,"Ecuador_BIEN_traits_summary.html"))
-```
-
-```{r}
 #using bdvis package
 d_vis <- format_bdvis(d, Latitude = "decimalLatitude", Longitude = "decimalLongitude", Date_collected = "eventDate", Scientific_name = "scientificName", Family = "family", Genus = "genus")
 bdsummary(d_vis)
-```
-
-```{r}
-## ERROR - Error in !dbPreExists : invalid argument type
-## ERROR - Error in postgresqlNewConnection(drv, ...) :
-# RPosgreSQL error: could not connect postgres@localhost:5432 on dbname "test": could not connect to server: Connection refused (0x0000274D/10061)
-#bdcalendarheat(d_vis)
-#distrigraph(d_vis, ptype = "species")
-#distrigraph(d_vis, ptype = "efforts")
-#distrigraph(d_vis, ptype = "cell")
-#distrigraph(d_vis, ptype = "effortspecies")
-#bdcomplete(d_vis)
 ```
 
 ```{r}
@@ -109,6 +84,6 @@ d %>%
 
 # Write data to csv
 ```{r}
-NorthAndes_GBIF_path <- file.path(output_path,"NorthAndes_GBIF_occurences.csv") 
+NorthAndes_GBIF_path <- file.path(output_path,"NorthAndes_GBIF_plant_occ.csv") 
 write.csv(d, file = NorthAndes_GBIF_path)
 ```
