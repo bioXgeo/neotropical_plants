@@ -1,0 +1,69 @@
+---
+title: "Tropical Andes montane and lowland forest plant species GBIF"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "None"
+data output: "TropAndes_GBIF_plant_occ.csv"
+project: "Frugivoria"
+date: "2023-04-06"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(dplyr)
+library(rgbif) 
+```
+
+# Read in IUCN data
+Data was obtained from https://www.iucnredlist.org/search?permalink=9621ab77-2341-4bf8-9557-b7f19f7f2a35
+```{r}
+plants_habitats <- read.csv(file.path(data_path,"IUCN/Tropical Andes Plants - Search Results/habitats.csv"))
+```
+
+# Create species list from IUCN data
+```{r}
+plant_species <- unique(plants_habitats$scientificName)
+```
+
+# Match species names to GBIF
+```{r}
+gbif_taxon_keys <- plant_species %>% 
+name_backbone_checklist() %>% # match to backbone 
+filter(!matchType == "NONE") %>% # get matched names
+pull(usageKey) 
+```
+
+# Download data
+```{r}
+occ_download(
+pred_in("taxonKey", gbif_taxon_keys), # important to use pred_in
+pred("hasCoordinate", TRUE),
+pred("hasGeospatialIssue", FALSE),
+pred_in("country",c("EC","CO","VE")), 
+format = "SIMPLE_CSV"
+)
+```
+
+# Retrive GBIF download, save file, and load into r
+```{r}
+d <- occ_download_get("0149390-230224095556074", path = output_path) %>%
+  occ_download_import()
+```
+
+# Summary 
+```{r}
+glimpse(d)
+```
+
+# Write data to csv
+```{r}
+TropicalAndes_GBIF_path <- file.path(output_path,"TropAndes_GBIF_plant_occ.csv") 
+write.csv(d, file = TropicalAndes_GBIF_path)
+```
