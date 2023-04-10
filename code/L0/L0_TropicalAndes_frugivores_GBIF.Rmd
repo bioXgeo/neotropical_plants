@@ -30,6 +30,7 @@ frugivore_habitats <- read.csv(file.path(data_path,"IUCN/Tropical Andes Birds an
 # Create species list from IUCN data
 ```{r}
 frugivore_species <- unique(frugivore_habitats$scientificName)
+write.csv2(frugivore_species, file = file.path(output_path, "TropicalFrugivoreSpecies.csv"))
 ```
 
 # Match species names to GBIF
@@ -43,17 +44,17 @@ pull(usageKey)
 # Download data
 ```{r}
 occ_download(
-pred_in("taxonKey", gbif_taxon_keys), # important to use pred_in
+pred_in("taxonKey", gbif_taxon_keys),
 pred("hasCoordinate", TRUE),
 pred("hasGeospatialIssue", FALSE),
-pred_in("country",c("EC","CO","VE")), 
+pred_in("country",c("EC","CO","VE", "PE", "BO")), 
 format = "SIMPLE_CSV"
 )
 ```
 
 # Retrive GBIF download, save file, and load into r
 ```{r}
-d <- occ_download_get("0149390-230224095556074", path = output_path) %>%
+d <- occ_download_get("0154158-230224095556074", path = output_path) %>%
   occ_download_import()
 ```
 
