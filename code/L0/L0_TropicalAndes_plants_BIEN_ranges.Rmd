@@ -1,0 +1,44 @@
+---
+title: "Tropical Andes plant species BIEN Ranges"
+authors: "Hazel J. Anderson"
+collaborators: "None"
+data input: "none"
+data output: "TBD"
+project: "Frugivoria"
+date: "2023-02-13"
+output: html_document
+---
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(BIEN)
+library(tidyr)
+library(dplyr)
+library(rnaturalearth)
+```
+
+# Polygons of countries
+```{r}
+worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
+#polygon of Tropical Andes
+TApoly <- worldMap %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
+```
+
+# Get data for Tropical Andes from BIEN database
+```{r}
+# range map data
+TropicalAndes_BIEN_ranges <- BIEN_ranges_box(min.lat = -24, max.lat = 14, min.long = -94, max.long = -54, directory = output_path, species.names.only = TRUE)
+  
+#BIEN_ranges_sf(TApoly, directory = output_path, return.species.list = TRUE, crop.ranges = TRUE)
+
+```
+
+# Data summary
+```{r}
+glimpse(TropicalAndes_BIEN_occ)
+```
