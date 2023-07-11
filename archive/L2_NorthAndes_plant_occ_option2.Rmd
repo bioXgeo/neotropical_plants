@@ -1,0 +1,72 @@
+
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Load required packages
+```{r}
+library(bdDwC)
+```
+
+# Load data
+```{r}
+gbif_data <- read.csv(file.path(data_path,"Ecuador_GBIF_occurences.csv"))
+iucn_data <- read.csv(file.path(data_path, "Ecuador_IUCN_plant_occ.csv"))
+bien_data <- read.csv(file.path(data_path, "Ecuador_BIEN_occurrence.csv"))
+```
+
+```{r}
+# get newest version of Darwin Cloud Data
+downloadCloudData()
+```
+
+```{r}
+# darwinize GBIF dataframe
+gbif_result <- darwinizeNames(dataUser = gbif_data,
+                            dataDWC   = bdDwC:::dataDarwinCloud$data)
+new_gbif_data <- renameUserData(gbif_data, gbif_result)
+```
+
+```{r}
+# darwinize IUCN dataframe
+iucn_result <- darwinizeNames(dataUser = iucn_data,
+                            dataDWC   = bdDwC:::dataDarwinCloud$data)
+new_iucn_data <- renameUserData(iucn_data, iucn_result)
+```
+
+```{r}
+# darwinize BIEN dataframe
+bien_result <- darwinizeNames(dataUser = bien_data,
+                            dataDWC   = bdDwC:::dataDarwinCloud$data)
+new_bien_data <- renameUserData(bien_data, bien_result)
+```
+
+# Write data to csv
+```{r}
+# renamed GBIF data
+ecuador_GBIF_path <- file.path(output_path,"Ecuador_GBIF_plant_occ.csv")
+write.csv(new_gbif_data, file = ecuador_GBIF_path)
+# GBIF configuration table
+ecuador_GBIF_table_path <- file.path(output_path,"Ecuador_plant_GBIF_ConfigurationTable.csv")
+write.csv(gbif_result, file = ecuador_GBIF_table_path)
+```
+
+```{r}
+# renamed IUCN data
+ecuador_IUCN_path <- file.path(output_path,"Ecuador_IUCN_plant_occ.csv")
+write.csv(new_iucn_data, file = ecuador_IUCN_path)
+# IUCN configuration table
+ecuador_IUCN_table_path <- file.path(output_path,"Ecuador_plant_IUCN_ConfigurationTable.csv")
+write.csv(iucn_result, file = ecuador_IUCN_table_path)
+```
+
+```{r}
+# renamed BIEN data
+ecuador_BIEN_path <- file.path(output_path,"Ecuador_BIEN_plant_occ.csv")
+write.csv(new_bien_data, file = ecuador_BIEN_path)
+
+```
+
