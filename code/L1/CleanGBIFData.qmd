@@ -1,0 +1,120 @@
+---
+title: "Clean GBIF Data"
+format: html
+editor: visual
+---
+
+
+```{r}
+library(countrycode)
+library(CoordinateCleaner)
+library(dplyr)
+library(ggplot2)
+library(rgbif)
+library(sp)
+```
+
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Read in Data
+```{r}
+TropicalAndes_GBIF_plant_occ <- read.csv(file.path(data_path,"TropAndes_GBIF_plant_occ.csv"))
+TropicalAndes_GBIF_frugivore_occ <- read.csv(file.path(data_path,"TropAndes_GBIF_frugivore_occ.csv"))
+```
+
+```{r}
+names(TropicalAndes_GBIF_plant_occ)
+```
+
+```{r}
+dim(TropicalAndes_GBIF_plant_occ)
+dim(TropicalAndes_GBIF_frugivore_occ)
+```
+
+
+```{r}
+# remove records without coordinates
+TropicalAndes_GBIF_plant_occ_cleaned <- TropicalAndes_GBIF_plant_occ%>%
+  filter(!is.na(decimalLongitude))%>%
+  filter(!is.na(decimalLatitude))
+TropicalAndes_GBIF_frugivore_occ_cleaned <- TropicalAndes_GBIF_frugivore_occ%>%
+  filter(!is.na(decimalLongitude))%>%
+  filter(!is.na(decimalLatitude))
+```
+
+```{r}
+dim(TropicalAndes_GBIF_plant_occ_cleaned)
+dim(TropicalAndes_GBIF_frugivore_occ_cleaned)
+```
+
+```{r}
+#convert country code from ISO2c to ISO3c
+TropicalAndes_GBIF_plant_occ_cleaned$countryCode <-  countrycode(TropicalAndes_GBIF_plant_occ_cleaned$countryCode, origin =  'iso2c', destination = 'iso3c')
+TropicalAndes_GBIF_frugivore_occ_cleaned$countryCode <-  countrycode(TropicalAndes_GBIF_frugivore_occ_cleaned$countryCode, origin =  'iso2c', destination = 'iso3c')
+```
+
+```{r}
+#flag problems
+TropicalAndes_GBIF_plant_occ_cleaned <- data.frame(TropicalAndes_GBIF_plant_occ_cleaned)
+plant_flags <- clean_coordinates(x = TropicalAndes_GBIF_plant_occ_cleaned, 
+                           lon = "decimalLongitude", 
+                           lat = "decimalLatitude",
+                           countries = "countryCode",
+                           species = "species",
+                          tests = c("capitals", "centroids", "equal","gbif", "institutions",
+                                    "duplicates","zeros", "countries"))
+TropicalAndes_GBIF_frugivore_occ_cleaned<- data.frame(TropicalAndes_GBIF_frugivore_occ_cleaned)
+frugivore_flags <- clean_coordinates(x = TropicalAndes_GBIF_frugivore_occ_cleaned, 
+                           lon = "decimalLongitude", 
+                           lat = "decimalLatitude",
+                           countries = "countryCode",
+                           species = "species",
+                          tests = c("capitals", "centroids", "equal","gbif", "institutions",
+                                    "duplicates","zeros", "countries"))
+```
+
+```{r}
+summary(plant_flags)
+plot(plant_flags, lon = "decimalLongitude", lat = "decimalLatitude")
+summary(frugivore_flags)
+plot(frugivore_flags, lon = "decimalLongitude", lat = "decimalLatitude")
+```
+
+```{r}
+#Exclude problematic records
+TropicalAndes_GBIF_plant_occ_cleaned <- TropicalAndes_GBIF_plant_occ_cleaned[plant_flags$.summary,]
+TropicalAndes_GBIF_frugivore_occ_cleaned <- TropicalAndes_GBIF_frugivore_occ_cleaned[frugivore_flags$.summary,]
+```
+
+```{r}
+dim(TropicalAndes_GBIF_plant_occ_cleaned)
+dim(TropicalAndes_GBIF_frugivore_occ_cleaned)
+```
+
+
+# Sample Bias
+```{r}
+library(sampbias)
+library(dplyr)
+```
+
+```{r}
+#remove columns
+TropicalAndes_GBIF_plant_occ_cleaned <- subset(TropicalAndes_GBIF_plant_occ_cleaned, select = -c(X, decimallongitude, decimallatitude))
+
+TropicalAndes_GBIF_frugivore_occ_cleaned <- subset(TropicalAndes_GBIF_frugivore_occ_cleaned, select = -c(X, decimallongitude, decimallatitude))
+```
+
+
+```{r}
+bias.out.plants <- calculate_bias(x = TropicalAndes_GBIF_plant_occ_cleaned, res = 1)
+```
+
+```{r}
+bias.out.frugivores <- calculate_bias(x = TropicalAndes_GBIF_frugivore_occ_cleaned, res = 1)
+```
