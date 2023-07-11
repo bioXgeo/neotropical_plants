@@ -27,7 +27,7 @@ library(bdvis)
 # Read in TRY data
 Data was obtained from https://www.try-db.org/TryWeb/Prop0.php 
 ```{r}
-data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/TRY_Ecuador_PublicData_10192020.txt", encoding = "Latin-1")
+data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/23650_24112022083128/23650.txt", encoding = "Latin-1")
 data <- as.data.frame(data)
 ```
 
