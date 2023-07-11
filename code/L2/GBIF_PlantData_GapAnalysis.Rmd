@@ -1,0 +1,178 @@
+GBIF Plant Gap Analyis
+
+# Load required packages
+```{r}
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(rnaturalearth)
+library(smoothr)
+library(purrr)
+library(raster)
+library(scico)
+library(ggspatial)
+```
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Read in Data
+```{r}
+TropicalAndes_GBIF_plant_occ <- read.csv(file.path(data_path,"TropAndes_GBIF_plant_occ.csv"))
+```
+
+
+
+```{r}
+summary(TropicalAndes_GBIF_plant_occ)
+```
+
+```{r}
+TropicalAndes_GBIF_plant_occ %>% count(family, sort = TRUE, name = "Occurrences records")
+```
+
+```{r}
+occ_by_country <- TropicalAndes_GBIF_plant_occ %>% count(countryCode, sort = TRUE, name = "occurrencesRecords") 
+occ_by_country
+occ_by_country$occurrencesRecords <- as.numeric(occ_by_country$occurrencesRecords)
+occ_by_country
+tbl <- with(occ_by_country, table(occ_by_country$countryCode, occ_by_country$occurrencesRecords))
+barplot(tbl, beside = TRUE, legend = TRUE)
+```
+
+```{r}
+TropicalAndes_GBIF_plant_occ %>% count(species, sort = TRUE, name = "Occurrences records")
+```
+
+```{r}
+spc <- tapply(TropicalAndes_GBIF_plant_occ$species, TropicalAndes_GBIF_plant_occ$countryCode, function(x)length(unique(x)) )
+as.data.frame(spc)
+```
+
+# Sample Bias
+```{r}
+library(sampbias)
+```
+
+```{r}
+bias.out.plants <- calculate_bias(x = TropicalAndes_GBIF_plant_occ, res = 1)
+```
+
+```{r}
+bias.out.frugivores <- calculate_bias(x = TropicalAndes_GBIF_frugivore_occ, res = 1)
+```
+
+```{r}
+summary(bias.out.plants)
+```
+
+```{r}
+summary(bias.out.frugivores)
+```
+
+```{r}
+plot(bias.out.plants)
+proj.plants <- project_bias(bias.out.plants)
+map_bias(proj.plants, type = "log_sampling_rate")
+map_bias(proj.plants, type = "sampling_rate")
+map_bias(proj.plants, type = "diff_to_max")
+```
+
+```{r}
+plot(bias.out.frugivores)
+proj.frugivore <- project_bias(bias.out.frugivores)
+map_bias(proj.frugivore, type = "log_sampling_rate")
+map_bias(proj.frugivore, type = "sampling_rate")
+map_bias(proj.frugivore, type = "diff_to_max")
+```
+
+# Number of Occurences per grid cell
+Based on https://azizka.github.io/Biodiversity_Data_from_Field_to_Yield/04_species_richness_maps_tutorial.html
+
+```{r}
+library(readr)
+library(ggplot2)
+library(magrittr)
+library(raster)
+library(rgdal)
+devtools::install_github("azizka/speciesgeocodeR")
+library(speciesgeocodeR)
+options(scipen=10000)
+```
+
+
+```{r}
+# Visualize
+world.inp <- map_data("world")
+
+# The number of occurrences per grid cell
+gocc <- RichnessGrid(TropicalAndes_GBIF_plant_occ, type = "abu")
+
+plot(gocc)
+
+# Or more sofisticated plotting Prepare for plotting
+plo_gocc <- data.frame(rasterToPoints(gocc))
+
+# Visualize
+ggplot() + 
+  geom_map(data = world.inp, map = world.inp,
+           aes(x = long, y = lat, map_id = region), fill = "grey80") +
+  xlim(min(TropicalAndes_GBIF_plant_occ$decimalLongitude, na.rm = T),
+    max(TropicalAndes_GBIF_plant_occ$decimalLongitude, na.rm = T)) +
+  ylim(min(TropicalAndes_GBIF_plant_occ$decimalLatitude, na.rm = T), 
+    max(TropicalAndes_GBIF_plant_occ$decimalLatitude, na.rm = T)) + 
+  geom_raster(data = plo_gocc, aes(x = x, y = y, fill = layer)) +
+  scale_fill_viridis_c(name="Count") +
+  coord_fixed() +
+  theme_bw() +
+  ggtitle("Number of GBIF Plant occurrence records") +
+  ylab("Latitude") +
+  xlab("Longitude")
+
+# The number of species per grid cell
+gri <- RichnessGrid(TropicalAndes_GBIF_plant_occ)
+
+plot(gri)
+```
+
+
+```{r}
+# Visualize
+world.inp <- map_data("world")
+
+# The number of occurrences per grid cell
+gocc <- RichnessGrid(TropicalAndes_GBIF_frugivore_occ, type = "abu")
+
+plot(gocc)
+
+# Or more sofisticated plotting Prepare for plotting
+plo_gocc <- data.frame(rasterToPoints(gocc))
+
+# The number of species per grid cell
+gri <- RichnessGrid(TropicalAndes_GBIF_frugivore_occ)
+
+plot(gri)
+```
+
+```{r}
+ggplot() +
+  geom_map(data = world.inp, map = world.inp,
+           aes(x = long, y = lat, map_id = region), fill = "grey80") +
+  xlim(min(TropicalAndes_GBIF_frugivore_occ$decimalLongitude, na.rm = T), 
+    max(TropicalAndes_GBIF_frugivore_occ$decimalLongitude, na.rm = T)) +
+  ylim(min(TropicalAndes_GBIF_frugivore_occ$decimalLatitude, na.rm = T), 
+    max(TropicalAndes_GBIF_frugivore_occ$decimalLatitude, na.rm = T)) +
+  geom_raster(data = plo_gocc, aes(x = x, y = y, fill = layer)) +
+  scale_fill_viridis_c(name="Count") +
+  coord_fixed() +
+  theme_bw() +
+  ggtitle("Number of GBIF Bird & Mammal occurrence records") +
+  ylab("Latitude") +
+  xlab("Longitude")
+```
+
+
+
