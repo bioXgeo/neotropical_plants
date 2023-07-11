@@ -1,0 +1,224 @@
+Evaluating Assessed Northern Andes plant species from the IUCN and POWO
+
+Modified from https://barnabywalker.github.io/kewr/articles/mapping-assessed-species.html
+
+# Load required packages
+```{r}
+library(kewr)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+```
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# 1. Getting assessment information
+
+```{r}
+# Load in data
+data <- read.csv(file.path(data_path,"IUCN/Tropical Andes Plants - Search Results/simple_summary.csv"))
+```
+
+```{r}
+# Subset to just species names
+TropicalAndes_plants <- data[ , c('internalTaxonId', 'scientificName', 'authority', 'redlistCategory')]
+```
+
+
+# 2. Match names to an IPNI ID
+For large data sets use http://namematch.science.kew.org/csv
+```{r}
+TropicalAndes_plants <-
+  TropicalAndes_plants %>%
+  unite("full_name", scientificName, authority, sep=" ", remove=FALSE)
+```
+
+```{r}
+full_matches <- match_knms(TropicalAndes_plants$full_name)
+full_matches
+```
+
+```{r}
+full_matches <- tidy(full_matches)
+
+unmatched <- filter(full_matches, !matched)
+
+to_match <- 
+  TropicalAndes_plants %>%
+  filter(full_name %in% unmatched$submitted)
+
+part_matches <- match_knms(to_match$scientificName)
+part_matches
+```
+
+```{r}
+part_matches <- tidy(part_matches)
+
+full_matches <- 
+  full_matches %>%
+  filter(matched) %>%
+  left_join(
+    TropicalAndes_plants %>% dplyr::select(internalTaxonId, full_name, redlistCategory),
+    by=c("submitted"="full_name")
+  )
+  
+part_matches <- 
+  part_matches %>%
+  filter(matched) %>%
+  left_join(
+    TropicalAndes_plants %>% dplyr::select(internalTaxonId, scientificName, redlistCategory),
+    by=c("submitted"="scientificName")
+  )
+
+matched_names <- bind_rows(full_matches, part_matches)
+
+head(matched_names)
+```
+
+
+# 3. Resolve assessments to accepted names
+```{r}
+# wrap up the lookup_wcvp function to make sure it comes back as a list
+f <- function(internalTaxonId) {
+  list(lookup_wcvp(internalTaxonId))
+}
+
+resolved_names <- 
+  matched_names %>%
+  dplyr::nest_by(internalTaxonId, ipni_id) %>%
+  dplyr::mutate(matched_record=f(ipni_id))
+
+resolved_names <-
+  resolved_names %>%
+  dplyr::mutate(status=matched_record$status)
+```
+
+```{r}
+resolved_names <-
+  resolved_names %>%
+  filter(status %in% c("accepted", "homotypic synonym"))
+```
+
+```{r}
+resolved_names %>%
+  ungroup() %>%
+  add_count(internalTaxonid) %>%
+  summarise(multiple_matches=sum(n > 1))
+```
+
+```{r}
+resolved_names <-
+  resolved_names %>%
+  mutate(accepted_id=ifelse(status != "accepted",
+                              wcvp_record$accepted$id,
+                              wcvp_record$id),
+         accepted_name=ifelse(status != "accepted",
+                              wcvp_record$accepted$name,
+                              wcvp_record$name),
+         accepted_author=ifelse(status != "accepted",
+                              wcvp_record$accepted$author,
+                              wcvp_record$authors),
+         accepted_rank=ifelse(status != "accepted",
+                              wcvp_record$accepted$rank,
+                              wcvp_record$rank))
+
+resolved_names <- 
+  resolved_names %>%
+  select(-wcvp_record) %>%
+  unnest(cols=c(data)) %>%
+  rename(match_id=ipni_id)
+
+accepted_species <-
+  resolved_names %>%
+  filter(accepted_rank == "Species") %>%
+  ungroup()
+
+nrow(accepted_species)
+```
+
+# 4. Get a list of all species in the country
+```{r}
+Ecuador_checklist <- search_powo(list(distribution= "Ecuador"),
+                         filters=c("accepted", "species"),
+                        limit=5000)
+Ecuador_checklist
+Venezuela_checklist <- search_powo(list(distribution= "Venezuela"),
+                         filters=c("accepted", "species"),
+                        limit=5000)
+Venezuela_checklist
+
+Colombia_checklist <- search_powo(list(distribution= "Colombia"),
+                         filters=c("accepted", "species"),
+                        limit=5000)
+Colombia_checklist
+
+Peru_checklist <- search_powo(list(distribution= "Peru"),
+                         filters=c("accepted", "species"),
+                        limit=5000)
+Peru_checklist
+
+Bolivia_checklist <- search_powo(list(distribution= "Bolivia"),
+                         filters=c("accepted", "species"),
+                        limit=5000)
+Bolivia_checklist
+```
+```{r}
+Bolivia_checklist <- tidy(Bolivia_checklist)
+Colombia_checklist <- tidy(Colombia_checklist)
+Ecuador_checklist <- tidy(Ecuador_checklist)
+Peru_checklist <- tidy(Peru_checklist)
+Venezuela_checklist <- tidy(Venezuela_checklist)
+```
+
+```{r}
+checklist <- rbind(Bolivia_checklist, Colombia_checklist, Ecuador_checklist, Peru_checklist, Venezuela_checklist)
+```
+
+
+```{r}
+checklist <-
+  checklist %>%
+  mutate(ipni_id=str_extract(fqId, "[0-9\\-]+")) %>%
+  select(ipni_id, family, name, author) %>%
+  distinct(ipni_id, .keep_all=TRUE) %>%
+  left_join(
+    accepted_species %>% select(accepted_id, category),
+    by=c("ipni_id"="accepted_id")
+  )
+```
+
+# 5. Calculating the proportion of assessed species
+```{r}
+checklist %>%
+  summarise(p_assessed=mean(! is.na(category)))
+```
+
+```{r}
+iucn_colours <- c("NE"="#ffffff", 
+                  "DD"="#d1d1d6", 
+                  "LC"="#60c659", 
+                  "NT"="#cce226", 
+                  "VU"="#f9e814", 
+                  "EN"="#fc7f3f", 
+                  "CR"="d81e05", 
+                  "EW"="#542344", 
+                  "EX"="#000000")
+checklist %>%
+  replace_na(list(category="NE")) %>%
+  mutate(category=factor(category, levels=names(iucn_colours),
+                         ordered=TRUE)) %>%
+  ggplot(mapping=aes(y=category, fill=category,
+                     colour=category == "NE")) +
+  geom_bar() +
+  scale_fill_manual(values=iucn_colours, drop=FALSE) +
+  scale_colour_manual(values=c(`TRUE`="black", `FALSE`=NA)) +
+  scale_y_discrete(drop=FALSE) +
+  guides(fill=FALSE, colour=FALSE) +
+  labs(x="Number of species", y="IUCN Red List category")
+```
+
