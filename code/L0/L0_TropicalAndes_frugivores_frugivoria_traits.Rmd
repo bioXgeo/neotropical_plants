@@ -21,8 +21,2284 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 
 ```
 
+# Retrive Frugivoria data
+Using r code provided at https://portal.edirepository.org/nis/codeGeneration?packageId=edi.1220.6&statisticalFileType=r
 ```{r}
+# Package ID: edi.1220.6 Cataloging System:https://pasta.edirepository.org.
+# Data set title: Frugivoria: A trait database for birds and mammals exhibiting frugivory across contiguous Neotropical moist forests .
+# Data set creator:  Beth Gerstner - Michigan State University 
+# Data set creator:  Phoebe Zarnetske - Michigan State University 
+# Data set creator:  Patrick Bills - Michigan State University 
+# Contact:  Beth Gerstner -  Michigan State University  - gerstn11@msu.edu
+# Stylesheet v2.11 for metadata conversion into program: John H. Porter, Univ. Virginia, jporter@virginia.edu 
 
+inUrl1  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/f2503359fb87b67d22e4a9a33f014107" 
+infile1 <- tempfile()
+try(download.file(inUrl1,infile1,method="curl"))
+if (is.na(file.size(infile1))) download.file(inUrl1,infile1,method="auto")
+
+                   
+ dt1 <-read.csv(infile1,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "IUCN_species_name",     
+                    "taxonid",     
+                    "common_name",     
+                    "family",     
+                    "genus",     
+                    "species",     
+                    "subspecies",     
+                    "rank",     
+                    "elton_species_name",     
+                    "taxonomic_disparity",     
+                    "species_notes",     
+                    "diet_inv_e",     
+                    "diet_vend_e",     
+                    "diet_vect_e",     
+                    "diet_vfish_e",     
+                    "diet_vunk_e",     
+                    "diet_scav_e",     
+                    "diet_fruit_e",     
+                    "diet_nect_e",     
+                    "diet_seed_e",     
+                    "diet_plant_e",     
+                    "diet_cat",     
+                    "diet_source_e",     
+                    "diet_certainty_e",     
+                    "diet_breadth",     
+                    "diet_level",     
+                    "for_strat_value_e",     
+                    "for_strat_certainty_e",     
+                    "activity_nocturnal_e",     
+                    "activity_crepuscular_e",     
+                    "activity_diurnal_e",     
+                    "activity_source_e",     
+                    "activity_certainty_e",     
+                    "activity_level",     
+                    "body_mass_e",     
+                    "body_mass_notes",     
+                    "body_mass_level_e",     
+                    "body_mass_source_e",     
+                    "min_body_size_mm",     
+                    "max_body_size_mm",     
+                    "body_size_mm",     
+                    "body_size_notes",     
+                    "body_size_level",     
+                    "body_size_source",     
+                    "sexual_dimorphism",     
+                    "sexual_dimorphism_notes",     
+                    "sexual_dimorphism_level",     
+                    "sexual_dimorphism_source",     
+                    "min_longevity",     
+                    "max_longevity",     
+                    "longevity",     
+                    "longevity_notes",     
+                    "longevity_level",     
+                    "longevity_source",     
+                    "min_home_range",     
+                    "max_home_range",     
+                    "home_range_size",     
+                    "home_range_notes",     
+                    "home_range_level",     
+                    "home_range_source",     
+                    "habitat_specialization",     
+                    "habitat_specialization_notes",     
+                    "habitat_specialization_source",     
+                    "min_generation_time",     
+                    "max_generation_time",     
+                    "generation_time",     
+                    "generation_time_notes",     
+                    "generation_time_level",     
+                    "generation_time_source",     
+                    "IUCN_category",     
+                    "habitat",     
+                    "habitat_suitability_montane",     
+                    "habitat_suitability_lowland",     
+                    "habitat_season_montane",     
+                    "habitat_season_lowland",     
+                    "habitat_major_importance_montane",     
+                    "habitat_major_importance_lowland",     
+                    "habitat_breadth",     
+                    "habitat_breadth_source",     
+                    "habitat_level",     
+                    "mean_CHELSA_bio1_1981.2010_V.2.1",     
+                    "mean_CHELSA_bio12_1981.2010_V.2.1",     
+                    "mean_human_fp_range_2010",     
+                    "mean_human_fp_range_2020",     
+                    "percent_change_hf_2010_2020",     
+                    "observed_range_sqkm",     
+                    "inferred_range_sqkm",     
+                    "date_data_obtained",     
+                    "filled_by",     
+                    "MSW05_order_p",     
+                    "MSW05_family_p",     
+                    "MSW05_genus_p",     
+                    "MSW05_species_p",     
+                    "PanTHERIA_level",     
+                    "activity_cycle_p",     
+                    "adult_body_mass_g_p",     
+                    "adult_forearm_len_mm_p",     
+                    "adult_head_body_len_mm_p",     
+                    "age_at_eye_opening_d_p",     
+                    "age_at_first_birth_d_p",     
+                    "basal_met_rate_mLO2hr_p",     
+                    "basal_met_rate_mass_g_p",     
+                    "diet_breadth_p",     
+                    "dispersal_age_d_p",     
+                    "gestation_len_d_p",     
+                    "habitat_breadth_p",     
+                    "home_range_km2_p",     
+                    "home_range_indiv_km2_p",     
+                    "Inter_birth_interval_d_p",     
+                    "litter_size_p",     
+                    "litters_per_year_p",     
+                    "max_longevity_m_p",     
+                    "neonate_body_mass_g_p",     
+                    "neonate_head_body_len_mm_p",     
+                    "population_density_n.km2_p",     
+                    "population_grp_size_p",     
+                    "sexual_maturity_age_d_p",     
+                    "social_grp_size_p",     
+                    "teat_number_p",     
+                    "terrestriality_p",     
+                    "trophic_level_p",     
+                    "weaning_age_d_p",     
+                    "weaning_body_mass_g_p",     
+                    "weaning_head_body_len_mm_p",     
+                    "references_p",     
+                    "adult_body_mass_g_EXT_p",     
+                    "litters_per_year_EXT_p",     
+                    "neonate_body_mass_g_EXT_p",     
+                    "weaning_body_mass_g_EXT_p",     
+                    "GR_area_km2_p",     
+                    "GR_max_lat_dd_p",     
+                    "GR_min_lat_dd_p",     
+                    "GR_mid_range_lat_dd_p",     
+                    "GR_max_long_dd_p",     
+                    "GR_min_long_dd_p",     
+                    "GR_mid_range_long_dd_p",     
+                    "hu_pop_den_min_n.km2_p_OD",     
+                    "hu_pop_den_mean_n.km2_p_OD",     
+                    "hu_pop_den_5p_n.km2_p_OD",     
+                    "hu_pop_den_change_p_OD",     
+                    "precip_mean_mm_p_OD",     
+                    "temp_mean_01degC_p_OD",     
+                    "AET_mean_mm_p_OD",     
+                    "PET_mean_mm_p_OD"    ), check.names=TRUE)
+               
+unlink(infile1)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                
+if (class(dt1$IUCN_species_name)!="factor") dt1$IUCN_species_name<- as.factor(dt1$IUCN_species_name)
+if (class(dt1$taxonid)=="factor") dt1$taxonid <-as.numeric(levels(dt1$taxonid))[as.integer(dt1$taxonid) ]               
+if (class(dt1$taxonid)=="character") dt1$taxonid <-as.numeric(dt1$taxonid)
+if (class(dt1$common_name)!="factor") dt1$common_name<- as.factor(dt1$common_name)
+if (class(dt1$family)!="factor") dt1$family<- as.factor(dt1$family)
+if (class(dt1$genus)!="factor") dt1$genus<- as.factor(dt1$genus)
+if (class(dt1$species)!="factor") dt1$species<- as.factor(dt1$species)
+if (class(dt1$subspecies)!="factor") dt1$subspecies<- as.factor(dt1$subspecies)
+if (class(dt1$rank)!="factor") dt1$rank<- as.factor(dt1$rank)
+if (class(dt1$elton_species_name)!="factor") dt1$elton_species_name<- as.factor(dt1$elton_species_name)
+if (class(dt1$taxonomic_disparity)!="factor") dt1$taxonomic_disparity<- as.factor(dt1$taxonomic_disparity)
+if (class(dt1$species_notes)!="factor") dt1$species_notes<- as.factor(dt1$species_notes)
+if (class(dt1$diet_inv_e)=="factor") dt1$diet_inv_e <-as.numeric(levels(dt1$diet_inv_e))[as.integer(dt1$diet_inv_e) ]               
+if (class(dt1$diet_inv_e)=="character") dt1$diet_inv_e <-as.numeric(dt1$diet_inv_e)
+if (class(dt1$diet_vend_e)=="factor") dt1$diet_vend_e <-as.numeric(levels(dt1$diet_vend_e))[as.integer(dt1$diet_vend_e) ]               
+if (class(dt1$diet_vend_e)=="character") dt1$diet_vend_e <-as.numeric(dt1$diet_vend_e)
+if (class(dt1$diet_vect_e)=="factor") dt1$diet_vect_e <-as.numeric(levels(dt1$diet_vect_e))[as.integer(dt1$diet_vect_e) ]               
+if (class(dt1$diet_vect_e)=="character") dt1$diet_vect_e <-as.numeric(dt1$diet_vect_e)
+if (class(dt1$diet_vfish_e)=="factor") dt1$diet_vfish_e <-as.numeric(levels(dt1$diet_vfish_e))[as.integer(dt1$diet_vfish_e) ]               
+if (class(dt1$diet_vfish_e)=="character") dt1$diet_vfish_e <-as.numeric(dt1$diet_vfish_e)
+if (class(dt1$diet_vunk_e)=="factor") dt1$diet_vunk_e <-as.numeric(levels(dt1$diet_vunk_e))[as.integer(dt1$diet_vunk_e) ]               
+if (class(dt1$diet_vunk_e)=="character") dt1$diet_vunk_e <-as.numeric(dt1$diet_vunk_e)
+if (class(dt1$diet_scav_e)=="factor") dt1$diet_scav_e <-as.numeric(levels(dt1$diet_scav_e))[as.integer(dt1$diet_scav_e) ]               
+if (class(dt1$diet_scav_e)=="character") dt1$diet_scav_e <-as.numeric(dt1$diet_scav_e)
+if (class(dt1$diet_fruit_e)=="factor") dt1$diet_fruit_e <-as.numeric(levels(dt1$diet_fruit_e))[as.integer(dt1$diet_fruit_e) ]               
+if (class(dt1$diet_fruit_e)=="character") dt1$diet_fruit_e <-as.numeric(dt1$diet_fruit_e)
+if (class(dt1$diet_nect_e)=="factor") dt1$diet_nect_e <-as.numeric(levels(dt1$diet_nect_e))[as.integer(dt1$diet_nect_e) ]               
+if (class(dt1$diet_nect_e)=="character") dt1$diet_nect_e <-as.numeric(dt1$diet_nect_e)
+if (class(dt1$diet_seed_e)=="factor") dt1$diet_seed_e <-as.numeric(levels(dt1$diet_seed_e))[as.integer(dt1$diet_seed_e) ]               
+if (class(dt1$diet_seed_e)=="character") dt1$diet_seed_e <-as.numeric(dt1$diet_seed_e)
+if (class(dt1$diet_plant_e)=="factor") dt1$diet_plant_e <-as.numeric(levels(dt1$diet_plant_e))[as.integer(dt1$diet_plant_e) ]               
+if (class(dt1$diet_plant_e)=="character") dt1$diet_plant_e <-as.numeric(dt1$diet_plant_e)
+if (class(dt1$diet_cat)!="factor") dt1$diet_cat<- as.factor(dt1$diet_cat)
+if (class(dt1$diet_source_e)!="factor") dt1$diet_source_e<- as.factor(dt1$diet_source_e)
+if (class(dt1$diet_certainty_e)!="factor") dt1$diet_certainty_e<- as.factor(dt1$diet_certainty_e)
+if (class(dt1$diet_breadth)=="factor") dt1$diet_breadth <-as.numeric(levels(dt1$diet_breadth))[as.integer(dt1$diet_breadth) ]               
+if (class(dt1$diet_breadth)=="character") dt1$diet_breadth <-as.numeric(dt1$diet_breadth)
+if (class(dt1$diet_level)!="factor") dt1$diet_level<- as.factor(dt1$diet_level)
+if (class(dt1$for_strat_value_e)!="factor") dt1$for_strat_value_e<- as.factor(dt1$for_strat_value_e)
+if (class(dt1$for_strat_certainty_e)!="factor") dt1$for_strat_certainty_e<- as.factor(dt1$for_strat_certainty_e)
+if (class(dt1$activity_nocturnal_e)!="factor") dt1$activity_nocturnal_e<- as.factor(dt1$activity_nocturnal_e)
+if (class(dt1$activity_crepuscular_e)!="factor") dt1$activity_crepuscular_e<- as.factor(dt1$activity_crepuscular_e)
+if (class(dt1$activity_diurnal_e)!="factor") dt1$activity_diurnal_e<- as.factor(dt1$activity_diurnal_e)
+if (class(dt1$activity_source_e)!="factor") dt1$activity_source_e<- as.factor(dt1$activity_source_e)
+if (class(dt1$activity_certainty_e)!="factor") dt1$activity_certainty_e<- as.factor(dt1$activity_certainty_e)
+if (class(dt1$activity_level)!="factor") dt1$activity_level<- as.factor(dt1$activity_level)
+if (class(dt1$body_mass_e)=="factor") dt1$body_mass_e <-as.numeric(levels(dt1$body_mass_e))[as.integer(dt1$body_mass_e) ]               
+if (class(dt1$body_mass_e)=="character") dt1$body_mass_e <-as.numeric(dt1$body_mass_e)
+if (class(dt1$body_mass_notes)!="factor") dt1$body_mass_notes<- as.factor(dt1$body_mass_notes)
+if (class(dt1$body_mass_level_e)!="factor") dt1$body_mass_level_e<- as.factor(dt1$body_mass_level_e)
+if (class(dt1$body_mass_source_e)!="factor") dt1$body_mass_source_e<- as.factor(dt1$body_mass_source_e)
+if (class(dt1$min_body_size_mm)=="factor") dt1$min_body_size_mm <-as.numeric(levels(dt1$min_body_size_mm))[as.integer(dt1$min_body_size_mm) ]               
+if (class(dt1$min_body_size_mm)=="character") dt1$min_body_size_mm <-as.numeric(dt1$min_body_size_mm)
+if (class(dt1$max_body_size_mm)=="factor") dt1$max_body_size_mm <-as.numeric(levels(dt1$max_body_size_mm))[as.integer(dt1$max_body_size_mm) ]               
+if (class(dt1$max_body_size_mm)=="character") dt1$max_body_size_mm <-as.numeric(dt1$max_body_size_mm)
+if (class(dt1$body_size_mm)=="factor") dt1$body_size_mm <-as.numeric(levels(dt1$body_size_mm))[as.integer(dt1$body_size_mm) ]               
+if (class(dt1$body_size_mm)=="character") dt1$body_size_mm <-as.numeric(dt1$body_size_mm)
+if (class(dt1$body_size_notes)!="factor") dt1$body_size_notes<- as.factor(dt1$body_size_notes)
+if (class(dt1$body_size_level)!="factor") dt1$body_size_level<- as.factor(dt1$body_size_level)
+if (class(dt1$body_size_source)!="factor") dt1$body_size_source<- as.factor(dt1$body_size_source)
+if (class(dt1$sexual_dimorphism)!="factor") dt1$sexual_dimorphism<- as.factor(dt1$sexual_dimorphism)
+if (class(dt1$sexual_dimorphism_notes)!="factor") dt1$sexual_dimorphism_notes<- as.factor(dt1$sexual_dimorphism_notes)
+if (class(dt1$sexual_dimorphism_level)!="factor") dt1$sexual_dimorphism_level<- as.factor(dt1$sexual_dimorphism_level)
+if (class(dt1$sexual_dimorphism_source)!="factor") dt1$sexual_dimorphism_source<- as.factor(dt1$sexual_dimorphism_source)
+if (class(dt1$min_longevity)=="factor") dt1$min_longevity <-as.numeric(levels(dt1$min_longevity))[as.integer(dt1$min_longevity) ]               
+if (class(dt1$min_longevity)=="character") dt1$min_longevity <-as.numeric(dt1$min_longevity)
+if (class(dt1$max_longevity)=="factor") dt1$max_longevity <-as.numeric(levels(dt1$max_longevity))[as.integer(dt1$max_longevity) ]               
+if (class(dt1$max_longevity)=="character") dt1$max_longevity <-as.numeric(dt1$max_longevity)
+if (class(dt1$longevity)=="factor") dt1$longevity <-as.numeric(levels(dt1$longevity))[as.integer(dt1$longevity) ]               
+if (class(dt1$longevity)=="character") dt1$longevity <-as.numeric(dt1$longevity)
+if (class(dt1$longevity_notes)!="factor") dt1$longevity_notes<- as.factor(dt1$longevity_notes)
+if (class(dt1$longevity_level)!="factor") dt1$longevity_level<- as.factor(dt1$longevity_level)
+if (class(dt1$longevity_source)!="factor") dt1$longevity_source<- as.factor(dt1$longevity_source)
+if (class(dt1$min_home_range)=="factor") dt1$min_home_range <-as.numeric(levels(dt1$min_home_range))[as.integer(dt1$min_home_range) ]               
+if (class(dt1$min_home_range)=="character") dt1$min_home_range <-as.numeric(dt1$min_home_range)
+if (class(dt1$max_home_range)=="factor") dt1$max_home_range <-as.numeric(levels(dt1$max_home_range))[as.integer(dt1$max_home_range) ]               
+if (class(dt1$max_home_range)=="character") dt1$max_home_range <-as.numeric(dt1$max_home_range)
+if (class(dt1$home_range_size)=="factor") dt1$home_range_size <-as.numeric(levels(dt1$home_range_size))[as.integer(dt1$home_range_size) ]               
+if (class(dt1$home_range_size)=="character") dt1$home_range_size <-as.numeric(dt1$home_range_size)
+if (class(dt1$home_range_notes)!="factor") dt1$home_range_notes<- as.factor(dt1$home_range_notes)
+if (class(dt1$home_range_level)!="factor") dt1$home_range_level<- as.factor(dt1$home_range_level)
+if (class(dt1$home_range_source)!="factor") dt1$home_range_source<- as.factor(dt1$home_range_source)
+if (class(dt1$habitat_specialization)!="factor") dt1$habitat_specialization<- as.factor(dt1$habitat_specialization)
+if (class(dt1$habitat_specialization_notes)!="factor") dt1$habitat_specialization_notes<- as.factor(dt1$habitat_specialization_notes)
+if (class(dt1$habitat_specialization_source)!="factor") dt1$habitat_specialization_source<- as.factor(dt1$habitat_specialization_source)
+if (class(dt1$min_generation_time)=="factor") dt1$min_generation_time <-as.numeric(levels(dt1$min_generation_time))[as.integer(dt1$min_generation_time) ]               
+if (class(dt1$min_generation_time)=="character") dt1$min_generation_time <-as.numeric(dt1$min_generation_time)
+if (class(dt1$max_generation_time)=="factor") dt1$max_generation_time <-as.numeric(levels(dt1$max_generation_time))[as.integer(dt1$max_generation_time) ]               
+if (class(dt1$max_generation_time)=="character") dt1$max_generation_time <-as.numeric(dt1$max_generation_time)
+if (class(dt1$generation_time)=="factor") dt1$generation_time <-as.numeric(levels(dt1$generation_time))[as.integer(dt1$generation_time) ]               
+if (class(dt1$generation_time)=="character") dt1$generation_time <-as.numeric(dt1$generation_time)
+if (class(dt1$generation_time_notes)!="factor") dt1$generation_time_notes<- as.factor(dt1$generation_time_notes)
+if (class(dt1$generation_time_level)!="factor") dt1$generation_time_level<- as.factor(dt1$generation_time_level)
+if (class(dt1$generation_time_source)!="factor") dt1$generation_time_source<- as.factor(dt1$generation_time_source)
+if (class(dt1$IUCN_category)!="factor") dt1$IUCN_category<- as.factor(dt1$IUCN_category)
+if (class(dt1$habitat)!="factor") dt1$habitat<- as.factor(dt1$habitat)
+if (class(dt1$habitat_suitability_montane)!="factor") dt1$habitat_suitability_montane<- as.factor(dt1$habitat_suitability_montane)
+if (class(dt1$habitat_suitability_lowland)!="factor") dt1$habitat_suitability_lowland<- as.factor(dt1$habitat_suitability_lowland)
+if (class(dt1$habitat_season_montane)!="factor") dt1$habitat_season_montane<- as.factor(dt1$habitat_season_montane)
+if (class(dt1$habitat_season_lowland)!="factor") dt1$habitat_season_lowland<- as.factor(dt1$habitat_season_lowland)
+if (class(dt1$habitat_major_importance_montane)!="factor") dt1$habitat_major_importance_montane<- as.factor(dt1$habitat_major_importance_montane)
+if (class(dt1$habitat_major_importance_lowland)!="factor") dt1$habitat_major_importance_lowland<- as.factor(dt1$habitat_major_importance_lowland)
+if (class(dt1$habitat_breadth)=="factor") dt1$habitat_breadth <-as.numeric(levels(dt1$habitat_breadth))[as.integer(dt1$habitat_breadth) ]               
+if (class(dt1$habitat_breadth)=="character") dt1$habitat_breadth <-as.numeric(dt1$habitat_breadth)
+if (class(dt1$habitat_breadth_source)!="factor") dt1$habitat_breadth_source<- as.factor(dt1$habitat_breadth_source)
+if (class(dt1$habitat_level)!="factor") dt1$habitat_level<- as.factor(dt1$habitat_level)
+if (class(dt1$mean_CHELSA_bio1_1981.2010_V.2.1)=="factor") dt1$mean_CHELSA_bio1_1981.2010_V.2.1 <-as.numeric(levels(dt1$mean_CHELSA_bio1_1981.2010_V.2.1))[as.integer(dt1$mean_CHELSA_bio1_1981.2010_V.2.1) ]               
+if (class(dt1$mean_CHELSA_bio1_1981.2010_V.2.1)=="character") dt1$mean_CHELSA_bio1_1981.2010_V.2.1 <-as.numeric(dt1$mean_CHELSA_bio1_1981.2010_V.2.1)
+if (class(dt1$mean_CHELSA_bio12_1981.2010_V.2.1)=="factor") dt1$mean_CHELSA_bio12_1981.2010_V.2.1 <-as.numeric(levels(dt1$mean_CHELSA_bio12_1981.2010_V.2.1))[as.integer(dt1$mean_CHELSA_bio12_1981.2010_V.2.1) ]               
+if (class(dt1$mean_CHELSA_bio12_1981.2010_V.2.1)=="character") dt1$mean_CHELSA_bio12_1981.2010_V.2.1 <-as.numeric(dt1$mean_CHELSA_bio12_1981.2010_V.2.1)
+if (class(dt1$mean_human_fp_range_2010)=="factor") dt1$mean_human_fp_range_2010 <-as.numeric(levels(dt1$mean_human_fp_range_2010))[as.integer(dt1$mean_human_fp_range_2010) ]               
+if (class(dt1$mean_human_fp_range_2010)=="character") dt1$mean_human_fp_range_2010 <-as.numeric(dt1$mean_human_fp_range_2010)
+if (class(dt1$mean_human_fp_range_2020)=="factor") dt1$mean_human_fp_range_2020 <-as.numeric(levels(dt1$mean_human_fp_range_2020))[as.integer(dt1$mean_human_fp_range_2020) ]               
+if (class(dt1$mean_human_fp_range_2020)=="character") dt1$mean_human_fp_range_2020 <-as.numeric(dt1$mean_human_fp_range_2020)
+if (class(dt1$percent_change_hf_2010_2020)=="factor") dt1$percent_change_hf_2010_2020 <-as.numeric(levels(dt1$percent_change_hf_2010_2020))[as.integer(dt1$percent_change_hf_2010_2020) ]               
+if (class(dt1$percent_change_hf_2010_2020)=="character") dt1$percent_change_hf_2010_2020 <-as.numeric(dt1$percent_change_hf_2010_2020)
+if (class(dt1$observed_range_sqkm)=="factor") dt1$observed_range_sqkm <-as.numeric(levels(dt1$observed_range_sqkm))[as.integer(dt1$observed_range_sqkm) ]               
+if (class(dt1$observed_range_sqkm)=="character") dt1$observed_range_sqkm <-as.numeric(dt1$observed_range_sqkm)
+if (class(dt1$inferred_range_sqkm)=="factor") dt1$inferred_range_sqkm <-as.numeric(levels(dt1$inferred_range_sqkm))[as.integer(dt1$inferred_range_sqkm) ]               
+if (class(dt1$inferred_range_sqkm)=="character") dt1$inferred_range_sqkm <-as.numeric(dt1$inferred_range_sqkm)
+if (class(dt1$date_data_obtained)!="factor") dt1$date_data_obtained<- as.factor(dt1$date_data_obtained)
+if (class(dt1$filled_by)!="factor") dt1$filled_by<- as.factor(dt1$filled_by)
+if (class(dt1$MSW05_order_p)!="factor") dt1$MSW05_order_p<- as.factor(dt1$MSW05_order_p)
+if (class(dt1$MSW05_family_p)!="factor") dt1$MSW05_family_p<- as.factor(dt1$MSW05_family_p)
+if (class(dt1$MSW05_genus_p)!="factor") dt1$MSW05_genus_p<- as.factor(dt1$MSW05_genus_p)
+if (class(dt1$MSW05_species_p)!="factor") dt1$MSW05_species_p<- as.factor(dt1$MSW05_species_p)
+if (class(dt1$PanTHERIA_level)!="factor") dt1$PanTHERIA_level<- as.factor(dt1$PanTHERIA_level)
+if (class(dt1$activity_cycle_p)!="factor") dt1$activity_cycle_p<- as.factor(dt1$activity_cycle_p)
+if (class(dt1$adult_body_mass_g_p)=="factor") dt1$adult_body_mass_g_p <-as.numeric(levels(dt1$adult_body_mass_g_p))[as.integer(dt1$adult_body_mass_g_p) ]               
+if (class(dt1$adult_body_mass_g_p)=="character") dt1$adult_body_mass_g_p <-as.numeric(dt1$adult_body_mass_g_p)
+if (class(dt1$adult_forearm_len_mm_p)=="factor") dt1$adult_forearm_len_mm_p <-as.numeric(levels(dt1$adult_forearm_len_mm_p))[as.integer(dt1$adult_forearm_len_mm_p) ]               
+if (class(dt1$adult_forearm_len_mm_p)=="character") dt1$adult_forearm_len_mm_p <-as.numeric(dt1$adult_forearm_len_mm_p)
+if (class(dt1$adult_head_body_len_mm_p)=="factor") dt1$adult_head_body_len_mm_p <-as.numeric(levels(dt1$adult_head_body_len_mm_p))[as.integer(dt1$adult_head_body_len_mm_p) ]               
+if (class(dt1$adult_head_body_len_mm_p)=="character") dt1$adult_head_body_len_mm_p <-as.numeric(dt1$adult_head_body_len_mm_p)
+if (class(dt1$age_at_eye_opening_d_p)=="factor") dt1$age_at_eye_opening_d_p <-as.numeric(levels(dt1$age_at_eye_opening_d_p))[as.integer(dt1$age_at_eye_opening_d_p) ]               
+if (class(dt1$age_at_eye_opening_d_p)=="character") dt1$age_at_eye_opening_d_p <-as.numeric(dt1$age_at_eye_opening_d_p)
+if (class(dt1$age_at_first_birth_d_p)=="factor") dt1$age_at_first_birth_d_p <-as.numeric(levels(dt1$age_at_first_birth_d_p))[as.integer(dt1$age_at_first_birth_d_p) ]               
+if (class(dt1$age_at_first_birth_d_p)=="character") dt1$age_at_first_birth_d_p <-as.numeric(dt1$age_at_first_birth_d_p)
+if (class(dt1$basal_met_rate_mLO2hr_p)=="factor") dt1$basal_met_rate_mLO2hr_p <-as.numeric(levels(dt1$basal_met_rate_mLO2hr_p))[as.integer(dt1$basal_met_rate_mLO2hr_p) ]               
+if (class(dt1$basal_met_rate_mLO2hr_p)=="character") dt1$basal_met_rate_mLO2hr_p <-as.numeric(dt1$basal_met_rate_mLO2hr_p)
+if (class(dt1$basal_met_rate_mass_g_p)=="factor") dt1$basal_met_rate_mass_g_p <-as.numeric(levels(dt1$basal_met_rate_mass_g_p))[as.integer(dt1$basal_met_rate_mass_g_p) ]               
+if (class(dt1$basal_met_rate_mass_g_p)=="character") dt1$basal_met_rate_mass_g_p <-as.numeric(dt1$basal_met_rate_mass_g_p)
+if (class(dt1$diet_breadth_p)=="factor") dt1$diet_breadth_p <-as.numeric(levels(dt1$diet_breadth_p))[as.integer(dt1$diet_breadth_p) ]               
+if (class(dt1$diet_breadth_p)=="character") dt1$diet_breadth_p <-as.numeric(dt1$diet_breadth_p)
+if (class(dt1$dispersal_age_d_p)=="factor") dt1$dispersal_age_d_p <-as.numeric(levels(dt1$dispersal_age_d_p))[as.integer(dt1$dispersal_age_d_p) ]               
+if (class(dt1$dispersal_age_d_p)=="character") dt1$dispersal_age_d_p <-as.numeric(dt1$dispersal_age_d_p)
+if (class(dt1$gestation_len_d_p)=="factor") dt1$gestation_len_d_p <-as.numeric(levels(dt1$gestation_len_d_p))[as.integer(dt1$gestation_len_d_p) ]               
+if (class(dt1$gestation_len_d_p)=="character") dt1$gestation_len_d_p <-as.numeric(dt1$gestation_len_d_p)
+if (class(dt1$habitat_breadth_p)=="factor") dt1$habitat_breadth_p <-as.numeric(levels(dt1$habitat_breadth_p))[as.integer(dt1$habitat_breadth_p) ]               
+if (class(dt1$habitat_breadth_p)=="character") dt1$habitat_breadth_p <-as.numeric(dt1$habitat_breadth_p)
+if (class(dt1$home_range_km2_p)=="factor") dt1$home_range_km2_p <-as.numeric(levels(dt1$home_range_km2_p))[as.integer(dt1$home_range_km2_p) ]               
+if (class(dt1$home_range_km2_p)=="character") dt1$home_range_km2_p <-as.numeric(dt1$home_range_km2_p)
+if (class(dt1$home_range_indiv_km2_p)=="factor") dt1$home_range_indiv_km2_p <-as.numeric(levels(dt1$home_range_indiv_km2_p))[as.integer(dt1$home_range_indiv_km2_p) ]               
+if (class(dt1$home_range_indiv_km2_p)=="character") dt1$home_range_indiv_km2_p <-as.numeric(dt1$home_range_indiv_km2_p)
+if (class(dt1$Inter_birth_interval_d_p)=="factor") dt1$Inter_birth_interval_d_p <-as.numeric(levels(dt1$Inter_birth_interval_d_p))[as.integer(dt1$Inter_birth_interval_d_p) ]               
+if (class(dt1$Inter_birth_interval_d_p)=="character") dt1$Inter_birth_interval_d_p <-as.numeric(dt1$Inter_birth_interval_d_p)
+if (class(dt1$litter_size_p)=="factor") dt1$litter_size_p <-as.numeric(levels(dt1$litter_size_p))[as.integer(dt1$litter_size_p) ]               
+if (class(dt1$litter_size_p)=="character") dt1$litter_size_p <-as.numeric(dt1$litter_size_p)
+if (class(dt1$litters_per_year_p)=="factor") dt1$litters_per_year_p <-as.numeric(levels(dt1$litters_per_year_p))[as.integer(dt1$litters_per_year_p) ]               
+if (class(dt1$litters_per_year_p)=="character") dt1$litters_per_year_p <-as.numeric(dt1$litters_per_year_p)
+if (class(dt1$max_longevity_m_p)=="factor") dt1$max_longevity_m_p <-as.numeric(levels(dt1$max_longevity_m_p))[as.integer(dt1$max_longevity_m_p) ]               
+if (class(dt1$max_longevity_m_p)=="character") dt1$max_longevity_m_p <-as.numeric(dt1$max_longevity_m_p)
+if (class(dt1$neonate_body_mass_g_p)=="factor") dt1$neonate_body_mass_g_p <-as.numeric(levels(dt1$neonate_body_mass_g_p))[as.integer(dt1$neonate_body_mass_g_p) ]               
+if (class(dt1$neonate_body_mass_g_p)=="character") dt1$neonate_body_mass_g_p <-as.numeric(dt1$neonate_body_mass_g_p)
+if (class(dt1$neonate_head_body_len_mm_p)=="factor") dt1$neonate_head_body_len_mm_p <-as.numeric(levels(dt1$neonate_head_body_len_mm_p))[as.integer(dt1$neonate_head_body_len_mm_p) ]               
+if (class(dt1$neonate_head_body_len_mm_p)=="character") dt1$neonate_head_body_len_mm_p <-as.numeric(dt1$neonate_head_body_len_mm_p)
+if (class(dt1$population_density_n.km2_p)=="factor") dt1$population_density_n.km2_p <-as.numeric(levels(dt1$population_density_n.km2_p))[as.integer(dt1$population_density_n.km2_p) ]               
+if (class(dt1$population_density_n.km2_p)=="character") dt1$population_density_n.km2_p <-as.numeric(dt1$population_density_n.km2_p)
+if (class(dt1$population_grp_size_p)=="factor") dt1$population_grp_size_p <-as.numeric(levels(dt1$population_grp_size_p))[as.integer(dt1$population_grp_size_p) ]               
+if (class(dt1$population_grp_size_p)=="character") dt1$population_grp_size_p <-as.numeric(dt1$population_grp_size_p)
+if (class(dt1$sexual_maturity_age_d_p)=="factor") dt1$sexual_maturity_age_d_p <-as.numeric(levels(dt1$sexual_maturity_age_d_p))[as.integer(dt1$sexual_maturity_age_d_p) ]               
+if (class(dt1$sexual_maturity_age_d_p)=="character") dt1$sexual_maturity_age_d_p <-as.numeric(dt1$sexual_maturity_age_d_p)
+if (class(dt1$social_grp_size_p)=="factor") dt1$social_grp_size_p <-as.numeric(levels(dt1$social_grp_size_p))[as.integer(dt1$social_grp_size_p) ]               
+if (class(dt1$social_grp_size_p)=="character") dt1$social_grp_size_p <-as.numeric(dt1$social_grp_size_p)
+if (class(dt1$teat_number_p)=="factor") dt1$teat_number_p <-as.numeric(levels(dt1$teat_number_p))[as.integer(dt1$teat_number_p) ]               
+if (class(dt1$teat_number_p)=="character") dt1$teat_number_p <-as.numeric(dt1$teat_number_p)
+if (class(dt1$terrestriality_p)!="factor") dt1$terrestriality_p<- as.factor(dt1$terrestriality_p)
+if (class(dt1$trophic_level_p)!="factor") dt1$trophic_level_p<- as.factor(dt1$trophic_level_p)
+if (class(dt1$weaning_age_d_p)=="factor") dt1$weaning_age_d_p <-as.numeric(levels(dt1$weaning_age_d_p))[as.integer(dt1$weaning_age_d_p) ]               
+if (class(dt1$weaning_age_d_p)=="character") dt1$weaning_age_d_p <-as.numeric(dt1$weaning_age_d_p)
+if (class(dt1$weaning_body_mass_g_p)=="factor") dt1$weaning_body_mass_g_p <-as.numeric(levels(dt1$weaning_body_mass_g_p))[as.integer(dt1$weaning_body_mass_g_p) ]               
+if (class(dt1$weaning_body_mass_g_p)=="character") dt1$weaning_body_mass_g_p <-as.numeric(dt1$weaning_body_mass_g_p)
+if (class(dt1$weaning_head_body_len_mm_p)=="factor") dt1$weaning_head_body_len_mm_p <-as.numeric(levels(dt1$weaning_head_body_len_mm_p))[as.integer(dt1$weaning_head_body_len_mm_p) ]               
+if (class(dt1$weaning_head_body_len_mm_p)=="character") dt1$weaning_head_body_len_mm_p <-as.numeric(dt1$weaning_head_body_len_mm_p)
+if (class(dt1$references_p)!="factor") dt1$references_p<- as.factor(dt1$references_p)
+if (class(dt1$adult_body_mass_g_EXT_p)=="factor") dt1$adult_body_mass_g_EXT_p <-as.numeric(levels(dt1$adult_body_mass_g_EXT_p))[as.integer(dt1$adult_body_mass_g_EXT_p) ]               
+if (class(dt1$adult_body_mass_g_EXT_p)=="character") dt1$adult_body_mass_g_EXT_p <-as.numeric(dt1$adult_body_mass_g_EXT_p)
+if (class(dt1$litters_per_year_EXT_p)=="factor") dt1$litters_per_year_EXT_p <-as.numeric(levels(dt1$litters_per_year_EXT_p))[as.integer(dt1$litters_per_year_EXT_p) ]               
+if (class(dt1$litters_per_year_EXT_p)=="character") dt1$litters_per_year_EXT_p <-as.numeric(dt1$litters_per_year_EXT_p)
+if (class(dt1$neonate_body_mass_g_EXT_p)=="factor") dt1$neonate_body_mass_g_EXT_p <-as.numeric(levels(dt1$neonate_body_mass_g_EXT_p))[as.integer(dt1$neonate_body_mass_g_EXT_p) ]               
+if (class(dt1$neonate_body_mass_g_EXT_p)=="character") dt1$neonate_body_mass_g_EXT_p <-as.numeric(dt1$neonate_body_mass_g_EXT_p)
+if (class(dt1$weaning_body_mass_g_EXT_p)=="factor") dt1$weaning_body_mass_g_EXT_p <-as.numeric(levels(dt1$weaning_body_mass_g_EXT_p))[as.integer(dt1$weaning_body_mass_g_EXT_p) ]               
+if (class(dt1$weaning_body_mass_g_EXT_p)=="character") dt1$weaning_body_mass_g_EXT_p <-as.numeric(dt1$weaning_body_mass_g_EXT_p)
+if (class(dt1$GR_area_km2_p)=="factor") dt1$GR_area_km2_p <-as.numeric(levels(dt1$GR_area_km2_p))[as.integer(dt1$GR_area_km2_p) ]               
+if (class(dt1$GR_area_km2_p)=="character") dt1$GR_area_km2_p <-as.numeric(dt1$GR_area_km2_p)
+if (class(dt1$GR_max_lat_dd_p)=="factor") dt1$GR_max_lat_dd_p <-as.numeric(levels(dt1$GR_max_lat_dd_p))[as.integer(dt1$GR_max_lat_dd_p) ]               
+if (class(dt1$GR_max_lat_dd_p)=="character") dt1$GR_max_lat_dd_p <-as.numeric(dt1$GR_max_lat_dd_p)
+if (class(dt1$GR_min_lat_dd_p)=="factor") dt1$GR_min_lat_dd_p <-as.numeric(levels(dt1$GR_min_lat_dd_p))[as.integer(dt1$GR_min_lat_dd_p) ]               
+if (class(dt1$GR_min_lat_dd_p)=="character") dt1$GR_min_lat_dd_p <-as.numeric(dt1$GR_min_lat_dd_p)
+if (class(dt1$GR_mid_range_lat_dd_p)=="factor") dt1$GR_mid_range_lat_dd_p <-as.numeric(levels(dt1$GR_mid_range_lat_dd_p))[as.integer(dt1$GR_mid_range_lat_dd_p) ]               
+if (class(dt1$GR_mid_range_lat_dd_p)=="character") dt1$GR_mid_range_lat_dd_p <-as.numeric(dt1$GR_mid_range_lat_dd_p)
+if (class(dt1$GR_max_long_dd_p)=="factor") dt1$GR_max_long_dd_p <-as.numeric(levels(dt1$GR_max_long_dd_p))[as.integer(dt1$GR_max_long_dd_p) ]               
+if (class(dt1$GR_max_long_dd_p)=="character") dt1$GR_max_long_dd_p <-as.numeric(dt1$GR_max_long_dd_p)
+if (class(dt1$GR_min_long_dd_p)=="factor") dt1$GR_min_long_dd_p <-as.numeric(levels(dt1$GR_min_long_dd_p))[as.integer(dt1$GR_min_long_dd_p) ]               
+if (class(dt1$GR_min_long_dd_p)=="character") dt1$GR_min_long_dd_p <-as.numeric(dt1$GR_min_long_dd_p)
+if (class(dt1$GR_mid_range_long_dd_p)=="factor") dt1$GR_mid_range_long_dd_p <-as.numeric(levels(dt1$GR_mid_range_long_dd_p))[as.integer(dt1$GR_mid_range_long_dd_p) ]               
+if (class(dt1$GR_mid_range_long_dd_p)=="character") dt1$GR_mid_range_long_dd_p <-as.numeric(dt1$GR_mid_range_long_dd_p)
+if (class(dt1$hu_pop_den_min_n.km2_p_OD)=="factor") dt1$hu_pop_den_min_n.km2_p_OD <-as.numeric(levels(dt1$hu_pop_den_min_n.km2_p_OD))[as.integer(dt1$hu_pop_den_min_n.km2_p_OD) ]               
+if (class(dt1$hu_pop_den_min_n.km2_p_OD)=="character") dt1$hu_pop_den_min_n.km2_p_OD <-as.numeric(dt1$hu_pop_den_min_n.km2_p_OD)
+if (class(dt1$hu_pop_den_mean_n.km2_p_OD)=="factor") dt1$hu_pop_den_mean_n.km2_p_OD <-as.numeric(levels(dt1$hu_pop_den_mean_n.km2_p_OD))[as.integer(dt1$hu_pop_den_mean_n.km2_p_OD) ]               
+if (class(dt1$hu_pop_den_mean_n.km2_p_OD)=="character") dt1$hu_pop_den_mean_n.km2_p_OD <-as.numeric(dt1$hu_pop_den_mean_n.km2_p_OD)
+if (class(dt1$hu_pop_den_5p_n.km2_p_OD)=="factor") dt1$hu_pop_den_5p_n.km2_p_OD <-as.numeric(levels(dt1$hu_pop_den_5p_n.km2_p_OD))[as.integer(dt1$hu_pop_den_5p_n.km2_p_OD) ]               
+if (class(dt1$hu_pop_den_5p_n.km2_p_OD)=="character") dt1$hu_pop_den_5p_n.km2_p_OD <-as.numeric(dt1$hu_pop_den_5p_n.km2_p_OD)
+if (class(dt1$hu_pop_den_change_p_OD)=="factor") dt1$hu_pop_den_change_p_OD <-as.numeric(levels(dt1$hu_pop_den_change_p_OD))[as.integer(dt1$hu_pop_den_change_p_OD) ]               
+if (class(dt1$hu_pop_den_change_p_OD)=="character") dt1$hu_pop_den_change_p_OD <-as.numeric(dt1$hu_pop_den_change_p_OD)
+if (class(dt1$precip_mean_mm_p_OD)=="factor") dt1$precip_mean_mm_p_OD <-as.numeric(levels(dt1$precip_mean_mm_p_OD))[as.integer(dt1$precip_mean_mm_p_OD) ]               
+if (class(dt1$precip_mean_mm_p_OD)=="character") dt1$precip_mean_mm_p_OD <-as.numeric(dt1$precip_mean_mm_p_OD)
+if (class(dt1$temp_mean_01degC_p_OD)=="factor") dt1$temp_mean_01degC_p_OD <-as.numeric(levels(dt1$temp_mean_01degC_p_OD))[as.integer(dt1$temp_mean_01degC_p_OD) ]               
+if (class(dt1$temp_mean_01degC_p_OD)=="character") dt1$temp_mean_01degC_p_OD <-as.numeric(dt1$temp_mean_01degC_p_OD)
+if (class(dt1$AET_mean_mm_p_OD)=="factor") dt1$AET_mean_mm_p_OD <-as.numeric(levels(dt1$AET_mean_mm_p_OD))[as.integer(dt1$AET_mean_mm_p_OD) ]               
+if (class(dt1$AET_mean_mm_p_OD)=="character") dt1$AET_mean_mm_p_OD <-as.numeric(dt1$AET_mean_mm_p_OD)
+if (class(dt1$PET_mean_mm_p_OD)=="factor") dt1$PET_mean_mm_p_OD <-as.numeric(levels(dt1$PET_mean_mm_p_OD))[as.integer(dt1$PET_mean_mm_p_OD) ]               
+if (class(dt1$PET_mean_mm_p_OD)=="character") dt1$PET_mean_mm_p_OD <-as.numeric(dt1$PET_mean_mm_p_OD)
+                
+# Convert Missing Values to NA for non-dates
+                
+dt1$common_name <- as.factor(ifelse((trimws(as.character(dt1$common_name))==trimws("NA")),NA,as.character(dt1$common_name)))
+dt1$subspecies <- as.factor(ifelse((trimws(as.character(dt1$subspecies))==trimws("NA")),NA,as.character(dt1$subspecies)))
+dt1$rank <- as.factor(ifelse((trimws(as.character(dt1$rank))==trimws("NA")),NA,as.character(dt1$rank)))
+dt1$species_notes <- as.factor(ifelse((trimws(as.character(dt1$species_notes))==trimws("NA")),NA,as.character(dt1$species_notes)))
+dt1$diet_certainty_e <- as.factor(ifelse((trimws(as.character(dt1$diet_certainty_e))==trimws("NA")),NA,as.character(dt1$diet_certainty_e)))
+dt1$diet_level <- as.factor(ifelse((trimws(as.character(dt1$diet_level))==trimws("NA")),NA,as.character(dt1$diet_level)))
+dt1$activity_level <- as.factor(ifelse((trimws(as.character(dt1$activity_level))==trimws("NA")),NA,as.character(dt1$activity_level)))
+dt1$body_mass_notes <- as.factor(ifelse((trimws(as.character(dt1$body_mass_notes))==trimws("NA")),NA,as.character(dt1$body_mass_notes)))
+dt1$min_body_size_mm <- ifelse((trimws(as.character(dt1$min_body_size_mm))==trimws("NA")),NA,dt1$min_body_size_mm)               
+suppressWarnings(dt1$min_body_size_mm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$min_body_size_mm))==as.character(as.numeric("NA"))),NA,dt1$min_body_size_mm))
+dt1$max_body_size_mm <- ifelse((trimws(as.character(dt1$max_body_size_mm))==trimws("NA")),NA,dt1$max_body_size_mm)               
+suppressWarnings(dt1$max_body_size_mm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$max_body_size_mm))==as.character(as.numeric("NA"))),NA,dt1$max_body_size_mm))
+dt1$body_size_mm <- ifelse((trimws(as.character(dt1$body_size_mm))==trimws("NA")),NA,dt1$body_size_mm)               
+suppressWarnings(dt1$body_size_mm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$body_size_mm))==as.character(as.numeric("NA"))),NA,dt1$body_size_mm))
+dt1$body_size_notes <- as.factor(ifelse((trimws(as.character(dt1$body_size_notes))==trimws("NA")),NA,as.character(dt1$body_size_notes)))
+dt1$body_size_level <- as.factor(ifelse((trimws(as.character(dt1$body_size_level))==trimws("NA")),NA,as.character(dt1$body_size_level)))
+dt1$body_size_source <- as.factor(ifelse((trimws(as.character(dt1$body_size_source))==trimws("NA")),NA,as.character(dt1$body_size_source)))
+dt1$sexual_dimorphism <- as.factor(ifelse((trimws(as.character(dt1$sexual_dimorphism))==trimws("NA")),NA,as.character(dt1$sexual_dimorphism)))
+dt1$sexual_dimorphism <- as.factor(ifelse((trimws(as.character(dt1$sexual_dimorphism))==trimws("NA ")),NA,as.character(dt1$sexual_dimorphism)))
+dt1$sexual_dimorphism_notes <- as.factor(ifelse((trimws(as.character(dt1$sexual_dimorphism_notes))==trimws("NA")),NA,as.character(dt1$sexual_dimorphism_notes)))
+dt1$sexual_dimorphism_level <- as.factor(ifelse((trimws(as.character(dt1$sexual_dimorphism_level))==trimws("NA")),NA,as.character(dt1$sexual_dimorphism_level)))
+dt1$sexual_dimorphism_source <- as.factor(ifelse((trimws(as.character(dt1$sexual_dimorphism_source))==trimws("NA")),NA,as.character(dt1$sexual_dimorphism_source)))
+dt1$min_longevity <- ifelse((trimws(as.character(dt1$min_longevity))==trimws("NA")),NA,dt1$min_longevity)               
+suppressWarnings(dt1$min_longevity <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$min_longevity))==as.character(as.numeric("NA"))),NA,dt1$min_longevity))
+dt1$max_longevity <- ifelse((trimws(as.character(dt1$max_longevity))==trimws("NA")),NA,dt1$max_longevity)               
+suppressWarnings(dt1$max_longevity <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$max_longevity))==as.character(as.numeric("NA"))),NA,dt1$max_longevity))
+dt1$longevity <- ifelse((trimws(as.character(dt1$longevity))==trimws("NA")),NA,dt1$longevity)               
+suppressWarnings(dt1$longevity <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$longevity))==as.character(as.numeric("NA"))),NA,dt1$longevity))
+dt1$longevity_notes <- as.factor(ifelse((trimws(as.character(dt1$longevity_notes))==trimws("NA")),NA,as.character(dt1$longevity_notes)))
+dt1$longevity_level <- as.factor(ifelse((trimws(as.character(dt1$longevity_level))==trimws("NA")),NA,as.character(dt1$longevity_level)))
+dt1$longevity_source <- as.factor(ifelse((trimws(as.character(dt1$longevity_source))==trimws("NA")),NA,as.character(dt1$longevity_source)))
+dt1$min_home_range <- ifelse((trimws(as.character(dt1$min_home_range))==trimws("NA")),NA,dt1$min_home_range)               
+suppressWarnings(dt1$min_home_range <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$min_home_range))==as.character(as.numeric("NA"))),NA,dt1$min_home_range))
+dt1$max_home_range <- ifelse((trimws(as.character(dt1$max_home_range))==trimws("NA")),NA,dt1$max_home_range)               
+suppressWarnings(dt1$max_home_range <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$max_home_range))==as.character(as.numeric("NA"))),NA,dt1$max_home_range))
+dt1$home_range_size <- ifelse((trimws(as.character(dt1$home_range_size))==trimws("NA")),NA,dt1$home_range_size)               
+suppressWarnings(dt1$home_range_size <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$home_range_size))==as.character(as.numeric("NA"))),NA,dt1$home_range_size))
+dt1$home_range_notes <- as.factor(ifelse((trimws(as.character(dt1$home_range_notes))==trimws("NA")),NA,as.character(dt1$home_range_notes)))
+dt1$home_range_level <- as.factor(ifelse((trimws(as.character(dt1$home_range_level))==trimws("NA")),NA,as.character(dt1$home_range_level)))
+dt1$home_range_source <- as.factor(ifelse((trimws(as.character(dt1$home_range_source))==trimws("NA")),NA,as.character(dt1$home_range_source)))
+dt1$habitat_specialization <- as.factor(ifelse((trimws(as.character(dt1$habitat_specialization))==trimws("NA")),NA,as.character(dt1$habitat_specialization)))
+dt1$habitat_specialization_notes <- as.factor(ifelse((trimws(as.character(dt1$habitat_specialization_notes))==trimws("NA")),NA,as.character(dt1$habitat_specialization_notes)))
+dt1$habitat_specialization_source <- as.factor(ifelse((trimws(as.character(dt1$habitat_specialization_source))==trimws("NA")),NA,as.character(dt1$habitat_specialization_source)))
+dt1$min_generation_time <- ifelse((trimws(as.character(dt1$min_generation_time))==trimws("NA")),NA,dt1$min_generation_time)               
+suppressWarnings(dt1$min_generation_time <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$min_generation_time))==as.character(as.numeric("NA"))),NA,dt1$min_generation_time))
+dt1$max_generation_time <- ifelse((trimws(as.character(dt1$max_generation_time))==trimws("NA")),NA,dt1$max_generation_time)               
+suppressWarnings(dt1$max_generation_time <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$max_generation_time))==as.character(as.numeric("NA"))),NA,dt1$max_generation_time))
+dt1$generation_time <- ifelse((trimws(as.character(dt1$generation_time))==trimws("NA")),NA,dt1$generation_time)               
+suppressWarnings(dt1$generation_time <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$generation_time))==as.character(as.numeric("NA"))),NA,dt1$generation_time))
+dt1$generation_time_notes <- as.factor(ifelse((trimws(as.character(dt1$generation_time_notes))==trimws("NA")),NA,as.character(dt1$generation_time_notes)))
+dt1$generation_time_level <- as.factor(ifelse((trimws(as.character(dt1$generation_time_level))==trimws("NA")),NA,as.character(dt1$generation_time_level)))
+dt1$generation_time_source <- as.factor(ifelse((trimws(as.character(dt1$generation_time_source))==trimws("NA")),NA,as.character(dt1$generation_time_source)))
+dt1$habitat_suitability_montane <- as.factor(ifelse((trimws(as.character(dt1$habitat_suitability_montane))==trimws("NA")),NA,as.character(dt1$habitat_suitability_montane)))
+dt1$habitat_suitability_lowland <- as.factor(ifelse((trimws(as.character(dt1$habitat_suitability_lowland))==trimws("NA")),NA,as.character(dt1$habitat_suitability_lowland)))
+dt1$habitat_season_montane <- as.factor(ifelse((trimws(as.character(dt1$habitat_season_montane))==trimws("NA")),NA,as.character(dt1$habitat_season_montane)))
+dt1$habitat_season_lowland <- as.factor(ifelse((trimws(as.character(dt1$habitat_season_lowland))==trimws("NA")),NA,as.character(dt1$habitat_season_lowland)))
+dt1$habitat_major_importance_montane <- as.factor(ifelse((trimws(as.character(dt1$habitat_major_importance_montane))==trimws("NA")),NA,as.character(dt1$habitat_major_importance_montane)))
+dt1$habitat_major_importance_lowland <- as.factor(ifelse((trimws(as.character(dt1$habitat_major_importance_lowland))==trimws("NA")),NA,as.character(dt1$habitat_major_importance_lowland)))
+dt1$habitat_breadth <- ifelse((trimws(as.character(dt1$habitat_breadth))==trimws("NA")),NA,dt1$habitat_breadth)               
+suppressWarnings(dt1$habitat_breadth <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$habitat_breadth))==as.character(as.numeric("NA"))),NA,dt1$habitat_breadth))
+dt1$habitat_level <- as.factor(ifelse((trimws(as.character(dt1$habitat_level))==trimws("NA")),NA,as.character(dt1$habitat_level)))
+dt1$mean_CHELSA_bio1_1981.2010_V.2.1 <- ifelse((trimws(as.character(dt1$mean_CHELSA_bio1_1981.2010_V.2.1))==trimws("NA")),NA,dt1$mean_CHELSA_bio1_1981.2010_V.2.1)               
+suppressWarnings(dt1$mean_CHELSA_bio1_1981.2010_V.2.1 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$mean_CHELSA_bio1_1981.2010_V.2.1))==as.character(as.numeric("NA"))),NA,dt1$mean_CHELSA_bio1_1981.2010_V.2.1))
+dt1$mean_CHELSA_bio12_1981.2010_V.2.1 <- ifelse((trimws(as.character(dt1$mean_CHELSA_bio12_1981.2010_V.2.1))==trimws("NA")),NA,dt1$mean_CHELSA_bio12_1981.2010_V.2.1)               
+suppressWarnings(dt1$mean_CHELSA_bio12_1981.2010_V.2.1 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$mean_CHELSA_bio12_1981.2010_V.2.1))==as.character(as.numeric("NA"))),NA,dt1$mean_CHELSA_bio12_1981.2010_V.2.1))
+dt1$mean_human_fp_range_2010 <- ifelse((trimws(as.character(dt1$mean_human_fp_range_2010))==trimws("NA")),NA,dt1$mean_human_fp_range_2010)               
+suppressWarnings(dt1$mean_human_fp_range_2010 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$mean_human_fp_range_2010))==as.character(as.numeric("NA"))),NA,dt1$mean_human_fp_range_2010))
+dt1$mean_human_fp_range_2020 <- ifelse((trimws(as.character(dt1$mean_human_fp_range_2020))==trimws("NA")),NA,dt1$mean_human_fp_range_2020)               
+suppressWarnings(dt1$mean_human_fp_range_2020 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$mean_human_fp_range_2020))==as.character(as.numeric("NA"))),NA,dt1$mean_human_fp_range_2020))
+dt1$percent_change_hf_2010_2020 <- ifelse((trimws(as.character(dt1$percent_change_hf_2010_2020))==trimws("NA")),NA,dt1$percent_change_hf_2010_2020)               
+suppressWarnings(dt1$percent_change_hf_2010_2020 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$percent_change_hf_2010_2020))==as.character(as.numeric("NA"))),NA,dt1$percent_change_hf_2010_2020))
+dt1$observed_range_sqkm <- ifelse((trimws(as.character(dt1$observed_range_sqkm))==trimws("NA")),NA,dt1$observed_range_sqkm)               
+suppressWarnings(dt1$observed_range_sqkm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$observed_range_sqkm))==as.character(as.numeric("NA"))),NA,dt1$observed_range_sqkm))
+dt1$inferred_range_sqkm <- ifelse((trimws(as.character(dt1$inferred_range_sqkm))==trimws("NA")),NA,dt1$inferred_range_sqkm)               
+suppressWarnings(dt1$inferred_range_sqkm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$inferred_range_sqkm))==as.character(as.numeric("NA"))),NA,dt1$inferred_range_sqkm))
+dt1$date_data_obtained <- as.factor(ifelse((trimws(as.character(dt1$date_data_obtained))==trimws("NA")),NA,as.character(dt1$date_data_obtained)))
+dt1$PanTHERIA_level <- as.factor(ifelse((trimws(as.character(dt1$PanTHERIA_level))==trimws("NA")),NA,as.character(dt1$PanTHERIA_level)))
+dt1$activity_cycle_p <- as.factor(ifelse((trimws(as.character(dt1$activity_cycle_p))==trimws("NA")),NA,as.character(dt1$activity_cycle_p)))
+dt1$adult_body_mass_g_p <- ifelse((trimws(as.character(dt1$adult_body_mass_g_p))==trimws("NA")),NA,dt1$adult_body_mass_g_p)               
+suppressWarnings(dt1$adult_body_mass_g_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$adult_body_mass_g_p))==as.character(as.numeric("NA"))),NA,dt1$adult_body_mass_g_p))
+dt1$adult_forearm_len_mm_p <- ifelse((trimws(as.character(dt1$adult_forearm_len_mm_p))==trimws("NA")),NA,dt1$adult_forearm_len_mm_p)               
+suppressWarnings(dt1$adult_forearm_len_mm_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$adult_forearm_len_mm_p))==as.character(as.numeric("NA"))),NA,dt1$adult_forearm_len_mm_p))
+dt1$adult_head_body_len_mm_p <- ifelse((trimws(as.character(dt1$adult_head_body_len_mm_p))==trimws("NA")),NA,dt1$adult_head_body_len_mm_p)               
+suppressWarnings(dt1$adult_head_body_len_mm_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$adult_head_body_len_mm_p))==as.character(as.numeric("NA"))),NA,dt1$adult_head_body_len_mm_p))
+dt1$age_at_eye_opening_d_p <- ifelse((trimws(as.character(dt1$age_at_eye_opening_d_p))==trimws("NA")),NA,dt1$age_at_eye_opening_d_p)               
+suppressWarnings(dt1$age_at_eye_opening_d_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$age_at_eye_opening_d_p))==as.character(as.numeric("NA"))),NA,dt1$age_at_eye_opening_d_p))
+dt1$age_at_first_birth_d_p <- ifelse((trimws(as.character(dt1$age_at_first_birth_d_p))==trimws("NA")),NA,dt1$age_at_first_birth_d_p)               
+suppressWarnings(dt1$age_at_first_birth_d_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$age_at_first_birth_d_p))==as.character(as.numeric("NA"))),NA,dt1$age_at_first_birth_d_p))
+dt1$basal_met_rate_mLO2hr_p <- ifelse((trimws(as.character(dt1$basal_met_rate_mLO2hr_p))==trimws("NA")),NA,dt1$basal_met_rate_mLO2hr_p)               
+suppressWarnings(dt1$basal_met_rate_mLO2hr_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$basal_met_rate_mLO2hr_p))==as.character(as.numeric("NA"))),NA,dt1$basal_met_rate_mLO2hr_p))
+dt1$basal_met_rate_mass_g_p <- ifelse((trimws(as.character(dt1$basal_met_rate_mass_g_p))==trimws("NA")),NA,dt1$basal_met_rate_mass_g_p)               
+suppressWarnings(dt1$basal_met_rate_mass_g_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$basal_met_rate_mass_g_p))==as.character(as.numeric("NA"))),NA,dt1$basal_met_rate_mass_g_p))
+dt1$diet_breadth_p <- ifelse((trimws(as.character(dt1$diet_breadth_p))==trimws("NA")),NA,dt1$diet_breadth_p)               
+suppressWarnings(dt1$diet_breadth_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$diet_breadth_p))==as.character(as.numeric("NA"))),NA,dt1$diet_breadth_p))
+dt1$dispersal_age_d_p <- ifelse((trimws(as.character(dt1$dispersal_age_d_p))==trimws("NA")),NA,dt1$dispersal_age_d_p)               
+suppressWarnings(dt1$dispersal_age_d_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$dispersal_age_d_p))==as.character(as.numeric("NA"))),NA,dt1$dispersal_age_d_p))
+dt1$gestation_len_d_p <- ifelse((trimws(as.character(dt1$gestation_len_d_p))==trimws("NA")),NA,dt1$gestation_len_d_p)               
+suppressWarnings(dt1$gestation_len_d_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$gestation_len_d_p))==as.character(as.numeric("NA"))),NA,dt1$gestation_len_d_p))
+dt1$habitat_breadth_p <- ifelse((trimws(as.character(dt1$habitat_breadth_p))==trimws("NA")),NA,dt1$habitat_breadth_p)               
+suppressWarnings(dt1$habitat_breadth_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$habitat_breadth_p))==as.character(as.numeric("NA"))),NA,dt1$habitat_breadth_p))
+dt1$home_range_km2_p <- ifelse((trimws(as.character(dt1$home_range_km2_p))==trimws("NA")),NA,dt1$home_range_km2_p)               
+suppressWarnings(dt1$home_range_km2_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$home_range_km2_p))==as.character(as.numeric("NA"))),NA,dt1$home_range_km2_p))
+dt1$home_range_indiv_km2_p <- ifelse((trimws(as.character(dt1$home_range_indiv_km2_p))==trimws("NA")),NA,dt1$home_range_indiv_km2_p)               
+suppressWarnings(dt1$home_range_indiv_km2_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$home_range_indiv_km2_p))==as.character(as.numeric("NA"))),NA,dt1$home_range_indiv_km2_p))
+dt1$Inter_birth_interval_d_p <- ifelse((trimws(as.character(dt1$Inter_birth_interval_d_p))==trimws("NA")),NA,dt1$Inter_birth_interval_d_p)               
+suppressWarnings(dt1$Inter_birth_interval_d_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$Inter_birth_interval_d_p))==as.character(as.numeric("NA"))),NA,dt1$Inter_birth_interval_d_p))
+dt1$litter_size_p <- ifelse((trimws(as.character(dt1$litter_size_p))==trimws("NA")),NA,dt1$litter_size_p)               
+suppressWarnings(dt1$litter_size_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$litter_size_p))==as.character(as.numeric("NA"))),NA,dt1$litter_size_p))
+dt1$litters_per_year_p <- ifelse((trimws(as.character(dt1$litters_per_year_p))==trimws("NA")),NA,dt1$litters_per_year_p)               
+suppressWarnings(dt1$litters_per_year_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$litters_per_year_p))==as.character(as.numeric("NA"))),NA,dt1$litters_per_year_p))
+dt1$max_longevity_m_p <- ifelse((trimws(as.character(dt1$max_longevity_m_p))==trimws("NA")),NA,dt1$max_longevity_m_p)               
+suppressWarnings(dt1$max_longevity_m_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$max_longevity_m_p))==as.character(as.numeric("NA"))),NA,dt1$max_longevity_m_p))
+dt1$neonate_body_mass_g_p <- ifelse((trimws(as.character(dt1$neonate_body_mass_g_p))==trimws("NA")),NA,dt1$neonate_body_mass_g_p)               
+suppressWarnings(dt1$neonate_body_mass_g_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$neonate_body_mass_g_p))==as.character(as.numeric("NA"))),NA,dt1$neonate_body_mass_g_p))
+dt1$neonate_head_body_len_mm_p <- ifelse((trimws(as.character(dt1$neonate_head_body_len_mm_p))==trimws("NA")),NA,dt1$neonate_head_body_len_mm_p)               
+suppressWarnings(dt1$neonate_head_body_len_mm_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$neonate_head_body_len_mm_p))==as.character(as.numeric("NA"))),NA,dt1$neonate_head_body_len_mm_p))
+dt1$population_density_n.km2_p <- ifelse((trimws(as.character(dt1$population_density_n.km2_p))==trimws("NA")),NA,dt1$population_density_n.km2_p)               
+suppressWarnings(dt1$population_density_n.km2_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$population_density_n.km2_p))==as.character(as.numeric("NA"))),NA,dt1$population_density_n.km2_p))
+dt1$population_grp_size_p <- ifelse((trimws(as.character(dt1$population_grp_size_p))==trimws("NA")),NA,dt1$population_grp_size_p)               
+suppressWarnings(dt1$population_grp_size_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$population_grp_size_p))==as.character(as.numeric("NA"))),NA,dt1$population_grp_size_p))
+dt1$sexual_maturity_age_d_p <- ifelse((trimws(as.character(dt1$sexual_maturity_age_d_p))==trimws("NA")),NA,dt1$sexual_maturity_age_d_p)               
+suppressWarnings(dt1$sexual_maturity_age_d_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$sexual_maturity_age_d_p))==as.character(as.numeric("NA"))),NA,dt1$sexual_maturity_age_d_p))
+dt1$social_grp_size_p <- ifelse((trimws(as.character(dt1$social_grp_size_p))==trimws("NA")),NA,dt1$social_grp_size_p)               
+suppressWarnings(dt1$social_grp_size_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$social_grp_size_p))==as.character(as.numeric("NA"))),NA,dt1$social_grp_size_p))
+dt1$teat_number_p <- ifelse((trimws(as.character(dt1$teat_number_p))==trimws("NA")),NA,dt1$teat_number_p)               
+suppressWarnings(dt1$teat_number_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$teat_number_p))==as.character(as.numeric("NA"))),NA,dt1$teat_number_p))
+dt1$terrestriality_p <- as.factor(ifelse((trimws(as.character(dt1$terrestriality_p))==trimws("NA")),NA,as.character(dt1$terrestriality_p)))
+dt1$trophic_level_p <- as.factor(ifelse((trimws(as.character(dt1$trophic_level_p))==trimws("NA")),NA,as.character(dt1$trophic_level_p)))
+dt1$weaning_age_d_p <- ifelse((trimws(as.character(dt1$weaning_age_d_p))==trimws("NA")),NA,dt1$weaning_age_d_p)               
+suppressWarnings(dt1$weaning_age_d_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$weaning_age_d_p))==as.character(as.numeric("NA"))),NA,dt1$weaning_age_d_p))
+dt1$weaning_body_mass_g_p <- ifelse((trimws(as.character(dt1$weaning_body_mass_g_p))==trimws("NA")),NA,dt1$weaning_body_mass_g_p)               
+suppressWarnings(dt1$weaning_body_mass_g_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$weaning_body_mass_g_p))==as.character(as.numeric("NA"))),NA,dt1$weaning_body_mass_g_p))
+dt1$weaning_head_body_len_mm_p <- ifelse((trimws(as.character(dt1$weaning_head_body_len_mm_p))==trimws("NA")),NA,dt1$weaning_head_body_len_mm_p)               
+suppressWarnings(dt1$weaning_head_body_len_mm_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$weaning_head_body_len_mm_p))==as.character(as.numeric("NA"))),NA,dt1$weaning_head_body_len_mm_p))
+dt1$references_p <- as.factor(ifelse((trimws(as.character(dt1$references_p))==trimws("NA")),NA,as.character(dt1$references_p)))
+dt1$adult_body_mass_g_EXT_p <- ifelse((trimws(as.character(dt1$adult_body_mass_g_EXT_p))==trimws("NA")),NA,dt1$adult_body_mass_g_EXT_p)               
+suppressWarnings(dt1$adult_body_mass_g_EXT_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$adult_body_mass_g_EXT_p))==as.character(as.numeric("NA"))),NA,dt1$adult_body_mass_g_EXT_p))
+dt1$litters_per_year_EXT_p <- ifelse((trimws(as.character(dt1$litters_per_year_EXT_p))==trimws("NA")),NA,dt1$litters_per_year_EXT_p)               
+suppressWarnings(dt1$litters_per_year_EXT_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$litters_per_year_EXT_p))==as.character(as.numeric("NA"))),NA,dt1$litters_per_year_EXT_p))
+dt1$neonate_body_mass_g_EXT_p <- ifelse((trimws(as.character(dt1$neonate_body_mass_g_EXT_p))==trimws("NA")),NA,dt1$neonate_body_mass_g_EXT_p)               
+suppressWarnings(dt1$neonate_body_mass_g_EXT_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$neonate_body_mass_g_EXT_p))==as.character(as.numeric("NA"))),NA,dt1$neonate_body_mass_g_EXT_p))
+dt1$weaning_body_mass_g_EXT_p <- ifelse((trimws(as.character(dt1$weaning_body_mass_g_EXT_p))==trimws("NA")),NA,dt1$weaning_body_mass_g_EXT_p)               
+suppressWarnings(dt1$weaning_body_mass_g_EXT_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$weaning_body_mass_g_EXT_p))==as.character(as.numeric("NA"))),NA,dt1$weaning_body_mass_g_EXT_p))
+dt1$GR_area_km2_p <- ifelse((trimws(as.character(dt1$GR_area_km2_p))==trimws("NA")),NA,dt1$GR_area_km2_p)               
+suppressWarnings(dt1$GR_area_km2_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$GR_area_km2_p))==as.character(as.numeric("NA"))),NA,dt1$GR_area_km2_p))
+dt1$GR_max_lat_dd_p <- ifelse((trimws(as.character(dt1$GR_max_lat_dd_p))==trimws("NA")),NA,dt1$GR_max_lat_dd_p)               
+suppressWarnings(dt1$GR_max_lat_dd_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$GR_max_lat_dd_p))==as.character(as.numeric("NA"))),NA,dt1$GR_max_lat_dd_p))
+dt1$GR_min_lat_dd_p <- ifelse((trimws(as.character(dt1$GR_min_lat_dd_p))==trimws("NA")),NA,dt1$GR_min_lat_dd_p)               
+suppressWarnings(dt1$GR_min_lat_dd_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$GR_min_lat_dd_p))==as.character(as.numeric("NA"))),NA,dt1$GR_min_lat_dd_p))
+dt1$GR_mid_range_lat_dd_p <- ifelse((trimws(as.character(dt1$GR_mid_range_lat_dd_p))==trimws("NA")),NA,dt1$GR_mid_range_lat_dd_p)               
+suppressWarnings(dt1$GR_mid_range_lat_dd_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$GR_mid_range_lat_dd_p))==as.character(as.numeric("NA"))),NA,dt1$GR_mid_range_lat_dd_p))
+dt1$GR_max_long_dd_p <- ifelse((trimws(as.character(dt1$GR_max_long_dd_p))==trimws("NA")),NA,dt1$GR_max_long_dd_p)               
+suppressWarnings(dt1$GR_max_long_dd_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$GR_max_long_dd_p))==as.character(as.numeric("NA"))),NA,dt1$GR_max_long_dd_p))
+dt1$GR_min_long_dd_p <- ifelse((trimws(as.character(dt1$GR_min_long_dd_p))==trimws("NA")),NA,dt1$GR_min_long_dd_p)               
+suppressWarnings(dt1$GR_min_long_dd_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$GR_min_long_dd_p))==as.character(as.numeric("NA"))),NA,dt1$GR_min_long_dd_p))
+dt1$GR_mid_range_long_dd_p <- ifelse((trimws(as.character(dt1$GR_mid_range_long_dd_p))==trimws("NA")),NA,dt1$GR_mid_range_long_dd_p)               
+suppressWarnings(dt1$GR_mid_range_long_dd_p <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$GR_mid_range_long_dd_p))==as.character(as.numeric("NA"))),NA,dt1$GR_mid_range_long_dd_p))
+dt1$hu_pop_den_min_n.km2_p_OD <- ifelse((trimws(as.character(dt1$hu_pop_den_min_n.km2_p_OD))==trimws("NA")),NA,dt1$hu_pop_den_min_n.km2_p_OD)               
+suppressWarnings(dt1$hu_pop_den_min_n.km2_p_OD <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$hu_pop_den_min_n.km2_p_OD))==as.character(as.numeric("NA"))),NA,dt1$hu_pop_den_min_n.km2_p_OD))
+dt1$hu_pop_den_mean_n.km2_p_OD <- ifelse((trimws(as.character(dt1$hu_pop_den_mean_n.km2_p_OD))==trimws("NA")),NA,dt1$hu_pop_den_mean_n.km2_p_OD)               
+suppressWarnings(dt1$hu_pop_den_mean_n.km2_p_OD <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$hu_pop_den_mean_n.km2_p_OD))==as.character(as.numeric("NA"))),NA,dt1$hu_pop_den_mean_n.km2_p_OD))
+dt1$hu_pop_den_5p_n.km2_p_OD <- ifelse((trimws(as.character(dt1$hu_pop_den_5p_n.km2_p_OD))==trimws("NA")),NA,dt1$hu_pop_den_5p_n.km2_p_OD)               
+suppressWarnings(dt1$hu_pop_den_5p_n.km2_p_OD <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$hu_pop_den_5p_n.km2_p_OD))==as.character(as.numeric("NA"))),NA,dt1$hu_pop_den_5p_n.km2_p_OD))
+dt1$hu_pop_den_change_p_OD <- ifelse((trimws(as.character(dt1$hu_pop_den_change_p_OD))==trimws("NA")),NA,dt1$hu_pop_den_change_p_OD)               
+suppressWarnings(dt1$hu_pop_den_change_p_OD <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$hu_pop_den_change_p_OD))==as.character(as.numeric("NA"))),NA,dt1$hu_pop_den_change_p_OD))
+dt1$precip_mean_mm_p_OD <- ifelse((trimws(as.character(dt1$precip_mean_mm_p_OD))==trimws("NA")),NA,dt1$precip_mean_mm_p_OD)               
+suppressWarnings(dt1$precip_mean_mm_p_OD <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$precip_mean_mm_p_OD))==as.character(as.numeric("NA"))),NA,dt1$precip_mean_mm_p_OD))
+dt1$temp_mean_01degC_p_OD <- ifelse((trimws(as.character(dt1$temp_mean_01degC_p_OD))==trimws("NA")),NA,dt1$temp_mean_01degC_p_OD)               
+suppressWarnings(dt1$temp_mean_01degC_p_OD <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$temp_mean_01degC_p_OD))==as.character(as.numeric("NA"))),NA,dt1$temp_mean_01degC_p_OD))
+dt1$AET_mean_mm_p_OD <- ifelse((trimws(as.character(dt1$AET_mean_mm_p_OD))==trimws("NA")),NA,dt1$AET_mean_mm_p_OD)               
+suppressWarnings(dt1$AET_mean_mm_p_OD <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$AET_mean_mm_p_OD))==as.character(as.numeric("NA"))),NA,dt1$AET_mean_mm_p_OD))
+dt1$PET_mean_mm_p_OD <- ifelse((trimws(as.character(dt1$PET_mean_mm_p_OD))==trimws("NA")),NA,dt1$PET_mean_mm_p_OD)               
+suppressWarnings(dt1$PET_mean_mm_p_OD <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt1$PET_mean_mm_p_OD))==as.character(as.numeric("NA"))),NA,dt1$PET_mean_mm_p_OD))
+
+
+# Here is the structure of the input data frame:
+str(dt1)                            
+attach(dt1)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(IUCN_species_name)
+summary(taxonid)
+summary(common_name)
+summary(family)
+summary(genus)
+summary(species)
+summary(subspecies)
+summary(rank)
+summary(elton_species_name)
+summary(taxonomic_disparity)
+summary(species_notes)
+summary(diet_inv_e)
+summary(diet_vend_e)
+summary(diet_vect_e)
+summary(diet_vfish_e)
+summary(diet_vunk_e)
+summary(diet_scav_e)
+summary(diet_fruit_e)
+summary(diet_nect_e)
+summary(diet_seed_e)
+summary(diet_plant_e)
+summary(diet_cat)
+summary(diet_source_e)
+summary(diet_certainty_e)
+summary(diet_breadth)
+summary(diet_level)
+summary(for_strat_value_e)
+summary(for_strat_certainty_e)
+summary(activity_nocturnal_e)
+summary(activity_crepuscular_e)
+summary(activity_diurnal_e)
+summary(activity_source_e)
+summary(activity_certainty_e)
+summary(activity_level)
+summary(body_mass_e)
+summary(body_mass_notes)
+summary(body_mass_level_e)
+summary(body_mass_source_e)
+summary(min_body_size_mm)
+summary(max_body_size_mm)
+summary(body_size_mm)
+summary(body_size_notes)
+summary(body_size_level)
+summary(body_size_source)
+summary(sexual_dimorphism)
+summary(sexual_dimorphism_notes)
+summary(sexual_dimorphism_level)
+summary(sexual_dimorphism_source)
+summary(min_longevity)
+summary(max_longevity)
+summary(longevity)
+summary(longevity_notes)
+summary(longevity_level)
+summary(longevity_source)
+summary(min_home_range)
+summary(max_home_range)
+summary(home_range_size)
+summary(home_range_notes)
+summary(home_range_level)
+summary(home_range_source)
+summary(habitat_specialization)
+summary(habitat_specialization_notes)
+summary(habitat_specialization_source)
+summary(min_generation_time)
+summary(max_generation_time)
+summary(generation_time)
+summary(generation_time_notes)
+summary(generation_time_level)
+summary(generation_time_source)
+summary(IUCN_category)
+summary(habitat)
+summary(habitat_suitability_montane)
+summary(habitat_suitability_lowland)
+summary(habitat_season_montane)
+summary(habitat_season_lowland)
+summary(habitat_major_importance_montane)
+summary(habitat_major_importance_lowland)
+summary(habitat_breadth)
+summary(habitat_breadth_source)
+summary(habitat_level)
+summary(mean_CHELSA_bio1_1981.2010_V.2.1)
+summary(mean_CHELSA_bio12_1981.2010_V.2.1)
+summary(mean_human_fp_range_2010)
+summary(mean_human_fp_range_2020)
+summary(percent_change_hf_2010_2020)
+summary(observed_range_sqkm)
+summary(inferred_range_sqkm)
+summary(date_data_obtained)
+summary(filled_by)
+summary(MSW05_order_p)
+summary(MSW05_family_p)
+summary(MSW05_genus_p)
+summary(MSW05_species_p)
+summary(PanTHERIA_level)
+summary(activity_cycle_p)
+summary(adult_body_mass_g_p)
+summary(adult_forearm_len_mm_p)
+summary(adult_head_body_len_mm_p)
+summary(age_at_eye_opening_d_p)
+summary(age_at_first_birth_d_p)
+summary(basal_met_rate_mLO2hr_p)
+summary(basal_met_rate_mass_g_p)
+summary(diet_breadth_p)
+summary(dispersal_age_d_p)
+summary(gestation_len_d_p)
+summary(habitat_breadth_p)
+summary(home_range_km2_p)
+summary(home_range_indiv_km2_p)
+summary(Inter_birth_interval_d_p)
+summary(litter_size_p)
+summary(litters_per_year_p)
+summary(max_longevity_m_p)
+summary(neonate_body_mass_g_p)
+summary(neonate_head_body_len_mm_p)
+summary(population_density_n.km2_p)
+summary(population_grp_size_p)
+summary(sexual_maturity_age_d_p)
+summary(social_grp_size_p)
+summary(teat_number_p)
+summary(terrestriality_p)
+summary(trophic_level_p)
+summary(weaning_age_d_p)
+summary(weaning_body_mass_g_p)
+summary(weaning_head_body_len_mm_p)
+summary(references_p)
+summary(adult_body_mass_g_EXT_p)
+summary(litters_per_year_EXT_p)
+summary(neonate_body_mass_g_EXT_p)
+summary(weaning_body_mass_g_EXT_p)
+summary(GR_area_km2_p)
+summary(GR_max_lat_dd_p)
+summary(GR_min_lat_dd_p)
+summary(GR_mid_range_lat_dd_p)
+summary(GR_max_long_dd_p)
+summary(GR_min_long_dd_p)
+summary(GR_mid_range_long_dd_p)
+summary(hu_pop_den_min_n.km2_p_OD)
+summary(hu_pop_den_mean_n.km2_p_OD)
+summary(hu_pop_den_5p_n.km2_p_OD)
+summary(hu_pop_den_change_p_OD)
+summary(precip_mean_mm_p_OD)
+summary(temp_mean_01degC_p_OD)
+summary(AET_mean_mm_p_OD)
+summary(PET_mean_mm_p_OD) 
+                # Get more details on character variables
+                 
+summary(as.factor(dt1$IUCN_species_name)) 
+summary(as.factor(dt1$common_name)) 
+summary(as.factor(dt1$family)) 
+summary(as.factor(dt1$genus)) 
+summary(as.factor(dt1$species)) 
+summary(as.factor(dt1$subspecies)) 
+summary(as.factor(dt1$rank)) 
+summary(as.factor(dt1$elton_species_name)) 
+summary(as.factor(dt1$taxonomic_disparity)) 
+summary(as.factor(dt1$species_notes)) 
+summary(as.factor(dt1$diet_cat)) 
+summary(as.factor(dt1$diet_source_e)) 
+summary(as.factor(dt1$diet_certainty_e)) 
+summary(as.factor(dt1$diet_level)) 
+summary(as.factor(dt1$for_strat_value_e)) 
+summary(as.factor(dt1$for_strat_certainty_e)) 
+summary(as.factor(dt1$activity_nocturnal_e)) 
+summary(as.factor(dt1$activity_crepuscular_e)) 
+summary(as.factor(dt1$activity_diurnal_e)) 
+summary(as.factor(dt1$activity_source_e)) 
+summary(as.factor(dt1$activity_certainty_e)) 
+summary(as.factor(dt1$activity_level)) 
+summary(as.factor(dt1$body_mass_notes)) 
+summary(as.factor(dt1$body_mass_level_e)) 
+summary(as.factor(dt1$body_mass_source_e)) 
+summary(as.factor(dt1$body_size_notes)) 
+summary(as.factor(dt1$body_size_level)) 
+summary(as.factor(dt1$body_size_source)) 
+summary(as.factor(dt1$sexual_dimorphism)) 
+summary(as.factor(dt1$sexual_dimorphism_notes)) 
+summary(as.factor(dt1$sexual_dimorphism_level)) 
+summary(as.factor(dt1$sexual_dimorphism_source)) 
+summary(as.factor(dt1$longevity_notes)) 
+summary(as.factor(dt1$longevity_level)) 
+summary(as.factor(dt1$longevity_source)) 
+summary(as.factor(dt1$home_range_notes)) 
+summary(as.factor(dt1$home_range_level)) 
+summary(as.factor(dt1$home_range_source)) 
+summary(as.factor(dt1$habitat_specialization)) 
+summary(as.factor(dt1$habitat_specialization_notes)) 
+summary(as.factor(dt1$habitat_specialization_source)) 
+summary(as.factor(dt1$generation_time_notes)) 
+summary(as.factor(dt1$generation_time_level)) 
+summary(as.factor(dt1$generation_time_source)) 
+summary(as.factor(dt1$IUCN_category)) 
+summary(as.factor(dt1$habitat)) 
+summary(as.factor(dt1$habitat_suitability_montane)) 
+summary(as.factor(dt1$habitat_suitability_lowland)) 
+summary(as.factor(dt1$habitat_season_montane)) 
+summary(as.factor(dt1$habitat_season_lowland)) 
+summary(as.factor(dt1$habitat_major_importance_montane)) 
+summary(as.factor(dt1$habitat_major_importance_lowland)) 
+summary(as.factor(dt1$habitat_breadth_source)) 
+summary(as.factor(dt1$habitat_level)) 
+summary(as.factor(dt1$date_data_obtained)) 
+summary(as.factor(dt1$filled_by)) 
+summary(as.factor(dt1$MSW05_order_p)) 
+summary(as.factor(dt1$MSW05_family_p)) 
+summary(as.factor(dt1$MSW05_genus_p)) 
+summary(as.factor(dt1$MSW05_species_p)) 
+summary(as.factor(dt1$PanTHERIA_level)) 
+summary(as.factor(dt1$activity_cycle_p)) 
+summary(as.factor(dt1$terrestriality_p)) 
+summary(as.factor(dt1$trophic_level_p)) 
+summary(as.factor(dt1$references_p))
+detach(dt1)               
+         
+
+inUrl2  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/b020ef4c1a1310c3db45504557f99bae" 
+infile2 <- tempfile()
+try(download.file(inUrl2,infile2,method="curl"))
+if (is.na(file.size(infile2))) download.file(inUrl2,infile2,method="auto")
+
+                   
+ dt2 <-read.csv(infile2,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "IUCN_species_name",     
+                    "taxonid",     
+                    "genus",     
+                    "species",     
+                    "common_name",     
+                    "elton_species_name",     
+                    "taxonomic_disparity",     
+                    "pass_non_pass_e",     
+                    "order_e",     
+                    "family_e",     
+                    "family_english_e",     
+                    "diet_inv_e",     
+                    "diet_vend_e",     
+                    "diet_vect_e",     
+                    "diet_vfish_e",     
+                    "diet_vunk_e",     
+                    "diet_scav_e",     
+                    "diet_fruit_e",     
+                    "diet_nect_e",     
+                    "diet_seed_e",     
+                    "diet_plant_e",     
+                    "diet_cat_e",     
+                    "diet_source_e",     
+                    "diet_certainty_e",     
+                    "diet_breadth",     
+                    "diet_level",     
+                    "for_strat_water",     
+                    "for_strat_ground_e",     
+                    "for_strat_understory_e",     
+                    "for_strat_midhigh_e",     
+                    "for_strat_canopy_e",     
+                    "for_strat_aerial_e",     
+                    "for_strat_spec_level",     
+                    "for_strat_source_e",     
+                    "activity_nocturnal_e",     
+                    "body_mass_e",     
+                    "body_mass_notes",     
+                    "body_mass_level_e",     
+                    "body_mass_source_e",     
+                    "min_body_size_mm",     
+                    "max_body_size_mm",     
+                    "body_size_mm",     
+                    "body_size_notes",     
+                    "body_size_level",     
+                    "body_size_source",     
+                    "sexual_dimorphism",     
+                    "sexual_dimorphism_notes",     
+                    "sexual_dimorphism_level",     
+                    "sexual_dimorphism_source",     
+                    "min_longevity",     
+                    "max_longevity",     
+                    "longevity_notes",     
+                    "longevity",     
+                    "longevity_source",     
+                    "longevity_level",     
+                    "min_home_range",     
+                    "max_home_range",     
+                    "home_range_size",     
+                    "home_range_notes",     
+                    "home_range_level",     
+                    "home_range_source",     
+                    "habitat_specialization",     
+                    "habitat_specialization_notes",     
+                    "habitat_specialization_source",     
+                    "generation_time",     
+                    "generation_time_level",     
+                    "generation_time_notes",     
+                    "generation_time_source",     
+                    "IUCN_category",     
+                    "habitat",     
+                    "habitat_suitability_montane",     
+                    "habitat_suitability_lowland",     
+                    "habitat_season_montane",     
+                    "habitat_season_lowland",     
+                    "habitat_major_importance_montane",     
+                    "habitat_major_importance_lowland",     
+                    "habitat_breadth",     
+                    "habitat_breadth_source",     
+                    "habitat_level",     
+                    "mean_CHELSA_bio1_1981.2010_V.2.1",     
+                    "mean_CHELSA_bio12_1981.2010_V.2.1",     
+                    "mean_human_fp_range_2010",     
+                    "mean_human_fp_range_2020",     
+                    "percent_change_hf_2010_2020",     
+                    "observed_range_sqkm",     
+                    "inferred_range_sqkm",     
+                    "date_data_obtained",     
+                    "filled_by"    ), check.names=TRUE)
+               
+unlink(infile2)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                
+if (class(dt2$IUCN_species_name)!="factor") dt2$IUCN_species_name<- as.factor(dt2$IUCN_species_name)
+if (class(dt2$taxonid)=="factor") dt2$taxonid <-as.numeric(levels(dt2$taxonid))[as.integer(dt2$taxonid) ]               
+if (class(dt2$taxonid)=="character") dt2$taxonid <-as.numeric(dt2$taxonid)
+if (class(dt2$genus)!="factor") dt2$genus<- as.factor(dt2$genus)
+if (class(dt2$species)!="factor") dt2$species<- as.factor(dt2$species)
+if (class(dt2$common_name)!="factor") dt2$common_name<- as.factor(dt2$common_name)
+if (class(dt2$elton_species_name)!="factor") dt2$elton_species_name<- as.factor(dt2$elton_species_name)
+if (class(dt2$taxonomic_disparity)!="factor") dt2$taxonomic_disparity<- as.factor(dt2$taxonomic_disparity)
+if (class(dt2$pass_non_pass_e)!="factor") dt2$pass_non_pass_e<- as.factor(dt2$pass_non_pass_e)
+if (class(dt2$order_e)!="factor") dt2$order_e<- as.factor(dt2$order_e)
+if (class(dt2$family_e)!="factor") dt2$family_e<- as.factor(dt2$family_e)
+if (class(dt2$family_english_e)!="factor") dt2$family_english_e<- as.factor(dt2$family_english_e)
+if (class(dt2$diet_inv_e)=="factor") dt2$diet_inv_e <-as.numeric(levels(dt2$diet_inv_e))[as.integer(dt2$diet_inv_e) ]               
+if (class(dt2$diet_inv_e)=="character") dt2$diet_inv_e <-as.numeric(dt2$diet_inv_e)
+if (class(dt2$diet_vend_e)=="factor") dt2$diet_vend_e <-as.numeric(levels(dt2$diet_vend_e))[as.integer(dt2$diet_vend_e) ]               
+if (class(dt2$diet_vend_e)=="character") dt2$diet_vend_e <-as.numeric(dt2$diet_vend_e)
+if (class(dt2$diet_vect_e)=="factor") dt2$diet_vect_e <-as.numeric(levels(dt2$diet_vect_e))[as.integer(dt2$diet_vect_e) ]               
+if (class(dt2$diet_vect_e)=="character") dt2$diet_vect_e <-as.numeric(dt2$diet_vect_e)
+if (class(dt2$diet_vfish_e)=="factor") dt2$diet_vfish_e <-as.numeric(levels(dt2$diet_vfish_e))[as.integer(dt2$diet_vfish_e) ]               
+if (class(dt2$diet_vfish_e)=="character") dt2$diet_vfish_e <-as.numeric(dt2$diet_vfish_e)
+if (class(dt2$diet_vunk_e)=="factor") dt2$diet_vunk_e <-as.numeric(levels(dt2$diet_vunk_e))[as.integer(dt2$diet_vunk_e) ]               
+if (class(dt2$diet_vunk_e)=="character") dt2$diet_vunk_e <-as.numeric(dt2$diet_vunk_e)
+if (class(dt2$diet_scav_e)=="factor") dt2$diet_scav_e <-as.numeric(levels(dt2$diet_scav_e))[as.integer(dt2$diet_scav_e) ]               
+if (class(dt2$diet_scav_e)=="character") dt2$diet_scav_e <-as.numeric(dt2$diet_scav_e)
+if (class(dt2$diet_fruit_e)=="factor") dt2$diet_fruit_e <-as.numeric(levels(dt2$diet_fruit_e))[as.integer(dt2$diet_fruit_e) ]               
+if (class(dt2$diet_fruit_e)=="character") dt2$diet_fruit_e <-as.numeric(dt2$diet_fruit_e)
+if (class(dt2$diet_nect_e)=="factor") dt2$diet_nect_e <-as.numeric(levels(dt2$diet_nect_e))[as.integer(dt2$diet_nect_e) ]               
+if (class(dt2$diet_nect_e)=="character") dt2$diet_nect_e <-as.numeric(dt2$diet_nect_e)
+if (class(dt2$diet_seed_e)=="factor") dt2$diet_seed_e <-as.numeric(levels(dt2$diet_seed_e))[as.integer(dt2$diet_seed_e) ]               
+if (class(dt2$diet_seed_e)=="character") dt2$diet_seed_e <-as.numeric(dt2$diet_seed_e)
+if (class(dt2$diet_plant_e)=="factor") dt2$diet_plant_e <-as.numeric(levels(dt2$diet_plant_e))[as.integer(dt2$diet_plant_e) ]               
+if (class(dt2$diet_plant_e)=="character") dt2$diet_plant_e <-as.numeric(dt2$diet_plant_e)
+if (class(dt2$diet_cat_e)!="factor") dt2$diet_cat_e<- as.factor(dt2$diet_cat_e)
+if (class(dt2$diet_source_e)!="factor") dt2$diet_source_e<- as.factor(dt2$diet_source_e)
+if (class(dt2$diet_certainty_e)!="factor") dt2$diet_certainty_e<- as.factor(dt2$diet_certainty_e)
+if (class(dt2$diet_breadth)=="factor") dt2$diet_breadth <-as.numeric(levels(dt2$diet_breadth))[as.integer(dt2$diet_breadth) ]               
+if (class(dt2$diet_breadth)=="character") dt2$diet_breadth <-as.numeric(dt2$diet_breadth)
+if (class(dt2$diet_level)!="factor") dt2$diet_level<- as.factor(dt2$diet_level)
+if (class(dt2$for_strat_water)=="factor") dt2$for_strat_water <-as.numeric(levels(dt2$for_strat_water))[as.integer(dt2$for_strat_water) ]               
+if (class(dt2$for_strat_water)=="character") dt2$for_strat_water <-as.numeric(dt2$for_strat_water)
+if (class(dt2$for_strat_ground_e)=="factor") dt2$for_strat_ground_e <-as.numeric(levels(dt2$for_strat_ground_e))[as.integer(dt2$for_strat_ground_e) ]               
+if (class(dt2$for_strat_ground_e)=="character") dt2$for_strat_ground_e <-as.numeric(dt2$for_strat_ground_e)
+if (class(dt2$for_strat_understory_e)=="factor") dt2$for_strat_understory_e <-as.numeric(levels(dt2$for_strat_understory_e))[as.integer(dt2$for_strat_understory_e) ]               
+if (class(dt2$for_strat_understory_e)=="character") dt2$for_strat_understory_e <-as.numeric(dt2$for_strat_understory_e)
+if (class(dt2$for_strat_midhigh_e)=="factor") dt2$for_strat_midhigh_e <-as.numeric(levels(dt2$for_strat_midhigh_e))[as.integer(dt2$for_strat_midhigh_e) ]               
+if (class(dt2$for_strat_midhigh_e)=="character") dt2$for_strat_midhigh_e <-as.numeric(dt2$for_strat_midhigh_e)
+if (class(dt2$for_strat_canopy_e)=="factor") dt2$for_strat_canopy_e <-as.numeric(levels(dt2$for_strat_canopy_e))[as.integer(dt2$for_strat_canopy_e) ]               
+if (class(dt2$for_strat_canopy_e)=="character") dt2$for_strat_canopy_e <-as.numeric(dt2$for_strat_canopy_e)
+if (class(dt2$for_strat_aerial_e)=="factor") dt2$for_strat_aerial_e <-as.numeric(levels(dt2$for_strat_aerial_e))[as.integer(dt2$for_strat_aerial_e) ]               
+if (class(dt2$for_strat_aerial_e)=="character") dt2$for_strat_aerial_e <-as.numeric(dt2$for_strat_aerial_e)
+if (class(dt2$for_strat_spec_level)!="factor") dt2$for_strat_spec_level<- as.factor(dt2$for_strat_spec_level)
+if (class(dt2$for_strat_source_e)!="factor") dt2$for_strat_source_e<- as.factor(dt2$for_strat_source_e)
+if (class(dt2$activity_nocturnal_e)!="factor") dt2$activity_nocturnal_e<- as.factor(dt2$activity_nocturnal_e)
+if (class(dt2$body_mass_e)=="factor") dt2$body_mass_e <-as.numeric(levels(dt2$body_mass_e))[as.integer(dt2$body_mass_e) ]               
+if (class(dt2$body_mass_e)=="character") dt2$body_mass_e <-as.numeric(dt2$body_mass_e)
+if (class(dt2$body_mass_notes)!="factor") dt2$body_mass_notes<- as.factor(dt2$body_mass_notes)
+if (class(dt2$body_mass_level_e)!="factor") dt2$body_mass_level_e<- as.factor(dt2$body_mass_level_e)
+if (class(dt2$body_mass_source_e)!="factor") dt2$body_mass_source_e<- as.factor(dt2$body_mass_source_e)
+if (class(dt2$min_body_size_mm)=="factor") dt2$min_body_size_mm <-as.numeric(levels(dt2$min_body_size_mm))[as.integer(dt2$min_body_size_mm) ]               
+if (class(dt2$min_body_size_mm)=="character") dt2$min_body_size_mm <-as.numeric(dt2$min_body_size_mm)
+if (class(dt2$max_body_size_mm)=="factor") dt2$max_body_size_mm <-as.numeric(levels(dt2$max_body_size_mm))[as.integer(dt2$max_body_size_mm) ]               
+if (class(dt2$max_body_size_mm)=="character") dt2$max_body_size_mm <-as.numeric(dt2$max_body_size_mm)
+if (class(dt2$body_size_mm)=="factor") dt2$body_size_mm <-as.numeric(levels(dt2$body_size_mm))[as.integer(dt2$body_size_mm) ]               
+if (class(dt2$body_size_mm)=="character") dt2$body_size_mm <-as.numeric(dt2$body_size_mm)
+if (class(dt2$body_size_notes)!="factor") dt2$body_size_notes<- as.factor(dt2$body_size_notes)
+if (class(dt2$body_size_level)!="factor") dt2$body_size_level<- as.factor(dt2$body_size_level)
+if (class(dt2$body_size_source)!="factor") dt2$body_size_source<- as.factor(dt2$body_size_source)
+if (class(dt2$sexual_dimorphism)!="factor") dt2$sexual_dimorphism<- as.factor(dt2$sexual_dimorphism)
+if (class(dt2$sexual_dimorphism_notes)!="factor") dt2$sexual_dimorphism_notes<- as.factor(dt2$sexual_dimorphism_notes)
+if (class(dt2$sexual_dimorphism_level)!="factor") dt2$sexual_dimorphism_level<- as.factor(dt2$sexual_dimorphism_level)
+if (class(dt2$sexual_dimorphism_source)!="factor") dt2$sexual_dimorphism_source<- as.factor(dt2$sexual_dimorphism_source)
+if (class(dt2$min_longevity)=="factor") dt2$min_longevity <-as.numeric(levels(dt2$min_longevity))[as.integer(dt2$min_longevity) ]               
+if (class(dt2$min_longevity)=="character") dt2$min_longevity <-as.numeric(dt2$min_longevity)
+if (class(dt2$max_longevity)=="factor") dt2$max_longevity <-as.numeric(levels(dt2$max_longevity))[as.integer(dt2$max_longevity) ]               
+if (class(dt2$max_longevity)=="character") dt2$max_longevity <-as.numeric(dt2$max_longevity)
+if (class(dt2$longevity_notes)!="factor") dt2$longevity_notes<- as.factor(dt2$longevity_notes)
+if (class(dt2$longevity)=="factor") dt2$longevity <-as.numeric(levels(dt2$longevity))[as.integer(dt2$longevity) ]               
+if (class(dt2$longevity)=="character") dt2$longevity <-as.numeric(dt2$longevity)
+if (class(dt2$longevity_source)!="factor") dt2$longevity_source<- as.factor(dt2$longevity_source)
+if (class(dt2$longevity_level)!="factor") dt2$longevity_level<- as.factor(dt2$longevity_level)
+if (class(dt2$min_home_range)=="factor") dt2$min_home_range <-as.numeric(levels(dt2$min_home_range))[as.integer(dt2$min_home_range) ]               
+if (class(dt2$min_home_range)=="character") dt2$min_home_range <-as.numeric(dt2$min_home_range)
+if (class(dt2$max_home_range)=="factor") dt2$max_home_range <-as.numeric(levels(dt2$max_home_range))[as.integer(dt2$max_home_range) ]               
+if (class(dt2$max_home_range)=="character") dt2$max_home_range <-as.numeric(dt2$max_home_range)
+if (class(dt2$home_range_size)=="factor") dt2$home_range_size <-as.numeric(levels(dt2$home_range_size))[as.integer(dt2$home_range_size) ]               
+if (class(dt2$home_range_size)=="character") dt2$home_range_size <-as.numeric(dt2$home_range_size)
+if (class(dt2$home_range_notes)!="factor") dt2$home_range_notes<- as.factor(dt2$home_range_notes)
+if (class(dt2$home_range_level)!="factor") dt2$home_range_level<- as.factor(dt2$home_range_level)
+if (class(dt2$home_range_source)!="factor") dt2$home_range_source<- as.factor(dt2$home_range_source)
+if (class(dt2$habitat_specialization)!="factor") dt2$habitat_specialization<- as.factor(dt2$habitat_specialization)
+if (class(dt2$habitat_specialization_notes)!="factor") dt2$habitat_specialization_notes<- as.factor(dt2$habitat_specialization_notes)
+if (class(dt2$habitat_specialization_source)!="factor") dt2$habitat_specialization_source<- as.factor(dt2$habitat_specialization_source)
+if (class(dt2$generation_time)=="factor") dt2$generation_time <-as.numeric(levels(dt2$generation_time))[as.integer(dt2$generation_time) ]               
+if (class(dt2$generation_time)=="character") dt2$generation_time <-as.numeric(dt2$generation_time)
+if (class(dt2$generation_time_level)!="factor") dt2$generation_time_level<- as.factor(dt2$generation_time_level)
+if (class(dt2$generation_time_notes)!="factor") dt2$generation_time_notes<- as.factor(dt2$generation_time_notes)
+if (class(dt2$generation_time_source)!="factor") dt2$generation_time_source<- as.factor(dt2$generation_time_source)
+if (class(dt2$IUCN_category)!="factor") dt2$IUCN_category<- as.factor(dt2$IUCN_category)
+if (class(dt2$habitat)!="factor") dt2$habitat<- as.factor(dt2$habitat)
+if (class(dt2$habitat_suitability_montane)!="factor") dt2$habitat_suitability_montane<- as.factor(dt2$habitat_suitability_montane)
+if (class(dt2$habitat_suitability_lowland)!="factor") dt2$habitat_suitability_lowland<- as.factor(dt2$habitat_suitability_lowland)
+if (class(dt2$habitat_season_montane)!="factor") dt2$habitat_season_montane<- as.factor(dt2$habitat_season_montane)
+if (class(dt2$habitat_season_lowland)!="factor") dt2$habitat_season_lowland<- as.factor(dt2$habitat_season_lowland)
+if (class(dt2$habitat_major_importance_montane)!="factor") dt2$habitat_major_importance_montane<- as.factor(dt2$habitat_major_importance_montane)
+if (class(dt2$habitat_major_importance_lowland)!="factor") dt2$habitat_major_importance_lowland<- as.factor(dt2$habitat_major_importance_lowland)
+if (class(dt2$habitat_breadth)=="factor") dt2$habitat_breadth <-as.numeric(levels(dt2$habitat_breadth))[as.integer(dt2$habitat_breadth) ]               
+if (class(dt2$habitat_breadth)=="character") dt2$habitat_breadth <-as.numeric(dt2$habitat_breadth)
+if (class(dt2$habitat_breadth_source)!="factor") dt2$habitat_breadth_source<- as.factor(dt2$habitat_breadth_source)
+if (class(dt2$habitat_level)!="factor") dt2$habitat_level<- as.factor(dt2$habitat_level)
+if (class(dt2$mean_CHELSA_bio1_1981.2010_V.2.1)=="factor") dt2$mean_CHELSA_bio1_1981.2010_V.2.1 <-as.numeric(levels(dt2$mean_CHELSA_bio1_1981.2010_V.2.1))[as.integer(dt2$mean_CHELSA_bio1_1981.2010_V.2.1) ]               
+if (class(dt2$mean_CHELSA_bio1_1981.2010_V.2.1)=="character") dt2$mean_CHELSA_bio1_1981.2010_V.2.1 <-as.numeric(dt2$mean_CHELSA_bio1_1981.2010_V.2.1)
+if (class(dt2$mean_CHELSA_bio12_1981.2010_V.2.1)=="factor") dt2$mean_CHELSA_bio12_1981.2010_V.2.1 <-as.numeric(levels(dt2$mean_CHELSA_bio12_1981.2010_V.2.1))[as.integer(dt2$mean_CHELSA_bio12_1981.2010_V.2.1) ]               
+if (class(dt2$mean_CHELSA_bio12_1981.2010_V.2.1)=="character") dt2$mean_CHELSA_bio12_1981.2010_V.2.1 <-as.numeric(dt2$mean_CHELSA_bio12_1981.2010_V.2.1)
+if (class(dt2$mean_human_fp_range_2010)=="factor") dt2$mean_human_fp_range_2010 <-as.numeric(levels(dt2$mean_human_fp_range_2010))[as.integer(dt2$mean_human_fp_range_2010) ]               
+if (class(dt2$mean_human_fp_range_2010)=="character") dt2$mean_human_fp_range_2010 <-as.numeric(dt2$mean_human_fp_range_2010)
+if (class(dt2$mean_human_fp_range_2020)=="factor") dt2$mean_human_fp_range_2020 <-as.numeric(levels(dt2$mean_human_fp_range_2020))[as.integer(dt2$mean_human_fp_range_2020) ]               
+if (class(dt2$mean_human_fp_range_2020)=="character") dt2$mean_human_fp_range_2020 <-as.numeric(dt2$mean_human_fp_range_2020)
+if (class(dt2$percent_change_hf_2010_2020)=="factor") dt2$percent_change_hf_2010_2020 <-as.numeric(levels(dt2$percent_change_hf_2010_2020))[as.integer(dt2$percent_change_hf_2010_2020) ]               
+if (class(dt2$percent_change_hf_2010_2020)=="character") dt2$percent_change_hf_2010_2020 <-as.numeric(dt2$percent_change_hf_2010_2020)
+if (class(dt2$observed_range_sqkm)=="factor") dt2$observed_range_sqkm <-as.numeric(levels(dt2$observed_range_sqkm))[as.integer(dt2$observed_range_sqkm) ]               
+if (class(dt2$observed_range_sqkm)=="character") dt2$observed_range_sqkm <-as.numeric(dt2$observed_range_sqkm)
+if (class(dt2$inferred_range_sqkm)=="factor") dt2$inferred_range_sqkm <-as.numeric(levels(dt2$inferred_range_sqkm))[as.integer(dt2$inferred_range_sqkm) ]               
+if (class(dt2$inferred_range_sqkm)=="character") dt2$inferred_range_sqkm <-as.numeric(dt2$inferred_range_sqkm)
+if (class(dt2$date_data_obtained)!="factor") dt2$date_data_obtained<- as.factor(dt2$date_data_obtained)
+if (class(dt2$filled_by)!="factor") dt2$filled_by<- as.factor(dt2$filled_by)
+                
+# Convert Missing Values to NA for non-dates
+                
+dt2$IUCN_species_name <- as.factor(ifelse((trimws(as.character(dt2$IUCN_species_name))==trimws("NA")),NA,as.character(dt2$IUCN_species_name)))
+dt2$taxonid <- ifelse((trimws(as.character(dt2$taxonid))==trimws("NA")),NA,dt2$taxonid)               
+suppressWarnings(dt2$taxonid <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$taxonid))==as.character(as.numeric("NA"))),NA,dt2$taxonid))
+dt2$genus <- as.factor(ifelse((trimws(as.character(dt2$genus))==trimws("NA")),NA,as.character(dt2$genus)))
+dt2$common_name <- as.factor(ifelse((trimws(as.character(dt2$common_name))==trimws("NA")),NA,as.character(dt2$common_name)))
+dt2$elton_species_name <- as.factor(ifelse((trimws(as.character(dt2$elton_species_name))==trimws("NA")),NA,as.character(dt2$elton_species_name)))
+dt2$taxonomic_disparity <- as.factor(ifelse((trimws(as.character(dt2$taxonomic_disparity))==trimws("NA")),NA,as.character(dt2$taxonomic_disparity)))
+dt2$order_e <- as.factor(ifelse((trimws(as.character(dt2$order_e))==trimws("NA")),NA,as.character(dt2$order_e)))
+dt2$family_e <- as.factor(ifelse((trimws(as.character(dt2$family_e))==trimws("NA")),NA,as.character(dt2$family_e)))
+dt2$family_english_e <- as.factor(ifelse((trimws(as.character(dt2$family_english_e))==trimws("NA")),NA,as.character(dt2$family_english_e)))
+dt2$diet_inv_e <- ifelse((trimws(as.character(dt2$diet_inv_e))==trimws("NA")),NA,dt2$diet_inv_e)               
+suppressWarnings(dt2$diet_inv_e <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$diet_inv_e))==as.character(as.numeric("NA"))),NA,dt2$diet_inv_e))
+dt2$diet_vend_e <- ifelse((trimws(as.character(dt2$diet_vend_e))==trimws("NA")),NA,dt2$diet_vend_e)               
+suppressWarnings(dt2$diet_vend_e <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$diet_vend_e))==as.character(as.numeric("NA"))),NA,dt2$diet_vend_e))
+dt2$diet_vect_e <- ifelse((trimws(as.character(dt2$diet_vect_e))==trimws("NA")),NA,dt2$diet_vect_e)               
+suppressWarnings(dt2$diet_vect_e <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$diet_vect_e))==as.character(as.numeric("NA"))),NA,dt2$diet_vect_e))
+dt2$diet_vfish_e <- ifelse((trimws(as.character(dt2$diet_vfish_e))==trimws("NA")),NA,dt2$diet_vfish_e)               
+suppressWarnings(dt2$diet_vfish_e <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$diet_vfish_e))==as.character(as.numeric("NA"))),NA,dt2$diet_vfish_e))
+dt2$diet_vunk_e <- ifelse((trimws(as.character(dt2$diet_vunk_e))==trimws("NA")),NA,dt2$diet_vunk_e)               
+suppressWarnings(dt2$diet_vunk_e <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$diet_vunk_e))==as.character(as.numeric("NA"))),NA,dt2$diet_vunk_e))
+dt2$diet_scav_e <- ifelse((trimws(as.character(dt2$diet_scav_e))==trimws("NA")),NA,dt2$diet_scav_e)               
+suppressWarnings(dt2$diet_scav_e <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$diet_scav_e))==as.character(as.numeric("NA"))),NA,dt2$diet_scav_e))
+dt2$diet_fruit_e <- ifelse((trimws(as.character(dt2$diet_fruit_e))==trimws("NA")),NA,dt2$diet_fruit_e)               
+suppressWarnings(dt2$diet_fruit_e <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$diet_fruit_e))==as.character(as.numeric("NA"))),NA,dt2$diet_fruit_e))
+dt2$diet_nect_e <- ifelse((trimws(as.character(dt2$diet_nect_e))==trimws("NA")),NA,dt2$diet_nect_e)               
+suppressWarnings(dt2$diet_nect_e <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$diet_nect_e))==as.character(as.numeric("NA"))),NA,dt2$diet_nect_e))
+dt2$diet_seed_e <- ifelse((trimws(as.character(dt2$diet_seed_e))==trimws("NA")),NA,dt2$diet_seed_e)               
+suppressWarnings(dt2$diet_seed_e <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$diet_seed_e))==as.character(as.numeric("NA"))),NA,dt2$diet_seed_e))
+dt2$diet_plant_e <- ifelse((trimws(as.character(dt2$diet_plant_e))==trimws("NA")),NA,dt2$diet_plant_e)               
+suppressWarnings(dt2$diet_plant_e <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$diet_plant_e))==as.character(as.numeric("NA"))),NA,dt2$diet_plant_e))
+dt2$diet_cat_e <- as.factor(ifelse((trimws(as.character(dt2$diet_cat_e))==trimws("NA")),NA,as.character(dt2$diet_cat_e)))
+dt2$diet_level <- as.factor(ifelse((trimws(as.character(dt2$diet_level))==trimws("NA")),NA,as.character(dt2$diet_level)))
+dt2$for_strat_spec_level <- as.factor(ifelse((trimws(as.character(dt2$for_strat_spec_level))==trimws("NA")),NA,as.character(dt2$for_strat_spec_level)))
+dt2$for_strat_source_e <- as.factor(ifelse((trimws(as.character(dt2$for_strat_source_e))==trimws("NA")),NA,as.character(dt2$for_strat_source_e)))
+dt2$activity_nocturnal_e <- as.factor(ifelse((trimws(as.character(dt2$activity_nocturnal_e))==trimws("NA")),NA,as.character(dt2$activity_nocturnal_e)))
+dt2$body_mass_e <- ifelse((trimws(as.character(dt2$body_mass_e))==trimws("NA")),NA,dt2$body_mass_e)               
+suppressWarnings(dt2$body_mass_e <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$body_mass_e))==as.character(as.numeric("NA"))),NA,dt2$body_mass_e))
+dt2$body_mass_notes <- as.factor(ifelse((trimws(as.character(dt2$body_mass_notes))==trimws("NA")),NA,as.character(dt2$body_mass_notes)))
+dt2$body_mass_level_e <- as.factor(ifelse((trimws(as.character(dt2$body_mass_level_e))==trimws("NA")),NA,as.character(dt2$body_mass_level_e)))
+dt2$body_mass_source_e <- as.factor(ifelse((trimws(as.character(dt2$body_mass_source_e))==trimws("NA")),NA,as.character(dt2$body_mass_source_e)))
+dt2$min_body_size_mm <- ifelse((trimws(as.character(dt2$min_body_size_mm))==trimws("NA")),NA,dt2$min_body_size_mm)               
+suppressWarnings(dt2$min_body_size_mm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$min_body_size_mm))==as.character(as.numeric("NA"))),NA,dt2$min_body_size_mm))
+dt2$max_body_size_mm <- ifelse((trimws(as.character(dt2$max_body_size_mm))==trimws("NA")),NA,dt2$max_body_size_mm)               
+suppressWarnings(dt2$max_body_size_mm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$max_body_size_mm))==as.character(as.numeric("NA"))),NA,dt2$max_body_size_mm))
+dt2$body_size_mm <- ifelse((trimws(as.character(dt2$body_size_mm))==trimws("NA")),NA,dt2$body_size_mm)               
+suppressWarnings(dt2$body_size_mm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$body_size_mm))==as.character(as.numeric("NA"))),NA,dt2$body_size_mm))
+dt2$body_size_notes <- as.factor(ifelse((trimws(as.character(dt2$body_size_notes))==trimws("NA")),NA,as.character(dt2$body_size_notes)))
+dt2$body_size_level <- as.factor(ifelse((trimws(as.character(dt2$body_size_level))==trimws("NA")),NA,as.character(dt2$body_size_level)))
+dt2$body_size_source <- as.factor(ifelse((trimws(as.character(dt2$body_size_source))==trimws("NA")),NA,as.character(dt2$body_size_source)))
+dt2$sexual_dimorphism <- as.factor(ifelse((trimws(as.character(dt2$sexual_dimorphism))==trimws("NA")),NA,as.character(dt2$sexual_dimorphism)))
+dt2$sexual_dimorphism_notes <- as.factor(ifelse((trimws(as.character(dt2$sexual_dimorphism_notes))==trimws("NA")),NA,as.character(dt2$sexual_dimorphism_notes)))
+dt2$sexual_dimorphism_level <- as.factor(ifelse((trimws(as.character(dt2$sexual_dimorphism_level))==trimws("NA")),NA,as.character(dt2$sexual_dimorphism_level)))
+dt2$sexual_dimorphism_source <- as.factor(ifelse((trimws(as.character(dt2$sexual_dimorphism_source))==trimws("NA")),NA,as.character(dt2$sexual_dimorphism_source)))
+dt2$min_longevity <- ifelse((trimws(as.character(dt2$min_longevity))==trimws("NA")),NA,dt2$min_longevity)               
+suppressWarnings(dt2$min_longevity <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$min_longevity))==as.character(as.numeric("NA"))),NA,dt2$min_longevity))
+dt2$max_longevity <- ifelse((trimws(as.character(dt2$max_longevity))==trimws("NA")),NA,dt2$max_longevity)               
+suppressWarnings(dt2$max_longevity <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$max_longevity))==as.character(as.numeric("NA"))),NA,dt2$max_longevity))
+dt2$longevity_notes <- as.factor(ifelse((trimws(as.character(dt2$longevity_notes))==trimws("NA")),NA,as.character(dt2$longevity_notes)))
+dt2$longevity <- ifelse((trimws(as.character(dt2$longevity))==trimws("NA")),NA,dt2$longevity)               
+suppressWarnings(dt2$longevity <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$longevity))==as.character(as.numeric("NA"))),NA,dt2$longevity))
+dt2$longevity_source <- as.factor(ifelse((trimws(as.character(dt2$longevity_source))==trimws("NA")),NA,as.character(dt2$longevity_source)))
+dt2$longevity_level <- as.factor(ifelse((trimws(as.character(dt2$longevity_level))==trimws("NA")),NA,as.character(dt2$longevity_level)))
+dt2$min_home_range <- ifelse((trimws(as.character(dt2$min_home_range))==trimws("NA")),NA,dt2$min_home_range)               
+suppressWarnings(dt2$min_home_range <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$min_home_range))==as.character(as.numeric("NA"))),NA,dt2$min_home_range))
+dt2$max_home_range <- ifelse((trimws(as.character(dt2$max_home_range))==trimws("NA")),NA,dt2$max_home_range)               
+suppressWarnings(dt2$max_home_range <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$max_home_range))==as.character(as.numeric("NA"))),NA,dt2$max_home_range))
+dt2$home_range_size <- ifelse((trimws(as.character(dt2$home_range_size))==trimws("NA")),NA,dt2$home_range_size)               
+suppressWarnings(dt2$home_range_size <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$home_range_size))==as.character(as.numeric("NA"))),NA,dt2$home_range_size))
+dt2$home_range_notes <- as.factor(ifelse((trimws(as.character(dt2$home_range_notes))==trimws("NA")),NA,as.character(dt2$home_range_notes)))
+dt2$home_range_level <- as.factor(ifelse((trimws(as.character(dt2$home_range_level))==trimws("NA")),NA,as.character(dt2$home_range_level)))
+dt2$home_range_source <- as.factor(ifelse((trimws(as.character(dt2$home_range_source))==trimws("NA")),NA,as.character(dt2$home_range_source)))
+dt2$habitat_specialization <- as.factor(ifelse((trimws(as.character(dt2$habitat_specialization))==trimws("NA")),NA,as.character(dt2$habitat_specialization)))
+dt2$habitat_specialization_notes <- as.factor(ifelse((trimws(as.character(dt2$habitat_specialization_notes))==trimws("NA")),NA,as.character(dt2$habitat_specialization_notes)))
+dt2$habitat_specialization_source <- as.factor(ifelse((trimws(as.character(dt2$habitat_specialization_source))==trimws("NA")),NA,as.character(dt2$habitat_specialization_source)))
+dt2$generation_time <- ifelse((trimws(as.character(dt2$generation_time))==trimws("NA")),NA,dt2$generation_time)               
+suppressWarnings(dt2$generation_time <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$generation_time))==as.character(as.numeric("NA"))),NA,dt2$generation_time))
+dt2$generation_time_notes <- as.factor(ifelse((trimws(as.character(dt2$generation_time_notes))==trimws("NA")),NA,as.character(dt2$generation_time_notes)))
+dt2$generation_time_source <- as.factor(ifelse((trimws(as.character(dt2$generation_time_source))==trimws("NA")),NA,as.character(dt2$generation_time_source)))
+dt2$habitat_suitability_montane <- as.factor(ifelse((trimws(as.character(dt2$habitat_suitability_montane))==trimws("NA")),NA,as.character(dt2$habitat_suitability_montane)))
+dt2$habitat_suitability_lowland <- as.factor(ifelse((trimws(as.character(dt2$habitat_suitability_lowland))==trimws("NA")),NA,as.character(dt2$habitat_suitability_lowland)))
+dt2$habitat_season_montane <- as.factor(ifelse((trimws(as.character(dt2$habitat_season_montane))==trimws("NA")),NA,as.character(dt2$habitat_season_montane)))
+dt2$habitat_season_lowland <- as.factor(ifelse((trimws(as.character(dt2$habitat_season_lowland))==trimws("NA")),NA,as.character(dt2$habitat_season_lowland)))
+dt2$habitat_major_importance_montane <- as.factor(ifelse((trimws(as.character(dt2$habitat_major_importance_montane))==trimws("NA")),NA,as.character(dt2$habitat_major_importance_montane)))
+dt2$habitat_major_importance_lowland <- as.factor(ifelse((trimws(as.character(dt2$habitat_major_importance_lowland))==trimws("NA")),NA,as.character(dt2$habitat_major_importance_lowland)))
+dt2$habitat_breadth <- ifelse((trimws(as.character(dt2$habitat_breadth))==trimws("NA")),NA,dt2$habitat_breadth)               
+suppressWarnings(dt2$habitat_breadth <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$habitat_breadth))==as.character(as.numeric("NA"))),NA,dt2$habitat_breadth))
+dt2$habitat_level <- as.factor(ifelse((trimws(as.character(dt2$habitat_level))==trimws("NA")),NA,as.character(dt2$habitat_level)))
+dt2$mean_CHELSA_bio1_1981.2010_V.2.1 <- ifelse((trimws(as.character(dt2$mean_CHELSA_bio1_1981.2010_V.2.1))==trimws("NA")),NA,dt2$mean_CHELSA_bio1_1981.2010_V.2.1)               
+suppressWarnings(dt2$mean_CHELSA_bio1_1981.2010_V.2.1 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$mean_CHELSA_bio1_1981.2010_V.2.1))==as.character(as.numeric("NA"))),NA,dt2$mean_CHELSA_bio1_1981.2010_V.2.1))
+dt2$mean_CHELSA_bio12_1981.2010_V.2.1 <- ifelse((trimws(as.character(dt2$mean_CHELSA_bio12_1981.2010_V.2.1))==trimws("NA")),NA,dt2$mean_CHELSA_bio12_1981.2010_V.2.1)               
+suppressWarnings(dt2$mean_CHELSA_bio12_1981.2010_V.2.1 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$mean_CHELSA_bio12_1981.2010_V.2.1))==as.character(as.numeric("NA"))),NA,dt2$mean_CHELSA_bio12_1981.2010_V.2.1))
+dt2$mean_human_fp_range_2010 <- ifelse((trimws(as.character(dt2$mean_human_fp_range_2010))==trimws("NA")),NA,dt2$mean_human_fp_range_2010)               
+suppressWarnings(dt2$mean_human_fp_range_2010 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$mean_human_fp_range_2010))==as.character(as.numeric("NA"))),NA,dt2$mean_human_fp_range_2010))
+dt2$mean_human_fp_range_2020 <- ifelse((trimws(as.character(dt2$mean_human_fp_range_2020))==trimws("NA")),NA,dt2$mean_human_fp_range_2020)               
+suppressWarnings(dt2$mean_human_fp_range_2020 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$mean_human_fp_range_2020))==as.character(as.numeric("NA"))),NA,dt2$mean_human_fp_range_2020))
+dt2$percent_change_hf_2010_2020 <- ifelse((trimws(as.character(dt2$percent_change_hf_2010_2020))==trimws("NA")),NA,dt2$percent_change_hf_2010_2020)               
+suppressWarnings(dt2$percent_change_hf_2010_2020 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$percent_change_hf_2010_2020))==as.character(as.numeric("NA"))),NA,dt2$percent_change_hf_2010_2020))
+dt2$observed_range_sqkm <- ifelse((trimws(as.character(dt2$observed_range_sqkm))==trimws("NA")),NA,dt2$observed_range_sqkm)               
+suppressWarnings(dt2$observed_range_sqkm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$observed_range_sqkm))==as.character(as.numeric("NA"))),NA,dt2$observed_range_sqkm))
+dt2$inferred_range_sqkm <- ifelse((trimws(as.character(dt2$inferred_range_sqkm))==trimws("NA")),NA,dt2$inferred_range_sqkm)               
+suppressWarnings(dt2$inferred_range_sqkm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt2$inferred_range_sqkm))==as.character(as.numeric("NA"))),NA,dt2$inferred_range_sqkm))
+dt2$date_data_obtained <- as.factor(ifelse((trimws(as.character(dt2$date_data_obtained))==trimws("NA")),NA,as.character(dt2$date_data_obtained)))
+
+
+# Here is the structure of the input data frame:
+str(dt2)                            
+attach(dt2)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(IUCN_species_name)
+summary(taxonid)
+summary(genus)
+summary(species)
+summary(common_name)
+summary(elton_species_name)
+summary(taxonomic_disparity)
+summary(pass_non_pass_e)
+summary(order_e)
+summary(family_e)
+summary(family_english_e)
+summary(diet_inv_e)
+summary(diet_vend_e)
+summary(diet_vect_e)
+summary(diet_vfish_e)
+summary(diet_vunk_e)
+summary(diet_scav_e)
+summary(diet_fruit_e)
+summary(diet_nect_e)
+summary(diet_seed_e)
+summary(diet_plant_e)
+summary(diet_cat_e)
+summary(diet_source_e)
+summary(diet_certainty_e)
+summary(diet_breadth)
+summary(diet_level)
+summary(for_strat_water)
+summary(for_strat_ground_e)
+summary(for_strat_understory_e)
+summary(for_strat_midhigh_e)
+summary(for_strat_canopy_e)
+summary(for_strat_aerial_e)
+summary(for_strat_spec_level)
+summary(for_strat_source_e)
+summary(activity_nocturnal_e)
+summary(body_mass_e)
+summary(body_mass_notes)
+summary(body_mass_level_e)
+summary(body_mass_source_e)
+summary(min_body_size_mm)
+summary(max_body_size_mm)
+summary(body_size_mm)
+summary(body_size_notes)
+summary(body_size_level)
+summary(body_size_source)
+summary(sexual_dimorphism)
+summary(sexual_dimorphism_notes)
+summary(sexual_dimorphism_level)
+summary(sexual_dimorphism_source)
+summary(min_longevity)
+summary(max_longevity)
+summary(longevity_notes)
+summary(longevity)
+summary(longevity_source)
+summary(longevity_level)
+summary(min_home_range)
+summary(max_home_range)
+summary(home_range_size)
+summary(home_range_notes)
+summary(home_range_level)
+summary(home_range_source)
+summary(habitat_specialization)
+summary(habitat_specialization_notes)
+summary(habitat_specialization_source)
+summary(generation_time)
+summary(generation_time_level)
+summary(generation_time_notes)
+summary(generation_time_source)
+summary(IUCN_category)
+summary(habitat)
+summary(habitat_suitability_montane)
+summary(habitat_suitability_lowland)
+summary(habitat_season_montane)
+summary(habitat_season_lowland)
+summary(habitat_major_importance_montane)
+summary(habitat_major_importance_lowland)
+summary(habitat_breadth)
+summary(habitat_breadth_source)
+summary(habitat_level)
+summary(mean_CHELSA_bio1_1981.2010_V.2.1)
+summary(mean_CHELSA_bio12_1981.2010_V.2.1)
+summary(mean_human_fp_range_2010)
+summary(mean_human_fp_range_2020)
+summary(percent_change_hf_2010_2020)
+summary(observed_range_sqkm)
+summary(inferred_range_sqkm)
+summary(date_data_obtained)
+summary(filled_by) 
+                # Get more details on character variables
+                 
+summary(as.factor(dt2$IUCN_species_name)) 
+summary(as.factor(dt2$genus)) 
+summary(as.factor(dt2$species)) 
+summary(as.factor(dt2$common_name)) 
+summary(as.factor(dt2$elton_species_name)) 
+summary(as.factor(dt2$taxonomic_disparity)) 
+summary(as.factor(dt2$pass_non_pass_e)) 
+summary(as.factor(dt2$order_e)) 
+summary(as.factor(dt2$family_e)) 
+summary(as.factor(dt2$family_english_e)) 
+summary(as.factor(dt2$diet_cat_e)) 
+summary(as.factor(dt2$diet_source_e)) 
+summary(as.factor(dt2$diet_certainty_e)) 
+summary(as.factor(dt2$diet_level)) 
+summary(as.factor(dt2$for_strat_spec_level)) 
+summary(as.factor(dt2$for_strat_source_e)) 
+summary(as.factor(dt2$activity_nocturnal_e)) 
+summary(as.factor(dt2$body_mass_notes)) 
+summary(as.factor(dt2$body_mass_level_e)) 
+summary(as.factor(dt2$body_mass_source_e)) 
+summary(as.factor(dt2$body_size_notes)) 
+summary(as.factor(dt2$body_size_level)) 
+summary(as.factor(dt2$body_size_source)) 
+summary(as.factor(dt2$sexual_dimorphism)) 
+summary(as.factor(dt2$sexual_dimorphism_notes)) 
+summary(as.factor(dt2$sexual_dimorphism_level)) 
+summary(as.factor(dt2$sexual_dimorphism_source)) 
+summary(as.factor(dt2$longevity_notes)) 
+summary(as.factor(dt2$longevity_source)) 
+summary(as.factor(dt2$longevity_level)) 
+summary(as.factor(dt2$home_range_notes)) 
+summary(as.factor(dt2$home_range_level)) 
+summary(as.factor(dt2$home_range_source)) 
+summary(as.factor(dt2$habitat_specialization)) 
+summary(as.factor(dt2$habitat_specialization_notes)) 
+summary(as.factor(dt2$habitat_specialization_source)) 
+summary(as.factor(dt2$generation_time_level)) 
+summary(as.factor(dt2$generation_time_notes)) 
+summary(as.factor(dt2$generation_time_source)) 
+summary(as.factor(dt2$IUCN_category)) 
+summary(as.factor(dt2$habitat)) 
+summary(as.factor(dt2$habitat_suitability_montane)) 
+summary(as.factor(dt2$habitat_suitability_lowland)) 
+summary(as.factor(dt2$habitat_season_montane)) 
+summary(as.factor(dt2$habitat_season_lowland)) 
+summary(as.factor(dt2$habitat_major_importance_montane)) 
+summary(as.factor(dt2$habitat_major_importance_lowland)) 
+summary(as.factor(dt2$habitat_breadth_source)) 
+summary(as.factor(dt2$habitat_level)) 
+summary(as.factor(dt2$date_data_obtained)) 
+summary(as.factor(dt2$filled_by))
+detach(dt2)               
+         
+
+inUrl3  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/3c655f2ab1d525d1b1f05ee78153e875" 
+infile3 <- tempfile()
+try(download.file(inUrl3,infile3,method="curl"))
+if (is.na(file.size(infile3))) download.file(inUrl3,infile3,method="auto")
+
+                   
+ dt3 <-read.csv(infile3,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "IUCN_species_name",     
+                    "common_name",     
+                    "family",     
+                    "genus",     
+                    "species",     
+                    "subspecies",     
+                    "elton_species_name",     
+                    "diet_cat",     
+                    "diet_source_e",     
+                    "diet_breadth",     
+                    "diet_level",     
+                    "activity_nocturnal_e",     
+                    "activity_source_e",     
+                    "activity_level",     
+                    "for_strat_value_e",     
+                    "for_strat_certainty_e",     
+                    "body_mass_e",     
+                    "body_mass_level_e",     
+                    "body_mass_source_e",     
+                    "body_size_mm",     
+                    "body_size_notes",     
+                    "body_size_level",     
+                    "body_size_source",     
+                    "sexual_dimorphism",     
+                    "sexual_dimorphism_notes",     
+                    "sexual_dimorphism_level",     
+                    "sexual_dimorphism_source",     
+                    "longevity",     
+                    "longevity_notes",     
+                    "longevity_level",     
+                    "longevity_source",     
+                    "home_range_size",     
+                    "home_range_notes",     
+                    "home_range_level",     
+                    "home_range_source",     
+                    "habitat_specialization",     
+                    "habitat_specialization_source",     
+                    "generation_time",     
+                    "generation_time_notes",     
+                    "generation_time_level",     
+                    "generation_time_source",     
+                    "IUCN_category",     
+                    "habitat",     
+                    "habitat_breadth",     
+                    "habitat_breadth_source",     
+                    "habitat_level",     
+                    "mean_CHELSA_bio1_1981.2010_V.2.1",     
+                    "mean_CHELSA_bio12_1981.2010_V.2.1",     
+                    "mean_human_fp_range_2010",     
+                    "mean_human_fp_range_2020",     
+                    "percent_change_hf_2010_2020",     
+                    "inferred_range_sqkm",     
+                    "date_data_obtained",     
+                    "filled_by"    ), check.names=TRUE)
+               
+unlink(infile3)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                
+if (class(dt3$IUCN_species_name)!="factor") dt3$IUCN_species_name<- as.factor(dt3$IUCN_species_name)
+if (class(dt3$common_name)!="factor") dt3$common_name<- as.factor(dt3$common_name)
+if (class(dt3$family)!="factor") dt3$family<- as.factor(dt3$family)
+if (class(dt3$genus)!="factor") dt3$genus<- as.factor(dt3$genus)
+if (class(dt3$species)!="factor") dt3$species<- as.factor(dt3$species)
+if (class(dt3$subspecies)!="factor") dt3$subspecies<- as.factor(dt3$subspecies)
+if (class(dt3$elton_species_name)!="factor") dt3$elton_species_name<- as.factor(dt3$elton_species_name)
+if (class(dt3$diet_cat)!="factor") dt3$diet_cat<- as.factor(dt3$diet_cat)
+if (class(dt3$diet_source_e)!="factor") dt3$diet_source_e<- as.factor(dt3$diet_source_e)
+if (class(dt3$diet_breadth)=="factor") dt3$diet_breadth <-as.numeric(levels(dt3$diet_breadth))[as.integer(dt3$diet_breadth) ]               
+if (class(dt3$diet_breadth)=="character") dt3$diet_breadth <-as.numeric(dt3$diet_breadth)
+if (class(dt3$diet_level)!="factor") dt3$diet_level<- as.factor(dt3$diet_level)
+if (class(dt3$activity_nocturnal_e)!="factor") dt3$activity_nocturnal_e<- as.factor(dt3$activity_nocturnal_e)
+if (class(dt3$activity_source_e)!="factor") dt3$activity_source_e<- as.factor(dt3$activity_source_e)
+if (class(dt3$activity_level)!="factor") dt3$activity_level<- as.factor(dt3$activity_level)
+if (class(dt3$for_strat_value_e)!="factor") dt3$for_strat_value_e<- as.factor(dt3$for_strat_value_e)
+if (class(dt3$for_strat_certainty_e)!="factor") dt3$for_strat_certainty_e<- as.factor(dt3$for_strat_certainty_e)
+if (class(dt3$body_mass_e)=="factor") dt3$body_mass_e <-as.numeric(levels(dt3$body_mass_e))[as.integer(dt3$body_mass_e) ]               
+if (class(dt3$body_mass_e)=="character") dt3$body_mass_e <-as.numeric(dt3$body_mass_e)
+if (class(dt3$body_mass_level_e)!="factor") dt3$body_mass_level_e<- as.factor(dt3$body_mass_level_e)
+if (class(dt3$body_mass_source_e)!="factor") dt3$body_mass_source_e<- as.factor(dt3$body_mass_source_e)
+if (class(dt3$body_size_mm)=="factor") dt3$body_size_mm <-as.numeric(levels(dt3$body_size_mm))[as.integer(dt3$body_size_mm) ]               
+if (class(dt3$body_size_mm)=="character") dt3$body_size_mm <-as.numeric(dt3$body_size_mm)
+if (class(dt3$body_size_notes)!="factor") dt3$body_size_notes<- as.factor(dt3$body_size_notes)
+if (class(dt3$body_size_level)!="factor") dt3$body_size_level<- as.factor(dt3$body_size_level)
+if (class(dt3$body_size_source)!="factor") dt3$body_size_source<- as.factor(dt3$body_size_source)
+if (class(dt3$sexual_dimorphism)!="factor") dt3$sexual_dimorphism<- as.factor(dt3$sexual_dimorphism)
+if (class(dt3$sexual_dimorphism_notes)!="factor") dt3$sexual_dimorphism_notes<- as.factor(dt3$sexual_dimorphism_notes)
+if (class(dt3$sexual_dimorphism_level)!="factor") dt3$sexual_dimorphism_level<- as.factor(dt3$sexual_dimorphism_level)
+if (class(dt3$sexual_dimorphism_source)!="factor") dt3$sexual_dimorphism_source<- as.factor(dt3$sexual_dimorphism_source)
+if (class(dt3$longevity)=="factor") dt3$longevity <-as.numeric(levels(dt3$longevity))[as.integer(dt3$longevity) ]               
+if (class(dt3$longevity)=="character") dt3$longevity <-as.numeric(dt3$longevity)
+if (class(dt3$longevity_notes)!="factor") dt3$longevity_notes<- as.factor(dt3$longevity_notes)
+if (class(dt3$longevity_level)!="factor") dt3$longevity_level<- as.factor(dt3$longevity_level)
+if (class(dt3$longevity_source)!="factor") dt3$longevity_source<- as.factor(dt3$longevity_source)
+if (class(dt3$home_range_size)=="factor") dt3$home_range_size <-as.numeric(levels(dt3$home_range_size))[as.integer(dt3$home_range_size) ]               
+if (class(dt3$home_range_size)=="character") dt3$home_range_size <-as.numeric(dt3$home_range_size)
+if (class(dt3$home_range_notes)!="factor") dt3$home_range_notes<- as.factor(dt3$home_range_notes)
+if (class(dt3$home_range_level)!="factor") dt3$home_range_level<- as.factor(dt3$home_range_level)
+if (class(dt3$home_range_source)!="factor") dt3$home_range_source<- as.factor(dt3$home_range_source)
+if (class(dt3$habitat_specialization)!="factor") dt3$habitat_specialization<- as.factor(dt3$habitat_specialization)
+if (class(dt3$habitat_specialization_source)!="factor") dt3$habitat_specialization_source<- as.factor(dt3$habitat_specialization_source)
+if (class(dt3$generation_time)=="factor") dt3$generation_time <-as.numeric(levels(dt3$generation_time))[as.integer(dt3$generation_time) ]               
+if (class(dt3$generation_time)=="character") dt3$generation_time <-as.numeric(dt3$generation_time)
+if (class(dt3$generation_time_notes)!="factor") dt3$generation_time_notes<- as.factor(dt3$generation_time_notes)
+if (class(dt3$generation_time_level)!="factor") dt3$generation_time_level<- as.factor(dt3$generation_time_level)
+if (class(dt3$generation_time_source)!="factor") dt3$generation_time_source<- as.factor(dt3$generation_time_source)
+if (class(dt3$IUCN_category)!="factor") dt3$IUCN_category<- as.factor(dt3$IUCN_category)
+if (class(dt3$habitat)!="factor") dt3$habitat<- as.factor(dt3$habitat)
+if (class(dt3$habitat_breadth)=="factor") dt3$habitat_breadth <-as.numeric(levels(dt3$habitat_breadth))[as.integer(dt3$habitat_breadth) ]               
+if (class(dt3$habitat_breadth)=="character") dt3$habitat_breadth <-as.numeric(dt3$habitat_breadth)
+if (class(dt3$habitat_breadth_source)!="factor") dt3$habitat_breadth_source<- as.factor(dt3$habitat_breadth_source)
+if (class(dt3$habitat_level)!="factor") dt3$habitat_level<- as.factor(dt3$habitat_level)
+if (class(dt3$mean_CHELSA_bio1_1981.2010_V.2.1)=="factor") dt3$mean_CHELSA_bio1_1981.2010_V.2.1 <-as.numeric(levels(dt3$mean_CHELSA_bio1_1981.2010_V.2.1))[as.integer(dt3$mean_CHELSA_bio1_1981.2010_V.2.1) ]               
+if (class(dt3$mean_CHELSA_bio1_1981.2010_V.2.1)=="character") dt3$mean_CHELSA_bio1_1981.2010_V.2.1 <-as.numeric(dt3$mean_CHELSA_bio1_1981.2010_V.2.1)
+if (class(dt3$mean_CHELSA_bio12_1981.2010_V.2.1)=="factor") dt3$mean_CHELSA_bio12_1981.2010_V.2.1 <-as.numeric(levels(dt3$mean_CHELSA_bio12_1981.2010_V.2.1))[as.integer(dt3$mean_CHELSA_bio12_1981.2010_V.2.1) ]               
+if (class(dt3$mean_CHELSA_bio12_1981.2010_V.2.1)=="character") dt3$mean_CHELSA_bio12_1981.2010_V.2.1 <-as.numeric(dt3$mean_CHELSA_bio12_1981.2010_V.2.1)
+if (class(dt3$mean_human_fp_range_2010)=="factor") dt3$mean_human_fp_range_2010 <-as.numeric(levels(dt3$mean_human_fp_range_2010))[as.integer(dt3$mean_human_fp_range_2010) ]               
+if (class(dt3$mean_human_fp_range_2010)=="character") dt3$mean_human_fp_range_2010 <-as.numeric(dt3$mean_human_fp_range_2010)
+if (class(dt3$mean_human_fp_range_2020)=="factor") dt3$mean_human_fp_range_2020 <-as.numeric(levels(dt3$mean_human_fp_range_2020))[as.integer(dt3$mean_human_fp_range_2020) ]               
+if (class(dt3$mean_human_fp_range_2020)=="character") dt3$mean_human_fp_range_2020 <-as.numeric(dt3$mean_human_fp_range_2020)
+if (class(dt3$percent_change_hf_2010_2020)=="factor") dt3$percent_change_hf_2010_2020 <-as.numeric(levels(dt3$percent_change_hf_2010_2020))[as.integer(dt3$percent_change_hf_2010_2020) ]               
+if (class(dt3$percent_change_hf_2010_2020)=="character") dt3$percent_change_hf_2010_2020 <-as.numeric(dt3$percent_change_hf_2010_2020)
+if (class(dt3$inferred_range_sqkm)=="factor") dt3$inferred_range_sqkm <-as.numeric(levels(dt3$inferred_range_sqkm))[as.integer(dt3$inferred_range_sqkm) ]               
+if (class(dt3$inferred_range_sqkm)=="character") dt3$inferred_range_sqkm <-as.numeric(dt3$inferred_range_sqkm)
+if (class(dt3$date_data_obtained)!="factor") dt3$date_data_obtained<- as.factor(dt3$date_data_obtained)
+if (class(dt3$filled_by)!="factor") dt3$filled_by<- as.factor(dt3$filled_by)
+                
+# Convert Missing Values to NA for non-dates
+                
+dt3$common_name <- as.factor(ifelse((trimws(as.character(dt3$common_name))==trimws("NA")),NA,as.character(dt3$common_name)))
+dt3$subspecies <- as.factor(ifelse((trimws(as.character(dt3$subspecies))==trimws("NA")),NA,as.character(dt3$subspecies)))
+dt3$diet_level <- as.factor(ifelse((trimws(as.character(dt3$diet_level))==trimws("NA")),NA,as.character(dt3$diet_level)))
+dt3$activity_level <- as.factor(ifelse((trimws(as.character(dt3$activity_level))==trimws("NA")),NA,as.character(dt3$activity_level)))
+dt3$body_size_mm <- ifelse((trimws(as.character(dt3$body_size_mm))==trimws("NA")),NA,dt3$body_size_mm)               
+suppressWarnings(dt3$body_size_mm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt3$body_size_mm))==as.character(as.numeric("NA"))),NA,dt3$body_size_mm))
+dt3$body_size_notes <- as.factor(ifelse((trimws(as.character(dt3$body_size_notes))==trimws("NA")),NA,as.character(dt3$body_size_notes)))
+dt3$body_size_level <- as.factor(ifelse((trimws(as.character(dt3$body_size_level))==trimws("NA")),NA,as.character(dt3$body_size_level)))
+dt3$body_size_source <- as.factor(ifelse((trimws(as.character(dt3$body_size_source))==trimws("NA")),NA,as.character(dt3$body_size_source)))
+dt3$sexual_dimorphism <- as.factor(ifelse((trimws(as.character(dt3$sexual_dimorphism))==trimws("NA")),NA,as.character(dt3$sexual_dimorphism)))
+dt3$sexual_dimorphism <- as.factor(ifelse((trimws(as.character(dt3$sexual_dimorphism))==trimws("NA ")),NA,as.character(dt3$sexual_dimorphism)))
+dt3$sexual_dimorphism_notes <- as.factor(ifelse((trimws(as.character(dt3$sexual_dimorphism_notes))==trimws("NA")),NA,as.character(dt3$sexual_dimorphism_notes)))
+dt3$sexual_dimorphism_level <- as.factor(ifelse((trimws(as.character(dt3$sexual_dimorphism_level))==trimws("NA")),NA,as.character(dt3$sexual_dimorphism_level)))
+dt3$sexual_dimorphism_source <- as.factor(ifelse((trimws(as.character(dt3$sexual_dimorphism_source))==trimws("NA")),NA,as.character(dt3$sexual_dimorphism_source)))
+dt3$longevity <- ifelse((trimws(as.character(dt3$longevity))==trimws("NA")),NA,dt3$longevity)               
+suppressWarnings(dt3$longevity <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt3$longevity))==as.character(as.numeric("NA"))),NA,dt3$longevity))
+dt3$longevity_notes <- as.factor(ifelse((trimws(as.character(dt3$longevity_notes))==trimws("NA")),NA,as.character(dt3$longevity_notes)))
+dt3$longevity_level <- as.factor(ifelse((trimws(as.character(dt3$longevity_level))==trimws("NA")),NA,as.character(dt3$longevity_level)))
+dt3$longevity_source <- as.factor(ifelse((trimws(as.character(dt3$longevity_source))==trimws("NA")),NA,as.character(dt3$longevity_source)))
+dt3$home_range_size <- ifelse((trimws(as.character(dt3$home_range_size))==trimws("NA")),NA,dt3$home_range_size)               
+suppressWarnings(dt3$home_range_size <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt3$home_range_size))==as.character(as.numeric("NA"))),NA,dt3$home_range_size))
+dt3$home_range_notes <- as.factor(ifelse((trimws(as.character(dt3$home_range_notes))==trimws("NA")),NA,as.character(dt3$home_range_notes)))
+dt3$home_range_level <- as.factor(ifelse((trimws(as.character(dt3$home_range_level))==trimws("NA")),NA,as.character(dt3$home_range_level)))
+dt3$home_range_source <- as.factor(ifelse((trimws(as.character(dt3$home_range_source))==trimws("NA")),NA,as.character(dt3$home_range_source)))
+dt3$habitat_specialization <- as.factor(ifelse((trimws(as.character(dt3$habitat_specialization))==trimws("NA")),NA,as.character(dt3$habitat_specialization)))
+dt3$habitat_specialization_source <- as.factor(ifelse((trimws(as.character(dt3$habitat_specialization_source))==trimws("NA")),NA,as.character(dt3$habitat_specialization_source)))
+dt3$generation_time <- ifelse((trimws(as.character(dt3$generation_time))==trimws("NA")),NA,dt3$generation_time)               
+suppressWarnings(dt3$generation_time <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt3$generation_time))==as.character(as.numeric("NA"))),NA,dt3$generation_time))
+dt3$generation_time_notes <- as.factor(ifelse((trimws(as.character(dt3$generation_time_notes))==trimws("NA")),NA,as.character(dt3$generation_time_notes)))
+dt3$generation_time_level <- as.factor(ifelse((trimws(as.character(dt3$generation_time_level))==trimws("NA")),NA,as.character(dt3$generation_time_level)))
+dt3$generation_time_source <- as.factor(ifelse((trimws(as.character(dt3$generation_time_source))==trimws("NA")),NA,as.character(dt3$generation_time_source)))
+dt3$habitat_breadth <- ifelse((trimws(as.character(dt3$habitat_breadth))==trimws("NA")),NA,dt3$habitat_breadth)               
+suppressWarnings(dt3$habitat_breadth <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt3$habitat_breadth))==as.character(as.numeric("NA"))),NA,dt3$habitat_breadth))
+dt3$habitat_level <- as.factor(ifelse((trimws(as.character(dt3$habitat_level))==trimws("NA")),NA,as.character(dt3$habitat_level)))
+dt3$mean_CHELSA_bio1_1981.2010_V.2.1 <- ifelse((trimws(as.character(dt3$mean_CHELSA_bio1_1981.2010_V.2.1))==trimws("NA")),NA,dt3$mean_CHELSA_bio1_1981.2010_V.2.1)               
+suppressWarnings(dt3$mean_CHELSA_bio1_1981.2010_V.2.1 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt3$mean_CHELSA_bio1_1981.2010_V.2.1))==as.character(as.numeric("NA"))),NA,dt3$mean_CHELSA_bio1_1981.2010_V.2.1))
+dt3$mean_CHELSA_bio12_1981.2010_V.2.1 <- ifelse((trimws(as.character(dt3$mean_CHELSA_bio12_1981.2010_V.2.1))==trimws("NA")),NA,dt3$mean_CHELSA_bio12_1981.2010_V.2.1)               
+suppressWarnings(dt3$mean_CHELSA_bio12_1981.2010_V.2.1 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt3$mean_CHELSA_bio12_1981.2010_V.2.1))==as.character(as.numeric("NA"))),NA,dt3$mean_CHELSA_bio12_1981.2010_V.2.1))
+dt3$mean_human_fp_range_2010 <- ifelse((trimws(as.character(dt3$mean_human_fp_range_2010))==trimws("NA")),NA,dt3$mean_human_fp_range_2010)               
+suppressWarnings(dt3$mean_human_fp_range_2010 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt3$mean_human_fp_range_2010))==as.character(as.numeric("NA"))),NA,dt3$mean_human_fp_range_2010))
+dt3$mean_human_fp_range_2020 <- ifelse((trimws(as.character(dt3$mean_human_fp_range_2020))==trimws("NA")),NA,dt3$mean_human_fp_range_2020)               
+suppressWarnings(dt3$mean_human_fp_range_2020 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt3$mean_human_fp_range_2020))==as.character(as.numeric("NA"))),NA,dt3$mean_human_fp_range_2020))
+dt3$percent_change_hf_2010_2020 <- ifelse((trimws(as.character(dt3$percent_change_hf_2010_2020))==trimws("NA")),NA,dt3$percent_change_hf_2010_2020)               
+suppressWarnings(dt3$percent_change_hf_2010_2020 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt3$percent_change_hf_2010_2020))==as.character(as.numeric("NA"))),NA,dt3$percent_change_hf_2010_2020))
+dt3$inferred_range_sqkm <- ifelse((trimws(as.character(dt3$inferred_range_sqkm))==trimws("NA")),NA,dt3$inferred_range_sqkm)               
+suppressWarnings(dt3$inferred_range_sqkm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt3$inferred_range_sqkm))==as.character(as.numeric("NA"))),NA,dt3$inferred_range_sqkm))
+dt3$date_data_obtained <- as.factor(ifelse((trimws(as.character(dt3$date_data_obtained))==trimws("NA")),NA,as.character(dt3$date_data_obtained)))
+
+
+# Here is the structure of the input data frame:
+str(dt3)                            
+attach(dt3)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(IUCN_species_name)
+summary(common_name)
+summary(family)
+summary(genus)
+summary(species)
+summary(subspecies)
+summary(elton_species_name)
+summary(diet_cat)
+summary(diet_source_e)
+summary(diet_breadth)
+summary(diet_level)
+summary(activity_nocturnal_e)
+summary(activity_source_e)
+summary(activity_level)
+summary(for_strat_value_e)
+summary(for_strat_certainty_e)
+summary(body_mass_e)
+summary(body_mass_level_e)
+summary(body_mass_source_e)
+summary(body_size_mm)
+summary(body_size_notes)
+summary(body_size_level)
+summary(body_size_source)
+summary(sexual_dimorphism)
+summary(sexual_dimorphism_notes)
+summary(sexual_dimorphism_level)
+summary(sexual_dimorphism_source)
+summary(longevity)
+summary(longevity_notes)
+summary(longevity_level)
+summary(longevity_source)
+summary(home_range_size)
+summary(home_range_notes)
+summary(home_range_level)
+summary(home_range_source)
+summary(habitat_specialization)
+summary(habitat_specialization_source)
+summary(generation_time)
+summary(generation_time_notes)
+summary(generation_time_level)
+summary(generation_time_source)
+summary(IUCN_category)
+summary(habitat)
+summary(habitat_breadth)
+summary(habitat_breadth_source)
+summary(habitat_level)
+summary(mean_CHELSA_bio1_1981.2010_V.2.1)
+summary(mean_CHELSA_bio12_1981.2010_V.2.1)
+summary(mean_human_fp_range_2010)
+summary(mean_human_fp_range_2020)
+summary(percent_change_hf_2010_2020)
+summary(inferred_range_sqkm)
+summary(date_data_obtained)
+summary(filled_by) 
+                # Get more details on character variables
+                 
+summary(as.factor(dt3$IUCN_species_name)) 
+summary(as.factor(dt3$common_name)) 
+summary(as.factor(dt3$family)) 
+summary(as.factor(dt3$genus)) 
+summary(as.factor(dt3$species)) 
+summary(as.factor(dt3$subspecies)) 
+summary(as.factor(dt3$elton_species_name)) 
+summary(as.factor(dt3$diet_cat)) 
+summary(as.factor(dt3$diet_source_e)) 
+summary(as.factor(dt3$diet_level)) 
+summary(as.factor(dt3$activity_nocturnal_e)) 
+summary(as.factor(dt3$activity_source_e)) 
+summary(as.factor(dt3$activity_level)) 
+summary(as.factor(dt3$for_strat_value_e)) 
+summary(as.factor(dt3$for_strat_certainty_e)) 
+summary(as.factor(dt3$body_mass_level_e)) 
+summary(as.factor(dt3$body_mass_source_e)) 
+summary(as.factor(dt3$body_size_notes)) 
+summary(as.factor(dt3$body_size_level)) 
+summary(as.factor(dt3$body_size_source)) 
+summary(as.factor(dt3$sexual_dimorphism)) 
+summary(as.factor(dt3$sexual_dimorphism_notes)) 
+summary(as.factor(dt3$sexual_dimorphism_level)) 
+summary(as.factor(dt3$sexual_dimorphism_source)) 
+summary(as.factor(dt3$longevity_notes)) 
+summary(as.factor(dt3$longevity_level)) 
+summary(as.factor(dt3$longevity_source)) 
+summary(as.factor(dt3$home_range_notes)) 
+summary(as.factor(dt3$home_range_level)) 
+summary(as.factor(dt3$home_range_source)) 
+summary(as.factor(dt3$habitat_specialization)) 
+summary(as.factor(dt3$habitat_specialization_source)) 
+summary(as.factor(dt3$generation_time_notes)) 
+summary(as.factor(dt3$generation_time_level)) 
+summary(as.factor(dt3$generation_time_source)) 
+summary(as.factor(dt3$IUCN_category)) 
+summary(as.factor(dt3$habitat)) 
+summary(as.factor(dt3$habitat_breadth_source)) 
+summary(as.factor(dt3$habitat_level)) 
+summary(as.factor(dt3$date_data_obtained)) 
+summary(as.factor(dt3$filled_by))
+detach(dt3)               
+         
+
+inUrl4  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/5a86fde71322a1ff64d94ace0ed1982c" 
+infile4 <- tempfile()
+try(download.file(inUrl4,infile4,method="curl"))
+if (is.na(file.size(infile4))) download.file(inUrl4,infile4,method="auto")
+
+                   
+ dt4 <-read.csv(infile4,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "IUCN_species_name",     
+                    "common_name",     
+                    "family_e",     
+                    "genus",     
+                    "species",     
+                    "elton_species_name",     
+                    "diet_cat_e",     
+                    "diet_source_e",     
+                    "diet_breadth",     
+                    "diet_level",     
+                    "activity_nocturnal_e",     
+                    "for_strat_ground_e",     
+                    "for_strat_understory_e",     
+                    "for_strat_midhigh_e",     
+                    "for_strat_canopy_e",     
+                    "for_strat_aerial_e",     
+                    "for_strat_spec_level",     
+                    "for_strat_source_e",     
+                    "body_mass_e",     
+                    "body_mass_level_e",     
+                    "body_mass_source_e",     
+                    "body_size_mm",     
+                    "body_size_notes",     
+                    "body_size_level",     
+                    "body_size_source",     
+                    "sexual_dimorphism",     
+                    "sexual_dimorphism_notes",     
+                    "sexual_dimorphism_level",     
+                    "sexual_dimorphism_source",     
+                    "longevity",     
+                    "longevity_notes",     
+                    "longevity_level",     
+                    "longevity_source",     
+                    "home_range_size",     
+                    "home_range_notes",     
+                    "home_range_level",     
+                    "home_range_source",     
+                    "habitat_specialization",     
+                    "habitat_specialization_source",     
+                    "generation_time",     
+                    "generation_time_notes",     
+                    "generation_time_level",     
+                    "generation_time_source",     
+                    "IUCN_category",     
+                    "habitat",     
+                    "habitat_breadth",     
+                    "habitat_breadth_source",     
+                    "habitat_level",     
+                    "mean_CHELSA_bio1_1981.2010_V.2.1",     
+                    "mean_CHELSA_bio12_1981.2010_V.2.1",     
+                    "mean_human_fp_range_2010",     
+                    "mean_human_fp_range_2020",     
+                    "percent_change_hf_2010_2020",     
+                    "inferred_range_sqkm",     
+                    "date_data_obtained",     
+                    "filled_by"    ), check.names=TRUE)
+               
+unlink(infile4)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                
+if (class(dt4$IUCN_species_name)!="factor") dt4$IUCN_species_name<- as.factor(dt4$IUCN_species_name)
+if (class(dt4$common_name)!="factor") dt4$common_name<- as.factor(dt4$common_name)
+if (class(dt4$family_e)!="factor") dt4$family_e<- as.factor(dt4$family_e)
+if (class(dt4$genus)!="factor") dt4$genus<- as.factor(dt4$genus)
+if (class(dt4$species)!="factor") dt4$species<- as.factor(dt4$species)
+if (class(dt4$elton_species_name)!="factor") dt4$elton_species_name<- as.factor(dt4$elton_species_name)
+if (class(dt4$diet_cat_e)!="factor") dt4$diet_cat_e<- as.factor(dt4$diet_cat_e)
+if (class(dt4$diet_source_e)!="factor") dt4$diet_source_e<- as.factor(dt4$diet_source_e)
+if (class(dt4$diet_breadth)=="factor") dt4$diet_breadth <-as.numeric(levels(dt4$diet_breadth))[as.integer(dt4$diet_breadth) ]               
+if (class(dt4$diet_breadth)=="character") dt4$diet_breadth <-as.numeric(dt4$diet_breadth)
+if (class(dt4$diet_level)!="factor") dt4$diet_level<- as.factor(dt4$diet_level)
+if (class(dt4$activity_nocturnal_e)!="factor") dt4$activity_nocturnal_e<- as.factor(dt4$activity_nocturnal_e)
+if (class(dt4$for_strat_ground_e)=="factor") dt4$for_strat_ground_e <-as.numeric(levels(dt4$for_strat_ground_e))[as.integer(dt4$for_strat_ground_e) ]               
+if (class(dt4$for_strat_ground_e)=="character") dt4$for_strat_ground_e <-as.numeric(dt4$for_strat_ground_e)
+if (class(dt4$for_strat_understory_e)=="factor") dt4$for_strat_understory_e <-as.numeric(levels(dt4$for_strat_understory_e))[as.integer(dt4$for_strat_understory_e) ]               
+if (class(dt4$for_strat_understory_e)=="character") dt4$for_strat_understory_e <-as.numeric(dt4$for_strat_understory_e)
+if (class(dt4$for_strat_midhigh_e)=="factor") dt4$for_strat_midhigh_e <-as.numeric(levels(dt4$for_strat_midhigh_e))[as.integer(dt4$for_strat_midhigh_e) ]               
+if (class(dt4$for_strat_midhigh_e)=="character") dt4$for_strat_midhigh_e <-as.numeric(dt4$for_strat_midhigh_e)
+if (class(dt4$for_strat_canopy_e)=="factor") dt4$for_strat_canopy_e <-as.numeric(levels(dt4$for_strat_canopy_e))[as.integer(dt4$for_strat_canopy_e) ]               
+if (class(dt4$for_strat_canopy_e)=="character") dt4$for_strat_canopy_e <-as.numeric(dt4$for_strat_canopy_e)
+if (class(dt4$for_strat_aerial_e)=="factor") dt4$for_strat_aerial_e <-as.numeric(levels(dt4$for_strat_aerial_e))[as.integer(dt4$for_strat_aerial_e) ]               
+if (class(dt4$for_strat_aerial_e)=="character") dt4$for_strat_aerial_e <-as.numeric(dt4$for_strat_aerial_e)
+if (class(dt4$for_strat_spec_level)!="factor") dt4$for_strat_spec_level<- as.factor(dt4$for_strat_spec_level)
+if (class(dt4$for_strat_source_e)!="factor") dt4$for_strat_source_e<- as.factor(dt4$for_strat_source_e)
+if (class(dt4$body_mass_e)=="factor") dt4$body_mass_e <-as.numeric(levels(dt4$body_mass_e))[as.integer(dt4$body_mass_e) ]               
+if (class(dt4$body_mass_e)=="character") dt4$body_mass_e <-as.numeric(dt4$body_mass_e)
+if (class(dt4$body_mass_level_e)!="factor") dt4$body_mass_level_e<- as.factor(dt4$body_mass_level_e)
+if (class(dt4$body_mass_source_e)!="factor") dt4$body_mass_source_e<- as.factor(dt4$body_mass_source_e)
+if (class(dt4$body_size_mm)=="factor") dt4$body_size_mm <-as.numeric(levels(dt4$body_size_mm))[as.integer(dt4$body_size_mm) ]               
+if (class(dt4$body_size_mm)=="character") dt4$body_size_mm <-as.numeric(dt4$body_size_mm)
+if (class(dt4$body_size_notes)!="factor") dt4$body_size_notes<- as.factor(dt4$body_size_notes)
+if (class(dt4$body_size_level)!="factor") dt4$body_size_level<- as.factor(dt4$body_size_level)
+if (class(dt4$body_size_source)!="factor") dt4$body_size_source<- as.factor(dt4$body_size_source)
+if (class(dt4$sexual_dimorphism)!="factor") dt4$sexual_dimorphism<- as.factor(dt4$sexual_dimorphism)
+if (class(dt4$sexual_dimorphism_notes)!="factor") dt4$sexual_dimorphism_notes<- as.factor(dt4$sexual_dimorphism_notes)
+if (class(dt4$sexual_dimorphism_level)!="factor") dt4$sexual_dimorphism_level<- as.factor(dt4$sexual_dimorphism_level)
+if (class(dt4$sexual_dimorphism_source)!="factor") dt4$sexual_dimorphism_source<- as.factor(dt4$sexual_dimorphism_source)
+if (class(dt4$longevity)=="factor") dt4$longevity <-as.numeric(levels(dt4$longevity))[as.integer(dt4$longevity) ]               
+if (class(dt4$longevity)=="character") dt4$longevity <-as.numeric(dt4$longevity)
+if (class(dt4$longevity_notes)!="factor") dt4$longevity_notes<- as.factor(dt4$longevity_notes)
+if (class(dt4$longevity_level)!="factor") dt4$longevity_level<- as.factor(dt4$longevity_level)
+if (class(dt4$longevity_source)!="factor") dt4$longevity_source<- as.factor(dt4$longevity_source)
+if (class(dt4$home_range_size)=="factor") dt4$home_range_size <-as.numeric(levels(dt4$home_range_size))[as.integer(dt4$home_range_size) ]               
+if (class(dt4$home_range_size)=="character") dt4$home_range_size <-as.numeric(dt4$home_range_size)
+if (class(dt4$home_range_notes)!="factor") dt4$home_range_notes<- as.factor(dt4$home_range_notes)
+if (class(dt4$home_range_level)!="factor") dt4$home_range_level<- as.factor(dt4$home_range_level)
+if (class(dt4$home_range_source)!="factor") dt4$home_range_source<- as.factor(dt4$home_range_source)
+if (class(dt4$habitat_specialization)!="factor") dt4$habitat_specialization<- as.factor(dt4$habitat_specialization)
+if (class(dt4$habitat_specialization_source)!="factor") dt4$habitat_specialization_source<- as.factor(dt4$habitat_specialization_source)
+if (class(dt4$generation_time)=="factor") dt4$generation_time <-as.numeric(levels(dt4$generation_time))[as.integer(dt4$generation_time) ]               
+if (class(dt4$generation_time)=="character") dt4$generation_time <-as.numeric(dt4$generation_time)
+if (class(dt4$generation_time_notes)!="factor") dt4$generation_time_notes<- as.factor(dt4$generation_time_notes)
+if (class(dt4$generation_time_level)!="factor") dt4$generation_time_level<- as.factor(dt4$generation_time_level)
+if (class(dt4$generation_time_source)!="factor") dt4$generation_time_source<- as.factor(dt4$generation_time_source)
+if (class(dt4$IUCN_category)!="factor") dt4$IUCN_category<- as.factor(dt4$IUCN_category)
+if (class(dt4$habitat)!="factor") dt4$habitat<- as.factor(dt4$habitat)
+if (class(dt4$habitat_breadth)=="factor") dt4$habitat_breadth <-as.numeric(levels(dt4$habitat_breadth))[as.integer(dt4$habitat_breadth) ]               
+if (class(dt4$habitat_breadth)=="character") dt4$habitat_breadth <-as.numeric(dt4$habitat_breadth)
+if (class(dt4$habitat_breadth_source)!="factor") dt4$habitat_breadth_source<- as.factor(dt4$habitat_breadth_source)
+if (class(dt4$habitat_level)!="factor") dt4$habitat_level<- as.factor(dt4$habitat_level)
+if (class(dt4$mean_CHELSA_bio1_1981.2010_V.2.1)=="factor") dt4$mean_CHELSA_bio1_1981.2010_V.2.1 <-as.numeric(levels(dt4$mean_CHELSA_bio1_1981.2010_V.2.1))[as.integer(dt4$mean_CHELSA_bio1_1981.2010_V.2.1) ]               
+if (class(dt4$mean_CHELSA_bio1_1981.2010_V.2.1)=="character") dt4$mean_CHELSA_bio1_1981.2010_V.2.1 <-as.numeric(dt4$mean_CHELSA_bio1_1981.2010_V.2.1)
+if (class(dt4$mean_CHELSA_bio12_1981.2010_V.2.1)=="factor") dt4$mean_CHELSA_bio12_1981.2010_V.2.1 <-as.numeric(levels(dt4$mean_CHELSA_bio12_1981.2010_V.2.1))[as.integer(dt4$mean_CHELSA_bio12_1981.2010_V.2.1) ]               
+if (class(dt4$mean_CHELSA_bio12_1981.2010_V.2.1)=="character") dt4$mean_CHELSA_bio12_1981.2010_V.2.1 <-as.numeric(dt4$mean_CHELSA_bio12_1981.2010_V.2.1)
+if (class(dt4$mean_human_fp_range_2010)=="factor") dt4$mean_human_fp_range_2010 <-as.numeric(levels(dt4$mean_human_fp_range_2010))[as.integer(dt4$mean_human_fp_range_2010) ]               
+if (class(dt4$mean_human_fp_range_2010)=="character") dt4$mean_human_fp_range_2010 <-as.numeric(dt4$mean_human_fp_range_2010)
+if (class(dt4$mean_human_fp_range_2020)=="factor") dt4$mean_human_fp_range_2020 <-as.numeric(levels(dt4$mean_human_fp_range_2020))[as.integer(dt4$mean_human_fp_range_2020) ]               
+if (class(dt4$mean_human_fp_range_2020)=="character") dt4$mean_human_fp_range_2020 <-as.numeric(dt4$mean_human_fp_range_2020)
+if (class(dt4$percent_change_hf_2010_2020)=="factor") dt4$percent_change_hf_2010_2020 <-as.numeric(levels(dt4$percent_change_hf_2010_2020))[as.integer(dt4$percent_change_hf_2010_2020) ]               
+if (class(dt4$percent_change_hf_2010_2020)=="character") dt4$percent_change_hf_2010_2020 <-as.numeric(dt4$percent_change_hf_2010_2020)
+if (class(dt4$inferred_range_sqkm)=="factor") dt4$inferred_range_sqkm <-as.numeric(levels(dt4$inferred_range_sqkm))[as.integer(dt4$inferred_range_sqkm) ]               
+if (class(dt4$inferred_range_sqkm)=="character") dt4$inferred_range_sqkm <-as.numeric(dt4$inferred_range_sqkm)
+if (class(dt4$date_data_obtained)!="factor") dt4$date_data_obtained<- as.factor(dt4$date_data_obtained)
+if (class(dt4$filled_by)!="factor") dt4$filled_by<- as.factor(dt4$filled_by)
+                
+# Convert Missing Values to NA for non-dates
+                
+dt4$IUCN_species_name <- as.factor(ifelse((trimws(as.character(dt4$IUCN_species_name))==trimws("NA")),NA,as.character(dt4$IUCN_species_name)))
+dt4$common_name <- as.factor(ifelse((trimws(as.character(dt4$common_name))==trimws("NA")),NA,as.character(dt4$common_name)))
+dt4$family_e <- as.factor(ifelse((trimws(as.character(dt4$family_e))==trimws("NA")),NA,as.character(dt4$family_e)))
+dt4$genus <- as.factor(ifelse((trimws(as.character(dt4$genus))==trimws("NA")),NA,as.character(dt4$genus)))
+dt4$elton_species_name <- as.factor(ifelse((trimws(as.character(dt4$elton_species_name))==trimws("NA")),NA,as.character(dt4$elton_species_name)))
+dt4$diet_cat_e <- as.factor(ifelse((trimws(as.character(dt4$diet_cat_e))==trimws("NA")),NA,as.character(dt4$diet_cat_e)))
+dt4$diet_level <- as.factor(ifelse((trimws(as.character(dt4$diet_level))==trimws("NA")),NA,as.character(dt4$diet_level)))
+dt4$activity_nocturnal_e <- as.factor(ifelse((trimws(as.character(dt4$activity_nocturnal_e))==trimws("NA")),NA,as.character(dt4$activity_nocturnal_e)))
+dt4$for_strat_spec_level <- as.factor(ifelse((trimws(as.character(dt4$for_strat_spec_level))==trimws("NA")),NA,as.character(dt4$for_strat_spec_level)))
+dt4$for_strat_source_e <- as.factor(ifelse((trimws(as.character(dt4$for_strat_source_e))==trimws("NA")),NA,as.character(dt4$for_strat_source_e)))
+dt4$body_mass_e <- ifelse((trimws(as.character(dt4$body_mass_e))==trimws("NA")),NA,dt4$body_mass_e)               
+suppressWarnings(dt4$body_mass_e <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt4$body_mass_e))==as.character(as.numeric("NA"))),NA,dt4$body_mass_e))
+dt4$body_mass_level_e <- as.factor(ifelse((trimws(as.character(dt4$body_mass_level_e))==trimws("NA")),NA,as.character(dt4$body_mass_level_e)))
+dt4$body_mass_source_e <- as.factor(ifelse((trimws(as.character(dt4$body_mass_source_e))==trimws("NA")),NA,as.character(dt4$body_mass_source_e)))
+dt4$body_size_mm <- ifelse((trimws(as.character(dt4$body_size_mm))==trimws("NA")),NA,dt4$body_size_mm)               
+suppressWarnings(dt4$body_size_mm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt4$body_size_mm))==as.character(as.numeric("NA"))),NA,dt4$body_size_mm))
+dt4$body_size_notes <- as.factor(ifelse((trimws(as.character(dt4$body_size_notes))==trimws("NA")),NA,as.character(dt4$body_size_notes)))
+dt4$body_size_level <- as.factor(ifelse((trimws(as.character(dt4$body_size_level))==trimws("NA")),NA,as.character(dt4$body_size_level)))
+dt4$body_size_source <- as.factor(ifelse((trimws(as.character(dt4$body_size_source))==trimws("NA")),NA,as.character(dt4$body_size_source)))
+dt4$sexual_dimorphism <- as.factor(ifelse((trimws(as.character(dt4$sexual_dimorphism))==trimws("NA")),NA,as.character(dt4$sexual_dimorphism)))
+dt4$sexual_dimorphism_notes <- as.factor(ifelse((trimws(as.character(dt4$sexual_dimorphism_notes))==trimws("NA")),NA,as.character(dt4$sexual_dimorphism_notes)))
+dt4$sexual_dimorphism_level <- as.factor(ifelse((trimws(as.character(dt4$sexual_dimorphism_level))==trimws("NA")),NA,as.character(dt4$sexual_dimorphism_level)))
+dt4$sexual_dimorphism_source <- as.factor(ifelse((trimws(as.character(dt4$sexual_dimorphism_source))==trimws("NA")),NA,as.character(dt4$sexual_dimorphism_source)))
+dt4$longevity <- ifelse((trimws(as.character(dt4$longevity))==trimws("NA")),NA,dt4$longevity)               
+suppressWarnings(dt4$longevity <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt4$longevity))==as.character(as.numeric("NA"))),NA,dt4$longevity))
+dt4$longevity_notes <- as.factor(ifelse((trimws(as.character(dt4$longevity_notes))==trimws("NA")),NA,as.character(dt4$longevity_notes)))
+dt4$longevity_level <- as.factor(ifelse((trimws(as.character(dt4$longevity_level))==trimws("NA")),NA,as.character(dt4$longevity_level)))
+dt4$longevity_source <- as.factor(ifelse((trimws(as.character(dt4$longevity_source))==trimws("NA")),NA,as.character(dt4$longevity_source)))
+dt4$home_range_size <- ifelse((trimws(as.character(dt4$home_range_size))==trimws("NA")),NA,dt4$home_range_size)               
+suppressWarnings(dt4$home_range_size <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt4$home_range_size))==as.character(as.numeric("NA"))),NA,dt4$home_range_size))
+dt4$home_range_notes <- as.factor(ifelse((trimws(as.character(dt4$home_range_notes))==trimws("NA")),NA,as.character(dt4$home_range_notes)))
+dt4$home_range_level <- as.factor(ifelse((trimws(as.character(dt4$home_range_level))==trimws("NA")),NA,as.character(dt4$home_range_level)))
+dt4$home_range_source <- as.factor(ifelse((trimws(as.character(dt4$home_range_source))==trimws("NA")),NA,as.character(dt4$home_range_source)))
+dt4$habitat_specialization <- as.factor(ifelse((trimws(as.character(dt4$habitat_specialization))==trimws("NA")),NA,as.character(dt4$habitat_specialization)))
+dt4$habitat_specialization_source <- as.factor(ifelse((trimws(as.character(dt4$habitat_specialization_source))==trimws("NA")),NA,as.character(dt4$habitat_specialization_source)))
+dt4$generation_time <- ifelse((trimws(as.character(dt4$generation_time))==trimws("NA")),NA,dt4$generation_time)               
+suppressWarnings(dt4$generation_time <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt4$generation_time))==as.character(as.numeric("NA"))),NA,dt4$generation_time))
+dt4$generation_time_notes <- as.factor(ifelse((trimws(as.character(dt4$generation_time_notes))==trimws("NA")),NA,as.character(dt4$generation_time_notes)))
+dt4$generation_time_source <- as.factor(ifelse((trimws(as.character(dt4$generation_time_source))==trimws("NA")),NA,as.character(dt4$generation_time_source)))
+dt4$habitat_breadth <- ifelse((trimws(as.character(dt4$habitat_breadth))==trimws("NA")),NA,dt4$habitat_breadth)               
+suppressWarnings(dt4$habitat_breadth <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt4$habitat_breadth))==as.character(as.numeric("NA"))),NA,dt4$habitat_breadth))
+dt4$habitat_level <- as.factor(ifelse((trimws(as.character(dt4$habitat_level))==trimws("NA")),NA,as.character(dt4$habitat_level)))
+dt4$mean_CHELSA_bio1_1981.2010_V.2.1 <- ifelse((trimws(as.character(dt4$mean_CHELSA_bio1_1981.2010_V.2.1))==trimws("NA")),NA,dt4$mean_CHELSA_bio1_1981.2010_V.2.1)               
+suppressWarnings(dt4$mean_CHELSA_bio1_1981.2010_V.2.1 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt4$mean_CHELSA_bio1_1981.2010_V.2.1))==as.character(as.numeric("NA"))),NA,dt4$mean_CHELSA_bio1_1981.2010_V.2.1))
+dt4$mean_CHELSA_bio12_1981.2010_V.2.1 <- ifelse((trimws(as.character(dt4$mean_CHELSA_bio12_1981.2010_V.2.1))==trimws("NA")),NA,dt4$mean_CHELSA_bio12_1981.2010_V.2.1)               
+suppressWarnings(dt4$mean_CHELSA_bio12_1981.2010_V.2.1 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt4$mean_CHELSA_bio12_1981.2010_V.2.1))==as.character(as.numeric("NA"))),NA,dt4$mean_CHELSA_bio12_1981.2010_V.2.1))
+dt4$mean_human_fp_range_2010 <- ifelse((trimws(as.character(dt4$mean_human_fp_range_2010))==trimws("NA")),NA,dt4$mean_human_fp_range_2010)               
+suppressWarnings(dt4$mean_human_fp_range_2010 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt4$mean_human_fp_range_2010))==as.character(as.numeric("NA"))),NA,dt4$mean_human_fp_range_2010))
+dt4$mean_human_fp_range_2020 <- ifelse((trimws(as.character(dt4$mean_human_fp_range_2020))==trimws("NA")),NA,dt4$mean_human_fp_range_2020)               
+suppressWarnings(dt4$mean_human_fp_range_2020 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt4$mean_human_fp_range_2020))==as.character(as.numeric("NA"))),NA,dt4$mean_human_fp_range_2020))
+dt4$percent_change_hf_2010_2020 <- ifelse((trimws(as.character(dt4$percent_change_hf_2010_2020))==trimws("NA")),NA,dt4$percent_change_hf_2010_2020)               
+suppressWarnings(dt4$percent_change_hf_2010_2020 <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt4$percent_change_hf_2010_2020))==as.character(as.numeric("NA"))),NA,dt4$percent_change_hf_2010_2020))
+dt4$inferred_range_sqkm <- ifelse((trimws(as.character(dt4$inferred_range_sqkm))==trimws("NA")),NA,dt4$inferred_range_sqkm)               
+suppressWarnings(dt4$inferred_range_sqkm <- ifelse(!is.na(as.numeric("NA")) & (trimws(as.character(dt4$inferred_range_sqkm))==as.character(as.numeric("NA"))),NA,dt4$inferred_range_sqkm))
+dt4$date_data_obtained <- as.factor(ifelse((trimws(as.character(dt4$date_data_obtained))==trimws("NA")),NA,as.character(dt4$date_data_obtained)))
+
+
+# Here is the structure of the input data frame:
+str(dt4)                            
+attach(dt4)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(IUCN_species_name)
+summary(common_name)
+summary(family_e)
+summary(genus)
+summary(species)
+summary(elton_species_name)
+summary(diet_cat_e)
+summary(diet_source_e)
+summary(diet_breadth)
+summary(diet_level)
+summary(activity_nocturnal_e)
+summary(for_strat_ground_e)
+summary(for_strat_understory_e)
+summary(for_strat_midhigh_e)
+summary(for_strat_canopy_e)
+summary(for_strat_aerial_e)
+summary(for_strat_spec_level)
+summary(for_strat_source_e)
+summary(body_mass_e)
+summary(body_mass_level_e)
+summary(body_mass_source_e)
+summary(body_size_mm)
+summary(body_size_notes)
+summary(body_size_level)
+summary(body_size_source)
+summary(sexual_dimorphism)
+summary(sexual_dimorphism_notes)
+summary(sexual_dimorphism_level)
+summary(sexual_dimorphism_source)
+summary(longevity)
+summary(longevity_notes)
+summary(longevity_level)
+summary(longevity_source)
+summary(home_range_size)
+summary(home_range_notes)
+summary(home_range_level)
+summary(home_range_source)
+summary(habitat_specialization)
+summary(habitat_specialization_source)
+summary(generation_time)
+summary(generation_time_notes)
+summary(generation_time_level)
+summary(generation_time_source)
+summary(IUCN_category)
+summary(habitat)
+summary(habitat_breadth)
+summary(habitat_breadth_source)
+summary(habitat_level)
+summary(mean_CHELSA_bio1_1981.2010_V.2.1)
+summary(mean_CHELSA_bio12_1981.2010_V.2.1)
+summary(mean_human_fp_range_2010)
+summary(mean_human_fp_range_2020)
+summary(percent_change_hf_2010_2020)
+summary(inferred_range_sqkm)
+summary(date_data_obtained)
+summary(filled_by) 
+                # Get more details on character variables
+                 
+summary(as.factor(dt4$IUCN_species_name)) 
+summary(as.factor(dt4$common_name)) 
+summary(as.factor(dt4$family_e)) 
+summary(as.factor(dt4$genus)) 
+summary(as.factor(dt4$species)) 
+summary(as.factor(dt4$elton_species_name)) 
+summary(as.factor(dt4$diet_cat_e)) 
+summary(as.factor(dt4$diet_source_e)) 
+summary(as.factor(dt4$diet_level)) 
+summary(as.factor(dt4$activity_nocturnal_e)) 
+summary(as.factor(dt4$for_strat_spec_level)) 
+summary(as.factor(dt4$for_strat_source_e)) 
+summary(as.factor(dt4$body_mass_level_e)) 
+summary(as.factor(dt4$body_mass_source_e)) 
+summary(as.factor(dt4$body_size_notes)) 
+summary(as.factor(dt4$body_size_level)) 
+summary(as.factor(dt4$body_size_source)) 
+summary(as.factor(dt4$sexual_dimorphism)) 
+summary(as.factor(dt4$sexual_dimorphism_notes)) 
+summary(as.factor(dt4$sexual_dimorphism_level)) 
+summary(as.factor(dt4$sexual_dimorphism_source)) 
+summary(as.factor(dt4$longevity_notes)) 
+summary(as.factor(dt4$longevity_level)) 
+summary(as.factor(dt4$longevity_source)) 
+summary(as.factor(dt4$home_range_notes)) 
+summary(as.factor(dt4$home_range_level)) 
+summary(as.factor(dt4$home_range_source)) 
+summary(as.factor(dt4$habitat_specialization)) 
+summary(as.factor(dt4$habitat_specialization_source)) 
+summary(as.factor(dt4$generation_time_notes)) 
+summary(as.factor(dt4$generation_time_level)) 
+summary(as.factor(dt4$generation_time_source)) 
+summary(as.factor(dt4$IUCN_category)) 
+summary(as.factor(dt4$habitat)) 
+summary(as.factor(dt4$habitat_breadth_source)) 
+summary(as.factor(dt4$habitat_level)) 
+summary(as.factor(dt4$date_data_obtained)) 
+summary(as.factor(dt4$filled_by))
+detach(dt4)               
+         
+
+inUrl5  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/1c814c7d28285498076f6ebe2fb67655" 
+infile5 <- tempfile()
+try(download.file(inUrl5,infile5,method="curl"))
+if (is.na(file.size(infile5))) download.file(inUrl5,infile5,method="auto")
+
+                   
+ dt5 <-read.csv(infile5,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "IUCN_species_name",     
+                    "elton_species_name"    ), check.names=TRUE)
+               
+unlink(infile5)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                
+if (class(dt5$IUCN_species_name)!="factor") dt5$IUCN_species_name<- as.factor(dt5$IUCN_species_name)
+if (class(dt5$elton_species_name)!="factor") dt5$elton_species_name<- as.factor(dt5$elton_species_name)
+                
+# Convert Missing Values to NA for non-dates
+                
+
+
+# Here is the structure of the input data frame:
+str(dt5)                            
+attach(dt5)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(IUCN_species_name)
+summary(elton_species_name) 
+                # Get more details on character variables
+                 
+summary(as.factor(dt5$IUCN_species_name)) 
+summary(as.factor(dt5$elton_species_name))
+detach(dt5)               
+         
+
+inUrl6  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/140e29ffdeac84310c3e07e9a93b9fcf" 
+infile6 <- tempfile()
+try(download.file(inUrl6,infile6,method="curl"))
+if (is.na(file.size(infile6))) download.file(inUrl6,infile6,method="auto")
+
+                   
+ dt6 <-read.csv(infile6,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "IUCN_species_name",     
+                    "elton_species_name"    ), check.names=TRUE)
+               
+unlink(infile6)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                
+if (class(dt6$IUCN_species_name)!="factor") dt6$IUCN_species_name<- as.factor(dt6$IUCN_species_name)
+if (class(dt6$elton_species_name)!="factor") dt6$elton_species_name<- as.factor(dt6$elton_species_name)
+                
+# Convert Missing Values to NA for non-dates
+                
+
+
+# Here is the structure of the input data frame:
+str(dt6)                            
+attach(dt6)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(IUCN_species_name)
+summary(elton_species_name) 
+                # Get more details on character variables
+                 
+summary(as.factor(dt6$IUCN_species_name)) 
+summary(as.factor(dt6$elton_species_name))
+detach(dt6)               
+         
+
+inUrl7  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/a31672f05368bbcb88f166a8f959c857" 
+infile7 <- tempfile()
+try(download.file(inUrl7,infile7,method="curl"))
+if (is.na(file.size(infile7))) download.file(inUrl7,infile7,method="auto")
+
+                   
+ dt7 <-read.csv(infile7,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "Trait",     
+                    "Full.citation",     
+                    "In.text.citation"    ), check.names=TRUE)
+               
+unlink(infile7)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                
+if (class(dt7$Trait)!="factor") dt7$Trait<- as.factor(dt7$Trait)
+if (class(dt7$Full.citation)!="factor") dt7$Full.citation<- as.factor(dt7$Full.citation)
+if (class(dt7$In.text.citation)!="factor") dt7$In.text.citation<- as.factor(dt7$In.text.citation)
+                
+# Convert Missing Values to NA for non-dates
+                
+
+
+# Here is the structure of the input data frame:
+str(dt7)                            
+attach(dt7)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(Trait)
+summary(Full.citation)
+summary(In.text.citation) 
+                # Get more details on character variables
+                 
+summary(as.factor(dt7$Trait)) 
+summary(as.factor(dt7$Full.citation)) 
+summary(as.factor(dt7$In.text.citation))
+detach(dt7)               
+         
+
+inUrl8  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/655382c5f780337ecd85fae8345bfb10" 
+infile8 <- tempfile()
+try(download.file(inUrl8,infile8,method="curl"))
+if (is.na(file.size(infile8))) download.file(inUrl8,infile8,method="auto")
+
+                   
+ dt8 <-read.csv(infile8,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "Trait",     
+                    "Full.citation",     
+                    "In.text.citation"    ), check.names=TRUE)
+               
+unlink(infile8)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                
+if (class(dt8$Trait)!="factor") dt8$Trait<- as.factor(dt8$Trait)
+if (class(dt8$Full.citation)!="factor") dt8$Full.citation<- as.factor(dt8$Full.citation)
+if (class(dt8$In.text.citation)!="factor") dt8$In.text.citation<- as.factor(dt8$In.text.citation)
+                
+# Convert Missing Values to NA for non-dates
+                
+
+
+# Here is the structure of the input data frame:
+str(dt8)                            
+attach(dt8)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(Trait)
+summary(Full.citation)
+summary(In.text.citation) 
+                # Get more details on character variables
+                 
+summary(as.factor(dt8$Trait)) 
+summary(as.factor(dt8$Full.citation)) 
+summary(as.factor(dt8$In.text.citation))
+detach(dt8)               
+         
+
+inUrl9  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/8f154e65cc499cdbf7b22f6f4485ab18" 
+infile9 <- tempfile()
+try(download.file(inUrl9,infile9,method="curl"))
+if (is.na(file.size(infile9))) download.file(inUrl9,infile9,method="auto")
+
+                   
+ dt9 <-read.csv(infile9,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "Grouping.feature",     
+                    "Trait",     
+                    "Column.name",     
+                    "Description",     
+                    "Unit",     
+                    "Citation"    ), check.names=TRUE)
+               
+unlink(infile9)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                
+if (class(dt9$Grouping.feature)!="factor") dt9$Grouping.feature<- as.factor(dt9$Grouping.feature)
+if (class(dt9$Trait)!="factor") dt9$Trait<- as.factor(dt9$Trait)
+if (class(dt9$Column.name)!="factor") dt9$Column.name<- as.factor(dt9$Column.name)
+if (class(dt9$Description)!="factor") dt9$Description<- as.factor(dt9$Description)
+if (class(dt9$Unit)!="factor") dt9$Unit<- as.factor(dt9$Unit)
+if (class(dt9$Citation)!="factor") dt9$Citation<- as.factor(dt9$Citation)
+                
+# Convert Missing Values to NA for non-dates
+                
+
+
+# Here is the structure of the input data frame:
+str(dt9)                            
+attach(dt9)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(Grouping.feature)
+summary(Trait)
+summary(Column.name)
+summary(Description)
+summary(Unit)
+summary(Citation) 
+                # Get more details on character variables
+                 
+summary(as.factor(dt9$Grouping.feature)) 
+summary(as.factor(dt9$Trait)) 
+summary(as.factor(dt9$Column.name)) 
+summary(as.factor(dt9$Description)) 
+summary(as.factor(dt9$Unit)) 
+summary(as.factor(dt9$Citation))
+detach(dt9)               
+         
+
+inUrl10  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/f73cd1b16a4ed908dac4cf532690a12b" 
+infile10 <- tempfile()
+try(download.file(inUrl10,infile10,method="curl"))
+if (is.na(file.size(infile10))) download.file(inUrl10,infile10,method="auto")
+
+                   
+ dt10 <-read.csv(infile10,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "IUCN_species_name",     
+                    "elton_species_name",     
+                    "PanTHERIA_species_name",     
+                    "habitat",     
+                    "new_species",     
+                    "reclassified",     
+                    "spelling_differences"    ), check.names=TRUE)
+               
+unlink(infile10)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                
+if (class(dt10$IUCN_species_name)!="factor") dt10$IUCN_species_name<- as.factor(dt10$IUCN_species_name)
+if (class(dt10$elton_species_name)!="factor") dt10$elton_species_name<- as.factor(dt10$elton_species_name)
+if (class(dt10$PanTHERIA_species_name)!="factor") dt10$PanTHERIA_species_name<- as.factor(dt10$PanTHERIA_species_name)
+if (class(dt10$habitat)!="factor") dt10$habitat<- as.factor(dt10$habitat)
+if (class(dt10$new_species)!="factor") dt10$new_species<- as.factor(dt10$new_species)
+if (class(dt10$reclassified)!="factor") dt10$reclassified<- as.factor(dt10$reclassified)
+if (class(dt10$spelling_differences)!="factor") dt10$spelling_differences<- as.factor(dt10$spelling_differences)
+                
+# Convert Missing Values to NA for non-dates
+                
+dt10$habitat <- as.factor(ifelse((trimws(as.character(dt10$habitat))==trimws("NA")),NA,as.character(dt10$habitat)))
+dt10$new_species <- as.factor(ifelse((trimws(as.character(dt10$new_species))==trimws("NA")),NA,as.character(dt10$new_species)))
+dt10$reclassified <- as.factor(ifelse((trimws(as.character(dt10$reclassified))==trimws("NA")),NA,as.character(dt10$reclassified)))
+dt10$spelling_differences <- as.factor(ifelse((trimws(as.character(dt10$spelling_differences))==trimws("NA")),NA,as.character(dt10$spelling_differences)))
+
+
+# Here is the structure of the input data frame:
+str(dt10)                            
+attach(dt10)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(IUCN_species_name)
+summary(elton_species_name)
+summary(PanTHERIA_species_name)
+summary(habitat)
+summary(new_species)
+summary(reclassified)
+summary(spelling_differences) 
+                # Get more details on character variables
+                 
+summary(as.factor(dt10$IUCN_species_name)) 
+summary(as.factor(dt10$elton_species_name)) 
+summary(as.factor(dt10$PanTHERIA_species_name)) 
+summary(as.factor(dt10$habitat)) 
+summary(as.factor(dt10$new_species)) 
+summary(as.factor(dt10$reclassified)) 
+summary(as.factor(dt10$spelling_differences))
+detach(dt10)               
+         
+
+inUrl11  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/d1f32cc55b692cfb3d614cb400797299" 
+infile11 <- tempfile()
+try(download.file(inUrl11,infile11,method="curl"))
+if (is.na(file.size(infile11))) download.file(inUrl11,infile11,method="auto")
+
+                   
+ dt11 <-read.csv(infile11,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "IUCN_species_name",     
+                    "elton_species_name",     
+                    "habitat",     
+                    "new_species",     
+                    "reclassified",     
+                    "spelling_difference"    ), check.names=TRUE)
+               
+unlink(infile11)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                
+if (class(dt11$IUCN_species_name)!="factor") dt11$IUCN_species_name<- as.factor(dt11$IUCN_species_name)
+if (class(dt11$elton_species_name)!="factor") dt11$elton_species_name<- as.factor(dt11$elton_species_name)
+if (class(dt11$habitat)!="factor") dt11$habitat<- as.factor(dt11$habitat)
+if (class(dt11$new_species)!="factor") dt11$new_species<- as.factor(dt11$new_species)
+if (class(dt11$reclassified)!="factor") dt11$reclassified<- as.factor(dt11$reclassified)
+if (class(dt11$spelling_difference)!="factor") dt11$spelling_difference<- as.factor(dt11$spelling_difference)
+                
+# Convert Missing Values to NA for non-dates
+                
+dt11$new_species <- as.factor(ifelse((trimws(as.character(dt11$new_species))==trimws("NA")),NA,as.character(dt11$new_species)))
+dt11$reclassified <- as.factor(ifelse((trimws(as.character(dt11$reclassified))==trimws("NA")),NA,as.character(dt11$reclassified)))
+dt11$spelling_difference <- as.factor(ifelse((trimws(as.character(dt11$spelling_difference))==trimws("NA")),NA,as.character(dt11$spelling_difference)))
+
+
+# Here is the structure of the input data frame:
+str(dt11)                            
+attach(dt11)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(IUCN_species_name)
+summary(elton_species_name)
+summary(habitat)
+summary(new_species)
+summary(reclassified)
+summary(spelling_difference) 
+                # Get more details on character variables
+                 
+summary(as.factor(dt11$IUCN_species_name)) 
+summary(as.factor(dt11$elton_species_name)) 
+summary(as.factor(dt11$habitat)) 
+summary(as.factor(dt11$new_species)) 
+summary(as.factor(dt11$reclassified)) 
+summary(as.factor(dt11$spelling_difference))
+detach(dt11)               
+         
+
+inUrl12  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/cf3f2a44b577d0176f08299d4ae9b90d" 
+infile12 <- tempfile()
+try(download.file(inUrl12,infile12,method="curl"))
+if (is.na(file.size(infile12))) download.file(inUrl12,infile12,method="auto")
+
+                   
+ dt12 <-read.csv(infile12,header=F 
+          ,skip=1
+            ,sep=","  
+                ,quot='"' 
+        , col.names=c(
+                    "species",     
+                    "code",     
+                    "habitat",     
+                    "suitability",     
+                    "season",     
+                    "majorimportance"    ), check.names=TRUE)
+               
+unlink(infile12)
+		    
+# Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+                
+if (class(dt12$species)!="factor") dt12$species<- as.factor(dt12$species)
+if (class(dt12$code)!="factor") dt12$code<- as.factor(dt12$code)
+if (class(dt12$habitat)!="factor") dt12$habitat<- as.factor(dt12$habitat)
+if (class(dt12$suitability)!="factor") dt12$suitability<- as.factor(dt12$suitability)
+if (class(dt12$season)!="factor") dt12$season<- as.factor(dt12$season)
+if (class(dt12$majorimportance)!="factor") dt12$majorimportance<- as.factor(dt12$majorimportance)
+                
+# Convert Missing Values to NA for non-dates
+                
+dt12$species <- as.factor(ifelse((trimws(as.character(dt12$species))==trimws("NA")),NA,as.character(dt12$species)))
+dt12$habitat <- as.factor(ifelse((trimws(as.character(dt12$habitat))==trimws("NA")),NA,as.character(dt12$habitat)))
+dt12$suitability <- as.factor(ifelse((trimws(as.character(dt12$suitability))==trimws("NA")),NA,as.character(dt12$suitability)))
+dt12$season <- as.factor(ifelse((trimws(as.character(dt12$season))==trimws("NA")),NA,as.character(dt12$season)))
+dt12$majorimportance <- as.factor(ifelse((trimws(as.character(dt12$majorimportance))==trimws("NA")),NA,as.character(dt12$majorimportance)))
+
+
+# Here is the structure of the input data frame:
+str(dt12)                            
+attach(dt12)                            
+# The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
+
+summary(species)
+summary(code)
+summary(habitat)
+summary(suitability)
+summary(season)
+summary(majorimportance) 
+                # Get more details on character variables
+                 
+summary(as.factor(dt12$species)) 
+summary(as.factor(dt12$code)) 
+summary(as.factor(dt12$habitat)) 
+summary(as.factor(dt12$suitability)) 
+summary(as.factor(dt12$season)) 
+summary(as.factor(dt12$majorimportance))
+detach(dt12)               
 ```
 
 
