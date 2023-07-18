@@ -110,6 +110,6 @@ length(unique(d2$family))
 
 ## Write data to csv
 ```{r}
-TropicalAndes_GBIF_path <- file.path(output_path,"TropAndes_GBIF_plant_occ.csv") 
+TropicalAndes_GBIF_path <- file.path(output_path,"TropicalAndes_GBIF_plant_occ.csv") 
 write.csv(d2, file = TropicalAndes_GBIF_path)
 ```
