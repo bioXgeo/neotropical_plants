@@ -37,11 +37,8 @@ plant_species <- unique(plants_habitats$scientificName)
 country_vector <- c("Ecuador", "Venezuela", "Peru", "Colombia", "Bolivia")
 ```
 
-# Get data for Tropical Andes from BIEN database
+# Get occurrence data for Tropical Andes from BIEN database
 ```{r}
-# occurrence data
-#TropicalAndes_BIEN_occ <- BIEN_occurrence_box(min.lat = -94, max.lat = -54, min.long = -24, max.long = 14,species = plant_species, all.taxonomy = TRUE, political.boundaries = TRUE, observation.type = TRUE)
-#line above returned 0 records
 TropicalAndes_BIEN_occ <- BIEN_occurrence_country(country = country_vector, all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
 
 # species list
@@ -61,10 +58,10 @@ glimpse(TropicalAndes_BIEN_species_list)
 
 # Write data to csv
 ```{r}
-TropicalAndes_BIEN_occurrence_path <- file.path(output_path,"TropicalAndes_BIEN_occ.csv") 
+TropicalAndes_BIEN_occurrence_path <- file.path(output_path,"TropicalAndes_BIEN_plant_occ.csv") 
 write.csv(TropicalAndes_BIEN_occ, file = TropicalAndes_BIEN_occurrence_path)
 
-TropicalAndes_BIEN_species_list_path <- file.path(output_path, "TropicalAndes_BIEN_species_list.csv")
+TropicalAndes_BIEN_species_list_path <- file.path(output_path, "TropicalAndes_BIEN_plant_species_list.csv")
 write.csv(TropicalAndes_BIEN_species_list, file = TropicalAndes_BIEN_species_list_path)
 ```
 
