@@ -1,0 +1,47 @@
+---
+title: "Tropical Andes frugivore trait data Frugivoria"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: ""
+data input: ""
+data output: ""
+date: "2023-07-18"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+# Summary 
+```{r}
+glimpse(d)
+```
+
+```{r}
+print("The number of occurrences is")
+nrow(d)
+print("The number of species is" )
+length(unique(d$species))
+print("The number of families is" )
+length(unique(d$family))
+```
+
+# Write data to csv
+```{r}
+TropicalAndes_Frugivoria_path <- file.path(output_path,"TropicalAndes_Frugivoria_frugivore_traits.csv") 
+write.csv(d2, file = TropicalAndes_Frugivoria_path)
+```
