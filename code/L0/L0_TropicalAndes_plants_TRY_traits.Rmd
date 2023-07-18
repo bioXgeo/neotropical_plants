@@ -8,19 +8,27 @@ output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 
 # Load required packages
 ```{r}
-
+library(rtry)
 ```
 
 
 # Load TRY data
 Data was obtained from https://www.try-db.org/TryWeb/Prop0.php 
 ```{r}
-try_data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/23650_24112022083128/23650.txt", encoding = "Latin-1")
-try_data <- as.data.frame(try_data)
+try_data <- read.delim("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/25496_17032023010024/25496.txt")
 ```
 
+# Summary 
+```{r}
+glimpse(try_data)
+```
 
 ```{r}
-
+print("The number of records is")
+nrow(try_data)
+print("The number of species is" )
+length(unique(try_data$species))
+print("The number of families is" )
+length(unique(try_data$family))
 ```
 
