@@ -1,4 +1,14 @@
-
+---
+title: ""
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: ""
+data input: "iucn_habitatclassification_composite_lvl2_ver004.tif"
+data output: ""
+date: "2023-07-18"
+output: html_document
+---
 
 
 # Set file paths
@@ -10,11 +20,21 @@ output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 # Load required packages
 ```{r}
 library(raster)
+library(sf)
 ```
 
 # Load in Ecosystem Functional Groups
 Data downloaded from www.zendo.org/record/5090419
 ```{r}
 iucn_habitats <- raster(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004.tif"))
+```
+
+```{r}
+plot(iucn_habitats)
+```
+
+Crop extent
+```{r}
+
 ```
 

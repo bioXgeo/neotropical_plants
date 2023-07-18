@@ -1,0 +1,51 @@
+---
+title: ""
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: ""
+data input: ""
+data output: ""
+date: "2023-07-18"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(BIEN)
+library(tidyr)
+library(dplyr)
+```
+
+
+# List of countries of interest
+```{r}
+country_vector <- c("Ecuador", "Venezuela", "Peru", "Colombia", "Bolivia")
+```
+
+```{r}
+TropicalAndes_BIEN_traits <- BIEN_trait_country(country_vector, all.taxonomy = TRUE, political.boundaries = TRUE, source.citation = TRUE)
+```
+
+# Data summary
+```{r}
+glimpse(TropicalAndes_BIEN_traits)
+```
+
+```{r}
+
+```
+
+
+# Write data to csv
+```{r}
+TropicalAndes_BIEN_traits_path <- file.path(output_path,"TropicalAndes_BIEN_traits.csv") 
+write.csv(TropicalAndes_BIEN_traits, file = TropicalAndes_BIEN_traits_path)
+```
+
