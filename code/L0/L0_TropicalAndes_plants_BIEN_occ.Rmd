@@ -61,7 +61,7 @@ glimpse(TropicalAndes_BIEN_species_list)
 
 # Write data to csv
 ```{r}
-TropicalAndes_BIEN_occurrence_path <- file.path(output_path,"TropicalAndes_BIEN_occurrence.csv") 
+TropicalAndes_BIEN_occurrence_path <- file.path(output_path,"TropicalAndes_BIEN_occ.csv") 
 write.csv(TropicalAndes_BIEN_occ, file = TropicalAndes_BIEN_occurrence_path)
 
 TropicalAndes_BIEN_species_list_path <- file.path(output_path, "TropicalAndes_BIEN_species_list.csv")
