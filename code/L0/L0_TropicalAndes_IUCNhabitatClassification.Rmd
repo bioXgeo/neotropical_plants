@@ -1,0 +1,20 @@
+
+
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(raster)
+```
+
+# Load in Ecosystem Functional Groups
+Data downloaded from www.zendo.org/record/5090419
+```{r}
+iucn_habitats <- raster(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004.tif"))
+```
+
