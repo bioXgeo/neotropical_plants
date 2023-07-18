@@ -1,0 +1,26 @@
+
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Load required packages
+```{r}
+
+```
+
+
+# Load TRY data
+Data was obtained from https://www.try-db.org/TryWeb/Prop0.php 
+```{r}
+try_data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/23650_24112022083128/23650.txt", encoding = "Latin-1")
+try_data <- as.data.frame(try_data)
+```
+
+
+```{r}
+
+```
+
