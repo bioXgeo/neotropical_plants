@@ -49,7 +49,7 @@ length(unique(TropicalAndes_BIEN_traits$family_matched))
 
 # Extract species list
 ```{r}
-BIEN_trait_SpeciesList <- unique(TropicalAndes_BIEN_occ$scrubbed_species_binomial)
+BIEN_trait_SpeciesList <- unique(TropicalAndes_BIEN_traits$scrubbed_species_binomial)
 ```
 
 # Write data to csv
