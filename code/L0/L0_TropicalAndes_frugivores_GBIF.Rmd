@@ -63,8 +63,24 @@ d <- occ_download_get("0154158-230224095556074", path = output_path) %>%
 glimpse(d)
 ```
 
+```{r}
+print("The number of records is")
+nrow(d)
+print("The number of species is")
+length(unique(d$species))
+print("The number of families is")
+length(unique(d$family))
+```
+
+# Extract species list
+```{r}
+GBIF_occ_SpeciesList <- unique(d$species)
+```
+
 # Write data to csv
 ```{r}
 TropicalAndes_GBIF_path <- file.path(output_path,"TropAndes_GBIF_frugivore_occ.csv") 
 write.csv(d, file = TropicalAndes_GBIF_path)
+TropicalAndes_GBIF_species_path <- file.path(output_path,"TropAndes_GBIF_frugivore_occ_species.csv") 
+write.csv(GBIF_occ_SpeciesList, file = TropicalAndes_GBIF_path)
 ```
