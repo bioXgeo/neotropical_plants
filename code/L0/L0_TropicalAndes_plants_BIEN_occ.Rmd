@@ -36,7 +36,7 @@ TropicalAndes_BIEN_occ_bo <- BIEN_occurrence_country(country = "Bolivia", all.ta
 
 ```{r}
 # combine occ
-
+TropicalAndes_BIEN_occ <- rbind(TropicalAndes_BIEN_occ_ec, TropicalAndes_BIEN_occ_ve, TropicalAndes_BIEN_occ_pe, TropicalAndes_BIEN_occ_co, TropicalAndes_BIEN_occ_bo)
 ```
 
 
