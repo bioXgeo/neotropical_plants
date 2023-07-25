@@ -21,29 +21,24 @@ library(tidyr)
 library(dplyr)
 ```
 
-# Read in IUCN data
-Data was obtained from https://www.iucnredlist.org/search?permalink=9621ab77-2341-4bf8-9557-b7f19f7f2a35
-```{r}
-plants_habitats <- read.csv(file.path(data_path,"IUCN/Tropical Andes Plants - Search Results/habitats.csv"))
-```
-
-# Create species list from IUCN data
-```{r}
-plant_species <- unique(plants_habitats$scientificName)
-```
-
-# List of countries of interest
-```{r}
-country_vector <- c("Ecuador", "Venezuela", "Peru", "Colombia", "Bolivia")
-```
-
 # Get occurrence data for Tropical Andes from BIEN database
 ```{r}
-TropicalAndes_BIEN_occ <- BIEN_occurrence_country(country = country_vector, all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
+TropicalAndes_BIEN_occ_ec <- BIEN_occurrence_country(country = "Ecuador", all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
 
-# species list
-TropicalAndes_BIEN_species_list <- BIEN_list_country(country = country_vector)
+TropicalAndes_BIEN_occ_ve <- BIEN_occurrence_country(country = "Venezuela", all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
+
+TropicalAndes_BIEN_occ_pe <- BIEN_occurrence_country(country = "Peru", all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
+
+TropicalAndes_BIEN_occ_co <- BIEN_occurrence_country(country = "Colombia", all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
+
+TropicalAndes_BIEN_occ_bo <- BIEN_occurrence_country(country = "Bolivia", all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
 ```
+
+```{r}
+# combine occ
+
+```
+
 
 # Data summary
 ```{r}
@@ -51,9 +46,18 @@ glimpse(TropicalAndes_BIEN_occ)
 ```
 
 ```{r}
-glimpse(TropicalAndes_BIEN_species_list)
+print("The number of records is")
+nrow(TropicalAndes_BIEN_occ)
+print("The number of species is")
+length(unique(TropicalAndes_BIEN_occ$scrubbed_species_binomial))
+print("The number of families is")
+length(unique(TropicalAndes_BIEN_occ$family_matched))
 ```
 
+# Extract species list
+```{r}
+BIEN_occ_SpeciesList <- unique(TropicalAndes_BIEN_occ$scrubbed_species_binomial)
+```
 
 
 # Write data to csv
@@ -61,7 +65,7 @@ glimpse(TropicalAndes_BIEN_species_list)
 TropicalAndes_BIEN_occurrence_path <- file.path(output_path,"TropicalAndes_BIEN_plant_occ.csv") 
 write.csv(TropicalAndes_BIEN_occ, file = TropicalAndes_BIEN_occurrence_path)
 
-TropicalAndes_BIEN_species_list_path <- file.path(output_path, "TropicalAndes_BIEN_plant_species_list.csv")
+TropicalAndes_BIEN_species_list_path <- file.path(output_path, "TropicalAndes_BIEN_plant_occ_species.csv")
 write.csv(TropicalAndes_BIEN_species_list, file = TropicalAndes_BIEN_species_list_path)
 ```
 
