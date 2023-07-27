@@ -1,0 +1,66 @@
+---
+title: "Cleaning Tropical Andes plant BIEN occurrence records"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: ""
+data input: "TropicalAndes_GBIF_plant_occ.csv"
+data output: "TropicalAndes_GBIF_plant_occ_cleaned.csv"
+date: "2023-07-25"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Load required packages
+```{r}
+library(countrycode)
+library(CoordinateCleaner)
+library(dplyr)
+```
+
+# Read in data
+```{r}
+TropicalAndes_BIEN_plant_occ <- read.csv(file.path(data_path,"TropicalAndes_BIEN_plant_occ.csv"))
+```
+
+# Clean data
+Adapted code from https://ropensci.github.io/CoordinateCleaner/articles/Cleaning_GBIF_data_with_CoordinateCleaner.html
+
+## Select columns of interest
+```{r}
+# Get column names
+names(TropicalAndes_BIEN_plant_occ)
+```
+
+```{r}
+# Subset to columns of interest
+TropicalAndes_BIEN_plant_occ <- TropicalAndes_BIEN_plant_occ %>%
+  dplyr::select()
+# remove records without coordinates
+TropicalAndes_BIEN_plant_occ <- TropicalAndes_BIEN_plant_occ %>%
+  filter(!is.na(decimalLongitude)) %>%
+  filter(!is.na(decimalLatitude))
+```
+
+```{r}
+ #to avoid specifying it in each function
+names(dat)[2:3] <- c("decimallongitude", "decimallatitude")
+
+TropicalAndes_BIEN_plant_occ_clean <- TropicalAndes_BIEN_plant_occ%>%
+  cc_val()%>%
+  cc_equ()%>%
+  cc_cap()%>%
+  cc_cen()%>%
+  cc_coun(iso3 = "countryCode")%>%
+  cc_gbif()%>%
+  cc_inst()%>%
+  cc_sea()%>%
+  cc_zero()%>%
+  cc_outl()%>%
+  cc_dupl()
+```
