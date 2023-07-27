@@ -1,0 +1,40 @@
+---
+title: "Tropical Andes plant Lookup Table"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: ""
+data input: ""
+data output: ""
+date: "2023-07-25"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Load required packages
+```{r}
+
+```
+
+# Read in species lists
+```{r}
+TRY_species <- read.csv(file.path(data_path,"TropicalAndes_TRY_plant_species.csv"))
+BIEN_species <- read.csv(file.path(data_path,"TropicalAndes_BIEN_plant_trait_species.csv"))
+```
+
+```{r}
+#convert species list into vectors
+BIEN_species <- BIEN_species[,2]
+TRY_species <- TRY_species[,2]
+#what is in both
+species <- intersect(TRY_species, BIEN_species)
+# what doesn't match
+all.equal(TRY_species, BIEN_species)
+
+```
+
