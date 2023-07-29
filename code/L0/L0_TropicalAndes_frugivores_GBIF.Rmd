@@ -54,7 +54,7 @@ format = "SIMPLE_CSV"
 
 # Retrive GBIF download, save file, and load into r
 ```{r}
-d <- occ_download_get("0154158-230224095556074", path = output_path) %>%
+d <- occ_download_get("0154158-230224095556074", path = output_path, overwrite = TRUE) %>%
   occ_download_import()
 ```
 
@@ -79,8 +79,8 @@ GBIF_occ_SpeciesList <- unique(d$species)
 
 # Write data to csv
 ```{r}
-TropicalAndes_GBIF_path <- file.path(output_path,"TropAndes_GBIF_frugivore_occ.csv") 
+TropicalAndes_GBIF_path <- file.path(output_path,"TropicalAndes_GBIF_frugivore_occ.csv") 
 write.csv(d, file = TropicalAndes_GBIF_path)
-TropicalAndes_GBIF_species_path <- file.path(output_path,"TropAndes_GBIF_frugivore_occ_species.csv") 
+TropicalAndes_GBIF_species_path <- file.path(output_path,"TropicalAndes_GBIF_frugivore_occ_species.csv") 
 write.csv(GBIF_occ_SpeciesList, file = TropicalAndes_GBIF_path)
 ```
