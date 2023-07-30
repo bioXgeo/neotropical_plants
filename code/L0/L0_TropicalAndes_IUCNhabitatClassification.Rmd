@@ -1,11 +1,11 @@
 ---
-title: ""
+title: "Tropical Andes IUCN Montane and Lowland forest"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
-overview: ""
+overview: "Create raster of IUCN habitat classification Forest-Subtropical moist montane and Forest - Subtropical moist lowland for Tropical Andes."
 data input: "iucn_habitatclassification_composite_lvl2_ver004.tif"
-data output: ""
+data output: "TropicalAndes_IUCNHabitat_Forest.GTiff"
 date: "2023-07-18"
 output: html_document
 ---
@@ -21,20 +21,54 @@ output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 ```{r}
 library(raster)
 library(sf)
+library(rnaturalearth)
+library(dplyr)
 ```
 
 # Load in Ecosystem Functional Groups
-Data downloaded from https://zenodo.org/record/5090419                                                                                                 
+Data downloaded from https://zenodo.org/record/4058819
+Citation: Martin Jung, Prabhat Raj Dahal, Stuart H. M. Butchart, Paul F. Donald, Xavier De Lamo, Myroslava Lesiv, Valerie Kapos, Carlo Rondinini, & Piero Visconti. (2020). A global map of terrestrial habitat types (Version 004) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.4058819
+
 ```{r}
-iucn_habitats <- raster(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004.tif"))
+iucn_habitats <- raster(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004/iucn_habitatclassification_composite_lvl2_ver004.tif"))
+iucn_habitats_colors <- read.csv(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004/color_classification.csv"))
 ```
 
 ```{r}
 plot(iucn_habitats)
 ```
 
-Crop extent
+Crop extent - trim to Andean States
 ```{r}
+# Pull in world map
+worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
 
+# Subset world map. In this case we are removing the Galapagos by defining the bounding box around the Ecuador polygon.
+study_region <-  worldMap %>% filter(sovereignt == "Bolivia" | sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
+plot(study_region$geometry)
 ```
+
+```{r}
+iucn_habitats_crop <- crop(iucn_habitats, study_region)
+TA_iucn_habitats <- mask(iucn_habitats_crop, study_region)
+plot(TA_iucn_habitats)
+```
+
+value 109 is Forest-Subtropical moist montane & value 106 is Forest - Subtropical moist lowland
+see level2.clr or lvl2_style.qml file
+```{r}
+#rename for masking
+TA_iucn_habitats_mask <- TA_iucn_habitats
+TA_iucn_habitats_mask[TA_iucn_habitats$iucn_habitatclassification_composite_lvl2_ver004 != 106 | TA_iucn_habitats$iucn_habitatclassification_composite_lvl2_ver004 != 109] <- NA
+TA_iucn_habitats_forest <- mask(TA_iucn_habitats, TA_iucn_habitats_mask)
+
+plot(TA_iucn_habitats_forest)
+```
+
+# Save raster
+```{r}
+TA_icunHabitat_path <- file.path(output_path, "TropicalAndes_IUCNHabitat_Forest.GTiff")
+writeRaster(TA_iucnHabitats, filename = TA_icunHabitat_path, format = "GTiff", overwrite=TRUE)
+```
+
 
