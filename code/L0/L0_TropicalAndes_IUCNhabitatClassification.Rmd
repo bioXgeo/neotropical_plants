@@ -27,18 +27,19 @@ library(dplyr)
 
 # Load in Ecosystem Functional Groups
 Data downloaded from https://zenodo.org/record/4058819
-Citation: Martin Jung, Prabhat Raj Dahal, Stuart H. M. Butchart, Paul F. Donald, Xavier De Lamo, Myroslava Lesiv, Valerie Kapos, Carlo Rondinini, & Piero Visconti. (2020). A global map of terrestrial habitat types (Version 004) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.4058819
+Citation: Martin Jung, Prabhat Raj Dahal, Stuart H. M. Butchart, Paul F. Donald, Xavier De Lamo, Myroslava Lesiv, … Piero Visconti. (2020). A global map of terrestrial habitat types (Version 004) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.4058819
 
 ```{r}
-iucn_habitats <- raster(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004/iucn_habitatclassification_composite_lvl2_ver004.tif"))
-iucn_habitats_colors <- read.csv(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004/color_classification.csv"))
+iucn_moist_montane_forest <- raster(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004/lvl2_frac_1km_ver004/iucn_habitatclassification_fraction_lvl2__109_Forest – Subtropical-tropical moist montane__ver004.tif"))
+iucn_moist_lowland_forest <- raster(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004/lvl2_frac_1km_ver004/iucn_habitatclassification_fraction_lvl2__106_Forest – Subtropical-tropical moist lowland__ver004.tif"))
 ```
 
 ```{r}
-plot(iucn_habitats)
+plot(iucn_moist_montane_forest)
+plot(iucn_moist_lowland_forest)
 ```
 
-Crop extent - trim to Andean States
+# Crop extent - trim to Andean States
 ```{r}
 # Pull in world map
 worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
@@ -49,26 +50,34 @@ plot(study_region$geometry)
 ```
 
 ```{r}
-iucn_habitats_crop <- crop(iucn_habitats, study_region)
-TA_iucn_habitats <- mask(iucn_habitats_crop, study_region)
-plot(TA_iucn_habitats)
+# crop moist montane to tropical andes
+iucn_moist_montane_forest_crop <- crop(iucn_moist_montane_forest, study_region)
+TA_iucn_moist_montane_forest <- mask(iucn_moist_montane_forest_crop, study_region)
+plot(TA_iucn_moist_montane_forest)
+TA_iucn_moist_montane_forest
 ```
 
-value 109 is Forest-Subtropical moist montane & value 106 is Forest - Subtropical moist lowland
-see level2.clr or lvl2_style.qml file
 ```{r}
-#rename for masking
-TA_iucn_habitats_mask <- TA_iucn_habitats
-TA_iucn_habitats_mask[TA_iucn_habitats$iucn_habitatclassification_composite_lvl2_ver004 != 106 | TA_iucn_habitats$iucn_habitatclassification_composite_lvl2_ver004 != 109] <- NA
-TA_iucn_habitats_forest <- mask(TA_iucn_habitats, TA_iucn_habitats_mask)
+#crop moist lowland to tropical andes
+iucn_moist_lowland_forest_crop <- crop(iucn_moist_lowland_forest, study_region)
+TA_iucn_moist_lowland_forest <- mask(iucn_moist_lowland_forest_crop, study_region)
+plot(TA_iucn_moist_lowland_forest)
+TA_iucn_moist_lowland_forest
+```
 
-plot(TA_iucn_habitats_forest)
+
+```{r}
+# combine TA_iucn_moist_lowland_forest & TA_iucn_moist_montane_forest into one raster
+TA_iucn_habitat_forest <- merge(TA_iucn_moist_lowland_forest, TA_iucn_moist_montane_forest)
+plot(TA_iucn_habitat_forest)
+TA_iucn_habitat_forest
 ```
 
 # Save raster
 ```{r}
-TA_icunHabitat_path <- file.path(output_path, "TropicalAndes_IUCNHabitat_Forest.GTiff")
-writeRaster(TA_iucnHabitats, filename = TA_icunHabitat_path, format = "GTiff", overwrite=TRUE)
+writeRaster(TA_iucn_habitat_forest, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest.GTiff"), format = "GTiff", overwrite=TRUE)
+writeRaster(TA_iucn_moist_montane_forest, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest_Montane.GTiff"), format = "GTiff", overwrite=TRUE)
+writeRaster(TA_iucn_moist_lowland_forest, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest_Lowland.GTiff"), format = "GTiff", overwrite=TRUE)
 ```
 
 
