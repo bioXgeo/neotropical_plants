@@ -23,6 +23,7 @@ library(raster)
 library(sf)
 library(rnaturalearth)
 library(dplyr)
+library(terra)
 ```
 
 # Load in Ecosystem Functional Groups
@@ -44,7 +45,7 @@ plot(iucn_moist_lowland_forest)
 # Pull in world map
 worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
 
-# Subset world map. In this case we are removing the Galapagos by defining the bounding box around the Ecuador polygon.
+# Subset world map to Tropical Andes
 study_region <-  worldMap %>% filter(sovereignt == "Bolivia" | sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
 plot(study_region$geometry)
 ```
@@ -82,16 +83,26 @@ writeRaster(TA_iucn_moist_lowland_forest, filename = file.path(output_path, "Tro
 
 # Convert to sf
 ```{r}
-TA_iucn_habitat_forest_shape <- rasterToPolygons(TA_iucn_habitat_forest, na.rm = TRUE, dissolve = TRUE)
+# convert to SpatRaster
+TA_iucn_habitat_forest_sr <- as(TA_iucn_habitat_forest, "SpatRaster")
+TA_iucn_habitat_forest_sr
+```
+
+
+```{r}
+TA_iucn_habitat_forest_sv <- as.polygons(TA_iucn_habitat_forest_sr)
+TA_iucn_habitat_forest_sv
+plot(TA_iucn_habitat_forest_sv)
 ```
 
 ```{r}
+TA_iucn_habitat_forest_shape <- sf::st_as_sf(TA_iucn_habitat_forest_sv)
+TA_iucn_habitat_forest_shape
 plot(TA_iucn_habitat_forest_shape)
 ```
 
-
 # Save shapefile
 ```{r}
-shapefile(TA_iucn_habitat_forest_shape, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest.shp"), overwrite=TRUE)
+st_write(TA_iucn_habitat_forest_shape, file.path(output_path, "TropicalAndes_IUCNHabitat_Forest.shp"), overwrite=TRUE)
 ```
 
