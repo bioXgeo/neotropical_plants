@@ -80,4 +80,18 @@ writeRaster(TA_iucn_moist_montane_forest, filename = file.path(output_path, "Tro
 writeRaster(TA_iucn_moist_lowland_forest, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest_Lowland.GTiff"), format = "GTiff", overwrite=TRUE)
 ```
 
+# Convert to sf
+```{r}
+TA_iucn_habitat_forest_shape <- rasterToPolygons(TA_iucn_habitat_forest, na.rm = TRUE, dissolve = TRUE)
+```
+
+```{r}
+plot(TA_iucn_habitat_forest_shape)
+```
+
+
+# Save shapefile
+```{r}
+shapefile(TA_iucn_habitat_forest_shape, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest.shp"), overwrite=TRUE)
+```
 
