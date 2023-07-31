@@ -47,6 +47,10 @@ print("The number of families is")
 length(unique(TropicalAndes_BIEN_traits$family_matched))
 ```
 
+```{r}
+TropicalAndes_BIEN_traits %>% count(trait_name)
+```
+
 # Extract species list
 ```{r}
 BIEN_trait_SpeciesList <- unique(TropicalAndes_BIEN_traits$scrubbed_species_binomial)
@@ -59,4 +63,3 @@ write.csv(TropicalAndes_BIEN_traits, file = TropicalAndes_BIEN_traits_path)
 TropicalAndes_BIEN_species_list_path <- file.path(output_path, "TropicalAndes_BIEN_plant_trait_species.csv")
 write.csv(BIEN_trait_SpeciesList, file = TropicalAndes_BIEN_species_list_path)
 ```
-
