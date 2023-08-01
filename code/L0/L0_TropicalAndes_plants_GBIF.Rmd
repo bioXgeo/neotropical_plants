@@ -19,7 +19,9 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 # Load required packages
 ```{r}
 library(dplyr)
-library(rgbif) 
+library(rgbif)
+library(raster)
+library(sf)
 ```
 
 # Plant occurrences using IUCN habitat subset
@@ -121,3 +123,18 @@ write.csv(d2, file = TropicalAndes_GBIF_path)
 TropicalAndes_GBIF_species_path <- file.path(output_path,"TropicalAndes_GBIF_plant_species.csv") 
 write.csv(GBIF_SpeciesList, file = TropicalAndes_GBIF_species_path)
 ```
+
+# Subset to Tropical Andes Lowland and Montane Forest
+```{r}
+TropicalAndes_IUCNHabitat_Forest <- st_read(file.path(data_path, "TropicalAndes_IUCNHabitat_Forest.shp"))
+# convert dataframe to spatial object
+coordinates(d) <- ~decimalLatitude+decimalLongitude
+crs(d) <- crs(TropicalAndes_IUCNHabitat_Forest)
+```
+
+```{r}
+GBIF_Forest <- d %>% filter(TropicalAndes_IUCNHabitat_Forest)
+GBIF_Forest
+plot(GBIF_Forest)
+```
+
