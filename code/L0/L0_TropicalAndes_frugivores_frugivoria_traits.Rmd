@@ -794,14 +794,14 @@ glimpse(Frugivoria)
 print("The number of records is")
 nrow(Frugivoria)
 print("The number of species is" )
-length(unique(Frugivoria$species))
+length(unique(Frugivoria$IUCN_species_name))
 print("The number of families is" )
 length(unique(Frugivoria$family))
 ```
 
 # Extract species list
 ```{r}
-Frugivoria_SpeciesList <- unique(Frugivoria$species)
+Frugivoria_SpeciesList <- unique(Frugivoria$IUCN_species_name)
 ```
 
 # Write data to csv
