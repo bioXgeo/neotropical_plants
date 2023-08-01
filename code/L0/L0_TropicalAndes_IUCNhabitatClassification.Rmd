@@ -81,6 +81,14 @@ writeRaster(TA_iucn_moist_montane_forest, filename = file.path(output_path, "Tro
 writeRaster(TA_iucn_moist_lowland_forest, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest_Lowland.GTiff"), format = "GTiff", overwrite=TRUE)
 ```
 
+```{r}
+forest_reclassify <- TA_iucn_habitat_forest > -Inf
+forest_poly <- rasterToPolygons(forest_reclassify, dissolve = TRUE)
+plot(forest_poly)
+forest_poly
+```
+
+
 # Convert to sf
 ```{r}
 # convert to SpatRaster
