@@ -43,7 +43,7 @@ flags <- clean_coordinates(x = TropicalAndes_GBIF_plant_occ,
                            lon = "decimalLongitude",
                            lat = "decimalLatitude",
                            countries = "countryCode",
-                           species = "",
+                           species = "species",
                            tests = c("capitals", "centroids", "countries",
                                      "duplicates", "equal", "gbif",
                                      "institutions", "seas","zeros"))
@@ -65,6 +65,20 @@ table(TropicalAndes_GBIF_plant_occ_cleaned$year)
 # remove records from before second world war
 TropicalAndes_GBIF_plant_occ_cleaned <- TropicalAndes_GBIF_plant_occ_cleaned %>%
   filter(year > 1945) 
+```
+
+# Summary
+```{r}
+glimpse(TropicalAndes_GBIF_plant_occ_cleaned)
+```
+
+```{r}
+print("The number of records is")
+nrow(TropicalAndes_GBIF_plant_occ_cleaned)
+print("The number of species is")
+length(unique(TropicalAndes_GBIF_plant_occ_cleaned$species))
+print("The number of families is")
+length(unique(TropicalAndes_GBIF_plant_occ_cleaned$family))
 ```
 
 # Write data to csv
