@@ -1,11 +1,12 @@
 ---
 title: "Tropical Andes montane and lowland forest bird and mammal species GBIF"
 author: "Hazel J. Anderson"
-collaborators: "None"
-data input: "None"
-data output: "TropAndes_GBIF_frugivore_occ.csv"
-project: "Frugivoria"
-date: "2023-04-06"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script retrives plant occurrence data from GBIF using the species list from Frugivoria."
+data input: "TropicalAndes_Frugivoria_frugivore_traits_species.csv"
+data output: "TropicalAndes_GBIF_frugivore_occ.csv and TropicalAndes_GBIF_frugivore_occ_species.csv"
+date: "2023-07-25"
 output: html_document
 ---
 
@@ -21,21 +22,14 @@ library(dplyr)
 library(rgbif) 
 ```
 
-# Read in IUCN data
-Data was obtained from https://www.iucnredlist.org/search?permalink=f4407d96-c039-413a-8d46-707f262271ee
+# Read in Frugivoria species list
 ```{r}
-frugivore_habitats <- read.csv(file.path(data_path,"IUCN/Tropical Andes Birds and Mammals - Search Results/habitats.csv"))
-```
-
-# Create species list from IUCN data
-```{r}
-frugivore_species <- unique(frugivore_habitats$scientificName)
-write.csv2(frugivore_species, file = file.path(output_path, "TropicalFrugivoreSpecies.csv"))
+frugivore_species <- read.csv(file.path(data_path,"TropicalAndes_Frugivoria_frugivore_traits_species.csv"))
 ```
 
 # Match species names to GBIF
 ```{r}
-gbif_taxon_keys <- frugivore_species %>% 
+gbif_taxon_keys <- frugivore_species$x %>% 
 name_backbone_checklist() %>% # match to backbone 
 filter(!matchType == "NONE") %>% # get matched names
 pull(usageKey) 
@@ -54,7 +48,7 @@ format = "SIMPLE_CSV"
 
 # Retrive GBIF download, save file, and load into r
 ```{r}
-d <- occ_download_get("0154158-230224095556074", path = output_path, overwrite = TRUE) %>%
+d <- occ_download_get("0129743-230530130749713", path = output_path, overwrite = TRUE) %>%
   occ_download_import()
 ```
 
@@ -79,8 +73,7 @@ GBIF_occ_SpeciesList <- unique(d$species)
 
 # Write data to csv
 ```{r}
-TropicalAndes_GBIF_path <- file.path(output_path,"TropicalAndes_GBIF_frugivore_occ.csv") 
-write.csv(d, file = TropicalAndes_GBIF_path)
-TropicalAndes_GBIF_species_path <- file.path(output_path,"TropicalAndes_GBIF_frugivore_occ_species.csv") 
-write.csv(GBIF_occ_SpeciesList, file = TropicalAndes_GBIF_path)
+write.csv(d, file = file.path(output_path,"TropicalAndes_GBIF_frugivore_occ.csv"))
+
+write.csv(GBIF_occ_SpeciesList, file = file.path(output_path,"TropicalAndes_GBIF_frugivore_occ_species.csv"))
 ```
