@@ -4,8 +4,8 @@ author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "This script retrives subsets plant and frugivore occurrence data to IUCN Tropical Andes Lowland and Montane Forest."
-data input: "
-data output: "TropAndes_GBIF_plant_occ.csv"
+data input: "TropicalAndes_IUCNHabitat_Forest.tif, TropicalAndes_GBIF_plant_occ_cleaned.csv, TropicalAndes_GBIF_frugivore_occ_cleaned.csv"
+data output: "TropicalAndes_plant_occ_forest.csv, TropicalAndes_frugivore_occ_forest.csv, TropicalAndes_plant_Forest_SpeciesList.csv, TropicalAndes_frugivore_Forest_SpeciesList.csv"
 date: "2023-07-18"
 output: html_document
 ---
@@ -77,8 +77,8 @@ TropicalAndes_frugivore_Forest_SpeciesList <- unique(TropicalAndes_BIEN_traits$s
 # Write data to csv
 ```{r}
 # subset plant occ, subset frugivore occ, plant species list, frugivore species list
-write.csv(TropicalAndes_BIEN_traits, file = file.path(output_path,"TropicalAndes_BIEN_plant_traits.csv"))
-write.csv(TropicalAndes_BIEN_traits, file = file.path(output_path,"TropicalAndes_BIEN_plant_traits.csv"))
+write.csv(plant_occ_forest, file = file.path(output_path,"TropicalAndes_plant_occ_forest.csv"))
+write.csv(frugivore_occ_forest, file = file.path(output_path,"TropicalAndes_frugivore_occ_forest.csv"))
 write.csv(TropicalAndes_plant_SpeciesList, file = file.path(output_path,"TropicalAndes_plant_Forest_SpeciesList.csv"))
 write.csv(TropicalAndes_frugivore_Forest_SpeciesList, file = file.path(output_path,"TropicalAndes_frugivore_Forest_SpeciesList"))
 ```
