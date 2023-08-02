@@ -19,26 +19,19 @@ output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 library(BIEN)
 library(tidyr)
 library(dplyr)
+library(sf)
 ```
+
+# Load Tropical Andes moist lowland and montane forest shape
+```{r}
+TropicalAndes_IUCNHabitat_Forest <- st_read(file.path(data_path, "TropicalAndes_IUCNHabitat_Forest.shp"))
+```
+
 
 # Get occurrence data for Tropical Andes from BIEN database
 ```{r}
-TropicalAndes_BIEN_occ_ec <- BIEN_occurrence_country(country = "Ecuador", all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
-
-TropicalAndes_BIEN_occ_ve <- BIEN_occurrence_country(country = "Venezuela", all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
-
-TropicalAndes_BIEN_occ_pe <- BIEN_occurrence_country(country = "Peru", all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
-
-TropicalAndes_BIEN_occ_co <- BIEN_occurrence_country(country = "Colombia", all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
-
-TropicalAndes_BIEN_occ_bo <- BIEN_occurrence_country(country = "Bolivia", all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
+TropicalAndes_BIEN_occ <- BIEN_occurrence_sf(TropicalAndes_IUCNHabitat_Forest, all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
 ```
-
-```{r}
-# combine occ
-TropicalAndes_BIEN_occ <- rbind(TropicalAndes_BIEN_occ_ec, TropicalAndes_BIEN_occ_ve, TropicalAndes_BIEN_occ_pe, TropicalAndes_BIEN_occ_co, TropicalAndes_BIEN_occ_bo)
-```
-
 
 # Data summary
 ```{r}
