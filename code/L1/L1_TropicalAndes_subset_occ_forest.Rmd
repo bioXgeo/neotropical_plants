@@ -43,35 +43,64 @@ TropicalAndes_IUCNHabitat_Forest0.5
 
 # Rasterize occurrence data
 ```{r}
+# convert to SpatialPointsDataFrame
 coordinates(TropicalAndes_GBIF_plant_occ_cleaned) <- ~ decimalLatitude + decimalLongitude
 coordinates(TropicalAndes_frugivore_occ) <- ~ decimalLatitude + decimalLongitude
-# coerce to SpatialPixelsDataFrame
-gridded(TropicalAndes_GBIF_plant_occ_cleaned) <- TRUE
-gridded(TropicalAndes_frugivore_occ) <- TRUE
-# coerce to raster
-plant.raster <- raster(TropicalAndes_GBIF_plant_occ_cleaned)
-frugivore.raster <- raster(TropicalAndes_frugivore_occ)
+TropicalAndes_GBIF_plant_occ_cleaned
+TropicalAndes_frugivore_occ
 ```
 
 # Crop occurrence data to forest extent
 ```{r}
-plant_crop <- crop(plants.raster, TropicalAndes_IUCNHabitat_Forest)
-plant_occ_forest <- mask(plant_crop, TropicalAndes_IUCNHabitat_Forest)
-plot(plant_occ_forest)
-plant_occ_forest
+TropicalAndes_GBIF_plant_occ_cleaned$ref<- extract(TropicalAndes_IUCNHabitat_Forest, TropicalAndes_GBIF_plant_occ_cleaned)
+TropicalAndes_frugivore_occ$ref<- extract(TropicalAndes_IUCNHabitat_Forest, TropicalAndes_frugivore_occ)
 ```
 
 ```{r}
-frugivore_crop <- crop(frugivores.raster, TropicalAndes_IUCNHabitat_Forest)
-frugivore_occ_forest <- mask(frugivore_crop, TropicalAndes_IUCNHabitat_Forest)
-plot(frugivore_occ_forest)
-frugivore_occ_forest
+TropicalAndes_GBIF_plant_occ_cleaned$ref <- as.character(TropicalAndes_GBIF_plant_occ_cleaned$ref)
+TropicalAndes_frugivore_occ$ref <- as.character(TropicalAndes_frugivore_occ$ref)
+```
+
+
+```{r}
+plant_occ_forest <- TropicalAndes_GBIF_plant_occ_cleaned@data
+frugivore_occ_forest <- TropicalAndes_frugivore_occ@data
+```
+
+```{r}
+#remove row if ref = NA
+plant_occ_forest <- plant_occ_forest[plant_occ_forest$ref != "NA", ]
+frugivore_occ_forest <- frugivore_occ_forest[frugivore_occ_forest$ref != "NA", ]
+```
+
+# Summary
+```{r}
+glimpse(plant_occ_forest)
+glimpse(frugivore_occ_forest)
+```
+
+```{r}
+print("The number of plant records is")
+nrow(plant_occ_forest)
+print("The number of plant species is")
+length(unique(plant_occ_forest$species))
+print("The number of plant families is")
+length(unique(plant_occ_forest$family))
+```
+
+```{r}
+print("The number of frugivore records is")
+nrow(frugivore_occ_forest)
+print("The number of frugivore species is")
+length(unique(frugivore_occ_forest$species))
+print("The number of frugivore families is")
+length(unique(frugivore_occ_forest$family))
 ```
 
 # Extract species list for plants and frugivore
 ```{r}
-TropicalAndes_plant_Forest_SpeciesList <- unique(TropicalAndes_BIEN_traits$species)
-TropicalAndes_frugivore_Forest_SpeciesList <- unique(TropicalAndes_BIEN_traits$species)
+TropicalAndes_plant_Forest_SpeciesList <- unique(plant_occ_forest$species)
+TropicalAndes_frugivore_Forest_SpeciesList <- unique(frugivore_occ_forest$species)
 ```
 
 # Write data to csv
