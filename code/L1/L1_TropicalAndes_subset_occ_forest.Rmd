@@ -13,6 +13,7 @@ output: html_document
 # Set file paths
 ```{r}
 data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path2<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 ```
 
@@ -25,8 +26,8 @@ library(sf)
 
 # Read in data
 ```{r}
-TropicalAndes_IUCNHabitat_Forest <- raster(file.path(data_path, "TropicalAndes_IUCNHabitat_Forest.tif"))
-TropicalAndes_plant_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_plant_occ_cleaned.csv"))
+TropicalAndes_IUCNHabitat_Forest <- raster(file.path(data_path2, "TropicalAndes_IUCNHabitat_Forest.tif"))
+#TropicalAndes_plant_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_plant_occ_cleaned.csv"))
 TropicalAndes_frugivore_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_frugivore_occ_cleaned.csv"))
 ```
 
@@ -34,28 +35,51 @@ TropicalAndes_frugivore_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_
 TropicalAndes_IUCNHabitat_Forest
 ```
 
+```{r}
+TropicalAndes_IUCNHabitat_Forest0.5 <- aggregate(TropicalAndes_IUCNHabitat_Forest, 50, fun=mean, na.rm=TRUE)
+TropicalAndes_IUCNHabitat_Forest0.5
+```
+
 
 # Rasterize occurrence data
 ```{r}
-
+coordinates(TropicalAndes_GBIF_plant_occ_cleaned) <- ~ decimalLatitude + decimalLongitude
+coordinates(TropicalAndes_frugivore_occ) <- ~ decimalLatitude + decimalLongitude
+# coerce to SpatialPixelsDataFrame
+gridded(TropicalAndes_GBIF_plant_occ_cleaned) <- TRUE
+gridded(TropicalAndes_frugivore_occ) <- TRUE
+# coerce to raster
+plant.raster <- raster(TropicalAndes_GBIF_plant_occ_cleaned)
+frugivore.raster <- raster(TropicalAndes_frugivore_occ)
 ```
 
 # Crop occurrence data to forest extent
 ```{r}
+plant_crop <- crop(plants.raster, TropicalAndes_IUCNHabitat_Forest)
+plant_occ_forest <- mask(plant_crop, TropicalAndes_IUCNHabitat_Forest)
+plot(plant_occ_forest)
+plant_occ_forest
+```
 
+```{r}
+frugivore_crop <- crop(frugivores.raster, TropicalAndes_IUCNHabitat_Forest)
+frugivore_occ_forest <- mask(frugivore_crop, TropicalAndes_IUCNHabitat_Forest)
+plot(frugivore_occ_forest)
+frugivore_occ_forest
 ```
 
 # Extract species list for plants and frugivore
 ```{r}
-TropicalAndes_plant_SpeciesList <- unique(TropicalAndes_BIEN_traits$species)
-TropicalAndes_frugivore_SpeciesList <- unique(TropicalAndes_BIEN_traits$species)
+TropicalAndes_plant_Forest_SpeciesList <- unique(TropicalAndes_BIEN_traits$species)
+TropicalAndes_frugivore_Forest_SpeciesList <- unique(TropicalAndes_BIEN_traits$species)
 ```
 
 # Write data to csv
 ```{r}
+# subset plant occ, subset frugivore occ, plant species list, frugivore species list
 write.csv(TropicalAndes_BIEN_traits, file = file.path(output_path,"TropicalAndes_BIEN_plant_traits.csv"))
 write.csv(TropicalAndes_BIEN_traits, file = file.path(output_path,"TropicalAndes_BIEN_plant_traits.csv"))
-write.csv(TropicalAndes_BIEN_traits, file = file.path(output_path,"TropicalAndes_BIEN_plant_traits.csv"))
-write.csv(TropicalAndes_BIEN_traits, file = file.path(output_path,"TropicalAndes_BIEN_plant_traits.csv"))
+write.csv(TropicalAndes_plant_SpeciesList, file = file.path(output_path,"TropicalAndes_plant_Forest_SpeciesList.csv"))
+write.csv(TropicalAndes_frugivore_Forest_SpeciesList, file = file.path(output_path,"TropicalAndes_frugivore_Forest_SpeciesList"))
 ```
 
