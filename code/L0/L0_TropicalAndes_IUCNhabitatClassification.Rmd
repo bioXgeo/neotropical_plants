@@ -50,28 +50,37 @@ study_region <-  worldMap %>% filter(sovereignt == "Bolivia" | sovereignt == "Ec
 plot(study_region$geometry)
 ```
 
+# Crop moist montane to Tropical Andes
 ```{r}
-# crop moist montane to tropical andes
 iucn_moist_montane_forest_crop <- crop(iucn_moist_montane_forest, study_region)
 TA_iucn_moist_montane_forest <- mask(iucn_moist_montane_forest_crop, study_region)
 plot(TA_iucn_moist_montane_forest)
 TA_iucn_moist_montane_forest
 ```
 
+# Crop moist lowland to Tropical Andes
 ```{r}
-#crop moist lowland to tropical andes
 iucn_moist_lowland_forest_crop <- crop(iucn_moist_lowland_forest, study_region)
 TA_iucn_moist_lowland_forest <- mask(iucn_moist_lowland_forest_crop, study_region)
 plot(TA_iucn_moist_lowland_forest)
 TA_iucn_moist_lowland_forest
 ```
 
-
+# Combine TA_iucn_moist_lowland_forest & TA_iucn_moist_montane_forest into one raster
 ```{r}
-# combine TA_iucn_moist_lowland_forest & TA_iucn_moist_montane_forest into one raster
 TA_iucn_habitat_forest <- merge(TA_iucn_moist_lowland_forest, TA_iucn_moist_montane_forest)
 plot(TA_iucn_habitat_forest)
 TA_iucn_habitat_forest
+```
+
+# Reclassify forest raster with values above 500 to one value and less than 500 to NA
+```{r}
+mat <- c(0, 500, NA,
+        500, 1000, 1)
+rclmat <- matrix(mat, ncol = 3, byrow = TRUE)
+TA_iucn_habitat_forest <- reclassify(TA_iucn_habitat_forest, rclmat)
+TA_iucn_habitat_forest
+plot(TA_iucn_habitat_forest)
 ```
 
 # Save raster
@@ -81,36 +90,8 @@ writeRaster(TA_iucn_moist_montane_forest, filename = file.path(output_path, "Tro
 writeRaster(TA_iucn_moist_lowland_forest, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest_Lowland.GTiff"), format = "GTiff", overwrite=TRUE)
 ```
 
-```{r}
-forest_reclassify <- TA_iucn_habitat_forest > -Inf
-forest_poly <- rasterToPolygons(forest_reclassify, dissolve = TRUE)
-plot(forest_poly)
-forest_poly
-```
 
 
-# Convert to sf
-```{r}
-# convert to SpatRaster
-TA_iucn_habitat_forest_sr <- as(TA_iucn_habitat_forest, "SpatRaster")
-TA_iucn_habitat_forest_sr
-```
 
 
-```{r}
-TA_iucn_habitat_forest_sv <- as.polygons(TA_iucn_habitat_forest_sr)
-TA_iucn_habitat_forest_sv
-plot(TA_iucn_habitat_forest_sv)
-```
-
-```{r}
-TA_iucn_habitat_forest_shape <- sf::st_as_sf(TA_iucn_habitat_forest_sv)
-TA_iucn_habitat_forest_shape
-plot(TA_iucn_habitat_forest_shape)
-```
-
-# Save shapefile
-```{r}
-st_write(TA_iucn_habitat_forest_shape, file.path(output_path, "TropicalAndes_IUCNHabitat_Forest.shp"), overwrite=TRUE)
-```
 
