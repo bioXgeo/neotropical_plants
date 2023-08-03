@@ -1,4 +1,14 @@
-
+---
+title: "Tropical Andes plant trait data TRY"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script retrieves plant trait data from the TRY database for plant species list."
+data input: "none"
+data output: "TropicalAndes_TRY_traits.csv"
+date: "2023-07-18"
+output: html_document
+---
 
 # Set file paths
 ```{r}
@@ -16,91 +26,45 @@ library(dplyr)
 # Load TRY data
 Data was obtained from https://www.try-db.org/TryWeb/Prop0.php 
 ```{r}
-try_data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/25496_17032023010024/25496.txt")
+try_data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/28165_02082023081407/28165.txt")
 ```
 
-#Subset to Tropical Andes
 ```{r}
-head(try_data)
+glimpse(try_data)
+```
+
+#Subset to species list
+```{r}
+species_list <- read.csv("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/TropicalAndes_plant_Forest_SpeciesList.csv")
+species_list <- species_list$x
+```
+
+```{r}
+try_data_filtered <- try_data %>%
+  filter(AccSpeciesName %in% species_list)
 ```
 
 
 # Summary 
 ```{r}
-glimpse(try_data)
+glimpse(try_data_filtered)
 ```
 
 ```{r}
 print("The number of records is")
-nrow(try_data)
+nrow(try_data_filtered)
 print("The number of species is" )
-length(unique(try_data$AccSpeciesName))
-```
-
-# Add Lat & Long as columns in database
-
-```{r}
-# Extract the unique value of latitude (DataID 59) and the corresponding ObservationID
-workdata_lat <- rtry_select_anc(try_data, 59)
-
-# Extract the unique value of longitude (DataID 60) and the corresponding ObservationID
-workdata_lon <- rtry_select_anc(try_data, 60)
-```
-
-```{r}
-# To merge the extracted ancillary data with the numerical traits
-# Merge the relevant data frames based on the ObservationID using rtry_join_left (left join)
-try_data_georef <- rtry_join_left(try_data, workdata_lat, baseOn = ObservationID)
-try_data_georef <- rtry_join_left(try_data_georef, workdata_lon, baseOn = ObservationID)
-glimpse(try_data_georef)
-```
-```{r}
-# remove rows with na in latitude
-try_data_georef_noNA <- try_data_georef[!is.na(try_data_georef$Latitude),]
-glimpse(try_data_georef_noNA)
-```
-
-```{r}
-#subset by bounding box of Tropical Andes
-try_data_georef_lat <- subset(try_data_georef_noNA, Latitude< 12.5 & Latitude> -22.8)
-glimpse(try_data_georef_lat)
-try_data_georef_lon <- subset(try_data_georef_lat, Longitude> -96.6 & Longitude< -57.5)
-glimpse(try_data_georef_lon)
-```
-
-```{r}
-#remove unnecessary column V29
-try_data_TropicalAndes <- subset(try_data_georef_lon, select =-V29)
+length(unique(try_data_filtered$AccSpeciesName))
 ```
 
 
-# Extract species list
 ```{r}
-TRY_SpeciesList <- unique(try_data_TropicalAndes$AccSpeciesName)
-```
-
-# Summary
-
-```{r}
-glimpse(try_data_TropicalAndes)
-```
-
-```{r}
-print("The number of records is")
-nrow(try_data_TropicalAndes)
-print("The number of species is" )
-length(unique(try_data_TropicalAndes$AccSpeciesName))
-```
-
-```{r}
-try_data_TropicalAndes %>% count(TraitName)
+try_data_filtered %>% count(TraitName)
 ```
 
 
 # Write data to csv
 ```{r}
-TropicalAndes_TRY_path <- file.path(output_path,"TropicalAndes_TRY_plant_traits.csv") 
-write.csv(try_data_TropicalAndes, file = TropicalAndes_TRY_path)
-TropicalAndes_TRY_species_path <- file.path(output_path,"TropicalAndes_TRY_plant_species.csv") 
-write.csv(TRY_SpeciesList, file = TropicalAndes_TRY_species_path)
+TropicalAndes_TRY_path <- file.path(output_path,"TropicalAndes_TRY_plant_traits_forestSpecies.csv") 
+write.csv(try_data_filtered, file = TropicalAndes_TRY_path)
 ```
