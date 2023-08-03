@@ -26,13 +26,15 @@ library(ggspatial)
 # Set file paths
 ```{r}
 data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path2<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 ```
 
 # Read in Data
 ```{r}
-TropicalAndes_plant_occ <- read.csv(file.path(data_path,"TropicalAndes_plant_occ.csv"))
-TropicalAndes_frugivore_occ <- read.csv(file.path(data_path,"TropicalAndes_frugivore_occ.csv"))
+TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path,"TropicalAndes_plant_occ_forest.csv"))
+TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path,"TropicalAndes_frugivore_occ_forest.csv"))
+TropicalAndes_IUCNHabitat_Forest <- raster(file.path(data_path2, "TropicalAndes_IUCNHabitat_Forest.tif"))
 ```
 
 # Polygons of countries
@@ -44,9 +46,9 @@ TApoly <- worldMap %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" |
 
 # Convert data to spatial data
 ```{r}
-plants.sf <- st_as_sf(TropicalAndes_plant_occ, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
+plants.sf <- st_as_sf(TropicalAndes_plant_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
 
-frugivores.sf <- st_as_sf(TropicalAndes_frugivore_occ, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
+frugivores.sf <- st_as_sf(TropicalAndes_frugivore_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
 ```
 
 ```{r}
@@ -65,6 +67,7 @@ basePlot <-
 ggplot() +
 geom_sf(data = worldMap, fill = "white") +
 geom_sf(data = TApoly) +
+#geom_raster(data = TropicalAndes_IUCNHabitat_Forest, aes(x = x, y = y, fill = fct_elevation_2), fill = "forestgreen") +
 labs(title = "Tropical Andes", x = "Latitude", y = "Longitude") +
 coord_sf(xlim = c(-94, -54), ylim = c(-24, 14), expand = FALSE) +
 annotation_scale(location = "bl", width_hint = 0.5) +
@@ -100,7 +103,7 @@ frugivoresPointsPlot <-
   geom_sf(data = worldMap, fill = "white") +
   geom_sf(data = TApoly) +
   geom_sf(data = frugivores_sf_species, pch = 21) +
-  labs(title = "Tropical Andes Bird and Mammal Occurrences", x = "Latitude", y = "Longitude") +
+  labs(title = "Tropical Andes Frugivore Occurrences", x = "Latitude", y = "Longitude") +
   coord_sf(xlim = c(-94, -54), ylim = c(-24, 14), expand = FALSE) +
   theme(
     plot.background = element_rect(fill = "#f1f2f3"),
@@ -112,12 +115,30 @@ frugivoresPointsPlot <-
 frugivoresPointsPlot
 ```
 
-# Make 0.5 Grid
+# Mask grid by forest
+```{r}
+TropicalAndes_IUCNHabitat_Forest <- aggregate(TropicalAndes_IUCNHabitat_Forest, 50, fun=mean, na.rm=TRUE)
+TropicalAndes_IUCNHabitat_Forest
+```
+
+```{r}
+Forest_poly <- rasterToPolygons(TropicalAndes_IUCNHabitat_Forest, na.rm = TRUE, dissolve = TRUE)
+Forest_poly
+plot(Forest_poly)
+```
+
+```{r}
+Forest_sf <- st_as_sf(Forest_poly)
+Forest_sf
+plot(Forest_sf)
+```
+
+# Make 0.75 Grid
 ```{r}
 # make grid
-TAGrid0.5 <- TApoly %>%
-  st_make_grid(cellsize = c(0.5)) %>%
-  st_intersection(TApoly) %>%
+TAGrid0.75 <- TApoly %>%
+  st_make_grid(cellsize = c(0.75)) %>%
+  st_intersection(Forest_sf) %>%
   st_cast("MULTIPOLYGON") %>%
   st_sf() %>%
   mutate(cellid = row_number())
@@ -129,9 +150,9 @@ TAGrid0.5 <- TApoly %>%
 gridPlot <-
   ggplot() +
   geom_sf(data = worldMap, fill = "white")+
-  geom_sf(data = TApoly) +
-  geom_sf(data = TAGrid0.5) +
-  labs(title = "Tropical Andes Grid [0.5°]", x = "Latitude", y = "Longitude") +
+  geom_sf(data = Forest_sf) +
+  geom_sf(data = TAGrid0.75) +
+  labs(title = "Tropical Andes Grid [0.75°]", x = "Latitude", y = "Longitude") +
   coord_sf(xlim = c(-94, -54), ylim = c(-24, 14), expand = FALSE) +
   theme(
     plot.background = element_rect(fill = "#f1f2f3"),
@@ -145,7 +166,7 @@ gridPlot
 
 # Cell Richness
 ```{r}
-plant_richness_grid0.5 <- TAGrid0.5 %>%
+plant_richness_grid0.75 <- TAGrid0.75 %>%
   st_join(plants_sf_species) %>%
   mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
   group_by(cellid) %>%
@@ -153,7 +174,7 @@ plant_richness_grid0.5 <- TAGrid0.5 %>%
 ```
 
 ```{r}
-frugivore_richness_grid0.5 <- TAGrid0.5 %>%
+frugivore_richness_grid0.75 <- TAGrid0.75 %>%
   st_join(frugivores_sf_species) %>%
   mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
   group_by(cellid) %>%
@@ -162,8 +183,8 @@ frugivore_richness_grid0.5 <- TAGrid0.5 %>%
 
 # Richness plots
 ```{r}
-plantgridRichTA0.5 <-
-  ggplot(plant_richness_grid0.5) +
+plantgridRichTA0.75 <-
+  ggplot(plant_richness_grid0.75) +
   geom_sf(data = worldMap, fill = "white")+
   geom_sf(data = TApoly, fill = "grey", size = 0.1) +
   geom_sf(aes(fill = num_species), color = NA) +
@@ -179,13 +200,13 @@ plantgridRichTA0.5 <-
   annotation_scale(location = "bl", width_hint = 0.5) +
   annotation_north_arrow(location = "bl", which_north = "true", 
   pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"), style = north_arrow_fancy_orienteering) +
-  labs(title = "Tropical Andes Plant Richness [0.5°]", x = "Latitude", y = "Longitude", fill = "Number of species")
-plantgridRichTA0.5
+  labs(title = "Tropical Andes Plant Richness", x = "Latitude", y = "Longitude", fill = "Number of species")
+plantgridRichTA0.75
 ```
 
 ```{r}
-frugivoregridRichTA0.5 <-
-  ggplot(frugivore_richness_grid0.5) +
+frugivoregridRichTA0.75 <-
+  ggplot(frugivore_richness_grid0.75) +
   geom_sf(data = worldMap, fill = "white")+
   geom_sf(data = TApoly, fill = "grey", size = 0.1) +
   geom_sf(aes(fill = num_species), color = NA) +
@@ -201,40 +222,41 @@ frugivoregridRichTA0.5 <-
   annotation_scale(location = "bl", width_hint = 0.5) +
   annotation_north_arrow(location = "bl", which_north = "true", 
   pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"), style = north_arrow_fancy_orienteering) +
-  labs(title = "Tropical Andes Frugivore Richness [0.5°]", x = "Latitude", y = "Longitude", fill = "Number of species")
-frugivoregridRichTA0.5
+  labs(title = "Tropical Andes Frugivore Richness", x = "Latitude", y = "Longitude", fill = "Number of species")
+frugivoregridRichTA0.75
 ```
 
 # Extract cell values
 ```{r}
-plant_cellRichness0.5 <- plantgridRichTA0.5[["data"]]
-frugivore_cellRichness0.5 <- frugivoregridRichTA0.5[["data"]]
+plant_cellRichness0.75 <- plantgridRichTA0.75[["data"]]
+frugivore_cellRichness0.75 <- frugivoregridRichTA0.75[["data"]]
+```
+
+
+```{r}
+plot(plant_cellRichness0.75$num_species, frugivore_cellRichness0.75$num_species,
+     main = "Plant Richness vs Frugivore Richness by cell",
+     xlab = "Plant Richness by cell", ylab = "Frugivore Richness by cell")
+abline(lm(frugivore_cellRichness0.75$num_species ~ plant_cellRichness0.75$num_species))
+summary(lm(frugivore_cellRichness0.75$num_species ~ plant_cellRichness0.75$num_species))
 ```
 
 ```{r}
-plot(plant_cellRichness0.5$num_species, frugivore_cellRichness0.5$num_species,
-     main = "Plant Richness vs Bird & Mammal Richness by cell  [0.5°]",
-     xlab = "Plant Richness by cell", ylab = "Bird & Mammal Richness by cell")
-abline(lm(frugivore_cellRichness0.5$num_species ~ plant_cellRichness0.5$num_species))
-summary(lm(frugivore_cellRichness0.5$num_species ~ plant_cellRichness0.5$num_species))
-```
-
-```{r}
-hist(plant_cellRichness0.5$num_species,
-     main = "Histogram of Plant Richness by cell  [0.5°]",
+hist(plant_cellRichness0.75$num_species,
+     main = "Histogram of Plant Richness by cell",
      xlab = "Plant Richness by cell")
-hist(frugivore_cellRichness0.5$num_species,
-     main = "Histogram of Frugivore Richness by cell  [0.5°]",
+hist(frugivore_cellRichness0.75$num_species,
+     main = "Histogram of Frugivore Richness by cell",
      xlab = "Frugivore Richness by cell")
 ```
 
 ```{r}
-summary(plant_cellRichness0.5$num_species)
-summary(frugivore_cellRichness0.5$num_species)
+summary(plant_cellRichness0.75$num_species)
+summary(frugivore_cellRichness0.75$num_species)
 ```
 
 # Write data to csv
 ```{r}
-write.csv(plant_cellRichness0.5, file.path(output_path,"TropicalAndes_GBIF_plant_richness.csv"))
-write.csv(frugivore_cellRichness0.5, file.path(output_path,"TropicalAndes_frugivore_richness.csv"))
+write.csv(plant_cellRichness0.75, file.path(output_path,"TropicalAndes_GBIF_plant_richness.csv"))
+write.csv(frugivore_cellRichness0.75, file.path(output_path,"TropicalAndes_frugivore_richness.csv"))
 ```
