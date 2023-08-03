@@ -27,7 +27,7 @@ library(sf)
 # Read in data
 ```{r}
 TropicalAndes_IUCNHabitat_Forest <- raster(file.path(data_path2, "TropicalAndes_IUCNHabitat_Forest.tif"))
-#TropicalAndes_plant_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_plant_occ_cleaned.csv"))
+TropicalAndes_plant_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_plant_occ_cleaned.csv"))
 TropicalAndes_frugivore_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_frugivore_occ_cleaned.csv"))
 ```
 
@@ -70,6 +70,19 @@ frugivore_occ_forest <- TropicalAndes_frugivore_occ@data
 ```
 
 ```{r}
+# add back lat and long
+plant_coords <- TropicalAndes_plant_occ@coords
+frug_coords <- TropicalAndes_frugivore_occ@coords
+plant_coords <- as.data.frame(plant_coords)
+frug_coords <- as.data.frame(frug_coords)
+plant_occ_forest$decimalLatitude <- plant_coords$decimalLatitude
+plant_occ_forest$decimalLongitude <- plant_coords$decimalLongitude
+frugivore_occ_forest$decimalLatitude <- frug_coords$decimalLatitude
+frugivore_occ_forest$decimalLongitude <- frug_coords$decimalLongitude
+```
+
+
+```{r}
 #remove row if ref = NA
 plant_occ_forest <- plant_occ_forest[!is.na(plant_occ_forest$ref), ]
 frugivore_occ_forest <- frugivore_occ_forest[!is.na(frugivore_occ_forest$ref), ]
@@ -110,7 +123,7 @@ TropicalAndes_frugivore_Forest_SpeciesList <- unique(frugivore_occ_forest$specie
 # subset plant occ, subset frugivore occ, plant species list, frugivore species list
 write.csv(plant_occ_forest, file = file.path(output_path,"TropicalAndes_plant_occ_forest.csv"))
 write.csv(frugivore_occ_forest, file = file.path(output_path,"TropicalAndes_frugivore_occ_forest.csv"))
-write.csv(TropicalAndes_plant_SpeciesList, file = file.path(output_path,"TropicalAndes_plant_Forest_SpeciesList.csv"))
-write.csv(TropicalAndes_frugivore_Forest_SpeciesList, file = file.path(output_path,"TropicalAndes_frugivore_Forest_SpeciesList"))
+write.csv(TropicalAndes_plant_Forest_SpeciesList, file = file.path(output_path,"TropicalAndes_plant_Forest_SpeciesList.csv"))
+write.csv(TropicalAndes_frugivore_Forest_SpeciesList, file = file.path(output_path,"TropicalAndes_frugivore_Forest_SpeciesList.csv"))
 ```
 
