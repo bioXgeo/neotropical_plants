@@ -36,41 +36,43 @@ TropicalAndes_IUCNHabitat_Forest
 ```
 
 ```{r}
-TropicalAndes_IUCNHabitat_Forest0.5 <- aggregate(TropicalAndes_IUCNHabitat_Forest, 50, fun=mean, na.rm=TRUE)
-TropicalAndes_IUCNHabitat_Forest0.5
+TropicalAndes_IUCNHabitat_Forest0.3 <- aggregate(TropicalAndes_IUCNHabitat_Forest, 30, fun=mean, na.rm=TRUE)
+TropicalAndes_IUCNHabitat_Forest0.3
 ```
 
 
 # Rasterize occurrence data
 ```{r}
 # convert to SpatialPointsDataFrame
-coordinates(TropicalAndes_GBIF_plant_occ_cleaned) <- ~ decimalLatitude + decimalLongitude
-coordinates(TropicalAndes_frugivore_occ) <- ~ decimalLatitude + decimalLongitude
-TropicalAndes_GBIF_plant_occ_cleaned
+coordinates(TropicalAndes_plant_occ) <- ~ decimalLongitude + decimalLatitude
+coordinates(TropicalAndes_frugivore_occ) <- ~ decimalLongitude + decimalLatitude
+proj4string(TropicalAndes_plant_occ) <- CRS("+proj=longlat +datum=WGS84 +no_defs")
+proj4string(TropicalAndes_frugivore_occ) <- CRS("+proj=longlat +datum=WGS84 +no_defs")
+TropicalAndes_plant_occ
 TropicalAndes_frugivore_occ
 ```
 
 # Crop occurrence data to forest extent
 ```{r}
-TropicalAndes_GBIF_plant_occ_cleaned$ref<- extract(TropicalAndes_IUCNHabitat_Forest, TropicalAndes_GBIF_plant_occ_cleaned)
+TropicalAndes_plant_occ$ref<- extract(TropicalAndes_IUCNHabitat_Forest, TropicalAndes_plant_occ)
 TropicalAndes_frugivore_occ$ref<- extract(TropicalAndes_IUCNHabitat_Forest, TropicalAndes_frugivore_occ)
 ```
 
 ```{r}
-TropicalAndes_GBIF_plant_occ_cleaned$ref <- as.character(TropicalAndes_GBIF_plant_occ_cleaned$ref)
+TropicalAndes_plant_occ$ref <- as.character(TropicalAndes_plant_occ$ref)
 TropicalAndes_frugivore_occ$ref <- as.character(TropicalAndes_frugivore_occ$ref)
 ```
 
 
 ```{r}
-plant_occ_forest <- TropicalAndes_GBIF_plant_occ_cleaned@data
+plant_occ_forest <- TropicalAndes_plant_occ@data
 frugivore_occ_forest <- TropicalAndes_frugivore_occ@data
 ```
 
 ```{r}
 #remove row if ref = NA
-plant_occ_forest <- plant_occ_forest[plant_occ_forest$ref != "NA", ]
-frugivore_occ_forest <- frugivore_occ_forest[frugivore_occ_forest$ref != "NA", ]
+plant_occ_forest <- plant_occ_forest[!is.na(plant_occ_forest$ref), ]
+frugivore_occ_forest <- frugivore_occ_forest[!is.na(frugivore_occ_forest$ref), ]
 ```
 
 # Summary
