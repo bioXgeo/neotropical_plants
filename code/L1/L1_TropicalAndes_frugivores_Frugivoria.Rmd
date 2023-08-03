@@ -1,0 +1,54 @@
+---
+title: "Frugivoria frugivore trait subset"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "Subsetting Frugivoria to the species and traits of interest"
+data input: ""
+data output: ""
+date: "2023-08-03"
+output: html_document
+---
+
+# Load required packages
+```{r}
+library(dplyr)
+```
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path2<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Read in data
+```{r}
+Frugivoria <- read.csv(file.path(data_path, file = "TropicalAndes_Frugivoria_frugivore_traits.csv"))
+frugivore_species <- read.csv(file.path(data_path2, file = "TropicalAndes_frugivore_Forest_SpeciesList.csv"))
+```
+
+```{r}
+frugivore_species <- frugivore_species$x
+```
+
+```{r}
+# subset Frugivoria by species list
+Frugivoria_filtered <- Frugivoria %>%
+  filter(IUCN_species_name %in% frugivore_species)
+```
+
+```{r}
+# keep columns with traits of diet category, body size, body mass, generation time
+Frugivoria_subset <- Frugivoria_filtered[ , c("IUCN_species_name", "family", "genus", "species", "diet_cat", "body_mass_e", "body_size_mm", "generation_time")]
+```
+
+# Summary
+```{r}
+glimpse(Frugivoria_subset)
+```
+
+# Write data to csv
+```{r}
+write.csv(Frugivoria_subset, file.path(output_path,"TropicalAndes_Frugivoria_traits_Forest.csv"))
+```
