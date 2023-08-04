@@ -202,7 +202,7 @@ plantgridRichTA0.75 <-
   geom_sf(data = worldMap, fill = "white")+
   geom_sf(data = TApoly, fill = "grey", size = 0.1) +
   geom_sf(aes(fill = num_species), color = NA) +
-  scale_fill_scico(palette = "romaO", direction = 1, end = 0.9, midpoint = 1500) +
+  scale_fill_scico(palette = "romaO", direction = 1, end = 0.9, midpoint = 50) +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE) +
   theme(
     plot.background = element_rect(fill = "#f1f2f3"),
@@ -273,5 +273,5 @@ summary(frugivore_cellRichness0.75$num_species)
 # Write data to csv
 ```{r}
 write.csv(plant_cellRichness0.75, file.path(output_path,"TropicalAndes_GBIF_plant_richness_sub.csv"))
-write.csv(frugivore_cellRichness0.75, file.path(output_path,"TropicalAndes_frugivore_richness.csv"))
+write.csv(frugivore_cellRichness0.75, file.path(output_path,"TropicalAndes_frugivore_richness_sub.csv"))
 ```
