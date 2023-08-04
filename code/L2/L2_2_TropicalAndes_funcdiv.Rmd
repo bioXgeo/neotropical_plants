@@ -38,10 +38,60 @@ TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path,"TropicalAndes_pl
 TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path,"TropicalAndes_frugivore_occ_forest.csv"))
 TropicalAndes_IUCNHabitat_Forest <- raster(file.path(data_path2, "TropicalAndes_IUCNHabitat_Forest.tif"))
 frugivore_traits <- read.csv(file.path(data_path,"TropicalAndes_Frugivoria_traits_Forest.csv"))
-plant_traits <- 
+plant_traits <- file.path(data_path,"TropicalAndes_plant_traits_forest.csv")
+```
+
+# Remove species with NAs for one or more traits
+```{r}
+frugivore_traits <- na.omit(frugivore_traits)
+```
+
+# Forest shape conversion
+```{r}
+TropicalAndes_IUCNHabitat_Forest <- aggregate(TropicalAndes_IUCNHabitat_Forest, 50, fun=mean, na.rm=TRUE)
+TropicalAndes_IUCNHabitat_Forest
 ```
 
 ```{r}
-lets.presab.points
+Forest_poly <- rasterToPolygons(TropicalAndes_IUCNHabitat_Forest, na.rm = TRUE, dissolve = TRUE)
+Forest_poly
+plot(Forest_poly)
+```
+
+```{r}
+Forest_sf <- st_as_sf(Forest_poly)
+Forest_sf
+plot(Forest_sf)
+st_write(Forest_sf, file.path(data_path, "Forest_sf.shp"))
+```
+
+# Create Presence-Absense matrix
+```{r}
+x <- TropicalAndes_plant_occ_forest$decimalLongitude
+y <- TropicalAndes_plant_occ_forest$decimalLatitude
+plant_xy <- cbind(x, y)
+plant_species <- TropicalAndes_plant_occ_forest$species
+plants_PAM <- lets.presab.points(plant_xy, plant_species, xmn = -85, xmx = -54, ymn = -24, ymx = 14)
+summary(plants_PAM)
+plot(plants_PAM, xlab = "Longitude", ylab = "Latitude", main = "Plant richness map")
+```
+
+```{r}
+x <- TropicalAndes_frugivore_occ_forest$decimalLongitude
+y <- TropicalAndes_frugivore_occ_forest$decimalLatitude
+frugivore_xy <- cbind(x, y)
+frugivore_species <- TropicalAndes_frugivore_occ_forest$species
+frugivore_PAM <- lets.presab.points(frugivore_xy, frugivore_species, xmn = -85, xmx = -54, ymn = -24, ymx = 14)
+summary(frugivore_PAM)
+plot(frugivore_PAM, xlab = "Longitude", ylab = "Latitude", main = "Frugivore richness map")
+```
+
+# Create trait type table
+```{r}
+frug_trait_name <- c("diet_cat", "body_mass", "body_size", "generation_time")
+frug_trait_type <- c("N", "Q", "Q", "Q")
+frug_trait_cat <- as.data.frame(cbind(frug_trait_name, frug_trait_type))
+plant_trait_name <- c("dispersal_syndrome", "plant_height", "plant_lifespan")
+frug_trait_type <- c("N", "Q", "Q") 
 ```
 
