@@ -99,7 +99,6 @@ plant_traits_dispersal <- plant_traits_dispersal[plant_traits_dispersal$trait_va
 #need one value per species
 plant_traits_dispersal <- plant_traits_dispersal %>% distinct(species, .keep_all = TRUE)
 plant_traits_dispersal_wide <- pivot_wider(data = plant_traits_dispersal, id_cols = species, names_from = trait_name, values_from = trait_value, values_fn = list)
-#ready to combine
 ```
 
 # Plant fruit mass traits
@@ -108,7 +107,6 @@ plant_traits_mass <- plant_traits[plant_traits$trait_name == "Fruit dry mass",]
 plant_traits_mass <- plant_traits_mass[plant_traits_mass$unit == "mg",]
 plant_traits_mass$trait_value <- as.numeric(plant_traits_mass$trait_value)
 plant_traits_mass_wide <- pivot_wider(data = plant_traits_mass, id_cols = species, names_from = trait_name, values_from = trait_value, values_fn = mean)
-# ready to combine
 ```
 
 # Plant height traits
@@ -117,7 +115,6 @@ plant_traits_height <- plant_traits[plant_traits$trait_name == "Plant height veg
 plant_traits_height$trait_value <- as.numeric(plant_traits_height$trait_value)
 plant_traits_height_wide <- pivot_wider(data = plant_traits_height, id_cols = species, names_from = trait_name, values_from = trait_value, values_fn = mean)
 plant_traits_height_wide$plant_height <- rowMeans(plant_traits_height_wide[,2:3], na.rm = TRUE)
-# ready to combine
 ```
 
 # Plant longevity traits
@@ -161,8 +158,14 @@ plant_traits_wide_complete <- na.omit(plant_traits_wide)
 glimpse(plant_traits_wide_complete)
 ```
 
+# Extract species list
+```{r}
+species_list <- unique(plant_traits_wide_complete$species)
+```
+
 
 # Write data to csv
 ```{r}
 write.csv(plant_traits, file.path(output_path,"TropicalAndes_plant_traits_forest.csv"))
+write.csv(species_list, file.path(output_path,"TropicalAndes_plant_traits_forest_species_list.csv"))
 ```
