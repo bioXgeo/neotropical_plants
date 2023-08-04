@@ -1,0 +1,53 @@
+---
+title: "Tropical Andes plant species list"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script retrives updated names for GBIF species list."
+data input: "none"
+data output: ""
+date: "2023-08-03"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(TNRS)
+devtools::install_github("ecoinfor/U.Taxonstand")
+library(U.Taxonstand)
+library(tidyr)
+library(dplyr)
+```
+
+# Load species list
+```{r}
+#species list
+TropicalAndes_plant_Forest_SpeciesList <- read.csv("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/TropicalAndes_plant_Forest_SpeciesList.csv")
+TropicalAndes_plant_Forest_SpeciesList$NAME <- TropicalAndes_plant_Forest_SpeciesList$x
+species_list <- TropicalAndes_plant_Forest_SpeciesList$NAME
+```
+
+# Use TRNS package
+```{r}
+TNRS_results <- TNRS(TropicalAndes_plant_Forest_SpeciesList)
+```
+
+```{r}
+write.csv(TNRS_results, file.path(output_path,"TropicalAndes_plant_Forest_SpeciesList_TNRS_results.csv"))
+```
+
+
+# Using U.Taxonstand package
+```{r}
+U.Taxonstand_results <- nameMatch(spList = species_list, spSource = TropicalAndes_plant_Forest_SpeciesList, author = FALSE, max.distance = 1)
+```
+
+```{r}
+write.csv(U.Taxonstand_results, file.path(output_path,"TropicalAndes_plant_Forest_SpeciesList_U.Taxonstand_results.csv"))
+```
