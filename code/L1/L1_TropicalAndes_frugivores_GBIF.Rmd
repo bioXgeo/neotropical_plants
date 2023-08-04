@@ -44,17 +44,16 @@ flags <- clean_coordinates(x = TropicalAndes_GBIF_frugivore_occ,
                            lat = "decimalLatitude",
                            countries = "countryCode",
                            species = "species",
-                           tests = c("capitals", "centroids", "countries",
+                           tests = c("capitals", "centroids",
                                      "duplicates", "equal", "gbif",
                                      "institutions", "seas","zeros"))
 summary(flags)
-plot(flags, lon = "decimalLongitude", lat = "decimalLatitude")
 ```
 
 ```{r}
 #exclude problematic records
-TropicalAndes_GBIF_frugivore_occ_cleaned <- TropicalAndes_GBIF_frugivore_occ[flags$summary,]
-TropicalAndes_GBIF_frugivore_occ_flagged <- TropicalAndes_GBIF_frugivore_occ[!flags$summary,]
+TropicalAndes_GBIF_frugivore_occ_cleaned <- TropicalAndes_GBIF_frugivore_occ[flags$.summary,]
+TropicalAndes_GBIF_frugivore_occ_flagged <- TropicalAndes_GBIF_frugivore_occ[!flags$.summary,]
 ```
 
 ```{r}
