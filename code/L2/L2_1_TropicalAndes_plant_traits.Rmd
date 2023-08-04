@@ -163,9 +163,14 @@ glimpse(plant_traits_wide_complete)
 species_list <- unique(plant_traits_wide_complete$species)
 ```
 
+```{r}
+plant_traits_wide_complete$dispersal_syndrome <- as.character(plant_traits_wide_complete$dispersal_syndrome)
+plant_traits_wide_complete$plant_lifespan <- as.character(plant_traits_wide_complete$plant_lifespan)
+```
+
 
 # Write data to csv
 ```{r}
-write.csv(plant_traits, file.path(output_path,"TropicalAndes_plant_traits_forest.csv"))
+write.csv(plant_traits_wide_complete, file.path(output_path,"TropicalAndes_plant_traits_forest.csv"))
 write.csv(species_list, file.path(output_path,"TropicalAndes_plant_traits_forest_species_list.csv"))
 ```
