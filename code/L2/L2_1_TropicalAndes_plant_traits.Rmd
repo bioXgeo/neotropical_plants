@@ -14,6 +14,7 @@ output: html_document
 ```{r}
 library(dplyr)
 library(tidyr)
+library(data.table)
 ```
 
 # Set file paths
@@ -72,7 +73,7 @@ plant_traits_dispersal <- plant_traits[plant_traits$trait_name == "Dispersal syn
 # look at possible trait values
 plant_traits_dispersal_values <- unique(plant_traits_dispersal$trait_value)
 # save list to manually classify biotic, abiotic, none, and NA
-#write.csv(plant_traits_dispersal_values, file.path(data_path,"plant_trait_dispersal_values.csv"))
+write.csv(plant_traits_dispersal_values, file.path(data_path,"plant_trait_dispersal_values.csv"))
 # read in classified table
 dispersal_classified <- read.csv(file.path(data_path,"plant_trait_dispersal_values_classified.csv"))
 # reclassify dispersal trait value to table
@@ -83,11 +84,15 @@ unique(plant_traits_dispersal$trait_value)
 ```
 
 ```{r}
+# change all trait_name to dispersal_syndrome
+plant_traits_dispersal['trait_name'][plant_traits_dispersal['trait_name'] == 'Dispersal syndrome'] <- 'dispersal_syndrome'
+plant_traits_dispersal['trait_name'][plant_traits_dispersal['trait_name'] == 'whole plant dispersal syndrome'] <- 'dispersal_syndrome'
 #need to remove none & NA
 plant_traits_dispersal <- plant_traits_dispersal[plant_traits_dispersal$trait_value == "biotic" | plant_traits_dispersal$trait_value == "abiotic",]
 #need one value per species
-
+plant_traits_dispersal <- plant_traits_dispersal %>% distinct(species, .keep_all = TRUE)
 plant_traits_dispersal_wide <- pivot_wider(data = plant_traits_dispersal, id_cols = species, names_from = trait_name, values_from = trait_value, values_fn = list)
+#ready to combine
 ```
 
 # Plant fruit mass traits
@@ -111,15 +116,42 @@ plant_traits_height_wide$plant_height <- rowMeans(plant_traits_height_wide[,2:3]
 # Plant longevity traits
 ```{r}
 plant_traits_longevity <- plant_traits[plant_traits$trait_name == "Plant lifespan (longevity)" | plant_traits$trait_name == "maximum whole plant longevity",]
-#trait values are a mix of numeric and characters
+# change all trait_name to plant lifespan
+plant_traits_longevity['trait_name'][plant_traits_longevity['trait_name'] == 'Plant lifespan (longevity)'] <- 'plant_lifespan'
+plant_traits_longevity['trait_name'][plant_traits_longevity['trait_name'] == 'maximum whole plant longevity'] <- 'plant_lifespan'
+
+#remove non-numeric values
+plant_traits_longevity <- plant_traits_longevity[!is.na(as.numeric(as.character(plant_traits_longevity$trait_value))),]
 ```
+
+```{r}
+plant_traits_longevity$trait_value <- as.numeric(plant_traits_longevity$trait_value)
+plant_traits_longevity_wide <- pivot_wider(data = plant_traits_longevity, id_cols = species, names_from = trait_name, values_from = trait_value, values_fn = mean)
+```
+
 
 # Combine all traits
 ```{r}
-# combine all trait wide tables
-plant_traits_wide <- bind_cols(plant_traits_height_wide, plant_traits_mass_wide)
-# remove species with NAs for one or more traits
+# convert all to dataframes
+plant_traits_height_wide <- as.data.frame(plant_traits_height_wide)
+plant_traits_dispersal_wide <- as.data.frame(plant_traits_dispersal_wide)
+plant_traits_mass_wide <- as.data.frame(plant_traits_mass_wide)
+plant_traits_longevity_wide <- as.data.frame(plant_traits_longevity_wide)
 
+plant_traits_wide <- merge(x = plant_traits_height_wide, y = plant_traits_dispersal_wide, by = "species", all = TRUE)
+plant_traits_wide <- merge(x = plant_traits_wide, y = plant_traits_mass_wide, by = "species", all = TRUE)
+plant_traits_wide <- merge(x = plant_traits_wide, y = plant_traits_longevity_wide, by = "species", all = TRUE)
+```
+
+```{r}
+plant_traits_wide <- plant_traits_wide [, c("species", "plant_height", "dispersal_syndrome", "Fruit dry mass", "plant_lifespan")]
+# remove species with NAs for one or more traits
+plant_traits_wide_complete <- na.omit(plant_traits_wide)
+```
+
+#Summary
+```{r}
+glimpse(plant_traits_wide_complete)
 ```
 
 
