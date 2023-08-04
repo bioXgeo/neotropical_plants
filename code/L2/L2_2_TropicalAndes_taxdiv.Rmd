@@ -37,6 +37,20 @@ TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path,"TropicalAnde
 TropicalAndes_IUCNHabitat_Forest <- raster(file.path(data_path2, "TropicalAndes_IUCNHabitat_Forest.tif"))
 ```
 
+# Filter plant occ by plant trait species list
+```{r}
+plant_trait_species_list <- read.csv(file.path(data_path,"TropicalAndes_plant_traits_forest_species_list.csv"))
+TropicalAndes_plant_occ_forest_sub <- TropicalAndes_plant_occ_forest %>% filter(species %in% plant_trait_species_list$x)
+write.csv(TropicalAndes_plant_occ_forest_sub, file.path(data_path,"TropicalAndes_plant_occ_forest_sub.csv"))
+```
+
+# Filter frugivore occ by frugivore trait species list
+```{r}
+frugivore_trait_species_list <- read.csv(file.path(data_path,"TropicalAndes_frugivore_traits_forest_species_list.csv"))
+TropicalAndes_frugivore_occ_forest_sub <- TropicalAndes_frugivore_occ_forest %>% filter(species %in% frugivore_trait_species_list$x)
+write.csv(TropicalAndes_frugivore_occ_forest_sub, file.path(data_path,"TropicalAndes_frugivore_occ_forest_sub.csv"))
+```
+
 # Polygons of countries
 ```{r}
 worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
@@ -46,9 +60,9 @@ TApoly <- worldMap %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" |
 
 # Convert data to spatial data
 ```{r}
-plants.sf <- st_as_sf(TropicalAndes_plant_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
+plants.sf <- st_as_sf(TropicalAndes_plant_occ_forest_sub, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
 
-frugivores.sf <- st_as_sf(TropicalAndes_frugivore_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
+frugivores.sf <- st_as_sf(TropicalAndes_frugivore_occ_forest_sub, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
 ```
 
 ```{r}
@@ -130,6 +144,7 @@ plot(Forest_poly)
 Forest_sf <- st_as_sf(Forest_poly)
 Forest_sf
 plot(Forest_sf)
+st_write(Forest_sf, file.path(data_path, "Forest_sf.shp"))
 ```
 
 # Make 0.75 Grid
@@ -257,6 +272,6 @@ summary(frugivore_cellRichness0.75$num_species)
 
 # Write data to csv
 ```{r}
-write.csv(plant_cellRichness0.75, file.path(output_path,"TropicalAndes_GBIF_plant_richness.csv"))
+write.csv(plant_cellRichness0.75, file.path(output_path,"TropicalAndes_GBIF_plant_richness_sub.csv"))
 write.csv(frugivore_cellRichness0.75, file.path(output_path,"TropicalAndes_frugivore_richness.csv"))
 ```
