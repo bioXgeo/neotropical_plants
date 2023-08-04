@@ -1,0 +1,103 @@
+---
+title: "Tropical Andes plant trait data GIFT"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script retrieves plant trait data from the GIFT database for plant species list."
+data input: ""
+data output: ""
+date: "2023-08-03"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(GIFT)
+library(dplyr)
+```
+
+# Load in species list
+```{r}
+species_list <- read.csv("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/TropicalAndes_plant_Forest_SpeciesList.csv")
+species_list <- species_list$x
+```
+
+# Retrive GIFT data
+```{r}
+trait_meta <- GIFT_traits_meta()
+```
+Traits of interest: plant height (ID = 1.6.3), lifespan (ID = 2.2.1), dispersal syndrome (ID = 3.3)
+
+```{r}
+# 
+height <- GIFT_traits(trait_IDs = c("1.6.2"))
+lifespan <- GIFT_traits(trait_IDs = c("2.2.1"))
+dispersal_syndrome <- GIFT_traits(trait_IDs = c("3.3.1", "3.3.2"))
+```
+
+```{r}
+# filter by species list
+height_sub <- height %>%
+  filter(work_species %in% species_list)
+dispersal_syndrome_sub <- dispersal_syndrome %>%
+  filter(work_species %in% species_list)
+lifespan_sub <- lifespan %>%
+  filter(work_species %in% species_list)
+```
+
+```{r}
+#rename columns to trait name
+height_sub <- height_sub %>% rename(trait_value = trait_value_1.6.2, species = work_species)
+dispersal_syndrome_sub <- dispersal_syndrome_sub %>% rename(trait_value = trait_value_3.3.1, species = work_species)
+lifespan_sub <- lifespan_sub %>% rename(trait_value = trait_value_2.2.1, species = work_species)
+```
+
+```{r}
+#keep just species and trait columns
+height_sub <- height_sub %>% select(species, trait_value)
+dispersal_syndrome_sub <- dispersal_syndrome_sub %>% select(species, trait_value)
+lifespan_sub <- lifespan_sub %>% select(species, trait_value)
+```
+
+```{r}
+# add trait name column
+height_sub$trait_name <- "plant_height"
+dispersal_syndrome_sub$trait_name <- "dispersal_syndrome"
+lifespan_sub$trait_name <- "plant_lifespan"
+```
+
+```{r}
+#convert numeric trait values to character
+height_sub$trait_value <- as.character(height_sub$trait_value)
+lifespan_sub$trait_value <- as.character(lifespan_sub$trait_value)
+```
+
+
+```{r}
+#combine all trait dataframes into one long table
+GIFT_traits <- dplyr::bind_rows(height_sub, dispersal_syndrome_sub, lifespan_sub)
+```
+
+# Summary
+```{r}
+glimpse(GIFT_traits)
+```
+
+
+```{r}
+print("The number of records is")
+nrow(GIFT_traits)
+print("The number of species is")
+length(unique(GIFT_traits$species))
+```
+
+# Write data to csv
+```{r}
+write.csv(GIFT_traits, file = file.path(output_path,"TropicalAndes_GIFT_plant_traits_forest.csv"))
+```
