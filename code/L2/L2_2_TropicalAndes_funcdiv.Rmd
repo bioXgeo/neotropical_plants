@@ -300,8 +300,8 @@ round(fspaces_quality_frugivore$"quality_fspaces", 3)
 mFD::quality.fspaces.plot(
   fspaces_quality            = fspaces_quality_plants,
   quality_metric             = "mad",
-  fspaces_plot               = c("pcoa_3d", "pcoa_4d", 
-                                 "pcoa_5d"),
+  fspaces_plot               = c("pcoa_2d", "pcoa_3d", 
+                                 "pcoa_4d"),
   name_file                  = NULL,
   range_dist                 = NULL,
   range_dev                  = NULL,
@@ -458,16 +458,16 @@ sp_faxes_coord_frugivore_sub <- as.matrix(sp_faxes_coord_frugivore_sub)
 #computing FD
 # The number of species per assemblage has to be higher or equal to the number of traits
 alpha_fd_indices_plant <- mFD::alpha.fd.multidim(
-  sp_faxes_coord   = sp_faxes_coord_plants_sub,
-  asb_sp_w         = subset_matrix_plant,
+  sp_faxes_coord   = sp_faxes_coord_plants,
+  asb_sp_w         = PAM_plant_site_final,
   ind_vect         = c("fide", "fdis", "fmpd", "fnnd", "feve", "fori", "fspe"), #did not run fdiv or fric (slows it down)
   scaling          = TRUE,
   check_input      = TRUE,
   details_returned = TRUE)
 
 alpha_fd_indices_frugivore <- mFD::alpha.fd.multidim(
-  sp_faxes_coord   = sp_faxes_coord_frugivore_sub,
-  asb_sp_w         = subset_matrix_frugivore,
+  sp_faxes_coord   = sp_faxes_coord_frugivore,
+  asb_sp_w         = PAM_plant_site_final,
   ind_vect         = c("fide", "fdis", "fmpd", "fnnd", "feve", "fori", "fspe"), #did not run fdiv or fric (slows it down)
   scaling          = TRUE,
   check_input      = TRUE,
@@ -572,8 +572,12 @@ subset_coords_frugivore_sp <-subset_coords_frugivore[,1:2 ]
 #Get functional dispersion
 fdis_plant <- alpha_fd_indices_plant$functional_diversity_indices$fdis
 fdis_frugivore <- alpha_fd_indices_frugivore$functional_diversity_indices$fdis
+## subset frugivore to compare for plotting
+fdis_frugivore_sub <- fdis_frugivore[1:25]
 
 plant_fd_sp <- data.frame(subset_coords_plant_sp, fdis_plant)
+frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
+## subset frugivore to compare for plotting
 frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
 
 # Convert the dataframe to sf format
