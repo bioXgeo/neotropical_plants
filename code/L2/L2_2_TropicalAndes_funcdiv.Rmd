@@ -416,18 +416,49 @@ big_plot_frugivore
 ```{r}
 # getting sp_faxes_coord_plants and subset_matrix_plants names to match
 sp_faxes_coord_plants_sub <- sp_faxes_coord_plants[ , c("PC1", "PC2", "PC3", "PC4")]
-sp_faxes_coord_plants_sub <- as.data.frame(sp_faxes_coord_plants_sub)
+## check number of species names
+nrow(sp_faxes_coord_plants_sub) # 54
+ncol(subset_matrix_plant) #82
+
 sp_faxes_coord_plants_sub_names <- row.names(sp_faxes_coord_plants_sub)
-subset_matrix_plant <- as.data.frame(subset_matrix_plant)
 subset_matrix_plant_names <- colnames(subset_matrix_plant)
-subset_matrix_plant_sub <- subset_matrix_plant %>% filter(names(subset_matrix_plant) %in% sp_faxes_coord_plants_sub_names)
+
+sp_faxes_coord_plants_sub_df <- as.data.frame(sp_faxes_coord_plants_sub)
+subset_matrix_plant_df <- as.data.frame(subset_matrix_plant)
+
+subset_matrix_plant <- subset_matrix_plant_df[, which((names(subset_matrix_plant_df) %in% sp_faxes_coord_plants_sub_names)==TRUE)]
+
+ncol(subset_matrix_plant)
+subset_matrix_plant <- as.matrix(subset_matrix_plant)
 ```
+
+```{r}
+# match frugivore names
+sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")]
+
+## check number of species names
+nrow(sp_faxes_coord_frugivore_sub) #718
+ncol(subset_matrix_frugivore) #712
+
+sp_faxes_coord_frugivore_sub_names <- row.names(sp_faxes_coord_frugivore_sub)
+subset_matrix_frugivore_names <- colnames(subset_matrix_frugivore)
+
+sp_faxes_coord_frugivore_sub_names <- chartr(".", " ", sp_faxes_coord_frugivore_sub_names)
+sp_faxes_coord_frugivore_sub <- as.data.frame(sp_faxes_coord_frugivore_sub)
+row.names(sp_faxes_coord_frugivore_sub) <- sp_faxes_coord_frugivore_sub_names
+
+sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore_sub[ which((row.names(sp_faxes_coord_frugivore_sub) %in% subset_matrix_frugivore_names)==TRUE), ]
+
+nrow(sp_faxes_coord_frugivore_sub)
+sp_faxes_coord_frugivore_sub <- as.matrix(sp_faxes_coord_frugivore_sub)
+```
+
 
 ```{r}
 #computing FD
 # The number of species per assemblage has to be higher or equal to the number of traits
 alpha_fd_indices_plant <- mFD::alpha.fd.multidim(
-  sp_faxes_coord   = sp_faxes_coord_plants[ , c("PC1", "PC2", "PC3", "PC4")],
+  sp_faxes_coord   = sp_faxes_coord_plants_sub,
   asb_sp_w         = subset_matrix_plant,
   ind_vect         = c("fide", "fdis", "fmpd", "fnnd", "feve", "fori", "fspe"), #did not run fdiv or fric (slows it down)
   scaling          = TRUE,
@@ -435,7 +466,7 @@ alpha_fd_indices_plant <- mFD::alpha.fd.multidim(
   details_returned = TRUE)
 
 alpha_fd_indices_frugivore <- mFD::alpha.fd.multidim(
-  sp_faxes_coord   = sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")],
+  sp_faxes_coord   = sp_faxes_coord_frugivore_sub,
   asb_sp_w         = subset_matrix_frugivore,
   ind_vect         = c("fide", "fdis", "fmpd", "fnnd", "feve", "fori", "fspe"), #did not run fdiv or fric (slows it down)
   scaling          = TRUE,
@@ -448,7 +479,7 @@ details_list_frugivore <- alpha_fd_indices_frugivore$"details"
 #plot
 plots_alpha_plant <- mFD::alpha.multidim.plot(
   output_alpha_fd_multidim = alpha_fd_indices_plant,
-  plot_asb_nm              = c("cell40", "cell200"),
+  plot_asb_nm              = c("cell4", "cell20"),
   ind_nm                   = c("fdis", "fide", "fnnd"
                         , "fori", "fspe"),
   faxes                    = NULL,
@@ -474,10 +505,11 @@ plots_alpha_plant <- mFD::alpha.multidim.plot(
   plot_sp_nm               = NULL,
   fontface_sp_nm           = "plain",
   save_file                = FALSE,
-  check_input              = TRUE) 
+  check_input              = TRUE)
+
 plots_alpha_frugivore <- mFD::alpha.multidim.plot(
   output_alpha_fd_multidim = alpha_fd_indices_frugivore,
-  plot_asb_nm              = c("cell40", "cell200"),
+  plot_asb_nm              = c("cell4", "cell20"),
   ind_nm                   = c("fdis", "fide", "fnnd"
                         , "fori", "fspe"),
   faxes                    = NULL,
@@ -517,8 +549,8 @@ plots_alpha_plant$"fori"$"patchwork"
 plots_alpha_frugivore$"fori"$"patchwork"
 ```
 
+# Turning the FD values into a raster
 ```{r}
-## Turning the FD values into a raster
 
 #Need to subset the coordinates made at the top to the same set of the assemblages (removed values less than 5 so these coords need to be removed to do this correctly)
 
@@ -542,15 +574,98 @@ fdis_plant <- alpha_fd_indices_plant$functional_diversity_indices$fdis
 fdis_frugivore <- alpha_fd_indices_frugivore$functional_diversity_indices$fdis
 
 plant_fd_sp <- data.frame(subset_coords_plant_sp, fdis_plant)
-plant_fd_sp <- data.frame(subset_coords_plant_sp, fdis_plant)
+frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
 
 # Convert the dataframe to sf format
-spatial_fdis_bird <- st_as_sf(bird_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
-
-# Rasterize the sf data to create the FD raster
-fd_raster_bird <- rasterize(spatial_fdis_bird, empty_raster)
-writeRaster(fd_raster_bird$fdis_bird, "FD_birds_TA.tif", format="GTiff",overwrite=T)
-writeRaster(fd_raster_bird$ID, "FD_birds_TA_ID.tif", format="GTiff")
+spatial_fdis_plant <- st_as_sf(plant_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
+spatial_fdis_frugivore <- st_as_sf(frugivore_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
 
 ```
 
+```{r}
+# Rasterize the sf data to create the FD raster
+fd_raster_plant <- rasterize(spatial_fdis_plant, empty_raster)
+writeRaster(fd_raster_plant$fdis_plant, filename = file.path(output_path,"FD_plant_TA.tif"), format="GTiff",overwrite=T)
+writeRaster(fd_raster_plant$ID, filename = file.path(output_path,"FD_plant_TA_ID.tif"), format="GTiff")
+
+fd_raster_frugivore <- rasterize(spatial_fdis_frugivore, empty_raster)
+writeRaster(fd_raster_frugivore$fdis_frugivore, filename = file.path(output_path,"FD_frugivore_TA.tif"), format="GTiff",overwrite=T)
+writeRaster(fd_raster_frugivore$ID, filename = file.path(output_path,"FD_frugivore_TA_ID.tif"), format="GTiff")
+```
+
+
+# Functional diversity plots
+```{r}
+# set crs of sf objects
+spatial_fdis_plant <- spatial_fdis_plant %>% st_set_crs(4326)
+spatial_fdis_frugivore <- spatial_fdis_frugivore %>% st_set_crs(4326)
+```
+
+```{r}
+# Raster to raster point
+spec_FD_raster_plant_point <- rasterToPoints(fd_raster_plant, spatial = TRUE)
+spec_FD_raster_frugivore_point <- rasterToPoints(fd_raster_frugivore, spatial = TRUE)
+# Convert to a 'conventional' dataframe
+fd_raster_plant_point <- data.frame(spec_FD_raster_plant_point)
+fd_raster_frugivore_point <- data.frame(spec_FD_raster_frugivore_point)
+```
+
+
+```{r}
+plantgridFDTA <-
+  ggplot() +
+  geom_sf(data = worldMap, fill = "white")+
+  geom_sf(data = TApoly, fill = "grey", size = 0.1) +
+  geom_tile(data= fd_raster_plant_point, aes(x=x, y=y, fill=fdis_plant)) +
+  scale_fill_scico(palette = "romaO", direction = 1) +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE) +
+  theme(
+    plot.background = element_rect(fill = "#f1f2f3"),
+    panel.background = element_rect(fill = "lightblue"),
+    panel.grid = element_blank(),
+    line = element_blank(),
+    rect = element_blank()
+  ) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+  pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  labs(title = "Tropical Andes Plant Functional Dispersion", x = "Longitude", y = "Latitude", fill = "FD")
+plantgridFDTA
+```
+
+```{r}
+frugivoregridFDTA <-
+  ggplot() +
+  geom_sf(data = worldMap, fill = "white")+
+  geom_sf(data = TApoly, fill = "grey", size = 0.1) +
+  geom_tile(data= fd_raster_frugivore_point, aes(x=x, y=y, fill=fdis_frugivore)) +
+  scale_fill_scico(palette = "romaO", direction = 1) +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE) +
+  theme(
+    plot.background = element_rect(fill = "#f1f2f3"),
+    panel.background = element_rect(fill = "lightblue"),
+    panel.grid = element_blank(),
+    line = element_blank(),
+    rect = element_blank()
+  ) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+  pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  labs(title = "Tropical Andes Frugivore Functional Dispersion", x = "Longitude", y = "Latitude", fill = "FD")
+frugivoregridFDTA
+```
+
+# Extract cell values
+```{r}
+plantgridFDTA <- plantgridFDTA[["data"]]
+frugivoregridFDTA <- frugivoregridFDTA[["data"]]
+```
+
+
+```{r}
+plot(spatial_fdis_plant$fdis_plant, spatial_fdis_frugivore$fdis_frugivore,
+     main = "Plant FD vs Frugivore FD",
+     xlab = "Plant Functional Dispersion by cell", ylab = "Frugivore Functional Dispersion by cell")
+abline(lm(spatial_fdis_frugivore$fdis_frugivore ~ spatial_fdis_plant$fdis_plant))
+summary(lm(spatial_fdis_frugivore$fdis_frugivore ~ spatial_fdis_plant$fdis_plant))
+```
