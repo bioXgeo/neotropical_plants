@@ -18,23 +18,38 @@ output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 
 # Load required packages
 ```{r}
-
+library(taxize)
+library(knitr)
+library(TNRS)
 ```
 
 # Read in species lists
 ```{r}
 TRY_species <- read.csv(file.path(data_path,"TropicalAndes_TRY_plant_species.csv"))
 BIEN_species <- read.csv(file.path(data_path,"TropicalAndes_BIEN_plant_trait_species.csv"))
+GBIF_species <- read.csv(file.path(data_path,"TropicalAndes_GBIF_plant_species.csv"))
 ```
 
 ```{r}
-#convert species list into vectors
-BIEN_species <- BIEN_species[,2]
-TRY_species <- TRY_species[,2]
-#what is in both
-species <- intersect(TRY_species, BIEN_species)
-# what doesn't match
-all.equal(TRY_species, BIEN_species)
+# convert species list to character
+TRY_species_chr <- as.character(TRY_species$x)
+BIEN_species_chr <- as.character(BIEN_species$x)
+GBIF_species_chr <- as.character(GBIF_species$x)
+```
 
+
+# Using TNRS
+```{r}
+BIEN_results <- TNRS(taxonomic_names = BIEN_species)
+TRY_results <- TNRS(taxonomic_names = TRY_species)
+GBIF_results <- TNRS(taxonomic_names = GBIF_species)
+```
+
+
+# Using taxsize
+```{r}
+GBIF_species_resolved <- resolve(GBIF_species)
+TRY_species_resolved <- resolve(TRY_species)
+BIEN_species_resolved <- resolve(BIEN_species)
 ```
 
