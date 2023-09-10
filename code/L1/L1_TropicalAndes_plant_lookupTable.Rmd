@@ -41,8 +41,40 @@ GBIF_species_chr <- as.character(GBIF_species$x)
 # Using TNRS
 ```{r}
 BIEN_results <- TNRS(taxonomic_names = BIEN_species)
+```
+
+```{r}
 TRY_results <- TNRS(taxonomic_names = TRY_species)
-GBIF_results <- TNRS(taxonomic_names = GBIF_species)
+```
+
+```{r}
+#split up gbif species list to speed up api call
+GBIF_species1 <-GBIF_species[1:33107,]
+GBIF_species2 <-GBIF_species[33107:66214,]
+GBIF_species3 <-GBIF_species[66214:99321,]
+GBIF_species4 <-GBIF_species[99321:132428,]
+
+GBIF_results1 <- TNRS(taxonomic_names = GBIF_species1)
+GBIF_results2 <- TNRS(taxonomic_names = GBIF_species2)
+GBIF_results3 <- TNRS(taxonomic_names = GBIF_species3)
+GBIF_results4 <- TNRS(taxonomic_names = GBIF_species4)
+```
+
+```{r}
+#combine gbif results
+GBIF_results <- rbind(GBIF_results1, GBIF_results2, GBIF_results3, GBIF_results4)
+```
+
+```{r}
+#save full results
+write.csv(BIEN_results, file.path(output_path,"BIEN_plant_species_resolved_output_full.csv"))
+write.csv(TRY_results, file.path(output_path,"TRY_plant_species_resolved_output_full.csv"))
+write.csv(GBIF_results, file.path(output_path,"GBIF_plant_species_resolved_output_full.csv"))
+```
+
+```{r}
+# subset results to rows with Name_submitted values not the same as Accepted_name
+
 ```
 
 
