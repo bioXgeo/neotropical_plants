@@ -49,20 +49,31 @@ TRY_results <- TNRS(taxonomic_names = TRY_species)
 
 ```{r}
 #split up gbif species list to speed up api call
-GBIF_species1 <-GBIF_species[1:33107,]
-GBIF_species2 <-GBIF_species[33107:66214,]
-GBIF_species3 <-GBIF_species[66214:99321,]
-GBIF_species4 <-GBIF_species[99321:132428,]
+GBIF_species1 <-GBIF_species[1:16553,]
+GBIF_species2 <-GBIF_species[16553:33107,]
+GBIF_species3 <-GBIF_species[33107:49660,]
+GBIF_species4 <-GBIF_species[49660:66214,]
+GBIF_species5 <-GBIF_species[66214:82767,]
+GBIF_species6 <-GBIF_species[82767:99321,]
+GBIF_species7 <-GBIF_species[99321:115874,]
+GBIF_species8 <-GBIF_species[115874:132428,]
+```
 
+```{r}
+#run one line at a time for best results
 GBIF_results1 <- TNRS(taxonomic_names = GBIF_species1)
 GBIF_results2 <- TNRS(taxonomic_names = GBIF_species2)
 GBIF_results3 <- TNRS(taxonomic_names = GBIF_species3)
 GBIF_results4 <- TNRS(taxonomic_names = GBIF_species4)
+GBIF_results5 <- TNRS(taxonomic_names = GBIF_species5)
+GBIF_results6 <- TNRS(taxonomic_names = GBIF_species6)
+GBIF_results7 <- TNRS(taxonomic_names = GBIF_species7)
+GBIF_results8 <- TNRS(taxonomic_names = GBIF_species8)
 ```
 
 ```{r}
 #combine gbif results
-GBIF_results <- rbind(GBIF_results1, GBIF_results2, GBIF_results3, GBIF_results4)
+GBIF_results <- rbind(GBIF_results1, GBIF_results2, GBIF_results3, GBIF_results4, GBIF_results5, GBIF_results6, GBIF_results7, GBIF_results8)
 ```
 
 ```{r}
