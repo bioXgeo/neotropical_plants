@@ -1,0 +1,62 @@
+
+```{r}
+#input trait datasets
+#compare coverage of species, families, genera by trait coverage (plot)
+#do the same for GBIF occurrence 
+library(WorldFlora)
+library(taxize)
+library(BIEN)
+library(GIFT)
+library(dplyr)
+```
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Read in Data
+```{r}
+BIEN_traits <- read.csv(file.path(data_path,"TropicalAndes_BIEN_plant_traits_forest.csv"))
+TRY_traits <- read.csv(file.path(data_path,"TropicalAndes_TRY_plant_traits_forestSpecies.csv"))
+GIFT_traits <- read.csv(file.path(data_path,"TropicalAndes_GIFT_plant_traits_forest.csv"))
+GBIF_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_plant_occ_cleaned.csv"))
+```
+
+```{r}
+#species list
+BIEN_species <- unique(BIEN_traits$scrubbed_species_binomial)
+TRY_species <- unique(TRY_traits$SpeciesName)
+GIFT_species <- unique(GIFT_traits$species)
+GBIF_species <- unique(GBIF_occ$species)
+```
+
+# Get higher taxonomy for species lists
+```{r}
+BIEN_tax<- BIEN_taxonomy_species(BIEN_species)
+```
+
+```{r}
+TRY_tax <- tax_name(TRY_species, get = c('family', 'genus'), db= "itis")
+```
+
+
+```{r}
+gift_sp <- GIFT_species()
+sapply(GIFT_species, function(x) grep(x, gift_sp$work_species))
+gift_sp[sapply(GIFT_species, function(x) grep(x, gift_sp$work_species)), ]
+
+#GIFT_tax <- GIFT_taxgroup(taxon_lvl = c("family", "genus")[1], species = GIFT_species)
+```
+
+# Plot coverage
+```{r}
+BIEN_family_coverage <- BIEN_tax %>% count(scrubbed_family)
+BIEN_family_coverage 
+BIEN_genus_coverage <- BIEN_tax %>% count(scrubbed_genus) 
+BIEN_genus_coverage
+barplot(height = BIEN_family_coverage$n, names = BIEN_family_coverage$scrubbed_family, horiz=T, las=1)
+barplot(height = BIEN_genus_coverage$n, names = BIEN_genus_coverage$scrubbed_genus, horiz=T, las=1)
+```
+
