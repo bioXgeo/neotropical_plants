@@ -24,63 +24,7 @@ library(raster)
 library(sf)
 ```
 
-# Plant occurrences using IUCN habitat subset
-## Read in IUCN data
-Data was obtained from https://www.iucnredlist.org/search?permalink=9621ab77-2341-4bf8-9557-b7f19f7f2a35
-```{r}
-plants_habitats <- read.csv(file.path(data_path,"IUCN/Tropical Andes Plants - Search Results/habitats.csv"))
-```
-
-## Create species list from IUCN data
-```{r}
-plant_species <- unique(plants_habitats$scientificName)
-print("The number of species on the IUCN is")
-length(plant_species)
-```
-
-## Match species names to GBIF
-```{r}
-gbif_taxon_keys <- plant_species %>% 
-name_backbone_checklist() %>% # match to backbone 
-filter(!matchType == "NONE") %>% # get matched names
-pull(usageKey) 
-```
-
-## Download data
-```{r}
-occ_download(
-pred_in("taxonKey", gbif_taxon_keys),
-pred("hasCoordinate", TRUE),
-pred("hasGeospatialIssue", FALSE),
-pred_in("country",c("EC","CO","VE", "PE", "BO")),
-format = "SIMPLE_CSV"
-)
-```
-
-## Retrive GBIF download, save file, and load into r
-```{r}
-d <- occ_download_get("0097296-230530130749713", path = output_path) %>%
-  occ_download_import()
-```
-
-## Summary 
-```{r}
-glimpse(d)
-```
-
-```{r}
-print("The number of occurrences is")
-nrow(d)
-print("The number of species is" )
-length(unique(d$species))
-print("The number of families is" )
-length(unique(d$family))
-```
-
-
-# Plant occurrences without habitat subset
-
-## Download data
+# Download plant occurrence data from GBIF
 ```{r}
 occ_download(
 pred("hasCoordinate", TRUE),
@@ -92,27 +36,27 @@ format = "SIMPLE_CSV"
 
 ## Retrive GBIF download, save file, and load into r
 ```{r}
-d2 <- occ_download_get("0097297-230530130749713", path = output_path, overwrite = TRUE) %>%
+d1 <- occ_download_get("0097297-230530130749713", path = output_path, overwrite = TRUE) %>%
   occ_download_import()
 ```
 
-## Summary 
+# Summary 
 ```{r}
-glimpse(d2)
+glimpse(d1)
 ```
 
 ```{r}
 print("The number of occurrences is")
-nrow(d2)
+nrow(d1)
 print("The number of species is" )
-length(unique(d2$species))
+length(unique(d1$species))
 print("The number of families is" )
-length(unique(d2$family))
+length(unique(d1$family))
 ```
 
 # Extract species list
 ```{r}
-GBIF_SpeciesList <- unique(d2$species)
+GBIF_SpeciesList <- unique(d1$species)
 ```
 
 
