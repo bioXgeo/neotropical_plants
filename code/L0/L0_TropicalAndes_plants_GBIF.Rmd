@@ -27,6 +27,7 @@ library(sf)
 # Download plant occurrence data from GBIF
 ```{r}
 occ_download(
+pred("taxonKey", 6),
 pred("hasCoordinate", TRUE),
 pred("hasGeospatialIssue", FALSE),
 pred_in("country",c("EC","CO","VE", "PE", "BO")),
@@ -36,7 +37,7 @@ format = "SIMPLE_CSV"
 
 ## Retrive GBIF download, save file, and load into r
 ```{r}
-d1 <- occ_download_get("0097297-230530130749713", path = output_path, overwrite = TRUE) %>%
+d1 <- occ_download_get("0001452-230918134249559", path = output_path, overwrite = TRUE) %>%
   occ_download_import()
 ```
 
@@ -50,6 +51,8 @@ print("The number of occurrences is")
 nrow(d1)
 print("The number of species is" )
 length(unique(d1$species))
+print("The number of genera is" )
+length(unique(d1$genus))
 print("The number of families is" )
 length(unique(d1$family))
 ```
@@ -63,7 +66,7 @@ GBIF_SpeciesList <- unique(d1$species)
 # Write data to csv
 ```{r}
 TropicalAndes_GBIF_path <- file.path(output_path,"TropicalAndes_GBIF_plant_occ.csv") 
-write.csv(d2, file = TropicalAndes_GBIF_path)
+write.csv(d1, file = TropicalAndes_GBIF_path)
 TropicalAndes_GBIF_species_path <- file.path(output_path,"TropicalAndes_GBIF_plant_species.csv") 
 write.csv(GBIF_SpeciesList, file = TropicalAndes_GBIF_species_path)
 ```
