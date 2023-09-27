@@ -97,6 +97,10 @@ print("The number of species is")
 length(unique(GIFT_traits$species))
 ```
 
+```{r}
+GIFT_traits %>% count(trait_name)
+```
+
 # Write data to csv
 ```{r}
 write.csv(GIFT_traits, file = file.path(output_path,"TropicalAndes_GIFT_plant_traits_forest.csv"))
