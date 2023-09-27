@@ -13,6 +13,7 @@ output: html_document
 # Set file paths
 ```{r}
 data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path2 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 ```
 
@@ -27,16 +28,8 @@ library(TNRS)
 ```{r}
 TRY_species <- read.csv(file.path(data_path,"TropicalAndes_TRY_plant_species.csv"))
 BIEN_species <- read.csv(file.path(data_path,"TropicalAndes_BIEN_plant_trait_species.csv"))
-GBIF_species <- read.csv(file.path(data_path,"TropicalAndes_GBIF_plant_species.csv"))
+GBIF_species <- read.csv(file.path(data_path2,"TropicalAndes_plant_Forest_SpeciesList.csv"))
 ```
-
-```{r}
-# convert species list to character
-TRY_species_chr <- as.character(TRY_species$x)
-BIEN_species_chr <- as.character(BIEN_species$x)
-GBIF_species_chr <- as.character(GBIF_species$x)
-```
-
 
 # Using TNRS
 ```{r}
@@ -49,18 +42,21 @@ TRY_results <- TNRS(taxonomic_names = TRY_species)
 
 ```{r}
 #split up gbif species list to speed up api call
-GBIF_species1 <-GBIF_species[1:16553,]
-GBIF_species2 <-GBIF_species[16553:33107,]
-GBIF_species3 <-GBIF_species[33107:49660,]
-GBIF_species4 <-GBIF_species[49660:66214,]
-GBIF_species5 <-GBIF_species[66214:82767,]
-GBIF_species6 <-GBIF_species[82767:99321,]
-GBIF_species7 <-GBIF_species[99321:115874,]
-GBIF_species8 <-GBIF_species[115874:132428,]
+GBIF_species1 <-GBIF_species[1:2245,]
+GBIF_species2 <-GBIF_species[2245:6745,]
+GBIF_species3 <-GBIF_species[6745:11245,]
+GBIF_species4 <-GBIF_species[11245:15745,]
+GBIF_species5 <-GBIF_species[15745:20245,]
+GBIF_species6 <-GBIF_species[16553:20245,]
+GBIF_species7 <-GBIF_species[20245:24745,]
+GBIF_species8 <-GBIF_species[24745:29245,]
+GBIF_species9 <-GBIF_species[29245:33745,]
+GBIF_species10 <-GBIF_species[33745:38245,]
+GBIF_species11 <-GBIF_species[38245:42745,]
+GBIF_species12 <-GBIF_species[42745:47245,]
 ```
 
 ```{r}
-#run one line at a time for best results
 GBIF_results1 <- TNRS(taxonomic_names = GBIF_species1)
 GBIF_results2 <- TNRS(taxonomic_names = GBIF_species2)
 GBIF_results3 <- TNRS(taxonomic_names = GBIF_species3)
@@ -69,30 +65,55 @@ GBIF_results5 <- TNRS(taxonomic_names = GBIF_species5)
 GBIF_results6 <- TNRS(taxonomic_names = GBIF_species6)
 GBIF_results7 <- TNRS(taxonomic_names = GBIF_species7)
 GBIF_results8 <- TNRS(taxonomic_names = GBIF_species8)
+GBIF_results9 <- TNRS(taxonomic_names = GBIF_species9)
+GBIF_results10 <- TNRS(taxonomic_names = GBIF_species10)
+GBIF_results11 <- TNRS(taxonomic_names = GBIF_species11)
+GBIF_results12 <- TNRS(taxonomic_names = GBIF_species12)
 ```
 
 ```{r}
 #combine gbif results
-GBIF_results <- rbind(GBIF_results1, GBIF_results2, GBIF_results3, GBIF_results4, GBIF_results5, GBIF_results6, GBIF_results7, GBIF_results8)
+GBIF_results <- rbind(GBIF_results1, GBIF_results2, GBIF_results3, GBIF_results4, GBIF_results5, GBIF_results6, GBIF_results7, GBIF_results8, GBIF_results9, GBIF_results10, GBIF_results11, GBIF_results12)
 ```
 
+# Save full results
 ```{r}
-#save full results
 write.csv(BIEN_results, file.path(output_path,"BIEN_plant_species_resolved_output_full.csv"))
 write.csv(TRY_results, file.path(output_path,"TRY_plant_species_resolved_output_full.csv"))
 write.csv(GBIF_results, file.path(output_path,"GBIF_plant_species_resolved_output_full.csv"))
 ```
 
+# Subset results to species with matches, conflicts, and disparties
+Name_submitted values not the same as Accepted_name
 ```{r}
-# subset results to rows with Name_submitted values not the same as Accepted_name
-
+BIEN_matches <- subset(BIEN_results, Taxonomic_status == "Accepted")
+#Results in 3799 species
+BIEN_conflicts <- subset(BIEN_results, Taxonomic_status == "Synonym")
+#Results in 646 species
+BIEN_disparities <- subset(BIEN_results, Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", ""))
+#Results in 44 species
 ```
 
-
-# Using taxsize
 ```{r}
-GBIF_species_resolved <- resolve(GBIF_species)
-TRY_species_resolved <- resolve(TRY_species)
-BIEN_species_resolved <- resolve(BIEN_species)
+TRY_matches <- subset(TRY_results, Taxonomic_status == "Accepted")
+#Results in 4043 species
+TRY_conflicts <- subset(TRY_results, Taxonomic_status == "Synonym")
+#Results in 307 species
+TRY_disparities <- subset(TRY_results, Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", ""))
+#Results in 37 species
+```
+
+```{r}
+GBIF_matches <- subset(GBIF_results, Taxonomic_status == "Accepted")
+#Results in 47554 species
+GBIF_conflicts <- subset(GBIF_results, Taxonomic_status == "Synonym")
+#Results in 1572 species
+GBIF_disparities <- subset(GBIF_results, Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", ""))
+#Results in 1821 species
+```
+
+# Checking 
+```{r}
+
 ```
 
