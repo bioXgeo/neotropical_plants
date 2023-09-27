@@ -99,6 +99,8 @@ print("The number of plant records is")
 nrow(plant_occ_forest)
 print("The number of plant species is")
 length(unique(plant_occ_forest$species))
+print("The number of plant genera is")
+length(unique(plant_occ_forest$genus))
 print("The number of plant families is")
 length(unique(plant_occ_forest$family))
 ```
@@ -108,6 +110,8 @@ print("The number of frugivore records is")
 nrow(frugivore_occ_forest)
 print("The number of frugivore species is")
 length(unique(frugivore_occ_forest$species))
+print("The number of frugivore genera is")
+length(unique(frugivore_occ_forest$genus))
 print("The number of frugivore families is")
 length(unique(frugivore_occ_forest$family))
 ```
@@ -125,5 +129,5 @@ write.csv(plant_occ_forest, file = file.path(output_path,"TropicalAndes_plant_oc
 write.csv(frugivore_occ_forest, file = file.path(output_path,"TropicalAndes_frugivore_occ_forest.csv"))
 write.csv(TropicalAndes_plant_Forest_SpeciesList, file = file.path(output_path,"TropicalAndes_plant_Forest_SpeciesList.csv"))
 write.csv(TropicalAndes_frugivore_Forest_SpeciesList, file = file.path(output_path,"TropicalAndes_frugivore_Forest_SpeciesList.csv"))
+writeRaster(TropicalAndes_IUCNHabitat_Forest0.3,file.path(output_path, "TropicalAndes_IUCNHabitat_Forest0.3.tif"), overwrite = TRUE)
 ```
-
