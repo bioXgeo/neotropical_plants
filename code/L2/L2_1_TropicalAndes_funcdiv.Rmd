@@ -34,8 +34,8 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 
 # Read in Data
 ```{r}
-TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path,"TropicalAndes_plant_occ_forest_sub.csv"))
-TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path,"TropicalAndes_frugivore_occ_forest_sub.csv"))
+TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path,"TropicalAndes_plant_occ_forest.csv"))
+TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path,"TropicalAndes_frugivore_occ_forest.csv"))
 TropicalAndes_IUCNHabitat_Forest <- raster(file.path(data_path2, "TropicalAndes_IUCNHabitat_Forest.tif"))
 frugivore_traits <- read.csv(file.path(data_path,"TropicalAndes_Frugivoria_traits_Forest.csv"))
 plant_traits <- read.csv(file.path(data_path,"TropicalAndes_plant_traits_forest.csv"))
