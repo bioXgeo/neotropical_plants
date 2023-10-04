@@ -1,0 +1,27 @@
+---
+title: "Diversity relationships for plants and frugivores"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script compares taxonomic and functional diversity relationships for plants and frugivores for various spatial grains and combined diversity for each grain."
+data input: "ADD"
+data output: "ADD"
+date: "2023-10-04"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
+```
+
+# Load required packages
+```{r}
+
+```
+
+# Read in Data
+```{r}
+
+```
