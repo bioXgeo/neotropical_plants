@@ -35,11 +35,6 @@ TropicalAndes_frugivore_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_
 TropicalAndes_IUCNHabitat_Forest
 ```
 
-```{r}
-TropicalAndes_IUCNHabitat_Forest0.3 <- aggregate(TropicalAndes_IUCNHabitat_Forest, 30, fun=mean, na.rm=TRUE)
-TropicalAndes_IUCNHabitat_Forest0.3
-```
-
 
 # Rasterize occurrence data
 ```{r}
@@ -129,5 +124,4 @@ write.csv(plant_occ_forest, file = file.path(output_path,"TropicalAndes_plant_oc
 write.csv(frugivore_occ_forest, file = file.path(output_path,"TropicalAndes_frugivore_occ_forest.csv"))
 write.csv(TropicalAndes_plant_Forest_SpeciesList, file = file.path(output_path,"TropicalAndes_plant_Forest_SpeciesList.csv"))
 write.csv(TropicalAndes_frugivore_Forest_SpeciesList, file = file.path(output_path,"TropicalAndes_frugivore_Forest_SpeciesList.csv"))
-writeRaster(TropicalAndes_IUCNHabitat_Forest0.3,file.path(output_path, "TropicalAndes_IUCNHabitat_Forest0.3.tif"), overwrite = TRUE)
 ```

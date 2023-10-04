@@ -41,25 +41,6 @@ frugivore_traits <- read.csv(file.path(data_path,"TropicalAndes_Frugivoria_trait
 plant_traits <- read.csv(file.path(data_path,"TropicalAndes_plant_traits_forest.csv"))
 ```
 
-# Forest shape conversion
-```{r}
-TropicalAndes_IUCNHabitat_Forest <- aggregate(TropicalAndes_IUCNHabitat_Forest, 50, fun=mean, na.rm=TRUE)
-TropicalAndes_IUCNHabitat_Forest
-```
-
-```{r}
-Forest_poly <- rasterToPolygons(TropicalAndes_IUCNHabitat_Forest, na.rm = TRUE, dissolve = TRUE)
-Forest_poly
-plot(Forest_poly)
-```
-
-```{r}
-Forest_sf <- st_as_sf(Forest_poly)
-Forest_sf
-plot(Forest_sf)
-st_write(Forest_sf, file.path(data_path, "Forest_sf.shp"))
-```
-
 # Create Presence-Absense matrix
 ```{r}
 x <- TropicalAndes_plant_occ_forest$decimalLongitude
