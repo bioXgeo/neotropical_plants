@@ -1,0 +1,27 @@
+---
+title: "Combining taxonomic and functional diversity for plants and frugivores at various spatial grains"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script combines taxonomic and functional diversity per cell for various spatial grains for plants and frugivores."
+data input: "ADD"
+data output: "ADD"
+date: "2023-10-04"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
+```
+
+# Load required packages
+```{r}
+
+```
+
+# Read in Data
+```{r}
+
+```
