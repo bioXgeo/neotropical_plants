@@ -40,15 +40,6 @@ plot(iucn_moist_montane_forest)
 plot(iucn_moist_lowland_forest)
 ```
 
-# Crop extent - trim to Andean States
-```{r}
-# Pull in world map
-worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
-
-# Subset world map to Tropical Andes
-study_region <-  worldMap %>% filter(sovereignt == "Bolivia" | sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
-plot(study_region$geometry)
-```
 ## Crop to Tropical Andes hotspot
 ```{r}
 # Load in shape
@@ -97,7 +88,7 @@ writeRaster(TA_iucn_moist_montane_forest, filename = file.path(output_path, "Tro
 writeRaster(TA_iucn_moist_lowland_forest, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest_Lowland.GTiff"), format = "GTiff", overwrite=TRUE)
 ```
 
-# Aggregate to 0.3
+# Aggregate to 0.1
 ```{r}
 TropicalAndes_IUCNHabitat_Forest0.1 <- aggregate(TA_iucn_habitat_forest, 10, fun=mean, na.rm=TRUE)
 TropicalAndes_IUCNHabitat_Forest0.1
@@ -121,4 +112,47 @@ Forest_sf <- st_as_sf(Forest_poly)
 Forest_sf
 plot(Forest_sf)
 st_write(Forest_sf, file.path(data_path, "Forest_sf.shp"), append = TRUE)
+```
+
+# Map of Tropical Andes Forested region
+```{r}
+worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
+# country subset. 
+ECpoly <- worldMap %>% filter(sovereignt == "Ecuador")
+VEpoly <- worldMap %>% filter(sovereignt == "Venezuela")
+COpoly <- worldMap %>% filter(sovereignt == "Colombia")
+PEpoly <- worldMap %>% filter(sovereignt == "Peru")
+BOpoly <- worldMap %>% filter(sovereignt == "Bolivia")
+#polygon of Tropical Andes
+TApoly <- worldMap %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
+# set colors
+Andean_states <- "lightgrey"
+Tropical_Andes <- "grey"
+Forest <- "forestgreen"
+```
+
+
+```{r}
+MapPlot <-
+ggplot() +
+geom_sf(data = worldMap, fill = "white") +
+geom_sf(data = ECpoly, fill = Andean_states) +
+geom_sf(data = VEpoly, fill = Andean_states) +
+geom_sf(data = COpoly, fill = Andean_states) +
+geom_sf(data = PEpoly, fill = Andean_states) +
+geom_sf(data = BOpoly, fill = Andean_states) +
+geom_sf(data = TropicalAndes, fill = Tropical_Andes) +
+geom_sf(data = Forest_sf, fill = Forest) +
+labs(title = "Tropical Andes IUCN Montane and Lowland forest", x = "Latitude", y = "Longitude") +
+coord_sf(xlim = c(-94, -54), ylim = c(-24, 14), expand = FALSE) +
+annotation_scale(location = "bl", width_hint = 0.5) +
+annotation_north_arrow(location = "bl", which_north = "true", 
+  pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"), style = north_arrow_fancy_orienteering) +
+theme(panel.background = element_rect(fill = "lightblue"))
+
+MapPlot
+```
+
+```{r}
+ggsave(filename = "Tropical Andes Forest Map.png", dpi = 300, device="png")
 ```
