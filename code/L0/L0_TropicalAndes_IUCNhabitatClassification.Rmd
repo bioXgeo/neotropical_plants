@@ -49,19 +49,26 @@ worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf
 study_region <-  worldMap %>% filter(sovereignt == "Bolivia" | sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
 plot(study_region$geometry)
 ```
+## Crop to Tropical Andes hotspot
+```{r}
+# Load in shape
+TropicalAndes <- read_sf(file.path(data_path, "TA_refined.shp"), layer = "TA_refined")
+TropicalAndes
+plot(TropicalAndes$geometry)
+```
 
 ## Crop moist montane
 ```{r}
-iucn_moist_montane_forest_crop <- crop(iucn_moist_montane_forest, study_region)
-TA_iucn_moist_montane_forest <- mask(iucn_moist_montane_forest_crop, study_region)
+iucn_moist_montane_forest_crop <- crop(iucn_moist_montane_forest, TropicalAndes)
+TA_iucn_moist_montane_forest <- mask(iucn_moist_montane_forest_crop, TropicalAndes)
 plot(TA_iucn_moist_montane_forest)
 TA_iucn_moist_montane_forest
 ```
 
 ## Crop moist lowland
 ```{r}
-iucn_moist_lowland_forest_crop <- crop(iucn_moist_lowland_forest, study_region)
-TA_iucn_moist_lowland_forest <- mask(iucn_moist_lowland_forest_crop, study_region)
+iucn_moist_lowland_forest_crop <- crop(iucn_moist_lowland_forest, TropicalAndes)
+TA_iucn_moist_lowland_forest <- mask(iucn_moist_lowland_forest_crop, TropicalAndes)
 plot(TA_iucn_moist_lowland_forest)
 TA_iucn_moist_lowland_forest
 ```
@@ -89,25 +96,22 @@ writeRaster(TA_iucn_habitat_forest, filename = file.path(output_path, "TropicalA
 writeRaster(TA_iucn_moist_montane_forest, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest_Montane.GTiff"), format = "GTiff", overwrite=TRUE)
 writeRaster(TA_iucn_moist_lowland_forest, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest_Lowland.GTiff"), format = "GTiff", overwrite=TRUE)
 ```
+
 # Aggregate to 0.3
 ```{r}
-TropicalAndes_IUCNHabitat_Forest0.3 <- aggregate(TropicalAndes_IUCNHabitat_Forest, 30, fun=mean, na.rm=TRUE)
-TropicalAndes_IUCNHabitat_Forest0.3
+TropicalAndes_IUCNHabitat_Forest0.1 <- aggregate(TA_iucn_habitat_forest, 10, fun=mean, na.rm=TRUE)
+TropicalAndes_IUCNHabitat_Forest0.1
 ```
 
 ```{r}
-writeRaster(TropicalAndes_IUCNHabitat_Forest0.3,file.path(output_path, "TropicalAndes_IUCNHabitat_Forest0.3.tif"), overwrite = TRUE)
+writeRaster(TropicalAndes_IUCNHabitat_Forest0.1,file.path(output_path, "TropicalAndes_IUCNHabitat_Forest0.1.tif"), overwrite = TRUE)
 ```
 
 
 # Forest shape conversion
-```{r}
-TropicalAndes_IUCNHabitat_Forest <- aggregate(TropicalAndes_IUCNHabitat_Forest, 50, fun=mean, na.rm=TRUE)
-TropicalAndes_IUCNHabitat_Forest
-```
 
 ```{r}
-Forest_poly <- rasterToPolygons(TropicalAndes_IUCNHabitat_Forest, na.rm = TRUE, dissolve = TRUE)
+Forest_poly <- rasterToPolygons(TropicalAndes_IUCNHabitat_Forest0.1, na.rm = TRUE, dissolve = TRUE)
 Forest_poly
 plot(Forest_poly)
 ```
@@ -116,5 +120,5 @@ plot(Forest_poly)
 Forest_sf <- st_as_sf(Forest_poly)
 Forest_sf
 plot(Forest_sf)
-st_write(Forest_sf, file.path(data_path, "Forest_sf.shp"))
+st_write(Forest_sf, file.path(data_path, "Forest_sf.shp"), append = TRUE)
 ```
