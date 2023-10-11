@@ -154,5 +154,5 @@ MapPlot
 ```
 
 ```{r}
-ggsave(filename = "Tropical Andes Forest Map.png", dpi = 300, device="png")
+ggsave(filename = "Tropical Andes Forest Map.png", dpi = 300, device="png", path = output_path)
 ```
