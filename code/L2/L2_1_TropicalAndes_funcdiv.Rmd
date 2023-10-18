@@ -36,7 +36,7 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 ```{r}
 TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path,"TropicalAndes_plant_occ_forest.csv"))
 TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path,"TropicalAndes_frugivore_occ_forest.csv"))
-TropicalAndes_IUCNHabitat_Forest <- raster(file.path(data_path2, "TropicalAndes_IUCNHabitat_Forest.tif"))
+TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path2, "Forest_sf.shp"), layer = "Forest_sf")
 frugivore_traits <- read.csv(file.path(data_path,"TropicalAndes_Frugivoria_traits_Forest.csv"))
 plant_traits <- read.csv(file.path(data_path,"TropicalAndes_plant_traits_forest.csv"))
 ```
@@ -76,14 +76,14 @@ frugivore_traits <- frugivore_traits[, c("IUCN_species_name", "diet_cat", "body_
 ```
 
 ```{r}
-coordinates_sf_plant <- st_as_sf(TropicalAndes_plant_occ_forest_sub, coords = c("decimalLongitude", "decimalLatitude"), crs = st_crs(Forest_sf))
-coordinates_sf_frugivore <- st_as_sf(TropicalAndes_frugivore_occ_forest_sub, coords = c("decimalLongitude", "decimalLatitude"), crs = st_crs(Forest_sf))
+coordinates_sf_plant <- st_as_sf(TropicalAndes_plant_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = st_crs(TropicalAndes_IUCNHabitat_Forest))
+coordinates_sf_frugivore <- st_as_sf(TropicalAndes_frugivore_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = st_crs(TropicalAndes_IUCNHabitat_Forest))
 ```
 
 ```{r}
 # Perform the spatial intersection
-intersections_plant_TA <- st_intersection(coordinates_sf_plant, Forest_sf)
-intersections_frugivore_TA <- st_intersection(coordinates_sf_frugivore, Forest_sf)
+intersections_plant_TA <- st_intersection(coordinates_sf_plant, TropicalAndes_IUCNHabitat_Forest)
+intersections_frugivore_TA <- st_intersection(coordinates_sf_frugivore, TropicalAndes_IUCNHabitat_Forest)
 # Convert the intersected sf object back to a dataframe
 coordinates_df_subset_plant <- as.data.frame(intersections_plant_TA)
 coordinates_df_subset_frugivore <- as.data.frame(intersections_frugivore_TA)
@@ -178,8 +178,8 @@ rownames(frugivore_traits_matrix) <- row_names_frugivore
 # Turn back into dataframe
 plant_traits_df_final <-as.data.frame(plant_traits_matrix)
 frugivore_traits_df_final <-as.data.frame(frugivore_traits_matrix)
-plant_traits_df$X <-NULL
-frugivore_traits_df$X <-NULL
+plant_traits_df_final$X <-NULL
+frugivore_traits_df_final$X <-NULL
 ```
 
 ```{r}
