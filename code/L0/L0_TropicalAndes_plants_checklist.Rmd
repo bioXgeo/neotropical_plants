@@ -32,4 +32,14 @@ TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path, "Forest_sf.shp"
 checklist <- GIFT_checklists(taxon_name = "Angiospermae", taxonomic_group = TRUE, floristic_group = "all", shp = TropicalAndes_IUCNHabitat_Forest, overlap = "extent_intersect")
 ```
 
+```{r}
+print("The number of species is")
+length(unique(checklist$checklists$work_species))
+print("The number of families is")
+length(unique(checklist$checklists$family))
+```
 
+# Write data to csv
+```{r}
+write.csv(checklist$checklists, file = file.path(output_path,"TropicalAndes_plant_checklist.csv"))
+```
