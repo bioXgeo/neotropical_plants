@@ -56,16 +56,6 @@ TropicalAndes_GBIF_frugivore_occ_cleaned <- TropicalAndes_GBIF_frugivore_occ[fla
 TropicalAndes_GBIF_frugivore_occ_flagged <- TropicalAndes_GBIF_frugivore_occ[!flags$.summary,]
 ```
 
-```{r}
-table(TropicalAndes_GBIF_frugivore_occ_cleaned$year)
-```
-
-```{r}
-# remove records from before second world war
-TropicalAndes_GBIF_frugivore_occ_cleaned <- TropicalAndes_GBIF_frugivore_occ_cleaned %>%
-  filter(year > 1945) 
-```
-
 # Summary
 ```{r}
 glimpse(TropicalAndes_GBIF_frugivore_occ_cleaned)
@@ -76,6 +66,8 @@ print("The number of records is")
 nrow(TropicalAndes_GBIF_frugivore_occ_cleaned)
 print("The number of species is")
 length(unique(TropicalAndes_GBIF_frugivore_occ_cleaned$species))
+print("The number of genera is" )
+length(unique(TropicalAndes_GBIF_frugivore_occ_cleaned$genus))
 print("The number of families is")
 length(unique(TropicalAndes_GBIF_frugivore_occ_cleaned$family))
 ```
