@@ -1,8 +1,7 @@
-Func Div troubleshooting
+#Func Div troubleshooting
 
 
 # Load required packages
-```{r}
 library(sf)
 library(dplyr)
 library(ggplot2)
@@ -14,26 +13,24 @@ library(scico)
 library(ggspatial)
 library(letsR)
 library(mFD)
-```
 
 # Set file paths
-```{r}
-data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
-data_path2<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
-```
+data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path_L0 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path_L2 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
+
 
 # Read in Data
-```{r}
-TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path,"TropicalAndes_plant_occ_forest.csv"))
-TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path,"TropicalAndes_frugivore_occ_forest.csv"))
-TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path2, "Forest_sf.shp"), layer = "Forest_sf")
-frugivore_traits <- read.csv(file.path(data_path,"TropicalAndes_Frugivoria_traits_Forest.csv"))
-plant_traits <- read.csv(file.path(data_path,"TropicalAndes_plant_traits_forest.csv"))
-```
+
+TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path_L0,"TropicalAndes_GBIF_plant_occ.csv"))
+TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path_L0,"TropicalAndes_GBIF_frugivore_occ.csv"))
+TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
+frugivore_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_Frugivoria_traits_Forest.csv"))
+plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_plant_traits_forest.csv"))
+
 
 # Create Presence-Absense matrix
-```{r}
+
 x <- TropicalAndes_plant_occ_forest$decimalLongitude
 y <- TropicalAndes_plant_occ_forest$decimalLatitude
 plant_xy <- cbind(x, y)
@@ -42,9 +39,9 @@ plants_PAM <- lets.presab.points(plant_xy, plant_species, xmn = -85, xmx = -54, 
 summary(plants_PAM)
 plot(plants_PAM, xlab = "Longitude", ylab = "Latitude", main = "Plant richness map")
 plants_PAM_matrix <- lets.presab.points(plant_xy, plant_species, xmn = -85, xmx = -54, ymn = -24, ymx = 14, show.matrix = TRUE, remove.cells = TRUE)
-```
 
-```{r}
+
+
 x <- TropicalAndes_frugivore_occ_forest$decimalLongitude
 y <- TropicalAndes_frugivore_occ_forest$decimalLatitude
 frugivore_xy <- cbind(x, y)
@@ -53,25 +50,25 @@ frugivore_PAM <- lets.presab.points(frugivore_xy, frugivore_species, xmn = -85, 
 summary(frugivore_PAM)
 plot(frugivore_PAM, xlab = "Longitude", ylab = "Latitude", main = "Frugivore richness map")
 frugivore_PAM_matrix <- lets.presab.points(frugivore_xy, frugivore_species, xmn = -85, xmx = -54, ymn = -24, ymx = 14, show.matrix = TRUE, remove.cells = TRUE)
-```
+
 
 # Prepping data for functional diversity calculations
 
-```{r}
+
 plant_traits <- na.omit(plant_traits)
 frugivore_traits <- na.omit(frugivore_traits)
 frugivore_traits$body_mass_e <- as.numeric(frugivore_traits$body_mass_e)
 frugivore_traits$body_size_mm <- as.numeric(frugivore_traits$body_size_mm)
 plant_traits <- plant_traits[, c("species", "plant_height", "dispersal_syndrome", "plant_lifespan")]
 frugivore_traits <- frugivore_traits[, c("IUCN_species_name", "diet_cat", "body_mass_e", "body_size_mm", "generation_time")]
-```
 
-```{r}
+
+
 coordinates_sf_plant <- st_as_sf(TropicalAndes_plant_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = st_crs(TropicalAndes_IUCNHabitat_Forest))
 coordinates_sf_frugivore <- st_as_sf(TropicalAndes_frugivore_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = st_crs(TropicalAndes_IUCNHabitat_Forest))
 ```
 
-```{r}
+
 # Perform the spatial intersection
 intersections_plant_TA <- st_intersection(coordinates_sf_plant, TropicalAndes_IUCNHabitat_Forest)
 intersections_frugivore_TA <- st_intersection(coordinates_sf_frugivore, TropicalAndes_IUCNHabitat_Forest)
@@ -80,7 +77,7 @@ coordinates_df_subset_plant <- as.data.frame(intersections_plant_TA)
 coordinates_df_subset_frugivore <- as.data.frame(intersections_frugivore_TA)
 ```
 
-```{r}
+
 # Print the resulting subset of coordinates
 print(coordinates_df_subset_plant)
 print(coordinates_df_subset_frugivore)
@@ -92,9 +89,9 @@ subset_frugivore <- as.data.frame(st_coordinates(intersections_frugivore_TA))
 #merge the subset and full dataframe together to get final TA dataset
 plant_PAM_filter <- merge(plants_PAM_matrix, subset_plant, by.x = c("Longitude(x)", "Latitude(y)"), by.y = c("X", "Y"))
 frugivore_PAM_filter <- merge(frugivore_PAM_matrix, subset_frugivore, by.x = c("Longitude(x)", "Latitude(y)"), by.y = c("X", "Y"))
-```
 
-```{r}
+
+
 # Turn PAM into matrix
 plant_PAM <- as.matrix(plant_PAM_filter)
 frugivore_PAM <- as.matrix(frugivore_PAM_filter)
@@ -119,9 +116,7 @@ clean_column_names_frugivore <- gsub("_", " ", column_names_frugivore)
 #Insert clean column names
 colnames(plant_PAM) <- clean_column_names_plant
 colnames(frugivore_PAM) <- clean_column_names_frugivore
-```
 
-```{r}
 #turn data into correct data types for inputs into the trait categories dataframe
 frugivore_traits$diet_cat <- as.factor(frugivore_traits$diet_cat)
 frugivore_traits$body_mass_e <- as.numeric(frugivore_traits$body_mass_e)
@@ -146,9 +141,9 @@ PAM_plant_site_final <- PAM_plant_site_final[,-columns_to_remove]
 PAM_frugivore_site_final <- PAM_frugivore_site_final[,-columns_to_remove]
 colnames_plant <- colnames(PAM_plant_site_final)
 colnames_frugivore <- colnames(PAM_frugivore_site_final)
-```
 
-```{r}
+
+
 # Remove species names from trait matrix not in the PAM
 plant_traits_df_subset <- plant_traits %>% filter(species %in% colnames_plant)
 frugivore_traits_df_subset <- frugivore_traits %>% filter(IUCN_species_name %in% colnames_frugivore)
@@ -171,9 +166,9 @@ plant_traits_df_final <-as.data.frame(plant_traits_matrix)
 frugivore_traits_df_final <-as.data.frame(frugivore_traits_matrix)
 plant_traits_df_final$X <-NULL
 frugivore_traits_df_final$X <-NULL
-```
 
-```{r}
+
+
 #fix types
 frugivore_traits_df_final$diet_cat <- as.factor(frugivore_traits_df_final$diet_cat)
 frugivore_traits_df_final$body_mass_e <- as.numeric(frugivore_traits_df_final$body_mass_e)
@@ -187,27 +182,25 @@ plant_traits_df_final$dispersal_syndrome <- as.factor(plant_traits_df_final$disp
 # remove duplicate species name column
 plant_traits_df_final <- plant_traits_df_final[, c("plant_height", "dispersal_syndrome", "plant_lifespan")]
 frugivore_traits_df_final <- frugivore_traits_df_final[, c("diet_cat", "body_mass_e", "body_size_mm", "generation_time")]
-```
+
 
 
 # Create trait type table
-```{r}
 trait_name <- c("diet_cat", "body_mass_e", "body_size_mm", "generation_time")
 trait_type <- c("N", "Q", "Q", "Q")
 frug_trait_cat <- as.data.frame(cbind(trait_name, trait_type))
 trait_name <- c("dispersal_syndrome", "plant_height", "plant_lifespan")
 trait_type <- c("N", "Q", "Q") 
 plant_trait_cat <- as.data.frame(cbind(trait_name, trait_type))
-```
 
-```{r}
+
+
 # Summary of the assemblages * species dataframe:
 asb_sp_plant_summ <- mFD::asb.sp.summary(asb_sp_w = PAM_plant_site_final)
 asb_sp_frugivore_summ <- mFD::asb.sp.summary(asb_sp_w = PAM_frugivore_site_final)
-```
 
 
-```{r}
+
 # Species traits summary:
 plant_traits_summ <- mFD::sp.tr.summary(
   tr_cat     = plant_trait_cat,   
@@ -217,11 +210,11 @@ frugivore_traits_summ <- mFD::sp.tr.summary(
   tr_cat     = frug_trait_cat,   
   sp_tr      = frugivore_traits_df_final, 
   stop_if_NA = TRUE)
-```
+
 
 
 # Estimate functional trait-based distances between species
-```{r}
+
 
 sp_dist_plants <- mFD::funct.dist(
   sp_tr         = plant_traits_df_final,
@@ -231,9 +224,8 @@ sp_dist_plants <- mFD::funct.dist(
   ordinal_var   = "classic",
   weight_type   = "equal",
   stop_if_NA    = TRUE)
-```
 
-```{r}
+
 sp_dist_frugivore <- mFD::funct.dist(
   sp_tr         = frugivore_traits_df_final,
   tr_cat        = frug_trait_cat,
@@ -242,36 +234,36 @@ sp_dist_frugivore <- mFD::funct.dist(
   ordinal_var   = "classic",
   weight_type   = "equal",
   stop_if_NA    = TRUE)
-```
+
 
 # Generate a multidimensional space
-```{r}
+
 fspaces_quality_plants <- mFD::quality.fspaces(
   sp_dist             = sp_dist_plants,
   maxdim_pcoa         = 10,
   deviation_weighting = "absolute",
   fdist_scaling       = FALSE,
   fdendro             = "average")
-```
 
-```{r}
+
+
 fspaces_quality_frugivore <- mFD::quality.fspaces(
   sp_dist             = sp_dist_frugivore,
   maxdim_pcoa         = 10,
   deviation_weighting = "absolute",
   fdist_scaling       = FALSE,
   fdendro             = "average")
-```
 
 
-```{r}
+
+
 #testing correlation between functional axes and traits
 sp_faxes_coord_plants <- fspaces_quality_plants$"details_fspaces"$"sp_pc_coord"
 sp_faxes_coord_frugivore <- fspaces_quality_frugivore$"details_fspaces"$"sp_pc_coord"
 
-```
 
-```{r}
+
+
 #plotting functional space
 sp_faxes_coord_plants <- fspaces_quality_plants$"details_fspaces"$"sp_pc_coord"
 sp_faxes_coord_frugivore <- fspaces_quality_frugivore$"details_fspaces"$"sp_pc_coord"
@@ -283,10 +275,9 @@ subset_matrix_plant <- PAM_plant_site_final[row_sums_plant >= 4, ]
 row_sums_frugivore <- rowSums(PAM_frugivore_site_final)
 subset_matrix_frugivore <- PAM_frugivore_site_final[row_sums_frugivore >= 4, ]
 
-```
 
 
-```{r}
+
 # getting sp_faxes_coord_plants and subset_matrix_plants names to match
 sp_faxes_coord_plants_sub <- sp_faxes_coord_plants[ , c("PC1", "PC2", "PC3", "PC4")]
 ## check number of species names
@@ -303,9 +294,9 @@ subset_matrix_plant <- subset_matrix_plant_df[, which((names(subset_matrix_plant
 
 ncol(subset_matrix_plant)
 subset_matrix_plant <- as.matrix(subset_matrix_plant)
-```
 
-```{r}
+
+
 # match frugivore names
 sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")]
 
@@ -324,9 +315,8 @@ sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore_sub[ which((row.names(s
 
 nrow(sp_faxes_coord_frugivore_sub)
 sp_faxes_coord_frugivore_sub <- as.matrix(sp_faxes_coord_frugivore_sub)
-```
 
-```{r}
+
 #computing FD
 # The number of species per assemblage has to be higher or equal to the number of traits
 alpha_fd_indices_plant <- mFD::alpha.fd.multidim(
@@ -344,4 +334,3 @@ alpha_fd_indices_frugivore <- mFD::alpha.fd.multidim(
   scaling          = TRUE,
   check_input      = TRUE,
   details_returned = TRUE)
-```
