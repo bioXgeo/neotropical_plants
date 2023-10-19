@@ -41,7 +41,6 @@ plot(plants_PAM, xlab = "Longitude", ylab = "Latitude", main = "Plant richness m
 plants_PAM_matrix <- lets.presab.points(plant_xy, plant_species, xmn = -85, xmx = -54, ymn = -24, ymx = 14, show.matrix = TRUE, remove.cells = TRUE)
 
 
-
 x <- TropicalAndes_frugivore_occ_forest$decimalLongitude
 y <- TropicalAndes_frugivore_occ_forest$decimalLatitude
 frugivore_xy <- cbind(x, y)
@@ -63,10 +62,8 @@ plant_traits <- plant_traits[, c("species", "plant_height", "dispersal_syndrome"
 frugivore_traits <- frugivore_traits[, c("IUCN_species_name", "diet_cat", "body_mass_e", "body_size_mm", "generation_time")]
 
 
-
 coordinates_sf_plant <- st_as_sf(TropicalAndes_plant_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = st_crs(TropicalAndes_IUCNHabitat_Forest))
 coordinates_sf_frugivore <- st_as_sf(TropicalAndes_frugivore_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = st_crs(TropicalAndes_IUCNHabitat_Forest))
-```
 
 
 # Perform the spatial intersection
@@ -75,7 +72,7 @@ intersections_frugivore_TA <- st_intersection(coordinates_sf_frugivore, Tropical
 # Convert the intersected sf object back to a dataframe
 coordinates_df_subset_plant <- as.data.frame(intersections_plant_TA)
 coordinates_df_subset_frugivore <- as.data.frame(intersections_frugivore_TA)
-```
+
 
 
 # Print the resulting subset of coordinates
