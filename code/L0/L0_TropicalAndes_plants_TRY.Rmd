@@ -47,6 +47,11 @@ length(unique(try_data$AccSpeciesName))
 try_data %>% count(TraitName)
 ```
 
+# Get units for each trait
+```{r}
+try_data %>% distinct(TraitName, UnitName)
+```
+
 
 # Write data to csv
 ```{r}
