@@ -32,7 +32,7 @@ BIEN_trait_list()
 
 ## List of desired traits
 ```{r}
-trait_list <- c("whole plant dispersal syndrome", "whole plant height", "maximum whole plant longevity", "maximum whole plant height", "minimum whole plant height", "longest whole plant longevity", "fruit type", "maximum fruit length", "minimum fruit length", "seed mass")
+trait_list <- c("whole plant dispersal syndrome", "whole plant height", "maximum whole plant longevity", "maximum whole plant height", "minimum whole plant height", "longest whole plant longevity", "fruit type", "maximum fruit length", "minimum fruit length", "seed mass", "whole plant growth form", "whole plant growth form diversity")
 ```
 
 ## List of desired countries
