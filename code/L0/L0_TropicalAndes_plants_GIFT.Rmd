@@ -156,7 +156,7 @@ growth_form$trait_name <- "growth_form"
 ```
 
 ```{r}
-# convert numberic traits into characters so we can combine into one dataframe
+# convert numeric traits into characters so we can combine into one dataframe
 height_mean$trait_value <- as.character(height_mean$trait_value)
 height_min$trait_value <- as.character(height_min$trait_value)
 height_max$trait_value <- as.character(height_max$trait_value)
