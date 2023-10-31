@@ -1,15 +1,26 @@
+---
+title: "Plant species synonym list"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "Get synonmys for the plant species list of GBIF occurrence data"
+data input: "GBIF_species_list.csv"
+data output: ""
+date: "2023-08-03"
+output: html_document
+---
 
-Get synonmyms for species list 
 
 # Set file paths
 ```{r}
-data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-data_path2 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 ```
 
 ```{r}
 library(taxadb)
+#library(taxize)
+library(dplyr)
 ```
 
 ```{r}
@@ -17,47 +28,52 @@ library(taxadb)
 td_create("itis",overwrite=FALSE)
 ```
 
-# Read in species lists
+# Read in species list
 ```{r}
-TRY_species <- read.csv(file.path(data_path,"TropicalAndes_TRY_plant_species.csv"))
-BIEN_species <- read.csv(file.path(data_path,"TropicalAndes_BIEN_plant_trait_species.csv"))
-GBIF_species <- read.csv(file.path(data_path2,"TropicalAndes_plant_Forest_SpeciesList.csv"))
+GBIF_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_plant_occ_cleaned.csv"))
+GBIF_species_list <- unique(GBIF_occ$species)
 ```
 
-# Combine species lists
 ```{r}
-allnames <- rbind(TRY_species, BIEN_species, GBIF_species)
+GBIF_species_list <- as.data.frame(GBIF_species_list)
+names(GBIF_species_list) <- c("Scientific.Name")
+```
+
+#Using taxize
+```{r}
+species_synonyms <- synonyms(GBIF_species_list$Scientific.Name, db = "pow", rows = 1)
 ```
 
 
+# Using taxadb
 ```{r}
-#get  IDS for each scientific name
-syn1<-allnames %>%
-  select(Scientific.Name) %>%
+#get IDS for each scientific name
+syn1<-GBIF_species_list %>%
   mutate(ID=get_ids(Scientific.Name,"itis"))
 
-#Deal with NAs (one name corresponds to more than 1 ITIS code) (~10k names)
-
+#Deal with NAs (one name corresponds to more than 1 ITIS code)
 syn1_NA<-as.data.frame(syn1$Scientific.Name[is.na(syn1$ID)])
 colnames(syn1_NA)<-c("name")
 
 NA_IDS<-NULL
+tmp <- NULL
+tmp$name <- NA
 for(i in unique(syn1_NA$name)){
-  tmp<-as.data.frame(filter_name(i, 'itis')[5])
+  tmp <-as.data.frame(filter_name(i, 'itis')[5])
   tmp$name<-paste0(i)
   NA_IDS<-rbind(NA_IDS,tmp)
 }
 
 #join with original names
 colnames(syn1)<-c("name","ID")
-IDS<-left_join(syn1,NA_IDS,by="name") #I think its a left join double check this
+IDS<-left_join(syn1,NA_IDS,by="name")
 
 #extract just the unique IDs
 IDS<-data.frame(ID=c(IDS[,"ID"],IDS[,"acceptedNameUsageID"]))
 IDS<-as.data.frame(unique(IDS$ID))
 IDS<-as.data.frame(IDS[-is.na(IDS)])
 colnames(IDS)<-"ID"
-#extract all names with synonyms in ITIS that are at the species level [literally all of them]
+#extract all names with synonyms in ITIS that are at the species level
 #set query
 ITIS<-taxa_tbl("itis") %>%
   select(scientificName,taxonRank,acceptedNameUsageID,taxonomicStatus) %>%
