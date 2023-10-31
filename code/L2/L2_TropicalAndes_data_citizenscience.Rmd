@@ -1,0 +1,67 @@
+Citizen science assessment
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
+```
+
+# Load required packages
+```{r}
+library(dplyr)
+library(ggplot2)
+library(rgbif)
+```
+
+# Read in Data
+```{r}
+plant_GBIF_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_plant_occ_cleaned.csv"))
+```
+
+# Time (year) vs records plot
+```{r}
+records_time <- GBIF_occ %>% count(year)
+names(records_time) <- c("year", "count")
+```
+
+```{r}
+ggplot(records_time, aes(x=year, y=count)) +
+  geom_line() +
+  xlim(1950, 2023) +
+  geom_area(fill= "darkgreen")+
+  ggtitle("Plant occurrence records in GBIF by year since 1950")
+```
+
+# Subset citizen science data
+```{r}
+dataset_keys <- unique(GBIF_occ$datasetKey)
+# 50c9509d-22c7-4a22-a47d-8c48425ef4a7 = iNaturalist
+GBIF_occ_iNaturalist <- GBIF_occ %>% filter(datasetKey == "50c9509d-22c7-4a22-a47d-8c48425ef4a7")
+```
+
+```{r}
+records_time_iNaturalist <- GBIF_occ_iNaturalist %>% count(year)
+names(records_time_iNaturalist) <- c("year", "count")
+```
+
+```{r}
+ggplot(records_time_iNaturalist, aes(x=year, y=count)) +
+  geom_line() +
+  xlim(1950, 2023) +
+  geom_area(fill= "lightgreen") +
+  ggtitle("iNaturalist Plant occurrence records in GBIF by year since 1950")
+```
+# iNaturalist proportion of total records
+```{r}
+records_time$group <- c("all")
+records_time_iNaturalist$group <- c("iNaturalist")
+records_time_both <- rbind(records_time, records_time_iNaturalist)
+```
+
+```{r}
+ggplot(records_time_both, aes(x=year, y=count, color=group)) + 
+    geom_line() +
+  xlim(1970, 2023) +
+  ggtitle("Plant occurrence records in GBIF by year since 1970")
+```
+
