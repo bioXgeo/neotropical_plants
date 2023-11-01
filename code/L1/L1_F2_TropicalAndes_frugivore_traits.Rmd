@@ -5,8 +5,8 @@ project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "Subsetting Frugivoria to the species and traits of interest"
 data input: "TropicalAndes_Frugivoria_frugivore_traits.csv", "TropicalAndes_GBIF_frugivore_occ_cleaned.csv"
-data output: ""
-date: "2023-08-03"
+data output: "TropicalAndes_Frugivoria_traits_subset.csv"
+date: "2023-10-31"
 output: html_document
 ---
 
@@ -51,7 +51,7 @@ glimpse(Frugivoria_subset)
 ```
 
 ```{r}
-source(file.path(data_path_L0, "data_summary.R"))
+source("~/GitHub/neotropical_plants/code/L0/data_summary.R")
 ```
 
 ```{r}
@@ -61,5 +61,5 @@ data_summary(Frugivoria_subset, Frugivoria_subset$species, Frugivoria_subset$gen
 
 # Write data to csv
 ```{r}
-write.csv(Frugivoria_subset, file.path(output_path,"TropicalAndes_Frugivoria_traits_Forest.csv"))
+write.csv(Frugivoria_subset, file.path(output_path,"TropicalAndes_Frugivoria_traits_subset.csv"))
 ```
