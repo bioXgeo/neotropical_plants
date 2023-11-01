@@ -1,0 +1,83 @@
+---
+title: "Northern Andes plant species BIEN data"
+authors: "Hazel J. Anderson"
+collaborators: "None"
+data input: "none"
+data output: "NorthAndes_BIEN_species_list.csv, NorthAndes_BIEN_occurrence.csv, NorthAndes_BIEN_traits.csv"
+project: "Frugivoria"
+date: "2023-02-13"
+output: html_document
+---
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(BIEN)
+library(tidyr)
+library(dplyr)
+library(DataExplorer)
+library(summarytools)
+library(bdvis)
+library(visdat)
+```
+
+# Read in IUCN data
+Data was obtained from https://www.iucnredlist.org/search?permalink=9621ab77-2341-4bf8-9557-b7f19f7f2a35
+```{r}
+plants_habitats <- read.csv(file.path(data_path,"IUCN/Tropical Andes Plants - Search Results/habitats.csv"))
+```
+
+# Create species list from IUCN data
+```{r}
+plant_species <- unique(plants_habitats$scientificName)
+```
+
+# List of countries of interest
+```{r}
+country_vector <- c("Ecuador", "Venezuela", "Peru", "Colombia", "Bolivia")
+```
+
+# Get data for Tropical Andes from BIEN database
+```{r}
+# occurrence data
+# old code -- TropicalAndes_BIEN_occ <- BIEN_occurrence_country(country_vector, all.taxonomy = TRUE, collection.info = TRUE, political.boundaries = TRUE, native.status = TRUE)
+TropicalAndes_BIEN_occ <- BIEN_occurrence_box(min.lat = -94, max.lat = -54, min.long = -24, max.long = 14,species = plant_species, all.taxonomy = TRUE, political.boundaries = TRUE, source.citation = TRUE, observation.type = TRUE)
+
+# species list
+TropicalAndes_BIEN_species_list <- BIEN_list_country(country = country_vector)
+
+# trait data
+TropicalAndes_BIEN_traits <- BIEN_trait_country(country_vector, all.taxonomy = TRUE, political.boundaries = TRUE, source.citation = TRUE)
+```
+
+# Data summary
+```{r}
+glimpse(TropicalAndes_BIEN_occ)
+```
+
+```{r}
+glimpse(TropicalAndes_BIEN_species_list)
+```
+
+```{r}
+glimpse(TropicalAndes_BIEN_traits)
+```
+
+
+# Write data to csv
+```{r}
+TropicalAndes_BIEN_occurrence_path <- file.path(output_path,"TropicalAndes_BIEN_occurrence.csv") 
+write.csv(TropicalAndes_BIEN_occ, file = TropicalAndes_BIEN_occurrence_path)
+
+TropicalAndes_BIEN_species_list_path <- file.path(output_path, "TropicalAndes_BIEN_species_list.csv")
+write.csv(TropicalAndes_BIEN_species_list, file = TropicalAndes_BIEN_species_list_path)
+
+TropicalAndes_BIEN_traits_path <- file.path(output_path, "TropicalAndes_BIEN_traits.csv")
+write.csv(TropicalAndes_BIEN_traits, file = TropicalAndes_BIEN_traits_path)
+```
+
+

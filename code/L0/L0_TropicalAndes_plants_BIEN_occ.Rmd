@@ -1,0 +1,67 @@
+---
+title: "Tropical Andes plant species BIEN data"
+authors: "Hazel J. Anderson"
+collaborators: "None"
+data input: "none"
+data output: "TropicalAndes_BIEN_species_list.csv, TropicalAndes_BIEN_occurrence.csv"
+project: "Frugivoria"
+date: "2023-02-13"
+output: html_document
+---
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(BIEN)
+library(tidyr)
+library(dplyr)
+library(sf)
+```
+
+
+# Retrive occurrence data for Tropical Andes countries from BIEN database
+
+## List of desired countries
+```{r}
+TA_countries <- c("Bolivia", "Ecuador", "Venezuela", "Colombia", "Peru")
+```
+
+## Get occurrence data from BIEN
+```{r}
+TropicalAndes_BIEN_occ <- BIEN_occurrence_sf(TropicalAndes_IUCNHabitat_Forest, all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
+```
+
+# Data summary
+```{r}
+glimpse(TropicalAndes_BIEN_occ)
+```
+
+```{r}
+print("The number of records is")
+nrow(TropicalAndes_BIEN_occ)
+print("The number of species is")
+length(unique(TropicalAndes_BIEN_occ$scrubbed_species_binomial))
+print("The number of families is")
+length(unique(TropicalAndes_BIEN_occ$family_matched))
+```
+
+# Extract species list
+```{r}
+BIEN_occ_SpeciesList <- unique(TropicalAndes_BIEN_occ$scrubbed_species_binomial)
+```
+
+
+# Write data to csv
+```{r}
+TropicalAndes_BIEN_occurrence_path <- file.path(output_path,"TropicalAndes_BIEN_plant_occ.csv") 
+write.csv(TropicalAndes_BIEN_occ, file = TropicalAndes_BIEN_occurrence_path)
+
+TropicalAndes_BIEN_species_list_path <- file.path(output_path, "TropicalAndes_BIEN_plant_occ_species.csv")
+write.csv(TropicalAndes_BIEN_species_list, file = TropicalAndes_BIEN_species_list_path)
+```
+
+

@@ -1,0 +1,176 @@
+---
+title: "Tropical Andes plant traits"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "Combinging TRY and BIEN plant trait data"
+data input: ""
+data output: ""
+date: "2023-08-03"
+output: html_document
+---
+
+# Load required packages
+```{r}
+library(dplyr)
+library(tidyr)
+library(data.table)
+```
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Read in Data
+```{r}
+BIEN_traits <- read.csv(file.path(data_path,"TropicalAndes_BIEN_plant_traits_forest.csv"))
+TRY_traits <- read.csv(file.path(data_path,"TropicalAndes_TRY_plant_traits_forestSpecies.csv"))
+GIFT_traits <- read.csv(file.path(data_path,"TropicalAndes_GIFT_plant_traits_forest.csv"))
+```
+
+# Subset to columns of interest
+```{r}
+# remove TRY columns without value in TraitID
+TRY_traits_2 <- TRY_traits[!is.na(TRY_traits$TraitID), ]
+```
+
+```{r}
+BIEN_traits_sub <- BIEN_traits[ , c("scrubbed_species_binomial", "trait_name", "trait_value", "unit")]
+TRY_traits_sub <- TRY_traits_2[ , c("AccSpeciesName", "TraitName", "OrigValueStr", "OrigUnitStr")]
+```
+
+# Standardize column names
+```{r}
+BIEN_traits_stan <- BIEN_traits_sub %>% rename(species = scrubbed_species_binomial)
+TRY_traits_stan <- TRY_traits_sub %>% rename(species = AccSpeciesName, trait_name = TraitName, trait_value = OrigValueStr, unit = OrigUnitStr)
+```
+
+```{r}
+plant_traits <- dplyr::bind_rows(BIEN_traits_stan, TRY_traits_stan, GIFT_traits, .id = 'source')
+```
+
+```{r}
+#replace source 1 or 2 with BIEN or TRY
+plant_traits['source'][plant_traits['source'] == 1] <- "BIEN"
+plant_traits['source'][plant_traits['source'] == 2] <- "TRY"
+plant_traits['source'][plant_traits['source'] == 3] <- "GIFT"
+```
+
+# Summary
+```{r}
+glimpse(plant_traits)
+```
+
+```{r}
+plant_traits %>%
+  count(trait_name)
+```
+
+# Dispersal Traits
+```{r}
+# subset plant traits to just dispersal traits
+plant_traits_dispersal <- plant_traits[plant_traits$trait_name == "Dispersal syndrome" | plant_traits$trait_name == "whole plant dispersal syndrome" | plant_traits$trait_name == "dispersal_syndrome",]
+# look at possible trait values
+plant_traits_dispersal_values <- unique(plant_traits_dispersal$trait_value)
+# save list to manually classify biotic, abiotic, none, and NA
+write.csv(plant_traits_dispersal_values, file.path(data_path,"plant_trait_dispersal_values.csv"))
+plant_traits_dispersal %>%
+  count(trait_value)
+```
+
+```{r}
+# read in classified table
+dispersal_classified <- read.csv(file.path(data_path,"plant_trait_dispersal_values_classified.csv"))
+# reclassify dispersal trait value to table
+plant_traits_dispersal$trait_value <- 
+dispersal_classified$Classification[match(plant_traits_dispersal$trait_value,dispersal_classified$OrigValue )]
+# check to make sure it worked
+unique(plant_traits_dispersal$trait_value)
+```
+
+```{r}
+# change all trait_name to dispersal_syndrome
+plant_traits_dispersal['trait_name'][plant_traits_dispersal['trait_name'] == 'Dispersal syndrome'] <- 'dispersal_syndrome'
+plant_traits_dispersal['trait_name'][plant_traits_dispersal['trait_name'] == 'whole plant dispersal syndrome'] <- 'dispersal_syndrome'
+#need to remove none & NA
+plant_traits_dispersal <- plant_traits_dispersal[plant_traits_dispersal$trait_value == "biotic" | plant_traits_dispersal$trait_value == "abiotic",]
+#need one value per species
+plant_traits_dispersal <- plant_traits_dispersal %>% distinct(species, .keep_all = TRUE)
+plant_traits_dispersal_wide <- pivot_wider(data = plant_traits_dispersal, id_cols = species, names_from = trait_name, values_from = trait_value, values_fn = list)
+```
+
+# Plant fruit mass traits
+```{r}
+plant_traits_mass <- plant_traits[plant_traits$trait_name == "Fruit dry mass",]
+plant_traits_mass <- plant_traits_mass[plant_traits_mass$unit == "mg",]
+plant_traits_mass$trait_value <- as.numeric(plant_traits_mass$trait_value)
+plant_traits_mass_wide <- pivot_wider(data = plant_traits_mass, id_cols = species, names_from = trait_name, values_from = trait_value, values_fn = mean)
+```
+
+# Plant height traits
+```{r}
+plant_traits_height <- plant_traits[plant_traits$trait_name == "Plant height vegetative" |plant_traits$trait_name == "whole plant height" |plant_traits$trait_name == "plant_height" ,]
+plant_traits_height$trait_value <- as.numeric(plant_traits_height$trait_value)
+plant_traits_height_wide <- pivot_wider(data = plant_traits_height, id_cols = species, names_from = trait_name, values_from = trait_value, values_fn = mean)
+plant_traits_height_wide$plant_height <- rowMeans(plant_traits_height_wide[,2:3], na.rm = TRUE)
+```
+
+# Plant longevity traits
+```{r}
+plant_traits_longevity <- plant_traits[plant_traits$trait_name == "Plant lifespan (longevity)" | plant_traits$trait_name == "maximum whole plant longevity" | plant_traits$trait_name == "plant_lifespan",]
+# change all trait_name to plant lifespan
+plant_traits_longevity['trait_name'][plant_traits_longevity['trait_name'] == 'Plant lifespan (longevity)'] <- 'plant_lifespan'
+plant_traits_longevity['trait_name'][plant_traits_longevity['trait_name'] == 'maximum whole plant longevity'] <- 'plant_lifespan'
+
+#remove non-numeric values
+plant_traits_longevity <- plant_traits_longevity[!is.na(as.numeric(as.character(plant_traits_longevity$trait_value))),]
+```
+
+```{r}
+plant_traits_longevity$trait_value <- as.numeric(plant_traits_longevity$trait_value)
+plant_traits_longevity_wide <- pivot_wider(data = plant_traits_longevity, id_cols = species, names_from = trait_name, values_from = trait_value, values_fn = mean)
+```
+
+
+# Combine all traits
+```{r}
+# convert all to dataframes
+plant_traits_height_wide <- as.data.frame(plant_traits_height_wide)
+plant_traits_dispersal_wide <- as.data.frame(plant_traits_dispersal_wide)
+plant_traits_mass_wide <- as.data.frame(plant_traits_mass_wide)
+plant_traits_longevity_wide <- as.data.frame(plant_traits_longevity_wide)
+
+plant_traits_wide <- merge(x = plant_traits_height_wide, y = plant_traits_dispersal_wide, by = "species", all = TRUE)
+plant_traits_wide <- merge(x = plant_traits_wide, y = plant_traits_mass_wide, by = "species", all = TRUE)
+plant_traits_wide <- merge(x = plant_traits_wide, y = plant_traits_longevity_wide, by = "species", all = TRUE)
+```
+
+```{r}
+plant_traits_wide <- plant_traits_wide [, c("species", "plant_height", "dispersal_syndrome", "plant_lifespan")]
+# remove species with NAs for one or more traits
+plant_traits_wide_complete <- na.omit(plant_traits_wide)
+```
+
+#Summary
+```{r}
+glimpse(plant_traits_wide_complete)
+```
+
+# Extract species list
+```{r}
+species_list <- unique(plant_traits_wide_complete$species)
+```
+
+```{r}
+plant_traits_wide_complete$dispersal_syndrome <- as.character(plant_traits_wide_complete$dispersal_syndrome)
+plant_traits_wide_complete$plant_lifespan <- as.character(plant_traits_wide_complete$plant_lifespan)
+```
+
+
+# Write data to csv
+```{r}
+write.csv(plant_traits_wide_complete, file.path(output_path,"TropicalAndes_plant_traits_forest.csv"))
+write.csv(species_list, file.path(output_path,"TropicalAndes_plant_traits_forest_species_list.csv"))
+```

@@ -1,0 +1,138 @@
+---
+title: "Northern Andes plant species IUCN data"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "None"
+data output: "NorthAndes_IUCN_plant_species.csv, NorthAndes_IUCN_plant_occ.csv"
+project: "Frugivoria"
+date: "2023-02-27"
+output: html_document
+---
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Install and load required packages
+```{r}
+library(dplyr)
+library(mde)
+library(DataExplorer)
+library(summarytools)
+```
+
+# Read in IUCN data
+Data was obtained from https://www.iucnredlist.org/search?dl=true&permalink=a44f4942-2b56-47b9-8122-9896ac4af647
+```{r}
+assessments <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/assessments.csv"))
+common_names <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/common_names.csv"))
+conservation_needed <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/conservation_needed.csv"))
+countries <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/countries.csv"))
+credits <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/credits.csv"))
+dois <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/dois.csv"))
+fao <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/fao.csv"))
+habitats <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/habitats.csv"))
+plant_specific <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/plant_specific.csv"))
+references <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/references.csv"))
+research_needed <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/research_needed.csv"))
+simple_summary <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/simple_summary.csv"))
+synonyms <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/synonyms.csv"))
+taxonomy <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/taxonomy.csv"))
+threats <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/threats.csv"))
+usetrade <- read.csv(file.path(data_path,"IUCN/Northern Andes 1 - Search Results/usetrade.csv"))
+points_data <- read.csv(file.path(data_path,"IUCN/Northern Andes 3 - Range data Points/points_data.csv"))
+```
+
+the different tables joined using the "internalTaxonId" when viewing taxon information, or the "assessmentID" field to see assessment information, especially in cases where downloads include multiple assesments for a taxon (e.g. regional and global assessments).
+```{r}
+
+```
+
+
+# Summary of data
+```{r}
+summary(northAndes_plants)
+na_summary(northAndes_plants, exclude_cols = c("subpopulation"))
+```
+
+```{r}
+summary(northAndes_IUCN_plant_occ)
+na_summary(northAndes_IUCN_plant_occ)
+```
+
+```{r}
+summary(northAndes_IUCN_plant_habitat)
+na_summary(northAndes_IUCN_plant_habitat)
+```
+
+### using DataExplorer package
+```{r}
+plot_str(northAndes_plants)
+introduce(northAndes_plants)
+plot_intro(northAndes_plants)
+plot_missing(northAndes_plants)
+plot_bar(northAndes_plants)
+```
+
+```{r}
+plot_str(northAndes_IUCN_plant_occ)
+introduce(northAndes_IUCN_plant_occ)
+plot_intro(northAndes_IUCN_plant_occ)
+plot_missing(northAndes_IUCN_plant_occ)
+plot_bar(northAndes_IUCN_plant_occ)
+```
+
+```{r}
+plot_str(northAndes_IUCN_plant_habitat)
+introduce(northAndes_IUCN_plant_habitat)
+plot_intro(northAndes_IUCN_plant_habitat)
+plot_missing(northAndes_IUCN_plant_habitat)
+plot_bar(northAndes_IUCN_plant_habitat)
+```
+
+### using summarytools package
+```{r}
+northAndes_plants_summary <- dfSummary(northAndes_plants, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(northAndes_plants_summary, method = "render")
+view(northAndes_plants_summary, file = file.path(output_path,"northAndes_plants_summary.html"))
+```
+
+```{r}
+northAndes_IUCN_plant_occ_summary <- dfSummary(northAndes_IUCN_plant_occ, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(northAndes_IUCN_plant_occ_summary, method = "render")
+view(northAndes_IUCN_plant_occ_summary, file = file.path(output_path,"northAndes_IUCN_plant_occ_summary.html"))
+```
+
+```{r}
+northAndes_IUCN_plant_habitat_summary <- dfSummary(northAndes_IUCN_plant_habitat, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(northAndes_IUCN_plant_habitat_summary, method = "render")
+view(northAndes_IUCN_plant_habitat_summary, file = file.path(output_path,"northAndes_IUCN_plant_habitat_summary.html"))
+```
+
+# Write data to csv
+```{r}
+northAndes_ICUN_species_list_path <- file.path(output_path,"northAndes_IUCN_plant_species.csv")
+write.csv(northAndes_plants, file = northAndes_ICUN_species_list_path)
+
+northAndes_IUCN_plant_occ_path <- file.path(output_path, "northAndes_IUCN_plant_occ.csv")
+write.csv(northAndes_IUCN_plant_occ, file = northAndes_IUCN_plant_occ_path)
+
+northAndes_IUCN_plant_habitat_path <- file.path(output_path, "northAndes_IUCN_plant_habitat.csv")
+write.csv(northAndes_IUCN_plant_habitat, file = northAndes_IUCN_plant_habitat_path)
+```
+
+
+

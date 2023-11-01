@@ -1,0 +1,59 @@
+---
+title: "Tropical Andes plant trait data TRY"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script retrieves plant trait data from the TRY database for plant species list."
+data input: "none"
+data output: "TropicalAndes_TRY_traits.csv"
+date: "2023-07-18"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(rtry)
+library(dplyr)
+```
+
+
+# Load TRY data
+Data was obtained from https://www.try-db.org/TryWeb/Prop0.php 
+```{r}
+try_data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/29548_24102023041242/29548.txt")
+```
+
+# Summary
+```{r}
+glimpse(try_data)
+```
+
+
+```{r}
+print("The number of records is")
+nrow(try_data)
+print("The number of species is" )
+length(unique(try_data$AccSpeciesName))
+```
+
+
+```{r}
+try_data %>% count(TraitName)
+```
+
+# Get units for each trait
+```{r}
+try_data %>% distinct(TraitName, UnitName)
+```
+
+
+# Write data to csv
+```{r}
+write.csv(try_data, file = file.path(output_path,"TropicalAndes_TRY_plant_traits.csv") )
+```
