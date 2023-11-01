@@ -1,0 +1,158 @@
+---
+title: "Tropical Andes IUCN Montane and Lowland forest"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "Create raster of IUCN habitat classification Forest-Subtropical moist montane and Forest - Subtropical moist lowland for Tropical Andes."
+data input: "iucn_habitatclassification_composite_lvl2_ver004.tif"
+data output: "TropicalAndes_IUCNHabitat_Forest.GTiff"
+date: "2023-07-18"
+output: html_document
+---
+
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(raster)
+library(sf)
+library(rnaturalearth)
+library(dplyr)
+library(terra)
+```
+
+# Load in Ecosystem Functional Groups
+Data downloaded from https://zenodo.org/record/4058819
+Citation: Martin Jung, Prabhat Raj Dahal, Stuart H. M. Butchart, Paul F. Donald, Xavier De Lamo, Myroslava Lesiv, … Piero Visconti. (2020). A global map of terrestrial habitat types (Version 004) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.4058819
+
+```{r}
+iucn_moist_montane_forest <- raster(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004/lvl2_frac_1km_ver004/iucn_habitatclassification_fraction_lvl2__109_Forest – Subtropical-tropical moist montane__ver004.tif"))
+iucn_moist_lowland_forest <- raster(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004/lvl2_frac_1km_ver004/iucn_habitatclassification_fraction_lvl2__106_Forest – Subtropical-tropical moist lowland__ver004.tif"))
+```
+
+```{r}
+plot(iucn_moist_montane_forest)
+plot(iucn_moist_lowland_forest)
+```
+
+## Crop to Tropical Andes hotspot
+```{r}
+# Load in shape
+TropicalAndes <- read_sf(file.path(data_path, "TA_refined.shp"), layer = "TA_refined")
+TropicalAndes
+plot(TropicalAndes$geometry)
+```
+
+## Crop moist montane
+```{r}
+iucn_moist_montane_forest_crop <- crop(iucn_moist_montane_forest, TropicalAndes)
+TA_iucn_moist_montane_forest <- mask(iucn_moist_montane_forest_crop, TropicalAndes)
+plot(TA_iucn_moist_montane_forest)
+TA_iucn_moist_montane_forest
+```
+
+## Crop moist lowland
+```{r}
+iucn_moist_lowland_forest_crop <- crop(iucn_moist_lowland_forest, TropicalAndes)
+TA_iucn_moist_lowland_forest <- mask(iucn_moist_lowland_forest_crop, TropicalAndes)
+plot(TA_iucn_moist_lowland_forest)
+TA_iucn_moist_lowland_forest
+```
+
+# Combine TA_iucn_moist_lowland_forest & TA_iucn_moist_montane_forest into one raster
+```{r}
+TA_iucn_habitat_forest <- merge(TA_iucn_moist_lowland_forest, TA_iucn_moist_montane_forest)
+plot(TA_iucn_habitat_forest)
+TA_iucn_habitat_forest
+```
+
+# Reclassify forest raster with values above 500 to one value and less than 500 to NA
+```{r}
+mat <- c(0, 500, NA,
+        500, 1000, 1)
+rclmat <- matrix(mat, ncol = 3, byrow = TRUE)
+TA_iucn_habitat_forest <- reclassify(TA_iucn_habitat_forest, rclmat)
+TA_iucn_habitat_forest
+plot(TA_iucn_habitat_forest)
+```
+
+# Save raster
+```{r}
+writeRaster(TA_iucn_habitat_forest, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest.GTiff"), format = "GTiff", overwrite=TRUE)
+writeRaster(TA_iucn_moist_montane_forest, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest_Montane.GTiff"), format = "GTiff", overwrite=TRUE)
+writeRaster(TA_iucn_moist_lowland_forest, filename = file.path(output_path, "TropicalAndes_IUCNHabitat_Forest_Lowland.GTiff"), format = "GTiff", overwrite=TRUE)
+```
+
+# Aggregate to 0.1
+```{r}
+TropicalAndes_IUCNHabitat_Forest0.1 <- aggregate(TA_iucn_habitat_forest, 10, fun=mean, na.rm=TRUE)
+TropicalAndes_IUCNHabitat_Forest0.1
+```
+
+```{r}
+writeRaster(TropicalAndes_IUCNHabitat_Forest0.1,file.path(output_path, "TropicalAndes_IUCNHabitat_Forest0.1.tif"), overwrite = TRUE)
+```
+
+
+# Forest shape conversion
+
+```{r}
+Forest_poly <- rasterToPolygons(TropicalAndes_IUCNHabitat_Forest0.1, na.rm = TRUE, dissolve = TRUE)
+Forest_poly
+plot(Forest_poly)
+```
+
+```{r}
+Forest_sf <- st_as_sf(Forest_poly)
+Forest_sf
+plot(Forest_sf)
+st_write(Forest_sf, file.path(data_path, "Forest_sf.shp"), append = TRUE)
+```
+
+# Map of Tropical Andes Forested region
+```{r}
+worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
+# country subset. 
+ECpoly <- worldMap %>% filter(sovereignt == "Ecuador")
+VEpoly <- worldMap %>% filter(sovereignt == "Venezuela")
+COpoly <- worldMap %>% filter(sovereignt == "Colombia")
+PEpoly <- worldMap %>% filter(sovereignt == "Peru")
+BOpoly <- worldMap %>% filter(sovereignt == "Bolivia")
+#polygon of Tropical Andes
+TApoly <- worldMap %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
+# set colors
+Andean_states <- "lightgrey"
+Tropical_Andes <- "grey"
+Forest <- "forestgreen"
+```
+
+
+```{r}
+MapPlot <-
+ggplot() +
+geom_sf(data = worldMap, fill = "white") +
+geom_sf(data = ECpoly, fill = Andean_states) +
+geom_sf(data = VEpoly, fill = Andean_states) +
+geom_sf(data = COpoly, fill = Andean_states) +
+geom_sf(data = PEpoly, fill = Andean_states) +
+geom_sf(data = BOpoly, fill = Andean_states) +
+geom_sf(data = TropicalAndes, fill = Tropical_Andes) +
+geom_sf(data = Forest_sf, fill = Forest) +
+labs(title = "Tropical Andes IUCN Montane and Lowland forest", x = "Latitude", y = "Longitude") +
+coord_sf(xlim = c(-94, -54), ylim = c(-24, 14), expand = FALSE) +
+annotation_scale(location = "bl", width_hint = 0.5) +
+annotation_north_arrow(location = "bl", which_north = "true", 
+  pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"), style = north_arrow_fancy_orienteering) +
+theme(panel.background = element_rect(fill = "lightblue"))
+
+MapPlot
+```
+
+```{r}
+ggsave(filename = "Tropical Andes Forest Map.png", dpi = 300, device="png", path = output_path)
+```

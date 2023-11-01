@@ -1,0 +1,89 @@
+---
+title: "Northern Andes plant species GBIF"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "None"
+data output: "NorthAndes_GBIF_occurences.csv"
+project: "Frugivoria"
+date: "2023-02-13"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Install and load required packages
+```{r}
+library(rgbif)
+library(DataExplorer)
+library(bdvis)
+library(visdat)
+library(dplyr)
+```
+
+# Set GBIF User information
+```{r}
+#only run once
+#install.packages("usethis")
+#usethis::edit_r_environ()
+```
+
+# Get Taxon Key for Plants
+```{r}
+name_backbone("Plantae")
+```
+
+```{r}
+occ_download(
+pred("taxonKey", 6), 
+pred("hasGeospatialIssue", FALSE),
+pred("hasCoordinate", TRUE),
+pred_in("country",c("EC","CO","VE")), 
+pred_not(pred_in("basisOfRecord",c("FOSSIL_SPECIMEN","LIVING_SPECIMEN"))),
+format = "SIMPLE_CSV"
+)
+```
+
+# Retrive GBIF download, save file, and load into r
+```{r}
+d <- occ_download_get("0282867-220831081235567", path = output_path) %>%
+  occ_download_import()
+```
+
+# Summary 
+```{r}
+glimpse(d)
+```
+
+```{r}
+# using DataExplorer package
+plot_str(d)
+introduce(d)
+plot_intro(d)
+plot_missing(d)
+plot_bar(d)
+```
+
+```{r}
+#using bdvis package
+d_vis <- format_bdvis(d, Latitude = "decimalLatitude", Longitude = "decimalLongitude", Date_collected = "eventDate", Scientific_name = "scientificName", Family = "family", Genus = "genus")
+bdsummary(d_vis)
+```
+
+```{r}
+#using visdat package
+vis_dat(d, warn_large_data = FALSE)
+vis_miss(d, warn_large_data = FALSE)
+d %>%
+  select_if(is.numeric)%>%
+  vis_cor(warn_large_data = FALSE)
+```
+
+# Write data to csv
+```{r}
+NorthAndes_GBIF_path <- file.path(output_path,"NorthAndes_GBIF_plant_occ.csv") 
+write.csv(d, file = NorthAndes_GBIF_path)
+```

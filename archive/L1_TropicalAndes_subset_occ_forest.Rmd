@@ -1,0 +1,127 @@
+---
+title: "Subset occurrence data to IUCN Tropical Andes Lowland and Montane Forest"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script retrives subsets plant and frugivore occurrence data to IUCN Tropical Andes Lowland and Montane Forest."
+data input: "TropicalAndes_IUCNHabitat_Forest.tif, TropicalAndes_GBIF_plant_occ_cleaned.csv, TropicalAndes_GBIF_frugivore_occ_cleaned.csv"
+data output: "TropicalAndes_plant_occ_forest.csv, TropicalAndes_frugivore_occ_forest.csv, TropicalAndes_plant_Forest_SpeciesList.csv, TropicalAndes_frugivore_Forest_SpeciesList.csv"
+date: "2023-07-18"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path2<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Load required packages
+```{r}
+library(dplyr)
+library(raster)
+library(sf)
+```
+
+# Read in data
+```{r}
+TropicalAndes_IUCNHabitat_Forest <- raster(file.path(data_path2, "TropicalAndes_IUCNHabitat_Forest.tif"))
+TropicalAndes_plant_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_plant_occ_cleaned.csv"))
+TropicalAndes_frugivore_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_frugivore_occ_cleaned.csv"))
+```
+
+```{r}
+TropicalAndes_IUCNHabitat_Forest
+```
+
+
+# Rasterize occurrence data
+```{r}
+# convert to SpatialPointsDataFrame
+coordinates(TropicalAndes_plant_occ) <- ~ decimalLongitude + decimalLatitude
+coordinates(TropicalAndes_frugivore_occ) <- ~ decimalLongitude + decimalLatitude
+proj4string(TropicalAndes_plant_occ) <- CRS("+proj=longlat +datum=WGS84 +no_defs")
+proj4string(TropicalAndes_frugivore_occ) <- CRS("+proj=longlat +datum=WGS84 +no_defs")
+TropicalAndes_plant_occ
+TropicalAndes_frugivore_occ
+```
+
+# Crop occurrence data to forest extent
+```{r}
+TropicalAndes_plant_occ$ref<- extract(TropicalAndes_IUCNHabitat_Forest, TropicalAndes_plant_occ)
+TropicalAndes_frugivore_occ$ref<- extract(TropicalAndes_IUCNHabitat_Forest, TropicalAndes_frugivore_occ)
+```
+
+```{r}
+TropicalAndes_plant_occ$ref <- as.character(TropicalAndes_plant_occ$ref)
+TropicalAndes_frugivore_occ$ref <- as.character(TropicalAndes_frugivore_occ$ref)
+```
+
+
+```{r}
+plant_occ_forest <- TropicalAndes_plant_occ@data
+frugivore_occ_forest <- TropicalAndes_frugivore_occ@data
+```
+
+```{r}
+# add back lat and long
+plant_coords <- TropicalAndes_plant_occ@coords
+frug_coords <- TropicalAndes_frugivore_occ@coords
+plant_coords <- as.data.frame(plant_coords)
+frug_coords <- as.data.frame(frug_coords)
+plant_occ_forest$decimalLatitude <- plant_coords$decimalLatitude
+plant_occ_forest$decimalLongitude <- plant_coords$decimalLongitude
+frugivore_occ_forest$decimalLatitude <- frug_coords$decimalLatitude
+frugivore_occ_forest$decimalLongitude <- frug_coords$decimalLongitude
+```
+
+
+```{r}
+#remove row if ref = NA
+plant_occ_forest <- plant_occ_forest[!is.na(plant_occ_forest$ref), ]
+frugivore_occ_forest <- frugivore_occ_forest[!is.na(frugivore_occ_forest$ref), ]
+```
+
+# Summary
+```{r}
+glimpse(plant_occ_forest)
+glimpse(frugivore_occ_forest)
+```
+
+```{r}
+print("The number of plant records is")
+nrow(plant_occ_forest)
+print("The number of plant species is")
+length(unique(plant_occ_forest$species))
+print("The number of plant genera is")
+length(unique(plant_occ_forest$genus))
+print("The number of plant families is")
+length(unique(plant_occ_forest$family))
+```
+
+```{r}
+print("The number of frugivore records is")
+nrow(frugivore_occ_forest)
+print("The number of frugivore species is")
+length(unique(frugivore_occ_forest$species))
+print("The number of frugivore genera is")
+length(unique(frugivore_occ_forest$genus))
+print("The number of frugivore families is")
+length(unique(frugivore_occ_forest$family))
+```
+
+# Extract species list for plants and frugivore
+```{r}
+TropicalAndes_plant_Forest_SpeciesList <- unique(plant_occ_forest$species)
+TropicalAndes_frugivore_Forest_SpeciesList <- unique(frugivore_occ_forest$species)
+```
+
+# Write data to csv
+```{r}
+# subset plant occ, subset frugivore occ, plant species list, frugivore species list
+write.csv(plant_occ_forest, file = file.path(output_path,"TropicalAndes_plant_occ_forest.csv"))
+write.csv(frugivore_occ_forest, file = file.path(output_path,"TropicalAndes_frugivore_occ_forest.csv"))
+write.csv(TropicalAndes_plant_Forest_SpeciesList, file = file.path(output_path,"TropicalAndes_plant_Forest_SpeciesList.csv"))
+write.csv(TropicalAndes_frugivore_Forest_SpeciesList, file = file.path(output_path,"TropicalAndes_frugivore_Forest_SpeciesList.csv"))
+```

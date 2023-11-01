@@ -1,0 +1,99 @@
+---
+title: "Tropical Andes plant trait data BIEN"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script retrieves plant trait data from the BIEN database for Tropical Andean countries."
+data input: "none"
+data output: "TropicalAndes_BIEN_traits.csv, AllDesired_BIEN_plant_traits.csv"
+date: "2023-10-17"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(BIEN)
+library(tidyr)
+library(dplyr)
+```
+
+# Retrived desired trait data from BIEN
+
+```{r}
+BIEN_trait_list()
+```
+
+
+## List of desired traits
+```{r}
+trait_list <- c("whole plant dispersal syndrome", "whole plant height", "maximum whole plant longevity", "maximum whole plant height", "minimum whole plant height", "longest whole plant longevity", "fruit type", "maximum fruit length", "minimum fruit length", "seed mass", "whole plant growth form", "whole plant growth form diversity")
+```
+
+## List of desired countries
+```{r}
+TA_countries <- c("Bolivia", "Ecuador", "Venezuela", "Colombia", "Peru")
+```
+
+## Retrive all BIEN records for desired traits
+```{r}
+AllDesired_BIEN_plant_traits <- BIEN_trait_trait(trait_list, all.taxonomy = TRUE, political.boundaries = TRUE, source.citation = TRUE)
+```
+
+## Retrive all BIEN records for desired traits in Tropical Andes countries
+```{r}
+TropicalAndes_BIEN_plant_traits <- BIEN_trait_country(TA_countries, trait_list, all.taxonomy = TRUE, political.boundaries = TRUE, source.citation = TRUE)
+```
+
+# Data summary
+
+## Desired traits
+```{r}
+glimpse(AllDesired_BIEN_plant_traits)
+```
+
+```{r}
+print("The number of records is")
+nrow(AllDesired_BIEN_plant_traits)
+print("The number of species is")
+length(unique(AllDesired_BIEN_plant_traits$scrubbed_species_binomial))
+print("The number of genera is" )
+length(unique(AllDesired_BIEN_plant_traits$scrubbed_genus))
+print("The number of families is")
+length(unique(AllDesired_BIEN_plant_traits$scrubbed_family))
+```
+
+```{r}
+AllDesired_BIEN_plant_traits %>% count(trait_name)
+```
+
+## Desired traits in Tropical Andes countries
+```{r}
+glimpse(TropicalAndes_BIEN_plant_traits)
+```
+
+```{r}
+print("The number of records is")
+nrow(TropicalAndes_BIEN_plant_traits)
+print("The number of species is")
+length(unique(TropicalAndes_BIEN_plant_traits$scrubbed_species_binomial))
+print("The number of genera is" )
+length(unique(TropicalAndes_BIEN_plant_traits$scrubbed_genus))
+print("The number of families is")
+length(unique(TropicalAndes_BIEN_plant_traits$scrubbed_family))
+```
+
+```{r}
+TropicalAndes_BIEN_plant_traits %>% count(trait_name)
+```
+
+# Write data to csv
+```{r}
+write.csv(AllDesired_BIEN_plant_traits, file.path(output_path,"AllDesired_BIEN_plant_traits.csv"))
+write.csv(TropicalAndes_BIEN_plant_traits, file.path(output_path,"TropicalAndes_BIEN_plant_traits.csv"))
+```

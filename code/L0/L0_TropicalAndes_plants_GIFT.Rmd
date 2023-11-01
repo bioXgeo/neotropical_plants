@@ -1,0 +1,205 @@
+---
+title: "Tropical Andes plant trait data GIFT"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script retrieves plant trait data from the GIFT database for plant species list."
+data input: ""
+data output: ""
+date: "2023-08-03"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(GIFT)
+library(dplyr)
+```
+
+
+
+# Retrive GIFT data
+```{r}
+GIFT_traits_meta()
+```
+Traits of interest: plant height (ID = 1.6.3), lifespan (ID = 2.2.1), dispersal syndrome (ID = 3.3), Plant_height_min (1.6.1), Plant_height_max (1.6.2), Fruit_type_1 (3.16.1), fruit_dryness_1 (3.18.1), Fruit_length_min (3.13.1), Fruit_length_max (3.13.2), Fruit_length_mean (3.13.3), Seed_mass_min (3.2.1), Seed_mass_max (3.2.2), Seed_mass_mean (3.2.3), Seed_length_min (3.10.1), Seed_length_max (3.10.2), Seed_length_mean (3.10.3), Seed_width_min (3.11.1), Seed_width_max (3.11.2), Seed_width_mean (3.11.3), Growth_form (1.2.1)
+
+```{r}
+# 
+height_mean <- GIFT_traits(trait_IDs = c("1.6.3"))
+height_min <- GIFT_traits(trait_IDs = c("1.6.1"))
+height_max <- GIFT_traits(trait_IDs = c("1.6.2"))
+
+lifespan <- GIFT_traits(trait_IDs = c("2.2.1"))
+
+dispersal_syndrome_1 <- GIFT_traits(trait_IDs = c("3.3.1"))
+dispersal_syndrome_2 <- GIFT_traits(trait_IDs = c("3.3.2"))
+
+fruit_type <- GIFT_traits(trait_IDs = c("3.16.1"))
+fruit_dryness <- GIFT_traits(trait_IDs = c("3.18.1"))
+
+fruit_length_mean <- GIFT_traits(trait_IDs = c("3.13.3"))
+fruit_length_min <- GIFT_traits(trait_IDs = c("3.13.1"))
+fruit_length_max <- GIFT_traits(trait_IDs = c("3.13.2"))
+
+seed_mass_mean <- GIFT_traits(trait_IDs = c("3.2.3"))
+seed_mass_min <- GIFT_traits(trait_IDs = c("3.2.1"))
+seed_mass_max <- GIFT_traits(trait_IDs = c("3.2.2"))
+
+seed_length_mean <- GIFT_traits(trait_IDs = c("3.10.3"))
+seed_length_min <- GIFT_traits(trait_IDs = c("3.10.1"))
+seed_length_max <- GIFT_traits(trait_IDs = c("3.10.2"))
+
+seed_width_mean <- GIFT_traits(trait_IDs = c("3.11.3"))
+seed_width_min <- GIFT_traits(trait_IDs = c("3.11.1"))
+seed_width_max <- GIFT_traits(trait_IDs = c("3.11.2"))
+
+growth_form <- GIFT_traits(trait_IDs = c("1.2.1"))
+```
+
+
+```{r}
+#rename columns to trait name
+height_mean <- height_mean %>% rename(trait_value = trait_value_1.6.3, species = work_species)
+height_min <- height_min %>% rename(trait_value = trait_value_1.6.1, species = work_species)
+height_max <- height_max %>% rename(trait_value = trait_value_1.6.2, species = work_species)
+
+lifespan <- lifespan %>% rename(trait_value = trait_value_2.2.1, species = work_species)
+
+dispersal_syndrome_1 <- dispersal_syndrome_1 %>% rename(trait_value = trait_value_3.3.1, species = work_species)
+dispersal_syndrome_2 <- dispersal_syndrome_2 %>% rename(trait_value = trait_value_3.3.2, species = work_species)
+
+fruit_type <- fruit_type %>% rename(trait_value = trait_value_3.16.1, species = work_species)
+fruit_dryness <- fruit_dryness %>% rename(trait_value = trait_value_3.18.1, species = work_species)
+
+fruit_length_mean <- fruit_length_mean %>% rename(trait_value = trait_value_3.13.3, species = work_species)
+fruit_length_min <- fruit_length_min %>% rename(trait_value = trait_value_3.13.1, species = work_species)
+fruit_length_max <- fruit_length_max %>% rename(trait_value = trait_value_3.13.2, species = work_species)
+
+seed_mass_mean <- seed_mass_mean %>% rename(trait_value = trait_value_3.2.3, species = work_species)
+seed_mass_min <- seed_mass_min %>% rename(trait_value = trait_value_3.2.1, species = work_species)
+seed_mass_max <- seed_mass_max %>% rename(trait_value = trait_value_3.2.2, species = work_species)
+
+seed_length_mean <- seed_length_mean %>% rename(trait_value = trait_value_3.10.3, species = work_species)
+seed_length_min <- seed_length_min %>% rename(trait_value = trait_value_3.10.1, species = work_species)
+seed_length_max <- seed_length_max %>% rename(trait_value = trait_value_3.10.2, species = work_species)
+
+seed_width_mean <- seed_width_mean %>% rename(trait_value = trait_value_3.11.3, species = work_species)
+seed_width_min <- seed_width_min %>% rename(trait_value = trait_value_3.11.1, species = work_species)
+seed_width_max <- seed_width_max %>% rename(trait_value = trait_value_3.11.2, species = work_species)
+
+growth_form <- growth_form %>% rename(trait_value = trait_value_1.2.1, species = work_species)
+```
+
+```{r}
+#keep just species and trait columns
+height_mean <- height_mean %>% select(species, trait_value)
+height_min <- height_min %>% select(species, trait_value)
+height_max <- height_max %>% select(species, trait_value)
+
+lifespan <- lifespan %>% select(species, trait_value)
+
+dispersal_syndrome_1 <- dispersal_syndrome_1 %>% select(species, trait_value)
+dispersal_syndrome_2 <- dispersal_syndrome_2 %>% select(species, trait_value)
+
+fruit_type <- fruit_type %>% select(species, trait_value)
+fruit_dryness <- fruit_dryness %>% select(species, trait_value)
+
+fruit_length_mean <- fruit_length_mean %>% select(species, trait_value)
+fruit_length_min <- fruit_length_min %>% select(species, trait_value)
+fruit_length_max <- fruit_length_max %>% select(species, trait_value)
+
+seed_mass_mean <- seed_mass_mean %>% select(species, trait_value)
+seed_mass_min <- seed_mass_min %>% select(species, trait_value)
+seed_mass_max <- seed_mass_max %>% select(species, trait_value)
+
+seed_length_mean <- seed_length_mean %>% select(species, trait_value)
+seed_length_min <- seed_length_min %>% select(species, trait_value)
+seed_length_max <- seed_length_max %>% select(species, trait_value)
+
+seed_width_mean <- seed_width_mean %>% select(species, trait_value)
+seed_width_min <- seed_width_min %>% select(species, trait_value)
+seed_width_max <- seed_width_max %>% select(species, trait_value)
+
+growth_form <- growth_form %>% select(species, trait_value)
+```
+
+```{r}
+# add trait name column
+height_mean$trait_name <- "plant_height"
+height_min$trait_name <- "plant_height_min"
+height_max$trait_name <- "plant_height_max"
+lifespan$trait_name <- "plant_lifespan"
+dispersal_syndrome_1$trait_name <- "dispersal_syndrome_1"
+dispersal_syndrome_2$trait_name <- "dispersal_syndrome_2"
+fruit_type$trait_name <- "fruit_type"
+fruit_dryness$trait_name <- "fruit_dryness"
+fruit_length_mean$trait_name <- "fruit_length_mean"
+fruit_length_min$trait_name <- "fruit_length_min"
+fruit_length_max$trait_name <- "fruit_length_max"
+seed_mass_mean$trait_name <- "seed_mass_mean"
+seed_mass_min$trait_name <- "seed_mass_min"
+seed_mass_max$trait_name <- "seed_mass_max"
+seed_length_mean$trait_name <- "seed_length_mean"
+seed_length_min$trait_name <- "seed_length_min"
+seed_length_max$trait_name <- "seed_length_max"
+seed_width_mean$trait_name <- "seed_width_mean"
+seed_width_min$trait_name <- "seed_width_min"
+seed_width_max$trait_name <- "seed_width_max"
+growth_form$trait_name <- "growth_form"
+```
+
+```{r}
+# convert numeric traits into characters so we can combine into one dataframe
+height_mean$trait_value <- as.character(height_mean$trait_value)
+height_min$trait_value <- as.character(height_min$trait_value)
+height_max$trait_value <- as.character(height_max$trait_value)
+lifespan$trait_value <- as.character(lifespan$trait_value)
+fruit_length_mean$trait_value <- as.character(fruit_length_mean$trait_value)
+fruit_length_min$trait_value <- as.character(fruit_length_min$trait_value)
+fruit_length_max$trait_value <- as.character(fruit_length_max$trait_value)
+seed_mass_mean$trait_value <- as.character(seed_mass_mean$trait_value)
+seed_mass_min$trait_value <- as.character(seed_mass_min$trait_value)
+seed_mass_max$trait_value <- as.character(seed_mass_max$trait_value)
+seed_length_mean$trait_value <- as.character(seed_length_mean$trait_value)
+seed_length_min$trait_value <- as.character(seed_length_min$trait_value)
+seed_length_max$trait_value <- as.character(seed_length_max$trait_value)
+seed_width_mean$trait_value <- as.character(seed_width_mean$trait_value)
+seed_width_min$trait_value <- as.character(seed_width_min$trait_value)
+seed_width_max$trait_value <- as.character(seed_width_max$trait_value)
+```
+
+
+
+```{r}
+#combine all trait dataframes into one long table
+GIFT_traits <- dplyr::bind_rows(height_mean, height_min, height_max, lifespan, dispersal_syndrome_1, dispersal_syndrome_2, fruit_type, fruit_dryness, fruit_length_mean, fruit_length_min, fruit_length_max, seed_mass_mean, seed_mass_min, seed_mass_max, seed_length_mean, seed_length_min, seed_length_max, seed_width_mean, seed_width_min, seed_width_max, growth_form)
+```
+
+# Summary
+```{r}
+glimpse(GIFT_traits)
+```
+
+
+```{r}
+print("The number of records is")
+nrow(GIFT_traits)
+print("The number of species is")
+length(unique(GIFT_traits$species))
+```
+
+```{r}
+GIFT_traits %>% count(trait_name)
+```
+
+# Write data to csv
+```{r}
+write.csv(GIFT_traits, file = file.path(output_path,"TropicalAndes_GIFT_plant_traits.csv"))
+```

@@ -5,41 +5,48 @@
 NSF GRFP
 
 ## Collaborators
-- Hazel J. Anderson: PhD Student, Michigan State University (MSU), [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
-- Phoebe L. Zarnetske: PI, [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
+- Hazel J. Anderson: Ph.D. Student, Michigan State University (MSU), [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
+- Beth E. Gerstner: Ph.D. Candidate, Michigan State University (MSU), [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
+- Phoebe L. Zarnetske: PI, Michigan State University (MSU), [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
 
 ## Directories
 
-All directories are named for the data level, in accordance with guidelines from the [Environmental Data Initiative](https://edirepository.org/resources/thematic-standardization) where Level 0 (L0) raw data are read in and cleaned, then output as Level-1 (L1) data, which are subsequently evaluated and summarized as Level-2 (L2) data.
+All directories are named for the data level, in accordance with guidelines from the [Environmental Data Initiative](https://edirepository.org/resources/thematic-standardization).
 
 ## L0
 The L0 subfolder contains scripts for Level-0 (raw data) analysis. This contains the following scripts:
-- [L0_Ecuador_elevation](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_Ecuador_elevation.Rmd): retrive Ecuador elevation
-- [L0_Ecuador_plants_BIEN](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_Ecuador_plants_BIEN.Rmd): retrive Ecuador plant data from BIEN
-- [L0_Ecuador_plants_GBIF](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_Ecuador_plants_GBIF.Rmd): retrive Ecuador plant data from GBIF
-- [L0_Ecuador_plants_IUCN](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_Ecuador_plants_IUCN.Rmd): retrive Ecuador plant data from IUCN
-- [L0_Ecuador_plants_POWO](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_Ecuador_plants_POWO.Rmd): retrive Ecuador plant data from POWO
-- [L0_Ecuador_plants_TRY](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_Ecuador_plants_TRY.Rmd): retrive Ecuador plant data from TRY
-- [L0_Ecuador_plants_WFO](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_Ecuador_plants_WFO.Rmd): retrive Ecuador plant data from WFO
-- [L0_Ecuador_plants_GIFT](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_Ecuador_plants_GIFT.Rmd): retrive Ecuador plant data from GIFT
+- [L0_TropicalAndes_plants_BIEN_occ](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_TropicalAndes_plants_BIEN_occ.Rmd)): acquire BIEN plant occurrence data using BIEN R package
+- [L0_TropicalAndes_plants_GBIF](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_TropicalAndes_plants_GBIF.Rmd): acquire GBIF plant occurrence data using rgbif R package
+- [L0_TropicalAndes_frugivores_GBIF](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_TropicalAndes_frugivores_GBIF.Rmd): acquire GBIF frugivore occurrence data using rgbif R package
+- [L0_TropicalAndes_plants_BIEN_traits](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_TropicalAndes_plants_BIEN_traits.Rmd): acquire BIEN plant trait data using BIEN R package
+- [L0_TropicalAndes_plants_TRY](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_TropicalAndes_plants_TRY_traits.Rmd): acquire TRY plant trait data using rtry R package
+- [L0_TropicalAndes_frugivores_frugivoria](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_TropicalAndes_frugivores_frugivoria_traits.Rmd): acquire Frugivoria frugivore trait data
+- [L0_TropicalAndes_IUCNhabitatClassification](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L0/L0_TropicalAndes_IUCNhabitatClassification.Rmd): get shapefile of Tropical Andes Forest IUCN designated areas
 
 
 ## L1
 The L1 subfolder contains scripts for Level-1 analysis. This contains the following scripts:
-- [L1_Ecuador_plants_BIEN_occ](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L1/L1_Ecuador_plants_BIEN_occ.Rmd): clean BIEN occurence data
-- [L1_Ecuador_plants_BIEN_traits](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L1/L1_Ecuador_plants_BIEN_traits.Rmd): clean BIEN trait data
-- [L1_Ecuador_plants_GBIF](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L1/L1_Ecuador_plants_GBIF.Rmd): clean GBIF data
-- [L1_Ecuador_plants_IUCN](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L1/L1_Ecuador_plants_IUCN.Rmd): clean IUCN data
-- [L1_Ecuador_plants_TRY](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L1/L1_Ecuador_plants_TRY.Rmd): clean TRY data
+- [L1_TropicalAndes_plants_BIEN_occ](): clean BIEN plant occurrence data
+- [L1_TropicalAndes_plants_BIEN_traits](): clean BIEN plant trait data
+- [L1_TropicalAndes_plants_GBIF](): clean GBIF plant occurrence data
+- [L1_TropicalAndes_plants_TRY](): clean TRY plant trait data
+- [L1_TropicalAndes_frugivores_GBIF](): clean GBIF frugivore occurrence data
+- [L1_TropicalAndes_frugivores_frugivoria](): clean Frugivoria frugivore trait data
+- [L1_TropicalAndes_plant_lookupTable](): create plant species lookup table
+- [L1_TropicalAndes_frugivore_lookupTable](): create frugivore species lookup table
 
 
 ## L2
 The L2 subfolder contains scripts for Level-2 analysis.
-- [L2_Ecuador_plant_occ](https://github.com/bioXgeo/neotropical_plants/blob/master/code/L2/L2_Ecuador_plant_occ.Rmd): combining plant occurrence data
-- [L2_Ecuador_plant_traits(https://github.com/bioXgeo/neotropical_plants/blob/master/code/L2/L2_Ecuador_plant_traits.Rmd): combining plant trait data
+- [L2_1_TropicalAndes_plant_occ](): combine occurrence data from BIEN & GBIF
+- [L2_1_TropicalAndes_plant_traits](): combine trait data from BIEN & TRY
+- [L2_2_TropicalAndes_taxdiv](): calculating taxonomic diversity
+- [L2_2_TropicalAndes_funcdiv](): calculating functional diversity
+- [L2_3_TropicalAndes_divRelationships]():
+- 
 
 
 
 
 
-_This readme last modified by HJA 19 Jan 2023_
+_This readme last modified by HJA 25 Jul 2023_

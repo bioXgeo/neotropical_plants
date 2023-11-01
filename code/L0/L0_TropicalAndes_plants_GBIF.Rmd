@@ -1,0 +1,108 @@
+---
+title: "Tropical Andes plant occurrence data GBIF"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script retrives plant occurrence data from GBIF using a subset of species with IUCN habitat designations ‘Forest-Subtropical/Tropical Moist Montane’ and/or ‘Forest-Subtropical/Tropical Moist Lowland’. Data is also retrived without the subset for species in the countries that make up the Tropical Andes to be spatially subset later, as not many plant species are assessed on the IUCN RedList. "
+data input: "IUCN/Tropical Andes Plants - Search Results/habitats.csv"
+data output: "TropAndes_GBIF_plant_occ.csv"
+date: "2023-07-18"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(dplyr)
+library(rgbif)
+library(raster)
+library(sf)
+```
+
+# Download plant occurrence data from GBIF
+```{r}
+occ_download(
+pred("taxonKey", 6),
+pred("hasCoordinate", TRUE),
+pred("hasGeospatialIssue", FALSE),
+pred_in("country",c("EC","CO","VE", "PE", "BO")),
+format = "SIMPLE_CSV"
+)
+```
+
+## Retrive GBIF download, save file, and load into r
+```{r}
+d1 <- occ_download_get("0009835-231002084531237", path = output_path, overwrite = TRUE) %>%
+  occ_download_import()
+```
+
+# Subset occurrence to Tropical Andes IUCN Montane and Lowland forest
+
+## Read in Forest shape
+```{r}
+TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path, "Forest_sf.shp"), layer = "Forest_sf")
+```
+
+## Convert data frame to sf object
+```{r}
+TropicalAndes_plant_occ <- st_as_sf(x = d1, 
+                        coords = c("decimalLongitude", "decimalLatitude"),
+                        crs = "+proj=longlat +datum=WGS84 +no_defs")
+```
+
+# Crop occurrence data to forest extent
+```{r}
+TropicalAndes_plant_occ_forest <- TropicalAndes_plant_occ[TropicalAndes_IUCNHabitat_Forest,]
+```
+
+## Extract lat and long to seperate columns
+```{r}
+TropicalAndes_plant_occ_forest <- TropicalAndes_plant_occ_forest %>%
+    mutate(decimalLongitude = sf::st_coordinates(.)[,1],
+           decimalLatitude = sf::st_coordinates(.)[,2])
+```
+
+```{r}
+TropicalAndes_plant_occ_forest <- as.data.frame(TropicalAndes_plant_occ_forest)
+```
+
+# Fix column types 
+```{r}
+TropicalAndes_plant_occ_forest$gbifID <- as.character(TropicalAndes_plant_occ_forest$gbifID)
+TropicalAndes_plant_occ_forest$geometry <- NULL
+```
+
+
+# Summary 
+```{r}
+glimpse(TropicalAndes_plant_occ_forest)
+```
+
+```{r}
+print("The number of occurrences is")
+nrow(TropicalAndes_plant_occ_forest)
+print("The number of species is" )
+length(unique(TropicalAndes_plant_occ_forest$species))
+print("The number of genera is" )
+length(unique(TropicalAndes_plant_occ_forest$genus))
+print("The number of families is" )
+length(unique(TropicalAndes_plant_occ_forest$family))
+```
+
+# Extract species list
+```{r}
+GBIF_SpeciesList <- unique(TropicalAndes_plant_occ_forest$species)
+```
+
+
+# Write data to csv
+```{r}
+write.csv(TropicalAndes_plant_occ_forest, file.path(output_path,"TropicalAndes_GBIF_plant_occ.csv"))
+
+write.csv(GBIF_SpeciesList, file.path(output_path,"TropicalAndes_GBIF_plant_species.csv"))
+```

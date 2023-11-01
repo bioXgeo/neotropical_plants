@@ -1,0 +1,42 @@
+Map of Northern Andes
+
+```{r}
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(rnaturalearth)
+library(ggspatial)
+```
+
+```{r}
+worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
+# country subset. 
+ECpoly <- worldMap %>% filter(sovereignt == "Ecuador")
+VEpoly <- worldMap %>% filter(sovereignt == "Venezuela")
+COpoly <- worldMap %>% filter(sovereignt == "Colombia")
+# set color for Northern Andes
+Northern_Andes <- "lightgreen"
+```
+
+
+```{r}
+MapPlot <-
+ggplot() +
+geom_sf(data = worldMap, fill = "White") +
+geom_sf(data = ECpoly, fill = Northern_Andes) +
+geom_sf(data = VEpoly, fill = Northern_Andes) +
+geom_sf(data = COpoly, fill = Northern_Andes) +
+labs(title = "Northern Andes", x = "Latitude", y = "Longitude") +
+coord_sf(xlim = c(-97, -55), ylim = c(-12, 15), expand = FALSE) +
+annotation_scale(location = "bl", width_hint = 0.5) +
+annotation_north_arrow(location = "bl", which_north = "true", 
+  pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"), style = north_arrow_fancy_orienteering) +
+theme(panel.background = element_rect(fill = "lightblue"))
+
+MapPlot
+```
+
+```{r}
+ggsave(filename = "Northern Andes Map.png", dpi = 300, device="png")
+```
+

@@ -1,0 +1,50 @@
+---
+title: "Ecuador plant trait data merging"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "TBD"
+data output: "TBD"
+project: "Frugivoria"
+date: "2022-11-30"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
+```
+
+# Load required packages
+```{r}
+library(bdc)
+```
+
+# Read in the configuration table
+```{r}
+metadata <-
+  readr::read_csv(system.file("ADD FILE PATH HERE",
+                              package = "bdc"),
+                  show_col_types = FALSE)
+```
+
+# Read in BIEN and TRY trait data
+```{r}
+# Path to the folder containing the example datasets. For instance:
+path <- data_path
+
+# Change in the Configuration table the path to the folder in your computer containing the example datasets
+metadata$fileName <-
+  gsub(pattern = "https://raw.githubusercontent.com/brunobrr/bdc/master/inst/extdata/input_files/",
+       replacement = path,
+       x = metadata$fileName)
+```
+
+
+```{r}
+database <-
+bdc_standardize_datasets(metadata = metadata,
+                         format = "csv",
+                         overwrite = TRUE,
+                         save_database = TRUE)
+```

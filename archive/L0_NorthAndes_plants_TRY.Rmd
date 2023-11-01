@@ -1,0 +1,116 @@
+---
+title: "Ecuador plant species TRY data"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "None"
+data output: "Ecuador_TRY_plant_traits.csv"
+project: "Frugivoria"
+date: "2022-10-27"
+output: html_document
+---
+
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(rtry)
+library(DataExplorer)
+library(summarytools)
+library(bdvis)
+```
+
+# Read in TRY data
+Data was obtained from https://www.try-db.org/TryWeb/Prop0.php 
+```{r}
+data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/23650_24112022083128/23650.txt", encoding = "Latin-1")
+data <- as.data.frame(data)
+```
+
+# Explore TRY data
+```{r}
+# explore by trait id and trait name
+TRYdata_explore_trait <- rtry_explore(data, TraitID, TraitName)
+TRYdata_explore_trait
+
+# explore by species id, species name, trait id, and trait name
+TRYdata_explore_species <- rtry_explore(data, AccSpeciesID, AccSpeciesName, TraitID, TraitName)
+TRYdata_explore_species
+
+# explore by data id, data name, trait id, and trait name sorted by trait id
+TRYdata_explore_anc <- rtry_explore(data, DataID, DataName, TraitID, TraitName, sortBy = TraitID)
+TRYdata_explore_anc
+```
+
+# Convert to wide table
+From https://cran.r-project.org/web/packages/rtry/vignettes/rtry-workflow-general.html
+```{r}
+num_traits <- rtry_select_row(data, complete.cases(TraitID) & complete.cases(StdValue), getAncillary = TRUE, rmDuplicates = TRUE)
+num_traits <- rtry_select_col(num_traits, ObservationID, AccSpeciesID, AccSpeciesName, TraitID, TraitName, StdValue, UnitName)
+
+# Extract the unique value of latitude (DataID 59) and the corresponding ObservationID
+workdata_lat <- rtry_select_anc(data, 59)
+
+# Extract the unique value of longitude (DataID 60) and the corresponding ObservationID
+workdata_lon <- rtry_select_anc(data, 60)
+
+# To merge the extracted ancillary data with the numerical traits
+# Merge the relevant data frames based on the ObservationID using rtry_join_left (left join)
+num_traits_georef <- rtry_join_left(num_traits, workdata_lat, baseOn = ObservationID)
+num_traits_georef <- rtry_join_left(num_traits_georef, workdata_lon, baseOn = ObservationID)
+
+TRY_data <- rtry_trans_wider(num_traits_georef, names_from = c(TraitID, TraitName, UnitName), values_from = c(StdValue), values_fn = list(StdValue = mean))
+```
+
+
+# Summary of data
+```{r}
+summary(TRY_data)
+```
+
+### using DataExplorer package
+```{r}
+plot_str(TRY_data)
+introduce(TRY_data)
+plot_intro(TRY_data)
+plot_missing(TRY_data)
+```
+
+### using summarytools package
+```{r}
+ecuador_TRY_plant_traits_summary <- dfSummary(TRY_data, 
+            na.col       = FALSE,
+            style        = "multiline",
+            plain.ascii  = TRUE,
+            graph.magnif = .8)
+print(ecuador_TRY_plant_traits_summary, method = "render")
+view(ecuador_TRY_plant_traits_summary, file = file.path(output_path,"Ecuador_TRY_summary.html"))
+# gives the following error: Error in withCallingHandlers(expr, warning = function(w) if (inherits(w, : 
+#   invalid multibyte string at '<b0>45''
+```
+
+```{r}
+#using bdvis package
+d <- format_bdvis(d, , Latitude = "Latitude", Longitude = "Longitude", Date_collected = "Date_collected", Scientific_name = "AccSpeciesName")
+bdsummary(d)
+d$Date_collected <- as.Date(d$Date_collected)
+bdcalendarheat(d)
+getcellid(d, gridscale = 10)
+distrigraph(d, ptype = "species")
+distrigraph(d, ptype = "efforts")
+distrigraph(d, ptype = "cell")
+distrigraph(d, ptype = "effortspecies")
+bdcomplete(d)
+mapgrid(d, ptype = "species", region = "Ecuador")
+```
+
+# Write data to csv
+```{r}
+ecuador_TRY_plant_traits_path <- file.path(output_path,"Ecuador_TRY_plant_traits.csv")
+write.csv(data, file = ecuador_TRY_plant_traits_path)
+
+```

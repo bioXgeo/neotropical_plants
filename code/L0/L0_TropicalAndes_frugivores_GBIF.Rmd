@@ -1,0 +1,118 @@
+---
+title: "Tropical Andes montane and lowland forest bird and mammal species GBIF"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script retrives plant occurrence data from GBIF using the species list from Frugivoria."
+data input: "TropicalAndes_Frugivoria_frugivore_traits_species.csv"
+data output: "TropicalAndes_GBIF_frugivore_occ.csv and TropicalAndes_GBIF_frugivore_occ_species.csv"
+date: "2023-07-25"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(dplyr)
+library(rgbif) 
+library(sf)
+```
+
+# Read in Frugivoria species list
+```{r}
+frugivore_species <- read.csv(file.path(data_path,"TropicalAndes_Frugivoria_frugivore_traits_species.csv"))
+```
+
+# Match species names to GBIF
+```{r}
+gbif_taxon_keys <- frugivore_species$x %>% 
+name_backbone_checklist() %>% # match to backbone 
+filter(!matchType == "NONE") %>% # get matched names
+pull(usageKey) 
+```
+
+# Download data
+```{r}
+occ_download(
+pred_in("taxonKey", gbif_taxon_keys),
+pred("hasCoordinate", TRUE),
+pred("hasGeospatialIssue", FALSE),
+pred_in("country",c("EC","CO","VE", "PE", "BO")), 
+format = "SIMPLE_CSV"
+)
+```
+
+# Retrive GBIF download, save file, and load into r
+```{r}
+d <- occ_download_get("0009771-231002084531237", path = output_path, overwrite = TRUE) %>%
+  occ_download_import()
+```
+
+# Subset occurrence to Tropical Andes IUCN Montane and Lowland forest
+
+## Read in Forest shape
+```{r}
+TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path, "Forest_sf.shp"), layer = "Forest_sf")
+```
+
+## Convert data frame to sf object
+```{r}
+TropicalAndes_frugivore_occ <- st_as_sf(x = d, 
+                        coords = c("decimalLongitude", "decimalLatitude"),
+                        crs = "+proj=longlat +datum=WGS84 +no_defs")
+```
+
+# Crop occurrence data to forest extent
+```{r}
+TropicalAndes_frugivore_occ_forest <- TropicalAndes_frugivore_occ[TropicalAndes_IUCNHabitat_Forest,]
+```
+
+## Extract lat and long to seperate columns
+```{r}
+TropicalAndes_frugivore_occ_forest <- TropicalAndes_frugivore_occ_forest %>%
+    mutate(decimalLongitude = sf::st_coordinates(.)[,1],
+           decimalLatitude = sf::st_coordinates(.)[,2])
+```
+
+```{r}
+TropicalAndes_frugivore_occ_forest <- as.data.frame(TropicalAndes_frugivore_occ_forest)
+```
+
+# Fix column type 
+```{r}
+TropicalAndes_frugivore_occ_forest$gbifID <- as.character(TropicalAndes_frugivore_occ_forest$gbifID)
+TropicalAndes_frugivore_occ_forest$geometry <- NULL
+```
+
+# Summary 
+```{r}
+glimpse(TropicalAndes_frugivore_occ_forest)
+```
+
+```{r}
+print("The number of records is")
+nrow(TropicalAndes_frugivore_occ_forest)
+print("The number of species is")
+length(unique(TropicalAndes_frugivore_occ_forest$species))
+print("The number of genera is" )
+length(unique(TropicalAndes_frugivore_occ_forest$genus))
+print("The number of families is")
+length(unique(TropicalAndes_frugivore_occ_forest$family))
+```
+
+# Extract species list
+```{r}
+GBIF_occ_SpeciesList <- unique(TropicalAndes_frugivore_occ_forest$species)
+```
+
+# Write data to csv
+```{r}
+write.csv(TropicalAndes_frugivore_occ_forest, file = file.path(output_path,"TropicalAndes_GBIF_frugivore_occ.csv"))
+
+write.csv(GBIF_occ_SpeciesList, file = file.path(output_path,"TropicalAndes_GBIF_frugivore_occ_species.csv"))
+```

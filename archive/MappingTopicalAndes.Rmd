@@ -1,0 +1,61 @@
+Map of Tropical Andes
+
+```{r}
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(rnaturalearth)
+library(ggspatial)
+```
+
+# Load Tropical Andes moist lowland and montane forest shape
+```{r}
+TropicalAndes_IUCNHabitat_Forest <- st_read(file.path(data_path, "TropicalAndes_IUCNHabitat_Forest.shp"))
+```
+
+```{r}
+# set projection to WGS84
+st_crs(TropicalAndes_IUCNHabitat_Forest) = 4326
+TropicalAndes_IUCNHabitat_Forest
+```
+
+```{r}
+worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
+# country subset. 
+ECpoly <- worldMap %>% filter(sovereignt == "Ecuador")
+VEpoly <- worldMap %>% filter(sovereignt == "Venezuela")
+COpoly <- worldMap %>% filter(sovereignt == "Colombia")
+PEpoly <- worldMap %>% filter(sovereignt == "Peru")
+BOpoly <- worldMap %>% filter(sovereignt == "Bolivia")
+#polygon of Tropical Andes
+TApoly <- worldMap %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
+# set color for Tropical Andes
+Tropical_Andes <- "grey"
+Forest <- "darkgreen"
+```
+
+
+```{r}
+MapPlot <-
+ggplot() +
+geom_sf(data = worldMap, fill = "White") +
+geom_sf(data = ECpoly, fill = Tropical_Andes) +
+geom_sf(data = VEpoly, fill = Tropical_Andes) +
+geom_sf(data = COpoly, fill = Tropical_Andes) +
+geom_sf(data = PEpoly, fill = Tropical_Andes) +
+geom_sf(data = BOpoly, fill = Tropical_Andes) +
+geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = Forest) +
+labs(title = "Tropical Andes", x = "Latitude", y = "Longitude") +
+coord_sf(xlim = c(-94, -54), ylim = c(-24, 14), expand = FALSE) +
+annotation_scale(location = "bl", width_hint = 0.5) +
+annotation_north_arrow(location = "bl", which_north = "true", 
+  pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"), style = north_arrow_fancy_orienteering) +
+theme(panel.background = element_rect(fill = "lightblue"))
+
+MapPlot
+```
+
+```{r}
+ggsave(filename = "Tropical Andes Forest Map.png", dpi = 300, device="png")
+```
+

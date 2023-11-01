@@ -1,0 +1,65 @@
+---
+title: "Tropical Andes plant checklist using GIFT"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script retrieves plant checklist data from the GIFT database for Tropical Andes Forest region."
+data input: "Forest_sf.sph"
+data output: ""
+date: "2023-10-17"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(GIFT)
+library(dplyr)
+library(sf)
+```
+
+# Load Tropical Andes Forest shape
+```{r}
+TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path, "Forest_sf.shp"), layer = "Forest_sf")
+```
+
+```{r}
+checklist <- GIFT_checklists(taxon_name = "Angiospermae", taxonomic_group = TRUE, floristic_group = "all", shp = TropicalAndes_IUCNHabitat_Forest, overlap = "extent_intersect")
+```
+```{r}
+glimpse(checklist$checklists)
+```
+```{r}
+#add genus based on work_ID
+full <- GIFT_taxonomy()
+```
+
+```{r}
+genus_ID <- checklist$checklists$genus_ID
+genus_list <- full %>% filter(taxon_ID %in% genus_ID) %>% select(taxon_ID, taxon_name)
+names(genus_list) <- c("genus_ID", "genus")
+```
+
+```{r}
+checklist_tax <- dplyr::inner_join(checklist$checklists, genus_list)
+```
+
+
+```{r}
+print("The number of species is")
+length(unique(checklist_tax$work_species))
+print("The number of genera is")
+length(unique(checklist_tax$genus))
+print("The number of families is")
+length(unique(checklist_tax$family))
+```
+
+# Write data to csv
+```{r}
+write.csv(checklist_tax, file = file.path(output_path,"TropicalAndes_plant_checklist.csv"))
+```

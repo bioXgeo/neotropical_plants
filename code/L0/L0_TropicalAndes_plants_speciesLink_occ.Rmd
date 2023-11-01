@@ -1,0 +1,33 @@
+---
+title: "Tropical Andes plant speciesLink data"
+authors: "Hazel J. Anderson"
+collaborators: "None"
+data input: "none"
+data output: "TBD"
+project: "Frugivoria"
+date: "2023-10-18"
+output: html_document
+---
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+library(Rocc)
+library(tidyr)
+library(dplyr)
+library(sf)
+```
+
+## List of desired countries
+```{r}
+TA_countries <- c("Bolivia", "Ecuador", "Venezuela", "Colombia", "Peru")
+```
+
+```{r}
+TropicalAndes_speciesLink_occ <- rspeciesLink(dir = output_path, filename = "TropicalAndes_speciesLink_occ", basisOfRecord = c('PreservedSpecimen', 'HumanObservation', 'MachineObservation'), country = TA_countries, Coordinates = c("Yes", "Original", "Automatic"), Scope = "plants")
+```
+

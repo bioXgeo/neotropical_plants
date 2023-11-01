@@ -1,0 +1,80 @@
+---
+title: "Cleaning Tropical Andes frugivore GBIF occurrence records"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "Uses CoordinateCleaner to flag and remove problematic records from GBIF frugivore occurrence records."
+data input: "TropicalAndes_GBIF_frugivore_occ.csv"
+data output: "TropicalAndes_GBIF_frugivore_occ_cleaned.csv, TropicalAndes_GBIF_frugivore_occ_flagged.csv"
+date: "2023-07-25"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Load required packages
+```{r}
+library(countrycode)
+library(CoordinateCleaner)
+library(dplyr)
+```
+
+# Read in data
+```{r}
+TropicalAndes_GBIF_frugivore_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_frugivore_occ.csv"))
+```
+
+# Clean data
+Adapted code from https://ropensci.github.io/CoordinateCleaner/articles/Cleaning_GBIF_data_with_CoordinateCleaner.html 
+
+```{r}
+# remove records without coordinates
+TropicalAndes_GBIF_frugivore_occ <- TropicalAndes_GBIF_frugivore_occ %>%
+  filter(!is.na(decimalLongitude)) %>%
+  filter(!is.na(decimalLatitude))
+```
+
+```{r}
+flags <- clean_coordinates(x = TropicalAndes_GBIF_frugivore_occ,
+                           lon = "decimalLongitude",
+                           lat = "decimalLatitude",
+                           countries = "countryCode",
+                           species = "species",
+                           tests = c("capitals", "centroids",
+                                     "duplicates", "equal", "gbif",
+                                     "institutions", "seas","zeros"))
+summary(flags)
+```
+
+```{r}
+#exclude problematic records
+TropicalAndes_GBIF_frugivore_occ_cleaned <- TropicalAndes_GBIF_frugivore_occ[flags$.summary,]
+TropicalAndes_GBIF_frugivore_occ_flagged <- TropicalAndes_GBIF_frugivore_occ[!flags$.summary,]
+```
+
+# Summary
+```{r}
+glimpse(TropicalAndes_GBIF_frugivore_occ_cleaned)
+```
+
+```{r}
+print("The number of records is")
+nrow(TropicalAndes_GBIF_frugivore_occ_cleaned)
+print("The number of species is")
+length(unique(TropicalAndes_GBIF_frugivore_occ_cleaned$species))
+print("The number of genera is" )
+length(unique(TropicalAndes_GBIF_frugivore_occ_cleaned$genus))
+print("The number of families is")
+length(unique(TropicalAndes_GBIF_frugivore_occ_cleaned$family))
+```
+
+# Write data to csv
+```{r}
+write.csv(TropicalAndes_GBIF_frugivore_occ_cleaned, file = file.path(output_path,"TropicalAndes_GBIF_frugivore_occ_cleaned.csv"))
+
+write.csv(TropicalAndes_GBIF_frugivore_occ_flagged, file = file.path(output_path,"TropicalAndes_GBIF_frugivore_occ_flagged.csv"))
+```

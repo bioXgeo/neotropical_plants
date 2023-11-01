@@ -1,0 +1,98 @@
+---
+title: "Ecuador plant species GBIF cleaning"
+author: "Hazel J. Anderson"
+collaborators: "None"
+data input: "Ecuador_GBIF_occurences.csv"
+data output: "TBD"
+project: "Frugivoria"
+date: "2022-10-12"
+output: html_document
+---
+
+# Set file paths
+```{r}
+data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Load required packages
+```{r}
+#remotes::install_github("LimaRAF/plantR")
+library(plantR)
+```
+
+# Read in GBIF data
+```{r}
+gbif_data <- read.csv(file.path(data_path,"Ecuador_GBIF_occurences.csv"))
+# number of rows (records) in imported GBIF data
+nrow(gbif_data)
+```
+
+
+
+# Standardize data
+```{r}
+# Field names
+occs <- formatDwc(gbif_data = gbif_data)
+dim(occs)
+```
+
+```{r}
+# Collection codes, people names, collector number and dates
+occs <- formatOcc(occs)
+```
+
+```{r}
+# Locality information
+occs <- formatLoc(occs)
+```
+
+```{r}
+# Geographical coordinates
+occs <- formatCoord(occs)
+```
+
+```{r}
+# Species and family names
+occs <- formatTax(occs)
+```
+
+# Data validation
+```{r}
+# Locality information
+occs <- validateLoc(occs)
+unique(occs$loc.check)
+```
+
+```{r}
+# Geographical coordinates
+occs <- validateCoord(occs)
+unique(occs$geo.check)
+table(occs$cult.check)
+```
+
+```{r}
+# Species taxonomy and identification
+occs <- validateTax(occs)
+table(occs$tax.check)/dim(occs)[1]
+```
+
+```{r}
+# Duplicate specimens
+occs <- validateDup(occs)
+```                                                                   
+
+# Data Summary and Export
+```{r}
+summ <- summaryData(occs)
+flags <- summaryFlags(occs)
+spp.check <- checkList(occs)
+```
+
+```{r}
+saveData(occs, by = "geo", path = file.path(output_path, "Ecuador_GBIF_occurences_plantR_bygeo.csv"))
+saveData(occs, by = "tax", path = file.path(output_path, "Ecuador_GBIF_occurences_plantR_bytax.csv"))
+Ecuador_GBIF_path <- file.path(output_path,"Ecuador_GBIF_occurences_plantR.csv") 
+write.csv(d, file = Ecuador_GBIF_path)
+```
+
