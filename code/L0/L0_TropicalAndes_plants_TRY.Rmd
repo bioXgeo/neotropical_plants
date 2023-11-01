@@ -26,45 +26,34 @@ library(dplyr)
 # Load TRY data
 Data was obtained from https://www.try-db.org/TryWeb/Prop0.php 
 ```{r}
-try_data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/28165_02082023081407/28165.txt")
+try_data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/29548_24102023041242/29548.txt")
 ```
 
+# Summary
 ```{r}
 glimpse(try_data)
 ```
 
-#Subset to species list
-```{r}
-species_list <- read.csv("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/TropicalAndes_plant_Forest_SpeciesList.csv")
-species_list <- species_list$x
-```
-
-```{r}
-try_data_filtered <- try_data %>%
-  filter(AccSpeciesName %in% species_list)
-```
-
-
-# Summary 
-```{r}
-glimpse(try_data_filtered)
-```
 
 ```{r}
 print("The number of records is")
-nrow(try_data_filtered)
+nrow(try_data)
 print("The number of species is" )
-length(unique(try_data_filtered$AccSpeciesName))
+length(unique(try_data$AccSpeciesName))
 ```
 
 
 ```{r}
-try_data_filtered %>% count(TraitName)
+try_data %>% count(TraitName)
+```
+
+# Get units for each trait
+```{r}
+try_data %>% distinct(TraitName, UnitName)
 ```
 
 
 # Write data to csv
 ```{r}
-TropicalAndes_TRY_path <- file.path(output_path,"TropicalAndes_TRY_plant_traits_forestSpecies.csv") 
-write.csv(try_data_filtered, file = TropicalAndes_TRY_path)
+write.csv(try_data, file = file.path(output_path,"TropicalAndes_TRY_plant_traits.csv") )
 ```

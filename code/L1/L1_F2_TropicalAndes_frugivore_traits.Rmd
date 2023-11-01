@@ -4,9 +4,9 @@ author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "Subsetting Frugivoria to the species and traits of interest"
-data input: ""
-data output: ""
-date: "2023-08-03"
+data input: "TropicalAndes_Frugivoria_frugivore_traits.csv", "TropicalAndes_GBIF_frugivore_occ_cleaned.csv"
+data output: "TropicalAndes_Frugivoria_traits_subset.csv"
+date: "2023-10-31"
 output: html_document
 ---
 
@@ -17,27 +17,29 @@ library(dplyr)
 
 # Set file paths
 ```{r}
-data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-data_path2<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path_L1<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 ```
 
 # Read in data
 ```{r}
-Frugivoria <- read.csv(file.path(data_path, file = "TropicalAndes_Frugivoria_frugivore_traits.csv"))
-frugivore_species <- read.csv(file.path(data_path2, file = "TropicalAndes_frugivore_Forest_SpeciesList.csv"))
+Frugivoria <- read.csv(file.path(data_path_L0, file = "TropicalAndes_Frugivoria_frugivore_traits.csv"))
+frugivore_occ <- read.csv(file.path(data_path_L1, file = "TropicalAndes_GBIF_frugivore_occ_cleaned.csv"))
 ```
 
+# Get species list from frugivore_occ data
 ```{r}
-frugivore_species <- frugivore_species$x
+frugivore_species <- unique(frugivore_occ$species)
 ```
 
+# Subset Frugivoria by species list
 ```{r}
-# subset Frugivoria by species list
 Frugivoria_filtered <- Frugivoria %>%
   filter(IUCN_species_name %in% frugivore_species)
 ```
 
+# Keep only traits of interest
 ```{r}
 # keep columns with traits of diet category, body size, body mass, generation time
 Frugivoria_subset <- Frugivoria_filtered[ , c("IUCN_species_name", "family", "genus", "species", "diet_cat", "body_mass_e", "body_size_mm", "generation_time")]
@@ -48,7 +50,16 @@ Frugivoria_subset <- Frugivoria_filtered[ , c("IUCN_species_name", "family", "ge
 glimpse(Frugivoria_subset)
 ```
 
+```{r}
+source("~/GitHub/neotropical_plants/code/L0/data_summary.R")
+```
+
+```{r}
+data_summary(Frugivoria_subset, Frugivoria_subset$species, Frugivoria_subset$genus, Frugivoria_subset$family)
+```
+
+
 # Write data to csv
 ```{r}
-write.csv(Frugivoria_subset, file.path(output_path,"TropicalAndes_Frugivoria_traits_Forest.csv"))
+write.csv(Frugivoria_subset, file.path(output_path,"TropicalAndes_Frugivoria_traits_subset.csv"))
 ```

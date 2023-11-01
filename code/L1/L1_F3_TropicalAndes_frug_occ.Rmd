@@ -1,5 +1,5 @@
 ---
-title: "TITLE"
+title: "Frugivore occurrence subset by species with complete trait records"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
@@ -12,11 +12,69 @@ output: html_document
 
 # Set file paths
 ```{r}
-data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path_L1<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 ```
 
 # Load required packages
 ```{r}
-
+library(dplyr)
+#run if not installed remotes::install_github("FRBCesab/funbiogeo")
+library(funbiogeo)
 ```
+
+# Read in data
+```{r}
+Frugivoria_subset <- read.csv(file.path(data_path_L1, file = "TropicalAndes_Frugivoria_traits_subset.csv"))
+frugivore_occ <- read.csv(file.path(data_path_L1, file = "TropicalAndes_GBIF_frugivore_occ_cleaned.csv"))
+```
+
+# Check trait coverage
+```{r}
+summary(Frugivoria_subset)
+```
+```{r}
+fb_plot_number_species_by_trait(Frugivoria_subset)
+```
+```{r}
+Frugivoria_complete <- fb_filter_species_by_trait_coverage(Frugivoria_subset, threshold_traits_proportion =  1)
+```
+
+```{r}
+summary(Frugivoria_complete)
+```
+
+```{r}
+fb_plot_number_species_by_trait(Frugivoria_complete)
+```
+
+# Create list of species with complete trait records
+```{r}
+frugivoria_species <- unique(Frugivoria_complete$IUCN_species_name)
+```
+
+# Subset frugivore occurrence data by species list
+```{r}
+frugivore_occ_subset <- frugivore_occ %>%
+  filter(species %in% frugivoria_species)
+```
+
+# Summary
+```{r}
+glimpse(frugivore_occ_subset)
+```
+
+```{r}
+source("~/GitHub/neotropical_plants/code/L0/data_summary.R")
+```
+
+```{r}
+data_summary(frugivore_occ_subset, frugivore_occ_subset$species, frugivore_occ_subset$genus, frugivore_occ_subset$family)
+```
+
+# Write data to csv
+```{r}
+write.csv(frugivor_occ_subset, file.path(output_path,"TropicalAndes_GBIF_frugivore_occ_cleaned_subset.csv"))
+```
+
