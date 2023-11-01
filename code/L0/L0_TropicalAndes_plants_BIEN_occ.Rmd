@@ -22,13 +22,15 @@ library(dplyr)
 library(sf)
 ```
 
-# Load Tropical Andes moist lowland and montane forest shape
+
+# Retrive occurrence data for Tropical Andes countries from BIEN database
+
+## List of desired countries
 ```{r}
-TropicalAndes_IUCNHabitat_Forest <- st_read(file.path(data_path, "TropicalAndes_IUCNHabitat_Forest.shp"))
+TA_countries <- c("Bolivia", "Ecuador", "Venezuela", "Colombia", "Peru")
 ```
 
-
-# Get occurrence data for Tropical Andes from BIEN database
+## Get occurrence data from BIEN
 ```{r}
 TropicalAndes_BIEN_occ <- BIEN_occurrence_sf(TropicalAndes_IUCNHabitat_Forest, all.taxonomy = TRUE, observation.type = TRUE, political.boundaries = TRUE, collection.info = TRUE)
 ```

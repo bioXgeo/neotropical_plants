@@ -1,0 +1,94 @@
+---
+title: "Plant species synonym list"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "Get synonmys for the plant species list of GBIF occurrence data"
+data input: "GBIF_species_list.csv"
+data output: ""
+date: "2023-08-03"
+output: html_document
+---
+
+
+# Set file paths
+```{r}
+data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+```{r}
+library(taxadb)
+#library(taxize)
+library(dplyr)
+```
+
+```{r}
+#create local itis database
+td_create("itis",overwrite=FALSE)
+```
+
+# Read in species list
+```{r}
+GBIF_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_plant_occ_cleaned.csv"))
+GBIF_species_list <- unique(GBIF_occ$species)
+```
+
+```{r}
+GBIF_species_list <- as.data.frame(GBIF_species_list)
+names(GBIF_species_list) <- c("Scientific.Name")
+```
+
+#Using taxize
+```{r}
+species_synonyms <- synonyms(GBIF_species_list$Scientific.Name, db = "pow")
+```
+
+
+# Using taxadb
+```{r}
+#get IDS for each scientific name
+syn1<-GBIF_species_list %>%
+    select(Scientific.Name) %>%
+    mutate(ID=get_ids(Scientific.Name,"itis"))
+```
+
+```{r}
+#Deal with NAs (one name corresponds to more than 1 ITIS code)
+syn1_NA<-as.data.frame(syn1$Scientific.Name[is.na(syn1$ID)])
+colnames(syn1_NA)<-c("name")
+
+NA_IDS<-NULL
+tmp <- NULL
+tmp$name <- NA
+for(i in unique(syn1_NA$name)){
+  tmp <-as.data.frame(filter_name(i, 'itis')[5])
+  tmp$name<-paste0(i)
+  NA_IDS<-rbind(NA_IDS,tmp)
+}
+
+#join with original names
+colnames(syn1)<-c("name","ID")
+IDS<-left_join(syn1,NA_IDS,by="name")
+
+#extract just the unique IDs
+IDS<-data.frame(ID=c(IDS[,"ID"],IDS[,"acceptedNameUsageID"]))
+IDS<-as.data.frame(unique(IDS$ID))
+IDS<-as.data.frame(IDS[-is.na(IDS)])
+colnames(IDS)<-"ID"
+#extract all names with synonyms in ITIS that are at the species level
+#set query
+ITIS<-taxa_tbl("itis") %>%
+  select(scientificName,taxonRank,acceptedNameUsageID,taxonomicStatus) %>%
+  filter(taxonRank == "species")
+
+#see query
+ITIS %>% show_query()
+#retrieve results
+ITIS_names<-ITIS %>% collect()
+
+#filter to only those that match ITIS codes for all my species
+ITIS_names<-ITIS_names %>%
+  filter(acceptedNameUsageID %in% IDS$ID)
+```
+
