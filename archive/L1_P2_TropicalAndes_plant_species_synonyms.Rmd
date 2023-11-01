@@ -41,7 +41,7 @@ names(GBIF_species_list) <- c("Scientific.Name")
 
 #Using taxize
 ```{r}
-species_synonyms <- synonyms(GBIF_species_list$Scientific.Name, db = "pow", rows = 1)
+species_synonyms <- synonyms(GBIF_species_list$Scientific.Name, db = "pow")
 ```
 
 
@@ -49,8 +49,11 @@ species_synonyms <- synonyms(GBIF_species_list$Scientific.Name, db = "pow", rows
 ```{r}
 #get IDS for each scientific name
 syn1<-GBIF_species_list %>%
-  mutate(ID=get_ids(Scientific.Name,"itis"))
+    select(Scientific.Name) %>%
+    mutate(ID=get_ids(Scientific.Name,"itis"))
+```
 
+```{r}
 #Deal with NAs (one name corresponds to more than 1 ITIS code)
 syn1_NA<-as.data.frame(syn1$Scientific.Name[is.na(syn1$ID)])
 colnames(syn1_NA)<-c("name")
