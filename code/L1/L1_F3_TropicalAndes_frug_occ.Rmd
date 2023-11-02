@@ -4,8 +4,8 @@ author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "This script subsets frugivore occurrence data to species with complete trait coverage."
-data input: "ADD"
-data output: "ADD"
+data input: "TropicalAndes_Frugivoria_traits_subset.csv", "TropicalAndes_GBIF_frugivore_occ_cleaned.csv"
+data output: "TropicalAndes_GBIF_frugivore_occ_cleaned_subset.csv"
 date: "2023-10-04"
 output: html_document
 ---
