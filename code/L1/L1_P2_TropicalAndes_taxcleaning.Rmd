@@ -10,17 +10,19 @@ date: "2023-07-25"
 output: html_document
 ---
 
+# Load required packages
+```{r}
+library(knitr)
+library(TNRS)
+library(bdc)
+library(dplyr)
+```
+
 # Set file paths
 ```{r}
 data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
-```
-
-# Load required packages
-```{r}
-library(knitr)
-library(TNRS)
 ```
 
 # Read in data
@@ -45,278 +47,117 @@ length(TRY_species)
 length(BIEN_species)
 length(GIFT_species)
 ```
+## combine species list together
+```{r}
+all_species <- c(GBIF_species, TRY_species, BIEN_species, GIFT_species)
+all_species <- unique(all_species)
+length(all_species)
+```
+# Remove NAs
+```{r}
+all_species <- all_species[!is.na(all_species)]
+length(all_species)
+```
+
+# Use Rocc to check scientific names 
+Adapted from tutorial https://liibre.github.io/Rocc/articles/articles/check_taxa.html
+```{r}
+name_check_results <- bdc_clean_names(sci_names = all_species, save_outputs = FALSE)
+```
+```{r}
+all_species_cleaned <- name_check_results$names_clean
+```
+
 
 # Using TNRS to get harmonize taxonomy
-## GBIF species
-```{r}
-#split up to speed up api call
-GBIF_species1 <-GBIF_species[1:2245]
-GBIF_species2 <-GBIF_species[2245:6745]
-GBIF_species3 <-GBIF_species[6745:11245]
-GBIF_species4 <-GBIF_species[11245:15745]
-GBIF_species5 <-GBIF_species[15745:20245]
-GBIF_species6 <-GBIF_species[16553:20245]
-GBIF_species7 <-GBIF_species[20245:24745]
-GBIF_species8 <-GBIF_species[24745:29245]
-GBIF_species9 <-GBIF_species[29245:33745]
-GBIF_species10 <-GBIF_species[33745:38245]
-GBIF_species11 <-GBIF_species[38245:42745]
-GBIF_species12 <-GBIF_species[42745:47245]
-```
 
 ```{r}
-GBIF_results1 <- TNRS(taxonomic_names = GBIF_species1)
-GBIF_results2 <- TNRS(taxonomic_names = GBIF_species2)
-GBIF_results3 <- TNRS(taxonomic_names = GBIF_species3)
-GBIF_results4 <- TNRS(taxonomic_names = GBIF_species4)
-GBIF_results5 <- TNRS(taxonomic_names = GBIF_species5)
-GBIF_results6 <- TNRS(taxonomic_names = GBIF_species6)
-GBIF_results7 <- TNRS(taxonomic_names = GBIF_species7)
-GBIF_results8 <- TNRS(taxonomic_names = GBIF_species8)
-GBIF_results9 <- TNRS(taxonomic_names = GBIF_species9)
-GBIF_results10 <- TNRS(taxonomic_names = GBIF_species10)
-GBIF_results11 <- TNRS(taxonomic_names = GBIF_species11)
-GBIF_results12 <- TNRS(taxonomic_names = GBIF_species12)
-```
-
-```{r}
-#combine results
-GBIF_results <- rbind(GBIF_results1, GBIF_results2, GBIF_results3, GBIF_results4, GBIF_results5, GBIF_results6, GBIF_results7, GBIF_results8, GBIF_results9, GBIF_results10, GBIF_results11, GBIF_results12)
-```
-
-## TRY species
-```{r}
-#split up to speed up api call
-TRY_species1 <-TRY_species[1:5000]
-TRY_species2 <-TRY_species[5001:10000]
-TRY_species3 <-TRY_species[10001:15000]
-TRY_species4 <-TRY_species[15001:20000]
-TRY_species5 <-TRY_species[20001:25000]
-TRY_species6 <-TRY_species[25001:30000]
-TRY_species7 <-TRY_species[30001:35000]
-TRY_species8 <-TRY_species[35001:40000]
-TRY_species9 <-TRY_species[40001:45000]
-TRY_species10 <-TRY_species[45001:50000]
-TRY_species11 <-TRY_species[50001:55000]
-TRY_species12 <-TRY_species[55001:60000]
-TRY_species13 <-TRY_species[60001:65000]
-TRY_species14 <-TRY_species[65001:70000]
-TRY_species15 <-TRY_species[70001:75000]
-TRY_species16 <-TRY_species[75001:80000]
-TRY_species17 <-TRY_species[80001:85000]
-TRY_species18 <-TRY_species[85001:90000]
-TRY_species19 <-TRY_species[90001:95000]
-TRY_species20 <-TRY_species[95001:100000]
-TRY_species21 <-TRY_species[100001:105000]
-TRY_species22 <-TRY_species[105001:110000]
-TRY_species23 <-TRY_species[110001:115000]
-TRY_species24 <-TRY_species[115001:120000]
-TRY_species25 <-TRY_species[120001:125000]
-TRY_species26 <-TRY_species[125001:130000]
-TRY_species27 <-TRY_species[130001:135000]
-TRY_species28 <-TRY_species[135001:140000]
-TRY_species29 <-TRY_species[140001:145000]
-TRY_species30 <-TRY_species[145001:150000]
-TRY_species31 <-TRY_species[150001:155000]
-TRY_species32 <-TRY_species[155001:160000]
-TRY_species33 <-TRY_species[160001:165000]
-TRY_species34 <-TRY_species[165001:170000]
-TRY_species35 <-TRY_species[170001:175000]
-TRY_species36 <-TRY_species[175001:180000]
-TRY_species37 <-TRY_species[180001:185000]
-TRY_species38 <-TRY_species[185001:190000]
-TRY_species39 <-TRY_species[190001:195000]
-TRY_species40 <-TRY_species[195001:200000]
-TRY_species41 <-TRY_species[200001:205000]
-TRY_species42 <-TRY_species[205001:210000]
-TRY_species43 <-TRY_species[210001:215000]
-TRY_species44 <-TRY_species[215001:220000]
-TRY_species45 <-TRY_species[220001:225000]
-TRY_species46 <-TRY_species[225001:230000]
-TRY_species47 <-TRY_species[230001:235000]
-TRY_species48 <-TRY_species[235001:240000]
-TRY_species49 <-TRY_species[240001:245000]
-TRY_species50 <-TRY_species[245001:250000]
-TRY_species51 <-TRY_species[250001:255000]
-TRY_species52 <-TRY_species[255001:260000]
-TRY_species53 <-TRY_species[260001:265000]
-TRY_species54 <-TRY_species[265001:270000]
-TRY_species55 <-TRY_species[270001:275000]
-TRY_species56 <-TRY_species[275001:280000]
-TRY_species57 <-TRY_species[280001:285000]
-TRY_species58 <-TRY_species[285001:290000]
-TRY_species59 <-TRY_species[290001:295000]
-TRY_species60 <-TRY_species[295001:300000]
-TRY_species61 <-TRY_species[300001:305000]
-TRY_species62 <-TRY_species[305001:310000]
-TRY_species63 <-TRY_species[310001:315000]
-TRY_species64 <-TRY_species[315001:320000]
-TRY_species65 <-TRY_species[320001:325000]
-TRY_species66 <-TRY_species[325001:330000]
-TRY_species67 <-TRY_species[330001:335000]
-TRY_species68 <-TRY_species[335001:340000]
-TRY_species69 <-TRY_species[340001:345000]
-TRY_species70 <-TRY_species[345001:350000]
-TRY_species71 <-TRY_species[350001:355000]
-TRY_species72 <-TRY_species[355001:360000]
-TRY_species73 <-TRY_species[360001:365000]
-TRY_species74 <-TRY_species[365001:370000]
-TRY_species75 <-TRY_species[370001:375000]
-TRY_species76 <-TRY_species[375001:380000]
-TRY_species77 <-TRY_species[380001:385000]
-TRY_species78 <-TRY_species[385001:390000]
-TRY_species79 <-TRY_species[390001:395000]
-TRY_species80 <-TRY_species[395001:400000]
-```
-
-```{r}
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results2 <- TNRS(taxonomic_names = TRY_species2)
-TRY_results3 <- TNRS(taxonomic_names = TRY_species3)
-TRY_results4 <- TNRS(taxonomic_names = TRY_species4)
-TRY_results5 <- TNRS(taxonomic_names = TRY_species5)
-TRY_results6 <- TNRS(taxonomic_names = TRY_species6)
-TRY_results7 <- TNRS(taxonomic_names = TRY_species7)
-TRY_results8 <- TNRS(taxonomic_names = TRY_species8)
-TRY_results9 <- TNRS(taxonomic_names = TRY_species9)
-TRY_results10 <- TNRS(taxonomic_names = TRY_species10)
-TRY_results11 <- TNRS(taxonomic_names = TRY_species11)
-TRY_results12 <- TNRS(taxonomic_names = TRY_species12)
-TRY_results13 <- TNRS(taxonomic_names = TRY_species13)
-TRY_results14 <- TNRS(taxonomic_names = TRY_species14)
-TRY_results15 <- TNRS(taxonomic_names = TRY_species15)
-TRY_results16 <- TNRS(taxonomic_names = TRY_species16)
-TRY_results17 <- TNRS(taxonomic_names = TRY_species17)
-TRY_results18 <- TNRS(taxonomic_names = TRY_species18)
-TRY_results19 <- TNRS(taxonomic_names = TRY_species19)
-TRY_results20 <- TNRS(taxonomic_names = TRY_species20)
-TRY_results21 <- TNRS(taxonomic_names = TRY_species21)
-TRY_results22 <- TNRS(taxonomic_names = TRY_species22)
-TRY_results23 <- TNRS(taxonomic_names = TRY_species23)
-TRY_results24 <- TNRS(taxonomic_names = TRY_species24)
-TRY_results25 <- TNRS(taxonomic_names = TRY_species25)
-TRY_results26 <- TNRS(taxonomic_names = TRY_species26)
-TRY_results27 <- TNRS(taxonomic_names = TRY_species27)
-TRY_results28 <- TNRS(taxonomic_names = TRY_species28)
-TRY_results29 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results30 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results31 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results32 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results33 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results34 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results35 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results36 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results37 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results38 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results39 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results40 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results41 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results42 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results43 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results44 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results45 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results46 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results47 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results48 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results49 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results50 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results51 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results52 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results53 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results54 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results55 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results56 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results57 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results58 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-TRY_results1 <- TNRS(taxonomic_names = TRY_species1)
-```
-
-```{r}
-#combine results
-GBIF_results <- rbind(GBIF_results1, GBIF_results2, GBIF_results3, GBIF_results4, GBIF_results5, GBIF_results6, GBIF_results7, GBIF_results8, GBIF_results9, GBIF_results10, GBIF_results11, GBIF_results12)
-```
-
-## BIEN species
-```{r}
-BIEN_results <- TNRS(taxonomic_names = BIEN_species)
-```
-
-## GIFT species
-```{r}
-GIFT_results <- TNRS(taxonomic_names = GIFT_species)
+all_species_hamonized_results <- TNRS(taxonomic_names = all_species_cleaned)
 ```
 
 
-# Save full results
+# Subset TNRS results to species with matches, conflicts, and disparties
 ```{r}
-write.csv(BIEN_results, file.path(output_path,"BIEN_plant_species_resolved_output_full.csv"))
-write.csv(TRY_results, file.path(output_path,"TRY_plant_species_resolved_output_full.csv"))
-write.csv(GBIF_results, file.path(output_path,"GBIF_plant_species_resolved_output_full.csv"))
-write.csv(GIFT_results, file.path(output_path,"GIFT_plant_species_resolved_output_full.csv"))
-```
-
-# Subset results to species with matches, conflicts, and disparties
-Name_submitted values not the same as Accepted_name
-```{r}
-GBIF_matches <- subset(GBIF_results, Taxonomic_status == "Accepted")
-nrow(GBIF_matches)
-GBIF_conflicts <- subset(GBIF_results, Taxonomic_status == "Synonym")
-nrow(GBIF_conflicts)
-GBIF_disparities <- subset(GBIF_results, Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", ""))
-nrow(GBIF_disparities)
-```
-
-```{r}
-TRY_matches <- subset(TRY_results, Taxonomic_status == "Accepted")
-nrow(TRY_matches)
-TRY_conflicts <- subset(TRY_results, Taxonomic_status == "Synonym")
-nrow(TRY_conflicts)
-TRY_disparities <- subset(TRY_results, Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", ""))
-nrow(TRY_disparities)
-```
-
-```{r}
-BIEN_matches <- subset(BIEN_results, Taxonomic_status == "Accepted")
-nrow(BIEN_matches)
-BIEN_conflicts <- subset(BIEN_results, Taxonomic_status == "Synonym")
-nrow(BIEN_conflicts)
-BIEN_disparities <- subset(BIEN_results, Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", ""))
-nrow(BIEN_disparities)
-```
-
-```{r}
-GIFT_matches <- subset(GIFT_results, Taxonomic_status == "Accepted")
-nrow(GIFT_matches)
-GIFT_conflicts <- subset(GIFT_results, Taxonomic_status == "Synonym")
-nrow(GIFT_conflicts)
-GIFT_disparities <- subset(GIFT_results, Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", ""))
-nrow(GIFT_disparities)
+unique(all_species_hamonized_results$Taxonomic_status)
 ```
 
 
+```{r}
+all_species_matches <- subset(all_species_hamonized_results, Taxonomic_status == "Accepted")
+nrow(all_species_matches)
+all_species_conflicts <- subset(all_species_hamonized_results, Taxonomic_status == "Synonym")
+nrow(all_species_conflicts)
 
-# Checking 
+# Disparties
+all_species_no.opinion <- subset(all_species_hamonized_results, Taxonomic_status == "No opinion")
+nrow(all_species_no.opinion)
+all_species_illegitimate <- subset(all_species_hamonized_results, Taxonomic_status == "Illegitimate")
+nrow(all_species_illegitimate)
+all_species_invalid <- subset(all_species_hamonized_results, Taxonomic_status == "Invalid")
+nrow(all_species_invalid)
+all_species_other <- subset(all_species_hamonized_results, Taxonomic_status == "")
+nrow(all_species_other)
+```
+# Create species list of names with disparities
+```{r}
+all_species_disparities <- all_species_hamonized_results %>%
+                            filter(Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", "")) %>%
+                            select(Name_submitted)
+```
+
+# Use bdc to harmonize disparities
+## Using ITIS database
+```{r}
+all_species_disparities_col_results <- bdc_query_names_taxadb(sci_name = all_species_disparities$Name_submitted, replace_synonyms = TRUE,suggest_names = TRUE, db = "col", rank_name = "Plantae", rank = "kingdom")
+```
+
+## Subset COL results to accepted, synonym, and NA
+
+```{r}
+unique(all_species_disparities_col_results$taxonomicStatus)
+```
+
+```{r}
+all_species_col_accepted <- subset(all_species_disparities_col_results, taxonomicStatus == "accepted")
+nrow(all_species_col_accepted)
+all_species_col_synonym <- subset(all_species_disparities_col_results, taxonomicStatus == "synonym")
+nrow(all_species_col_synonym)
+all_species_col_NA <- subset(all_species_disparities_col_results, is.na(taxonomicStatus))
+nrow(all_species_col_NA)
+```
+
+# Create lookup table
+## From TNRS
+```{r}
+species_matches <- all_species_matches[ , c("Name_submitted", "Name_matched", "Source")]
+species_corrected <- all_species_conflicts[ , c("Name_submitted", "Name_matched", "Source")]
+```
+
+## From bdc using COL
+```{r}
+species_col_accepted <- all_species_col_accepted[ , c("original_search", "suggested_name")]
+species_col_accepted$source <- c("col")
+species_col_synonmyn <- all_species_col_synonym[ , c("original_search", "suggested_name")]
+species_col_synonmyn$source <- c("col")
+```
+
+
+```{r}
+# combine to create lookup table
+lookup_table <- rbind(species_matches, species_corrected)
+```
+
+# Save lookup table as csv
+```{r}
+
+```
+
+# Update data files species names using lookup table
+```{r}
+
+```
+
+# Write data to csv
 ```{r}
 
 ```
