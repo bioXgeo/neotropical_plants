@@ -59,8 +59,7 @@ all_species <- all_species[!is.na(all_species)]
 length(all_species)
 ```
 
-# Use Rocc to check scientific names 
-Adapted from tutorial https://liibre.github.io/Rocc/articles/articles/check_taxa.html
+# Use bdc to check scientific names 
 ```{r}
 name_check_results <- bdc_clean_names(sci_names = all_species, save_outputs = FALSE)
 ```
@@ -126,12 +125,25 @@ all_species_col_NA <- subset(all_species_disparities_col_results, is.na(taxonomi
 nrow(all_species_col_NA)
 ```
 
+# Create list of species still unharmonized
+```{r}
+unresolved_species <- all_species_col_NA$original_search
+```
+
+
 # Create lookup table
 ## From TNRS
 ```{r}
 species_matches <- all_species_matches[ , c("Name_submitted", "Name_matched", "Source")]
 species_corrected <- all_species_conflicts[ , c("Name_submitted", "Name_matched", "Source")]
 ```
+
+```{r}
+#combine
+lookup_table_TNRS <- rbind(species_matches, species_corrected)
+lookup_table_TNRS$harmonization_package <- c("TNRS")
+```
+
 
 ## From bdc using COL
 ```{r}
@@ -141,21 +153,47 @@ species_col_synonmyn <- all_species_col_synonym[ , c("original_search", "suggest
 species_col_synonmyn$source <- c("col")
 ```
 
+```{r}
+#update col names
+colnames(species_col_accepted) <- c("Name_submitted", "Name_matched", "Source")
+colnames(species_col_synonmyn) <- c("Name_submitted", "Name_matched", "Source")
+```
 
 ```{r}
-# combine to create lookup table
-lookup_table <- rbind(species_matches, species_corrected)
+#combine
+lookup_table_bdc <- rbind(species_col_accepted, species_col_synonmyn)
+lookup_table_bdc$harmonization_package <- c("bdc")
+```
+
+
+## Combine to create lookup table
+```{r}
+lookup_table <- rbind(lookup_table_TNRS, lookup_table_bdc)
+nrow(lookup_table)
 ```
 
 # Save lookup table as csv
 ```{r}
-
+write.csv(lookup_table, file.path(output_path,"plant_lookup_table.csv"))
 ```
 
 # Update data files species names using lookup table
+## GBIF
+```{r}
+# filter data to species in lookup_table$Names_submitted
+GBIF_occ_subset <- GBIF_occ %>%
+  filter(species %in% lookup_table$Name_submitted)
+nrow(GBIF_occ_subset)
+# replace species with lookup_table$Name_matched
+GBIF_occ_subset_harmonized <- GBIF_occ_subset %>% mutate(species = replace(species, species %in% lookup_table$Name_submitted, lookup_table$Name_matched))
+nrow(GBIF_occ_subset_harmonized)
+```
+
+# Summary
 ```{r}
 
 ```
+
 
 # Write data to csv
 ```{r}
