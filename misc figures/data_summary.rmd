@@ -1,0 +1,68 @@
+Summary plots
+# Load required packages
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+# devtools::install_github("pedropark99/ggfunnel")
+library(ggfunnel)
+library(ggpubr)
+```
+
+```{r}
+Step <- c("Raw", "After cleaning", "Full trait coverage")
+frug_records <- c(8089513, 1721825, 1667892)
+frug_species <- c(1222, 1219, 1074)
+frug_genera <- c(400, 398, 370)
+frug_families <- c(66, 66, 64)
+
+frug_records_df <- data.frame(Step, frug_records)
+frug_species_df <- data.frame(Step, frug_species)
+frug_genera_df <- data.frame(Step, frug_genera)
+frug_families_df <- data.frame(Step, frug_families)
+```
+
+```{r}
+ggplot(frug_records_df, aes(x = Step, y = frug_records)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  geom_text(aes(label = frug_records), color = "white") + 
+  theme(axis.title.x = element_blank(), axis.text.x = element_blank(),axis.ticks.x = element_blank(), axis.title.y = element_blank())
+```
+```{r}
+frug_records_fig <- ggfunnel::funnel(frug_records_df, levels = Step, values = frug_records, text_specs = list(colour = "white", size = 3)) +
+  labs(title = "Frugivore records", y = NULL)
+frug_records_fig
+```
+
+```{r}
+frug_species_fig <- ggfunnel::funnel(frug_species_df, levels = Step, values = frug_species, text_specs = list(colour = "white", size = 3)) +
+  labs(title = "Frugivore species", y = NULL)
+frug_species_fig
+```
+
+```{r}
+frug_genera_fig <- ggfunnel::funnel(frug_genera_df, levels = Step, values = frug_genera, text_specs = list(colour = "white", size = 3)) +
+  labs(title = "Frugivore genera", y = NULL)
+frug_genera_fig
+```
+
+```{r}
+frug_families_fig <- ggfunnel::funnel(frug_families_df, levels = Step, values = frug_families, text_specs = list(colour = "white", size = 3)) +
+  labs(title = "Frugivore families", y = NULL)
+frug_families_fig
+```
+
+
+```{r}
+figure <- ggarrange(frug_records_fig,frug_species_fig, frug_genera_fig, frug_families_fig,
+                    labels = c("A", "B", "C", "D"),
+                    ncol = 2, nrow = 2)
+figure
+```
+
+```{r}
+devtools::session_info()
+```
+
