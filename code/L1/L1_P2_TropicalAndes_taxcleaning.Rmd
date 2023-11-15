@@ -7,7 +7,10 @@ overview: ""
 data input: ""
 data output: ""
 date: "2023-07-25"
-output: html_document
+output: 
+  html_document: 
+    toc: yes
+    df_print: tibble
 ---
 
 # Load required packages
@@ -65,6 +68,7 @@ name_check_results <- bdc_clean_names(sci_names = all_species, save_outputs = FA
 ```
 ```{r}
 all_species_cleaned <- name_check_results$names_clean
+length(all_species_cleaned)
 ```
 
 
@@ -77,6 +81,7 @@ all_species_hamonized_results <- TNRS(taxonomic_names = all_species_cleaned)
 
 # Subset TNRS results to species with matches, conflicts, and disparties
 ```{r}
+nrow(all_species_hamonized_results)
 unique(all_species_hamonized_results$Taxonomic_status)
 ```
 
@@ -102,16 +107,17 @@ nrow(all_species_other)
 all_species_disparities <- all_species_hamonized_results %>%
                             filter(Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", "")) %>%
                             select(Name_submitted)
+nrow(all_species_disparities)
 ```
 
+
 # Use bdc to harmonize disparities
-## Using ITIS database
+## Using COL database
 ```{r}
 all_species_disparities_col_results <- bdc_query_names_taxadb(sci_name = all_species_disparities$Name_submitted, replace_synonyms = TRUE,suggest_names = TRUE, db = "col", rank_name = "Plantae", rank = "kingdom")
 ```
 
 ## Subset COL results to accepted, synonym, and NA
-
 ```{r}
 unique(all_species_disparities_col_results$taxonomicStatus)
 ```
@@ -134,8 +140,8 @@ unresolved_species <- all_species_col_NA$original_search
 # Create lookup table
 ## From TNRS
 ```{r}
-species_matches <- all_species_matches[ , c("Name_submitted", "Name_matched", "Source")]
-species_corrected <- all_species_conflicts[ , c("Name_submitted", "Name_matched", "Source")]
+species_matches <- all_species_matches[ , c("Name_submitted", "Accepted_species", "Source")]
+species_corrected <- all_species_conflicts[ , c("Name_submitted", "Accepted_species", "Source")]
 ```
 
 ```{r}
@@ -147,16 +153,16 @@ lookup_table_TNRS$harmonization_package <- c("TNRS")
 
 ## From bdc using COL
 ```{r}
-species_col_accepted <- all_species_col_accepted[ , c("original_search", "suggested_name")]
+species_col_accepted <- all_species_col_accepted[ , c("original_search", "scientificName")]
 species_col_accepted$source <- c("col")
-species_col_synonmyn <- all_species_col_synonym[ , c("original_search", "suggested_name")]
+species_col_synonmyn <- all_species_col_synonym[ , c("original_search", "scientificName")]
 species_col_synonmyn$source <- c("col")
 ```
 
 ```{r}
 #update col names
-colnames(species_col_accepted) <- c("Name_submitted", "Name_matched", "Source")
-colnames(species_col_synonmyn) <- c("Name_submitted", "Name_matched", "Source")
+colnames(species_col_accepted) <- c("Name_submitted", "Accepted_species", "Source")
+colnames(species_col_synonmyn) <- c("Name_submitted", "Accepted_species", "Source")
 ```
 
 ```{r}
@@ -184,14 +190,34 @@ write.csv(lookup_table, file.path(output_path,"plant_lookup_table.csv"))
 GBIF_occ_subset <- GBIF_occ %>%
   filter(species %in% lookup_table$Name_submitted)
 nrow(GBIF_occ_subset)
-# replace species with lookup_table$Name_matched
-GBIF_occ_subset_harmonized <- GBIF_occ_subset %>% mutate(species = replace(species, species %in% lookup_table$Name_submitted, lookup_table$Name_matched))
+# add accepted species column from lookup table based on species column
+GBIF_occ_subset_harmonized <- merge(GBIF_occ_subset, lookup_table, by.x = "species", by.y = "Name_submitted")
 nrow(GBIF_occ_subset_harmonized)
 ```
 
-# Summary
+## TRY
 ```{r}
 
+```
+
+## BIEN
+```{r}
+
+```
+
+## GIFT
+```{r}
+
+```
+
+
+# Summary
+```{r}
+source("~/GitHub/neotropical_plants/functions/data_summary.R")
+```
+
+```{r}
+data_summary(GBIF_occ_subset_harmonized, GBIF_occ_subset_harmonized$species, GBIF_occ_subset_harmonized$genus, GBIF_occ_subset_harmonized$family)
 ```
 
 
