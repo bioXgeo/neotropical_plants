@@ -6,17 +6,51 @@ collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "This script subsets plant trait data by synonyms species list and combine."
 data input: "ADD"
 data output: "ADD"
-date: "2023-10-04"
+date: "2023-11-04"
 output: html_document
 ---
 
-# Set file paths
-```{r}
-data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
-output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
-```
-
 # Load required packages
 ```{r}
-
+library(dplyr)
 ```
+
+# Set file paths
+```{r}
+data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Read in data
+```{r}
+plant_occ <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_plant_occ_cleaned.csv"))
+TRY_traits <- read.csv(file.path(data_path_L0,"TropicalAndes_TRY_plant_traits.csv"))
+BIEN_traits <- read.csv(file.path(data_path_L0,"AllDesired_BIEN_plant_traits.csv"))
+GIFT_traits <- read.csv(file.path(data_path_L0,"TropicalAndes_GIFT_plant_traits.csv"))
+```
+
+# Get species list from plant_occ data
+```{r}
+plant_species <- unique(plant_occ$species)
+```
+
+# Subset TRY, BIEN, and GIFT by species list
+## TRY
+```{r}
+TRY_filtered <- TRY_traits %>%
+  filter(SpeciesName %in% plant_species)
+```
+
+## BIEN
+```{r}
+BIEN_filtered <- BIEN_traits %>%
+  filter(scrubbed_species_binomial %in% plant_species)
+```
+
+## GIFT
+```{r}
+GIFT_filtered <- GIFT_traits %>%
+  filter(species %in% plant_species)
+```
+
