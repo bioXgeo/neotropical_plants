@@ -105,13 +105,13 @@ all_species_invalid <- subset(all_species_hamonized_results, Taxonomic_status ==
 nrow(all_species_invalid)
 all_species_other <- subset(all_species_hamonized_results, Taxonomic_status == "")
 nrow(all_species_other)
-all_species_NA <- subset(all_species_hamonized_results, Taxonomic_status == NA)
+all_species_NA <- subset(all_species_hamonized_results, is.na(all_species_hamonized_results$Taxonomic_status))
 nrow(all_species_NA)
 ```
 # Create species list of names with disparities
 ```{r}
 all_species_disparities <- all_species_hamonized_results %>%
-                            filter(Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", "")) %>%
+                            filter(Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", "", NA)) %>%
                             select(Name_submitted)
 nrow(all_species_disparities)
 ```
@@ -204,9 +204,10 @@ lookup_table <- subset(lookup_table, !is.na(Accepted_species))
 nrow(lookup_table)
 ```
 
-# Save lookup table as csv
+# Save lookup table and unresolved species list as csv
 ```{r}
 write.csv(lookup_table, file.path(output_path,"plant_lookup_table.csv"), row.names = FALSE)
+write.csv(unresolved_species, file.path(output_path,"plant_unresolved_species.csv"), row.names = FALSE)
 ```
 
 # Update data files species names using lookup table
@@ -244,27 +245,74 @@ nrow(TRY_traits_subset_harmonized)
 
 ## BIEN
 ```{r}
+# filter data to species in lookup_table$Names_submitted
+BIEN_traits_subset <- BIEN_traits %>%
+  filter(scrubbed_species_binomial %in% lookup_table$Name_submitted)
+nrow(BIEN_traits_subset)
+# filter lookup_table to species in data
+lookup_table_subset <- lookup_table %>%
+  filter(Name_submitted %in% BIEN_traits_subset$scrubbed_species_binomial)
+nrow(lookup_table_subset)
 
+## add accepted species column from lookup table based on species column
+BIEN_traits_subset_harmonized <- right_join(lookup_table_subset, BIEN_traits_subset, join_by(Name_submitted == scrubbed_species_binomial), keep = TRUE, relationship = "one-to-many")
+nrow(BIEN_traits_subset_harmonized)
 ```
 
 ## GIFT
 ```{r}
+GIFT_traits_subset <- GIFT_traits %>%
+  filter(species %in% lookup_table$Name_submitted)
+nrow(GIFT_traits_subset)
+# filter lookup_table to species in data
+lookup_table_subset <- lookup_table %>%
+  filter(Name_submitted %in% GIFT_traits_subset$species)
+nrow(lookup_table_subset)
 
+## add accepted species column from lookup table based on species column
+GIFT_traits_subset_harmonized <- right_join(lookup_table_subset, GIFT_traits_subset, join_by(Name_submitted == species), keep = TRUE, relationship = "one-to-many")
+nrow(GIFT_traits_subset_harmonized)
 ```
 
 
 # Summary
+## GBIF
 ```{r}
-source("~/GitHub/neotropical_plants/functions/data_summary.R")
+print("Number of records: ")
+nrow(GBIF_occ_subset_harmonized)
+print("Number of species: ")
+length(unique(GBIF_occ_subset_harmonized$Accepted_species))
 ```
 
+## TRY
 ```{r}
-data_summary(GBIF_occ_subset_harmonized, GBIF_occ_subset_harmonized$species, GBIF_occ_subset_harmonized$genus, GBIF_occ_subset_harmonized$family)
+print("Number of records: ")
+nrow(TRY_traits_subset_harmonized)
+print("Number of species: ")
+length(unique(TRY_traits_subset_harmonized$Accepted_species))
 ```
 
+## BIEN
+```{r}
+print("Number of records: ")
+nrow(BIEN_traits_subset_harmonized)
+print("Number of species: ")
+length(unique(BIEN_traits_subset_harmonized$Accepted_species))
+```
+
+## GIFT
+```{r}
+print("Number of records: ")
+nrow(GIFT_traits_subset_harmonized)
+print("Number of species: ")
+length(unique(GIFT_traits_subset_harmonized$Accepted_species))
+```
 
 # Write data to csv
 ```{r}
-
+write.csv(GBIF_occ_subset_harmonized, file.path(output_path,"TropicalAndes_GBIF_plant_occ_harmonized.csv"), row.names = FALSE)
+write.csv(TRY_traits_subset_harmonized, file.path(output_path,"TropicalAndes_TRY_plant_traits_harmonized.csv"), row.names = FALSE)
+write.csv(BIEN_traits_subset_harmonized, file.path(output_path,"TropicalAndes_BIEN_plant_traits_harmonized.csv"), row.names = FALSE)
+write.csv(GIFT_traits_subset_harmonized, file.path(output_path,"TropicalAndes_GIFT_plant_traits_harmonized.csv"), row.names = FALSE)
 ```
 
