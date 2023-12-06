@@ -24,33 +24,148 @@ output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 
 # Read in data
 ```{r}
-plant_occ <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_plant_occ_cleaned.csv"))
-TRY_traits <- read.csv(file.path(data_path_L0,"TropicalAndes_TRY_plant_traits.csv"))
-BIEN_traits <- read.csv(file.path(data_path_L0,"AllDesired_BIEN_plant_traits.csv"))
-GIFT_traits <- read.csv(file.path(data_path_L0,"TropicalAndes_GIFT_plant_traits.csv"))
+plant_occ <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_plant_occ_harmonized.csv"))
+TRY_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_TRY_plant_traits_harmonized.csv"))
+BIEN_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_BIEN_plant_traits_harmonized.csv"))
+GIFT_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_GIFT_plant_traits_harmonized.csv"))
 ```
 
 # Get species list from plant_occ data
 ```{r}
-plant_species <- unique(plant_occ$species)
+plant_species <- unique(plant_occ$Accepted_species)
+length(plant_species)
 ```
 
 # Subset TRY, BIEN, and GIFT by species list
 ## TRY
 ```{r}
+nrow(TRY_traits)
 TRY_filtered <- TRY_traits %>%
-  filter(SpeciesName %in% plant_species)
+  filter(Accepted_species %in% plant_species)
+nrow(TRY_filtered)
 ```
 
 ## BIEN
 ```{r}
+nrow(BIEN_traits)
 BIEN_filtered <- BIEN_traits %>%
-  filter(scrubbed_species_binomial %in% plant_species)
+  filter(Accepted_species %in% plant_species)
+nrow(BIEN_filtered)
 ```
 
 ## GIFT
 ```{r}
+nrow(GIFT_traits)
 GIFT_filtered <- GIFT_traits %>%
-  filter(species %in% plant_species)
+  filter(Accepted_species %in% plant_species)
+nrow(GIFT_filtered)
 ```
+
+# Combine trait information from TRY, BIEN, GIFT
+
+```{r}
+TRYTraitTypes <- TRY_filtered %>%
+  group_by(TraitName) %>%
+  distinct(DataName)
+```
+
+
+```{r}
+colnames(TRY_filtered)
+```
+columns to keep : Accepted_species, TraitName, OrigValueStr
+
+```{r}
+TRY_filtered_subset <- TRY_filtered[ , c("Accepted_species", "TraitName", "OrigValueStr", "UnitName")]
+colnames(TRY_filtered_subset) <- c("Accepted_species", "TraitName", "TraitValue", "Unit")
+```
+
+
+```{r}
+colnames(BIEN_filtered)
+```
+columns to keep : Accepted_species, trait_name, trait_value, unit
+
+```{r}
+BIEN_filtered_subset <- BIEN_filtered[ , c("Accepted_species", "trait_name", "trait_value", "unit")]
+colnames(BIEN_filtered_subset) <- c("Accepted_species", "TraitName", "TraitValue", "Unit")
+```
+
+```{r}
+colnames(GIFT_filtered)
+```
+columns to keep : Accepted_species, trait_value, trait_name
+
+```{r}
+GIFT_filtered_subset <- GIFT_filtered[ , c("Accepted_species", "trait_name", "trait_value")]
+colnames(GIFT_filtered_subset) <- c("Accepted_species", "TraitName", "TraitValue")
+```
+
+Add Unit column to GIFT dataframe
+```{r}
+GIFT_filtered_subset <- GIFT_filtered_subset %>%
+  mutate(Unit = case_when(
+  TraitName == "plant_height" ~ "m",
+  TraitName == "plant_height_max" ~ "m",
+  TraitName == "plant_height_min" ~ "m",
+  TraitName == "seed_mass_mean" ~ "g",
+  TraitName == "seed_mass_min" ~ "g",
+  TraitName == "seed_mass_max" ~ "g",
+  TraitName == "fruit_length_min" ~ "cm",
+  TraitName == "fruit_length_max" ~ "cm",
+  TraitName == "fruit_length_mean" ~ "cm",
+  TraitName == "seed_length_max" ~ "mm",
+  TraitName == "seed_length_min" ~ "mm",
+  TraitName == "seed_length_mean" ~ "mm",
+  TraitName == "seed_width_max" ~ "mm",
+  TraitName == "seed_width_min" ~ "mm",
+  TraitName == "seed_width_mean" ~ "mm",
+  TraitName == "plant_lifespan" ~ "years",
+  .default = ""
+  ))
+```
+
+
+```{r}
+traits <- rbind(TRY_filtered_subset, BIEN_filtered_subset, GIFT_filtered_subset)
+```
+
+```{r}
+traits %>%
+  count(TraitName)
+```
+
+
+# Standardize trait measurements
+## Dispersal syndrome
+```{r}
+traits_dispersal <- traits %>%
+  filter(grepl('Dispersal|dispersal', TraitName))
+traits_dispersal$OrigTraitValue <- traits_dispersal$TraitValue
+```
+
+Reclassify to the following:
+anemochorous - wind dispersal
+anthropochorous - human dispersal
+autochorous - non-aided dispersal
+hydrochorous - water dispersal
+myrmecochorous - ant dispersal
+zoochorous - animal dispersal
+unspecialized - multiple
+```{r}
+traits_dispersal <- traits_dispersal %>%
+  filter() %>%
+  mutate(TraitValue= case_when(
+    grepl('Eaten|Animal|Bird|Mammal|Monkey', OrigTraitValue, ignore.case = TRUE) ~ "zoochorous",
+    grepl('Ants', OrigTraitValue, ignore.case = TRUE) ~ "myrmecochorous",
+    grepl('wind|Anemochory', OrigTraitValue, ignore.case = TRUE) ~ "anemochorous",
+    grepl('human', OrigTraitValue, ignore.case = TRUE) ~ "anthropochorous",
+    grepl('No', OrigTraitValue, ignore.case = TRUE) ~ "autochorous"
+  ))
+```
+
+```{r}
+print(unique(traits_dispersal$TraitValue))
+```
+
 
