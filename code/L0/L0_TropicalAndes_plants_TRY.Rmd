@@ -20,6 +20,7 @@ output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 ```{r}
 library(rtry)
 library(dplyr)
+library(tidyr)
 ```
 
 
@@ -33,6 +34,14 @@ try_data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TR
 ```{r}
 glimpse(try_data)
 ```
+
+# Keep only record with non-NA trait IDs
+```{r}
+try_data <- try_data %>%
+  drop_na(TraitID)
+nrow(try_data)
+```
+
 
 
 ```{r}
