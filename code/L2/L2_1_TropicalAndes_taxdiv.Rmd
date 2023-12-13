@@ -40,12 +40,9 @@ TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.s
 # Polygons of countries
 ```{r}
 worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
+Americas <- ne_countries(continent = c("North America", "South America"), returnclass = "sf")
 #polygon of Tropical Andes
 TApoly <- worldMap %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
-```
-
-```{r}
-TApoly <- st_transform(TApoly, crs = )
 ```
 
 
@@ -56,6 +53,16 @@ plants.sf <- st_as_sf(TropicalAndes_plant_occ_forest, coords = c("decimalLongitu
 frugivores.sf <- st_as_sf(TropicalAndes_frugivore_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
 ```
 
+# Transform to projected coordinate reference system (units from degrees to meters)
+```{r}
+Americas <- st_transform(Americas, 5389)
+TApoly <- st_transform(TApoly, 5389)
+TropicalAndes_IUCNHabitat_Forest <- st_transform(TropicalAndes_IUCNHabitat_Forest, 5389)
+plants.sf <- st_transform(plants.sf, 5389)
+frugivores.sf <- st_transform(frugivores.sf, 5389)
+```
+
+# Group by species
 ```{r}
 plants_sf_species <- plants.sf %>%
   group_by(species) %>%
@@ -70,15 +77,15 @@ frugivores_sf_species <- frugivores.sf %>%
 ```{r}
 basePlot <-
 ggplot() +
-geom_sf(data = worldMap, fill = "white") +
-geom_sf(data = TApoly) +
-geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "forestgreen")+
-labs(title = "Tropical Andes", x = "Latitude", y = "Longitude") +
-coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE) +
-annotation_scale(location = "bl", width_hint = 0.5) +
-annotation_north_arrow(location = "bl", which_north = "true", 
-  pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
-theme(panel.background = element_rect(fill = "lightblue"))
+  geom_sf(data = Americas, fill = "white") +
+  geom_sf(data = TApoly) +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "forestgreen")+
+  labs(title = "Tropical Andes", x = "Latitude", y = "Longitude") +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
 
 basePlot
 ```
@@ -86,75 +93,77 @@ basePlot
 # Plot points
 ```{r}
 plantsPointsPlot <-
-  ggplot() +
-  geom_sf(data = worldMap, fill = "white") +
+ggplot() +
+  geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
   geom_sf(data = plants_sf_species, pch = 21) +
   labs(title = "Tropical Andes Plant Occurrences", x = "Latitude", y = "Longitude") +
-  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE) +
-  theme(
-    plot.background = element_rect(fill = "#f1f2f3"),
-    panel.background = element_rect(fill = "lightblue"),
-    panel.grid = element_blank(),
-    line = element_blank(),
-    rect = element_blank()
-  )
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
 plantsPointsPlot
 ```
 
 ```{r}
 frugivoresPointsPlot <-
-  ggplot() +
-  geom_sf(data = worldMap, fill = "white") +
+ggplot() +
+  geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
   geom_sf(data = frugivores_sf_species, pch = 21) +
   labs(title = "Tropical Andes Frugivore Occurrences", x = "Latitude", y = "Longitude") +
-  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE) +
-  theme(
-    plot.background = element_rect(fill = "#f1f2f3"),
-    panel.background = element_rect(fill = "lightblue"),
-    panel.grid = element_blank(),
-    line = element_blank(),
-    rect = element_blank()
-  )
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
 frugivoresPointsPlot
 ```
 
 
-# Make 0.5 Grid
+# Plot TD/Richness
+
+## 5 km resolution
+### Make Grid
 ```{r}
-# make grid
-TAGrid0.5 <- TApoly %>%
-  st_make_grid(cellsize = c(0.5)) %>%
+#check units
+st_crs(TApoly, parameters = TRUE)$units_gdal
+st_crs(TApoly)
+st_crs(TropicalAndes_IUCNHabitat_Forest)
+```
+
+```{r}
+TAGrid_5 <- TApoly %>%
+  st_make_grid(cellsize = c(5000)) %>%
   st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
   st_cast("MULTIPOLYGON") %>%
   st_sf() %>%
   mutate(cellid = row_number())
 ```
 
-# Plot Empty Grid
+### Plot Empty Grid
 ```{r}
-# empty grid
 gridPlot <-
-  ggplot() +
-  geom_sf(data = worldMap, fill = "white")+
+ggplot() +
+  geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TropicalAndes_IUCNHabitat_Forest) +
-  geom_sf(data = TAGrid0.5) +
-  labs(title = "Tropical Andes Grid [0.5°]", x = "Latitude", y = "Longitude") +
-  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE) +
-  theme(
-    plot.background = element_rect(fill = "#f1f2f3"),
-    panel.background = element_rect(fill = "lightblue"),
-    panel.grid = element_blank(),
-    line = element_blank(),
-    rect = element_blank()
-  )
+  geom_sf(data = TAGrid_5) +
+  labs(title = "Tropical Andes Grid [5 km]", x = "Latitude", y = "Longitude") +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
 gridPlot
 ```
 
-# Cell Richness
+### Cell Richness
 ```{r}
-plant_richness_grid0.5 <- TAGrid0.5 %>%
+plant_richness_grid_5 <- TAGrid_5 %>%
   st_join(plants_sf_species) %>%
   mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
   group_by(cellid) %>%
@@ -162,88 +171,415 @@ plant_richness_grid0.5 <- TAGrid0.5 %>%
 ```
 
 ```{r}
-frugivore_richness_grid0.5 <- TAGrid0.5 %>%
+frugivore_richness_grid_5 <- TAGrid_5 %>%
   st_join(frugivores_sf_species) %>%
   mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
   group_by(cellid) %>%
   summarize(num_species = sum(overlap))
 ```
 
-# Richness plots
+### Richness plots
 ```{r}
-plantgridRichTA0.5 <-
-  ggplot(plant_richness_grid0.5) +
-  geom_sf(data = worldMap, fill = "white")+
+plantgridRichTA_5km <-
+ggplot(plant_richness_grid_5) +
+  geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly, fill = "grey", size = 0.1) +
   geom_sf(aes(fill = num_species), color = NA) +
   scale_fill_scico(palette = "romaO", direction = 1) +
-  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE) +
-  theme(
-    plot.background = element_rect(fill = "#f1f2f3"),
-    panel.background = element_rect(fill = "lightblue"),
-    panel.grid = element_blank(),
-    line = element_blank(),
-    rect = element_blank()
-  ) +
+  labs(title = "Tropical Andes Plant Richness [5 km]", x = "Longitude", y = "Latitude",
+       fill = "Number of species") +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
   annotation_scale(location = "bl", width_hint = 0.5) +
   annotation_north_arrow(location = "bl", which_north = "true", 
-  pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
-  labs(title = "Tropical Andes Plant Raw Richness", x = "Longitude", y = "Latitude", fill = "Number of species")
-plantgridRichTA0.5
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+plantgridRichTA_5km
 ```
 
 ```{r}
-frugivoregridRichTA0.5 <-
-  ggplot(frugivore_richness_grid0.5) +
-  geom_sf(data = worldMap, fill = "white")+
+frugivoregridRichTA_5km <-
+ggplot(frugivore_richness_grid_5) +
+  geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly, fill = "grey", size = 0.1) +
   geom_sf(aes(fill = num_species), color = NA) +
   scale_fill_scico(palette = "romaO", direction = 1) +
-  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE) +
-  theme(
-    plot.background = element_rect(fill = "#f1f2f3"),
-    panel.background = element_rect(fill = "lightblue"),
-    panel.grid = element_blank(),
-    line = element_blank(),
-    rect = element_blank()
-  ) +   
+  labs(title = "Tropical Andes Frugivore Richness [5 km]", x = "Longitude", y = "Latitude",
+       fill = "Number of species") +
+    coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
   annotation_scale(location = "bl", width_hint = 0.5) +
   annotation_north_arrow(location = "bl", which_north = "true", 
-  pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
-  labs(title = "Tropical Andes Frugivore Raw Richness", x = "Longitude", y = "Latitude", fill = "Number of species")
-frugivoregridRichTA0.5
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+frugivoregridRichTA_5km
 ```
 
 
-# Extract cell values
+## Extract cell values
 ```{r}
-plant_cellRichness0.5 <- plantgridRichTA0.5[["data"]]
-frugivore_cellRichness0.5 <- frugivoregridRichTA0.5[["data"]]
+plant_cellRichness_5km <- plantgridRichTA_5km[["data"]]
+frugivore_cellRichness_5km <- frugivoregridRichTA_5km[["data"]]
 ```
 
+### Plant vs frugivore richness plot
+```{r}
+compare_richness_summary_5km <- summary(lm(frugivore_cellRichness_5km$num_species ~ plant_cellRichness_5km$num_species))
+compare_richness_summary_5km
+
+# save r-squared value
+compare_richness_r2_5km <- compare_richness_summary_5km$r.squared
+```
 
 ```{r}
-plot(plant_cellRichness0.5$num_species, frugivore_cellRichness0.5$num_species,
-     main = "Plant Richness vs Frugivore Richness",
+plot(plant_cellRichness_5km$num_species, frugivore_cellRichness_5km$num_species,
+     main = "Plant Richness vs Frugivore Richness [5 km]",
      xlab = "Plant Richness by cell", ylab = "Frugivore Richness by cell")
-abline(lm(frugivore_cellRichness0.5$num_species ~ plant_cellRichness0.5$num_species))
-summary(lm(frugivore_cellRichness0.5$num_species ~ plant_cellRichness0.5$num_species))
+abline(lm(frugivore_cellRichness_5km$num_species ~ plant_cellRichness_5km$num_species))
 ```
 
 ```{r}
-hist(plant_cellRichness0.5$num_species,
+hist(plant_cellRichness_5km$num_species,
      main = "Histogram of Plant Richness by cell",
      xlab = "Plant Richness by cell")
-hist(frugivore_cellRichness0.5$num_species,
+hist(frugivore_cellRichness_5km$num_species,
      main = "Histogram of Frugivore Richness by cell",
      xlab = "Frugivore Richness by cell")
 ```
 
+
+
+## 25 km 
+### Make Grid
 ```{r}
-summary(plant_cellRichness0.5$num_species)
-summary(frugivore_cellRichness0.5$num_species)
+TAGrid_25 <- TApoly %>%
+  st_make_grid(cellsize = c(25000)) %>%
+  st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+  st_cast("MULTIPOLYGON") %>%
+  st_sf() %>%
+  mutate(cellid = row_number())
 ```
 
+### Plot Empty Grid
+```{r}
+gridPlot <-
+ggplot() +
+  geom_sf(data = Americas, fill = "white") +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest) +
+  geom_sf(data = TAGrid_25) +
+  labs(title = "Tropical Andes Grid [25 km]", x = "Latitude", y = "Longitude") +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+gridPlot
+```
+
+### Cell Richness
+```{r}
+plant_richness_grid_25 <- TAGrid_25 %>%
+  st_join(plants_sf_species) %>%
+  mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
+  group_by(cellid) %>%
+  summarize(num_species = sum(overlap))
+```
+
+```{r}
+frugivore_richness_grid_25 <- TAGrid_25 %>%
+  st_join(frugivores_sf_species) %>%
+  mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
+  group_by(cellid) %>%
+  summarize(num_species = sum(overlap))
+```
+
+### Richness plots
+```{r}
+plantgridRichTA_25km <-
+ggplot(plant_richness_grid_25) +
+  geom_sf(data = Americas, fill = "white") +
+  geom_sf(data = TApoly, fill = "grey", size = 0.1) +
+  geom_sf(aes(fill = num_species), color = NA) +
+  scale_fill_scico(palette = "romaO", direction = 1) +
+  labs(title = "Tropical Andes Plant Richness [25 km]", x = "Longitude", y = "Latitude",
+       fill = "Number of species") +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+plantgridRichTA_25km
+```
+
+```{r}
+frugivoregridRichTA_25km <-
+ggplot(frugivore_richness_grid_25) +
+  geom_sf(data = Americas, fill = "white") +
+  geom_sf(data = TApoly, fill = "grey", size = 0.1) +
+  geom_sf(aes(fill = num_species), color = NA) +
+  scale_fill_scico(palette = "romaO", direction = 1) +
+  labs(title = "Tropical Andes Frugivore Richness [25 km]", x = "Longitude", y = "Latitude",
+       fill = "Number of species") +
+    coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+frugivoregridRichTA_25km
+```
+
+
+## Extract cell values
+```{r}
+plant_cellRichness_25km <- plantgridRichTA_25km[["data"]]
+frugivore_cellRichness_25km <- frugivoregridRichTA_25km[["data"]]
+```
+
+### Plant vs frugivore richness plot
+```{r}
+compare_richness_summary_25km <- summary(lm(frugivore_cellRichness_25km$num_species ~ plant_cellRichness_25km$num_species))
+compare_richness_summary_25km
+
+# save r-squared value
+compare_richness_r2_25km <- compare_richness_summary_25km$r.squared
+```
+
+```{r}
+plot(plant_cellRichness_25km$num_species, frugivore_cellRichness_25km$num_species,
+     main = "Plant Richness vs Frugivore Richness [25 km]",
+     xlab = "Plant Richness by cell", ylab = "Frugivore Richness by cell")
+abline(lm(frugivore_cellRichness_25km$num_species ~ plant_cellRichness_25km$num_species))
+```
+
+```{r}
+hist(plant_cellRichness_25km$num_species,
+     main = "Histogram of Plant Richness by cell",
+     xlab = "Plant Richness by cell")
+hist(frugivore_cellRichness_25km$num_species,
+     main = "Histogram of Frugivore Richness by cell",
+     xlab = "Frugivore Richness by cell")
+```
+
+
+## 50 km 
+### Make Grid
+```{r}
+TAGrid_50 <- TApoly %>%
+  st_make_grid(cellsize = c(50000)) %>%
+  st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+  st_cast("MULTIPOLYGON") %>%
+  st_sf() %>%
+  mutate(cellid = row_number())
+```
+
+### Plot Empty Grid
+```{r}
+gridPlot <-
+ggplot() +
+  geom_sf(data = Americas, fill = "white") +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest) +
+  geom_sf(data = TAGrid_50) +
+  labs(title = "Tropical Andes Grid [50 km]", x = "Latitude", y = "Longitude") +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+gridPlot
+```
+
+### Cell Richness
+```{r}
+plant_richness_grid_50 <- TAGrid_50 %>%
+  st_join(plants_sf_species) %>%
+  mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
+  group_by(cellid) %>%
+  summarize(num_species = sum(overlap))
+```
+
+```{r}
+frugivore_richness_grid_50 <- TAGrid_50 %>%
+  st_join(frugivores_sf_species) %>%
+  mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
+  group_by(cellid) %>%
+  summarize(num_species = sum(overlap))
+```
+
+### Richness plots
+```{r}
+plantgridRichTA_50km <-
+ggplot(plant_richness_grid_50) +
+  geom_sf(data = Americas, fill = "white") +
+  geom_sf(data = TApoly, fill = "grey", size = 0.1) +
+  geom_sf(aes(fill = num_species), color = NA) +
+  scale_fill_scico(palette = "romaO", direction = 1) +
+  labs(title = "Tropical Andes Plant Richness [50 km]", x = "Longitude", y = "Latitude",
+       fill = "Number of species") +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+plantgridRichTA_50km
+```
+
+```{r}
+frugivoregridRichTA_50km <-
+ggplot(frugivore_richness_grid_50) +
+  geom_sf(data = Americas, fill = "white") +
+  geom_sf(data = TApoly, fill = "grey", size = 0.1) +
+  geom_sf(aes(fill = num_species), color = NA) +
+  scale_fill_scico(palette = "romaO", direction = 1) +
+  labs(title = "Tropical Andes Frugivore Richness [50 km]", x = "Longitude", y = "Latitude",
+       fill = "Number of species") +
+    coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+frugivoregridRichTA_50km
+```
+
+## Extract cell values
+```{r}
+plant_cellRichness_50km <- plantgridRichTA_50km[["data"]]
+frugivore_cellRichness_50km <- frugivoregridRichTA_50km[["data"]]
+```
+
+### Plant vs frugivore richness plot
+```{r}
+compare_richness_summary_50km <- summary(lm(frugivore_cellRichness_50km$num_species ~ plant_cellRichness_50km$num_species))
+compare_richness_summary_50km
+
+# save r-squared value
+compare_richness_r2_50km <- compare_richness_summary_50km$r.squared
+```
+
+```{r}
+plot(plant_cellRichness_50km$num_species, frugivore_cellRichness_50km$num_species,
+     main = "Plant Richness vs Frugivore Richness [50 km]",
+     xlab = "Plant Richness by cell", ylab = "Frugivore Richness by cell")
+abline(lm(frugivore_cellRichness_50km$num_species ~ plant_cellRichness_50km$num_species))
+```
+
+```{r}
+hist(plant_cellRichness_50km$num_species,
+     main = "Histogram of Plant Richness by cell",
+     xlab = "Plant Richness by cell")
+hist(frugivore_cellRichness_50km$num_species,
+     main = "Histogram of Frugivore Richness by cell",
+     xlab = "Frugivore Richness by cell")
+```
+
+
+## 75 km 
+### Make Grid
+```{r}
+TAGrid_75 <- TApoly %>%
+  st_make_grid(cellsize = c(75000)) %>%
+  st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+  st_cast("MULTIPOLYGON") %>%
+  st_sf() %>%
+  mutate(cellid = row_number())
+```
+
+### Plot Empty Grid
+```{r}
+gridPlot <-
+ggplot() +
+  geom_sf(data = Americas, fill = "white") +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest) +
+  geom_sf(data = TAGrid_75) +
+  labs(title = "Tropical Andes Grid [75 km]", x = "Latitude", y = "Longitude") +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+gridPlot
+```
+
+### Cell Richness
+```{r}
+plant_richness_grid_75 <- TAGrid_75 %>%
+  st_join(plants_sf_species) %>%
+  mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
+  group_by(cellid) %>%
+  summarize(num_species = sum(overlap))
+```
+
+```{r}
+frugivore_richness_grid_75 <- TAGrid_75 %>%
+  st_join(frugivores_sf_species) %>%
+  mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
+  group_by(cellid) %>%
+  summarize(num_species = sum(overlap))
+```
+
+### Richness plots
+```{r}
+plantgridRichTA_75km <-
+ggplot(plant_richness_grid_75) +
+  geom_sf(data = Americas, fill = "white") +
+  geom_sf(data = TApoly, fill = "grey", size = 0.1) +
+  geom_sf(aes(fill = num_species), color = NA) +
+  scale_fill_scico(palette = "romaO", direction = 1) +
+  labs(title = "Tropical Andes Plant Richness [75 km]", x = "Longitude", y = "Latitude",
+       fill = "Number of species") +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+plantgridRichTA_75km
+```
+
+```{r}
+frugivoregridRichTA_75km <-
+ggplot(frugivore_richness_grid_75) +
+  geom_sf(data = Americas, fill = "white") +
+  geom_sf(data = TApoly, fill = "grey", size = 0.1) +
+  geom_sf(aes(fill = num_species), color = NA) +
+  scale_fill_scico(palette = "romaO", direction = 1) +
+  labs(title = "Tropical Andes Frugivore Richness [75 km]", x = "Longitude", y = "Latitude",
+       fill = "Number of species") +
+    coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+frugivoregridRichTA_75km
+```
+
+## Extract cell values
+```{r}
+plant_cellRichness_75km <- plantgridRichTA_75km[["data"]]
+frugivore_cellRichness_75km <- frugivoregridRichTA_75km[["data"]]
+```
+
+### Plant vs frugivore richness plot
+```{r}
+compare_richness_summary_75km <- summary(lm(frugivore_cellRichness_75km$num_species ~ plant_cellRichness_75km$num_species))
+compare_richness_summary_75km
+
+# save r-squared value
+compare_richness_r2_75km <- compare_richness_summary_75km$r.squared
+```
+
+
+# Compare r-squared by resolution
+Plot
+# Multi panel plots
+Richness maps
 # Write data to csv
 ```{r}
 write.csv(plant_cellRichness0.75, file.path(output_path,"TropicalAndes_GBIF_plant_richness_sub.csv"))
