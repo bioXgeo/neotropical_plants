@@ -128,7 +128,15 @@ GIFT_filtered_subset <- GIFT_filtered_subset %>%
 
 ```{r}
 traits <- rbind(TRY_filtered_subset, BIEN_filtered_subset, GIFT_filtered_subset)
+nrow(traits)
 ```
+
+```{r}
+# remove rows without accepted species names
+traits_clean <- traits[!(is.na(traits$Accepted_species) | traits$Accepted_species==""), ]
+nrow(traits_clean)
+```
+
 
 ```{r}
 traits %>%
@@ -137,12 +145,80 @@ traits %>%
 
 
 # Standardize trait measurements
+## Create functions
+```{r}
+# Numeric data
+numeric_data_average <- function(data, unit, traitname) {
+# remove rows if TraitValue is non-numeric
+data <- data %>%
+  filter(!is.na(as.numeric(TraitValue))) %>%
+  mutate(TraitValue = as.numeric(TraitValue))
+# remove duplicate rows
+data <- data %>%
+  distinct(.keep_all = TRUE)
+# calculate average value per trait per species
+average_data <- aggregate(TraitValue ~ Accepted_species, data, FUN = mean, na.rm = TRUE)
+# Remove rows with missing or empty species names
+average_data <- average_data[!is.na(average_data$Accepted_species) & average_data$Accepted_species !="", ]
+# Add unit & trait column
+average_data$Unit <- unit
+average_data$TraitName <- traitname
+
+return(average_data)
+}
+```
+
+```{r}
+# categorical data
+factor_data_merge <- function(data, traitname) {
+# remove duplicate rows
+data <- data %>%
+  distinct(.keep_all = TRUE)
+# remove rows with missing or empty species names
+data <- data[!is.na(data$Accepted_species) & data$Accepted_species != "", ]
+# Subset data to just species and TraitValue
+data <- data[,c("Accepted_species", "TraitValue")]
+# Find the most common trait value for each species
+  most_common_values <- aggregate(. ~ Accepted_species, data, function(x) {
+    # Find the mode (most common value) of the trait values
+    mode_value <- names(sort(table(x), decreasing = TRUE))[1]
+    return(mode_value)
+  })
+# Merge most common trait values back to the original data
+merged_data <- merge(data, most_common_values, by = "Accepted_species", all.x = TRUE)
+  
+# Rename the merged column
+colnames(merged_data)[ncol(merged_data)] <- "TraitValue"
+
+# Remove column TraitValue.x
+merged_data <- merged_data[, !colnames(merged_data) %in% "TraitValue.x", drop = FALSE]
+
+# remove duplicate rows
+merged_data <- merged_data %>%
+  distinct(.keep_all = TRUE)
+  
+# Add unit & trait column
+merged_data$TraitName <- traitname
+
+  return(merged_data)
+}
+```
+
+
 ## Dispersal syndrome
 ```{r}
 traits_dispersal <- traits %>%
-  filter(grepl('Dispersal|dispersal', TraitName))
+  filter(grepl('Dispersal syndrome|whole plant dispersal syndrome|dispersal_syndrome_1|dispersal_syndrome_2', TraitName))
 traits_dispersal$OrigTraitValue <- traits_dispersal$TraitValue
 ```
+
+```{r}
+# remove rows containing weight or mass
+traits_dispersal <- traits_dispersal[!grepl("weight|mass|air-dry|oven|mean|SE",traits_dispersal$TraitValue, ignore.case = TRUE),]
+nrow(traits_dispersal)
+length(unique(traits_dispersal$Accepted_species))
+```
+
 
 Reclassify to the following:
 anemochorous - wind dispersal
@@ -156,16 +232,193 @@ unspecialized - multiple
 traits_dispersal <- traits_dispersal %>%
   filter() %>%
   mutate(TraitValue= case_when(
-    grepl('Eaten|Animal|Bird|Mammal|Monkey', OrigTraitValue, ignore.case = TRUE) ~ "zoochorous",
+    grepl('Eaten|Animal|Bird|Mammal|animals|endozoochor|dysochor|epizoochor|zoochor|Vertebrates|Reptiles+birds|Endo-zoochory|mammals|exozoochory|birds|Zoochory|vertebrate|Dys-zoochory|Ornithochory|Epi-zoochory|endozoochorous|endozoochory|ectozoochorous|zoochorous', OrigTraitValue, ignore.case = TRUE) ~ "zoochorous",
     grepl('Ants', OrigTraitValue, ignore.case = TRUE) ~ "myrmecochorous",
-    grepl('wind|Anemochory', OrigTraitValue, ignore.case = TRUE) ~ "anemochorous",
-    grepl('human', OrigTraitValue, ignore.case = TRUE) ~ "anthropochorous",
-    grepl('No', OrigTraitValue, ignore.case = TRUE) ~ "autochorous"
-  ))
+    grepl('wind|Anemochory|anemochor|meteorochor|chamaechor|Anemochory|anemochorous', OrigTraitValue, ignore.case = TRUE) ~ "anemochorous",
+    grepl('human|agochor|man|hemerochor|anthropochorous', OrigTraitValue, ignore.case = TRUE) ~ "anthropochorous",
+    grepl('No|Unassisted|autochor|blastochor|ombrochor|Autochory|Barochory|ballochor|herpochor|autochorous', OrigTraitValue, ignore.case = TRUE) ~ "autochorous",
+    grepl('water|nautochor|floating|hydrochor|hydrochorous', OrigTraitValue, ignore.case = TRUE) ~ "hydrochorous",
+    grepl('boleochor|combination|non specialized|unspecialized', OrigTraitValue, ignore.case = TRUE) ~ "unspecialized"
+  )) %>%
+  filter(!is.na(TraitValue))
+nrow(traits_dispersal)
+length(unique(traits_dispersal$Accepted_species))
 ```
 
 ```{r}
 print(unique(traits_dispersal$TraitValue))
+```
+
+```{r}
+traits_dispersal <- traits_dispersal %>%
+  mutate(TraitName = "dispersal_syndrome")
+```
+
+```{r}
+averagetraits_dispersal <- factor_data_merge(traits_dispersal, "Dispersal Syndrome")
+```
+
+
+## Fruit dry mass
+```{r}
+traits_fruitMass <- traits %>%
+  filter(grepl('Fruit dry mass', TraitName))
+traits_fruitMass$OrigTraitValue <- traits_fruitMass$TraitValue
+```
+
+```{r}
+print(unique(traits_fruitMass$Unit))
+```
+
+```{r}
+averagetraits_fruitMass <- numeric_data_average(traits_fruitMass, "mg", "Fruit Mass")
+```
+
+
+## Fruit length
+```{r}
+traits_fruitLength <- traits %>%
+  filter(grepl('Fruit length|maximum fruit length|minimum fruit length|fruit_length_min|fruit_length_max|fruit_length_mean', TraitName))
+traits_fruitLength$OrigTraitValue <- traits_fruitLength$TraitValue
+```
+
+```{r}
+print(unique(traits_fruitLength$Unit))
+```
+
+```{r}
+# remove rows if TraitValue is non-numeric
+traits_fruitLength <- traits_fruitLength %>%
+  filter(!is.na(as.numeric(TraitValue))) %>%
+  mutate(TraitValue = as.numeric(TraitValue))
+```
+
+```{r}
+# if units = cm, multiply trait value by 10 and change units to mm
+traits_fruitLength <- traits_fruitLength %>%
+  mutate(TraitValue = if_else(Unit == "cm", TraitValue * 10, TraitValue),
+         Unit = if_else(Unit == "cm", "mm", Unit))
+```
+
+```{r}
+averagetraits_fruitLength <- numeric_data_average(traits_fruitLength, "mm", "Fruit Length")
+```
+
+## Plant height
+```{r}
+traits_plantHeight <- traits %>%
+  filter(grepl('Plant height generative|Plant height vegetative|maximum whole plant height|minimum whole plant height|plant_height|plant_height_max|plant_height_min|whole plant height', TraitName))
+traits_plantHeight$OrigTraitValue <- traits_plantHeight$TraitValue
+```
+
+```{r}
+print(unique(traits_plantHeight$Unit))
+```
+
+```{r}
+averagetraits_plantHeight <- numeric_data_average(traits_plantHeight, "m", "Plant Height")
+```
+
+## Plant lifespan/longevity
+```{r}
+traits_plantLifespan <- traits %>%
+  filter(grepl('Plant lifespan (longevity)|longest whole plant longevity|maximum whole plant longevity|plant_lifespan', TraitName))
+traits_plantLifespan$OrigTraitValue <- traits_plantLifespan$TraitValue
+```
+
+```{r}
+print(unique(traits_plantLifespan$Unit))
+```
+
+```{r}
+averagetraits_plantLifespan <- numeric_data_average(traits_plantLifespan, "years", "Plant Lifespan")
+```
+
+## Fruit type
+```{r}
+traits_fruitType <- traits %>%
+  filter(grepl('Fruit dehiscence type|Fruit surface type|Fruit texture inside (fleshy, leathrey, …)|Fruit type|fruit type|fruit_dryness|fruit_type', TraitName))
+traits_fruitType$OrigTraitValue <- traits_fruitType$TraitValue
+```
+
+```{r}
+print(unique(traits_fruitType$Unit))
+```
+
+```{r}
+averagetraits_fruitType <- factor_data_merge(traits_fruitType, "Fruit Type")
+```
+
+## Seed mass
+```{r}
+traits_seedMass <- traits %>%
+  filter(grepl('Seed dry mass|seed mass|seed_mass_max|seed_mass_mean|seed_mass_min', TraitName))
+traits_seedMass$OrigTraitValue <- traits_seedMass$TraitValue
+```
+
+```{r}
+print(unique(traits_seedMass$Unit))
+```
+
+```{r}
+# remove rows if TraitValue is non-numeric
+traits_seedMass <- traits_seedMass %>%
+  filter(!is.na(as.numeric(TraitValue))) %>%
+  mutate(TraitValue = as.numeric(TraitValue))
+```
+
+```{r}
+# convert rows with unit = g to mg; multiply by 1000
+traits_seedMass <- traits_seedMass %>%
+  mutate(TraitValue = if_else(Unit == "g", TraitValue * 1000, TraitValue),
+         Unit = if_else(Unit == "g", "mg", Unit))
+```
+
+```{r}
+averagetraits_seedMass <- numeric_data_average(traits_seedMass, "mg", "Seed Mass")
+```
+
+## Seed length
+```{r}
+traits_seedLength <- traits %>%
+  filter(grepl('Seed length|seed_length_max|seed_length_mean|seed_length_min', TraitName))
+traits_seedLength$OrigTraitValue <- traits_seedLength$TraitValue
+```
+
+```{r}
+print(unique(traits_seedLength$Unit))
+```
+
+```{r}
+averagetraits_seedLength <- numeric_data_average(traits_seedLength, "mm", "Seed Length")
+```
+
+## Seed width
+```{r}
+traits_seedWidth <- traits %>%
+  filter(grepl('Seed width|seed_width_max|seed_width_mean|seed_width_min'
+, TraitName))
+traits_seedWidth$OrigTraitValue <- traits_seedWidth$TraitValue
+```
+
+```{r}
+print(unique(traits_seedWidth$Unit))
+```
+
+```{r}
+averagetraits_seedWidth <- numeric_data_average(traits_seedWidth, "mm", "Seed Width")
+```
+
+## Growth form
+```{r}
+traits_growthForm <- traits %>%
+  filter(grepl('Plant growth form|growth_form|whole plant growth form|whole plant growth form diversity'
+, TraitName))
+traits_growthForm$OrigTraitValue <- traits_growthForm$TraitValue
+```
+
+```{r}
+averagetraits_growthForm <- factor_data_merge(traits_growthForm, "Growth Form")
 ```
 
 
