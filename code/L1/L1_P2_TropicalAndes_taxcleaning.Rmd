@@ -112,7 +112,7 @@ nrow(all_species_NA)
 ```{r}
 all_species_disparities <- all_species_hamonized_results %>%
                             filter(Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", "", NA)) %>%
-                            select(Name_submitted)
+                            dplyr::select(Name_submitted)
 nrow(all_species_disparities)
 ```
 
