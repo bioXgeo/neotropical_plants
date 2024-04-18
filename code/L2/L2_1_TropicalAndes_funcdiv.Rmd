@@ -35,7 +35,7 @@ output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 # Read in Data
 ```{r}
 TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_plant_occ_cleaned.csv"))
-TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_frugivore_occ_cleaned.csv"))
+TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_frugivore_occ_cleaned_subset.csv"))
 TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
 frugivore_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_Frugivoria_traits_Forest.csv"))
 plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_plant_traits_forest.csv"))
@@ -161,7 +161,6 @@ colnames(frugivore_PAM) <- clean_column_names_frugivore
 
 ## Turn data into correct data types for inputs into the trait categories dataframe
 ```{r}
-
 plant_traits$plant_height <- as.numeric(plant_traits$plant_height)
 plant_traits$plant_lifespan<- as.numeric(plant_traits$plant_lifespan)
 plant_traits$dispersal_syndrome <- as.factor(plant_traits$dispersal_syndrome)
@@ -174,7 +173,7 @@ frugivore_traits$body_size_mm <- as.numeric(frugivore_traits$body_size_mm)
 frugivore_traits$generation_time <- as.numeric(frugivore_traits$generation_time)
 ```
 
-## Remove the species from PAM that have no occurrences anymore after subsetting to TA
+## Remove the species from PAM that have no occurrences
 ```{r}
 # Remove columns with sum equal to zero
 PAM_plant_site_final <- plant_PAM[, colSums(plant_PAM) != 0]
@@ -194,7 +193,6 @@ colnames_frugivore <- colnames(PAM_frugivore_site_final)
 
 ## Remove species names from trait matrix not in the PAM
 ```{r}
-
 plant_traits_df_subset <- plant_traits %>% filter(species %in% colnames_plant)
 frugivore_traits_df_subset <- frugivore_traits %>% filter(IUCN_species_name %in% colnames_frugivore)
 
@@ -244,15 +242,15 @@ frugivore_traits_df_final <- frugivore_traits_df_final[, c("diet_cat", "body_mas
 
 # Create trait type table
 ```{r}
-plant_trait_name <- c("dispersal_syndrome", "plant_height", "plant_lifespan")
-plant_trait_type <- c("N", "Q", "Q") 
-plant_trait_cat <- as.data.frame(cbind(plant_trait_name, plant_trait_type))
+trait_name <- c("dispersal_syndrome", "plant_height", "plant_lifespan")
+trait_type <- c("N", "Q", "Q") 
+plant_trait_cat <- as.data.frame(cbind(trait_name, trait_type))
 ```
 
 ```{r}
-frug_trait_name <- c("diet_cat", "body_mass_e", "body_size_mm", "generation_time")
-frug_trait_type <- c("N", "Q", "Q", "Q")
-frug_trait_cat <- as.data.frame(cbind(frug_trait_name, frug_trait_type))
+trait_name <- c("diet_cat", "body_mass_e", "body_size_mm", "generation_time")
+trait_type <- c("N", "Q", "Q", "Q")
+frug_trait_cat <- as.data.frame(cbind(trait_name, trait_type))
 ```
 
 # Summary of the assemblages * species dataframe
@@ -356,7 +354,7 @@ sp_faxes_coord_frugivore <- fspaces_quality_frugivore$"details_fspaces"$"sp_pc_c
 ```
 
 ```{r}
-# View the components of the PCA axes *Remember the firt few components explain the most variation in dissimilarity. Clusters into groups
+# View the components of the PCA axes *Remember the first few components explain the most variation in dissimilarity. Clusters into groups
 
 # Computes linear model for continuous traits and Kruskall-Wallis tests for other types. 
 plant_tr_faxes <- mFD::traits.faxes.cor(
@@ -471,20 +469,32 @@ subset_matrix_plant <- as.matrix(subset_matrix_plant)
 sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")]
 
 ## check number of species names
-nrow(sp_faxes_coord_frugivore_sub) #718
-ncol(subset_matrix_frugivore) #712
-
-sp_faxes_coord_frugivore_sub_names <- row.names(sp_faxes_coord_frugivore_sub)
-subset_matrix_frugivore_names <- colnames(subset_matrix_frugivore)
+nrow(sp_faxes_coord_frugivore_sub) #764
+ncol(subset_matrix_frugivore) #782
 
 sp_faxes_coord_frugivore_sub_names <- chartr(".", " ", sp_faxes_coord_frugivore_sub_names)
 sp_faxes_coord_frugivore_sub <- as.data.frame(sp_faxes_coord_frugivore_sub)
 row.names(sp_faxes_coord_frugivore_sub) <- sp_faxes_coord_frugivore_sub_names
 
-sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore_sub[ which((row.names(sp_faxes_coord_frugivore_sub) %in% subset_matrix_frugivore_names)==TRUE), ]
+sp_faxes_coord_frugivore_sub_names <- row.names(sp_faxes_coord_frugivore_sub)
+subset_matrix_frugivore_names <- colnames(subset_matrix_frugivore)
 
-nrow(sp_faxes_coord_frugivore_sub)
+frugivore_names <- intersect(sp_faxes_coord_frugivore_sub_names, subset_matrix_frugivore_names)
+frugivore_names <- na.omit(frugivore_names)
+
+sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore_sub[ which((row.names(sp_faxes_coord_frugivore_sub) %in% frugivore_names)==TRUE), ]
+
+subset_matrix_frugivore  <- as.data.frame(subset_matrix_frugivore)
+subset_matrix_frugivore <- subset_matrix_frugivore[ ,which((colnames(subset_matrix_frugivore) %in% frugivore_names)==TRUE)]
+
+#remove NAs
+sp_faxes_coord_frugivore_sub <- na.omit(sp_faxes_coord_frugivore_sub)
+subset_matrix_frugivore <- na.omit(subset_matrix_frugivore)
+
+nrow(sp_faxes_coord_frugivore_sub) #757
+ncol(subset_matrix_frugivore) #757
 sp_faxes_coord_frugivore_sub <- as.matrix(sp_faxes_coord_frugivore_sub)
+subset_matrix_frugivore <- as.matrix(subset_matrix_frugivore)
 ```
 
 
@@ -501,7 +511,7 @@ alpha_fd_indices_plant <- mFD::alpha.fd.multidim(
 
 alpha_fd_indices_frugivore <- mFD::alpha.fd.multidim(
   sp_faxes_coord   = sp_faxes_coord_frugivore_sub,
-  asb_sp_w         = PAM_plant_site_final,
+  asb_sp_w         = subset_matrix_frugivore,
   ind_vect         = c("fide", "fdis", "fmpd", "fnnd", "feve", "fori", "fspe"), #did not run fdiv or fric (slows it down)
   scaling          = TRUE,
   check_input      = TRUE,
@@ -606,13 +616,10 @@ subset_coords_frugivore_sp <-subset_coords_frugivore[,1:2 ]
 #Get functional dispersion
 fdis_plant <- alpha_fd_indices_plant$functional_diversity_indices$fdis
 fdis_frugivore <- alpha_fd_indices_frugivore$functional_diversity_indices$fdis
-## subset frugivore to compare for plotting
-fdis_frugivore_sub <- fdis_frugivore[1:25]
 
 plant_fd_sp <- data.frame(subset_coords_plant_sp, fdis_plant)
 frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
-## subset frugivore to compare for plotting
-frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
+
 
 # Convert the dataframe to sf format
 spatial_fdis_plant <- st_as_sf(plant_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
@@ -633,6 +640,14 @@ writeRaster(fd_raster_frugivore$ID, filename = file.path(output_path,"FD_frugivo
 
 
 # Functional diversity plots
+# Polygons of countries
+```{r}
+worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
+Americas <- ne_countries(continent = c("North America", "South America"), returnclass = "sf")
+#polygon of Tropical Andes
+TApoly <- worldMap %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
+```
+
 ```{r}
 # set crs of sf objects
 spatial_fdis_plant <- spatial_fdis_plant %>% st_set_crs(4326)
