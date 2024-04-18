@@ -18,5 +18,39 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 
 # Load required packages
 ```{r}
-
+library(tidyr)
+library(mice)
+library(dplyr)
 ```
+
+# Read in data
+```{r}
+plant_traits <- read.csv(file.path(data_path,"TropicalAndes_all_plant_traits_harmonized.csv"))
+```
+
+# Set the seed for reproducibility
+```{r}
+set.seed(123)
+```
+
+
+```{r}
+#replace " " with _ in column names
+names(wide_traits) <- sub(" ", "_", names(wide_traits))
+```
+
+
+# show the missing data pattern
+```{r}
+md.pattern(wide_traits)
+```
+
+# Perform the imputation
+```{r}
+imp_model <- mice(wide_traits, method = "cart", maxit = 20)
+```
+
+```{r}
+imputed_data <- complete(imp_model)
+```
+
