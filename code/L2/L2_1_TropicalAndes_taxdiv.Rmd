@@ -247,7 +247,8 @@ hist(frugivore_cellRichness_5km$num_species,
      xlab = "Frugivore Richness by cell")
 ```
 
-
+## 10 km
+ADD CODE HERE!!!
 
 ## 25 km 
 ### Make Grid
@@ -728,6 +729,10 @@ ggplot(r_squared_compare, aes(x=resolution, y=r_squared)) +
 
 # Multi panel plots
 Richness maps
+```{r}
+grid.arrange(plot_1, plot_2, nrow = 1)
+```
+
 # Write data to csv
 ```{r}
 write.csv(plant_cellRichness0.75, file.path(output_path,"TropicalAndes_GBIF_plant_richness_sub.csv"))
