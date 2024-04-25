@@ -98,16 +98,21 @@ get_taxonomic_info_chunk <- function(chunk_species_names) {
   
   # Loop through each species name in the chunk and retrieve taxonomic information
   for (species_name in chunk_species_names) {
-    # Add a delay of 1 second between consecutive API requests
-    Sys.sleep(1)
-    
-    # Make API request to retrieve taxonomic information
-    taxon_info <- tax_name(species_name, get = c("genus", "family"), db = "both")
-    
-    # Store taxonomic information for the species in the list
-    chunk_taxonomic_info[[species_name]] <- data.frame(Species = species_name, 
-                                                       Genus = taxon_info$genus, 
-                                                       Family = taxon_info$family)
+    tryCatch({
+      # Add a delay between consecutive API requests
+      Sys.sleep(1)
+      
+      # Make API request to retrieve taxonomic information
+      taxon_info <- tax_name(species_name, get = c("genus", "family"), db = "ncbi")
+      
+      # Store taxonomic information for the species in the list
+      chunk_taxonomic_info[[species_name]] <- data.frame(Species = species_name, 
+                                                         Genus = taxon_info$genus, 
+                                                         Family = taxon_info$family)
+    }, error = function(e) {
+      # Print error message
+      cat("Error retrieving taxonomic information for", species_name, ":", conditionMessage(e), "\n")
+    })
   }
   
   # Return the list of taxonomic information for the chunk
@@ -115,7 +120,7 @@ get_taxonomic_info_chunk <- function(chunk_species_names) {
 }
 
 # Define the chunk size
-chunk_size <- 100  # Adjust the chunk size as needed
+chunk_size <- 300 # Adjust the chunk size as needed
 
 # Split the dataframe into chunks based on the chunk size
 chunks <- split(species_no_family, ceiling(seq_along(species_no_family) / chunk_size))
@@ -133,6 +138,9 @@ for (chunk_index in seq_along(chunks)) {
   
   # Append taxonomic information for the chunk to the list
   all_taxonomic_info <- c(all_taxonomic_info, list(chunk_taxonomic_info))
+  
+  # Add a delay 
+  Sys.sleep(5)
 }
 
 # Combine taxonomic information from all chunks into a single list
@@ -142,6 +150,28 @@ all_taxonomic_info <- do.call(c, all_taxonomic_info)
 taxonomic_df <- do.call(rbind, all_taxonomic_info)
 ```
 
+```{r}
+# remove duplicates
+taxonomic_df <- distinct(taxonomic_df)
+# rename column to family, genus, species
+taxonomic_df <- taxonomic_df %>%
+  rename(family = Family,
+         genus = Genus,
+         species = Species)
+```
+
+```{r}
+# add to species dataframe
+na_species_df_2 <- na_species_df %>%
+  mutate(family = coalesce(family, taxonomic_df$family),
+         genus = coalesce(genus, taxonomic_df$genus))
+
+# retrieve list of species without family & genus information
+species_no_family_2 <- na_species_df_2 %>%
+  filter(is.na(family) | family == "") %>%
+  select(species) %>%
+  pull()
+```
 
 # Set the seed for reproducibility
 ```{r}
