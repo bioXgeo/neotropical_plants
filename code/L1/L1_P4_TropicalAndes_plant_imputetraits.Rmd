@@ -1,5 +1,5 @@
 ---
-title: "TITLE"
+title: "Plant Trait Imputation"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
@@ -19,6 +19,8 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 # Load required packages
 ```{r}
 library(tidyr)
+library(BIEN)
+library(GIFT)
 library(mice)
 library(dplyr)
 ```
@@ -28,6 +30,119 @@ library(dplyr)
 plant_traits <- read.csv(file.path(data_path,"TropicalAndes_all_plant_traits_harmonized.csv"))
 ```
 
+
+# Use BIEN and GIFT to fill in gaps by genus or family.
+Need a list of families and genus for each trait that needs requesting
+2. add genus and family information to dataframe
+3. list by trait of species and genus
+## Create a dataframe of species and TraitNames with TraitValue = NA
+```{r}
+# remove X column
+plant_traits <- plant_traits[, !colnames(plant_traits) %in% "X", drop = FALSE]
+# Convert the wide dataframe to long format
+long_plant_traits <- plant_traits %>%
+  gather(TraitName, TraitValue, -species)
+
+# Filter rows with NA values
+na_traits <- long_plant_traits %>%
+  filter(is.na(TraitValue))
+
+# get a list of species
+na_species_list <- unique(na_traits$species)
+```
+
+## Add genus and family information to dataframe
+```{r}
+taxonomic_info <- BIEN_taxonomy_species(na_species_list)
+```
+
+```{r}
+# keep only columns with family, genus, species
+subset_df <- taxonomic_info[, c("scrubbed_family", "scrubbed_genus", "scrubbed_species_binomial")]
+# remove duplicates
+na_species_taxonomy <- distinct(subset_df)
+# rename column to family, genus, species
+na_species_taxonomy <- na_species_taxonomy %>%
+  rename(family = scrubbed_family,
+         genus = scrubbed_genus,
+         species = scrubbed_species_binomial)
+```
+
+```{r}
+# add to species dataframe
+na_species_df <- as.data.frame(na_species_list)
+names(na_species_df) <- "species"
+na_species_df <- merge(na_species_df, na_species_taxonomy, by = "species", all.x = TRUE)
+
+# retrieve list of species without family & genus information
+species_no_family <- na_species_df %>%
+  filter(is.na(family) | family == "") %>%
+  select(species) %>%
+  pull()
+species_no_genus <- na_species_df %>%
+  filter(is.na(genus) | genus == "") %>%
+  select(species) %>%
+  pull()
+# check if all the species in no_family & no_genus lists are the same
+identical(species_no_family, species_no_genus)
+```
+## Use taxize for species with no family and genus info
+
+```{r}
+library(taxize)
+
+# Function to retrieve taxonomic information for a chunk of species names
+get_taxonomic_info_chunk <- function(chunk_species_names) {
+  # Initialize an empty list to store taxonomic information for each chunk
+  chunk_taxonomic_info <- list()
+  
+  # Loop through each species name in the chunk and retrieve taxonomic information
+  for (species_name in chunk_species_names) {
+    # Add a delay of 1 second between consecutive API requests
+    Sys.sleep(1)
+    
+    # Make API request to retrieve taxonomic information
+    taxon_info <- tax_name(species_name, get = c("genus", "family"), db = "both")
+    
+    # Store taxonomic information for the species in the list
+    chunk_taxonomic_info[[species_name]] <- data.frame(Species = species_name, 
+                                                       Genus = taxon_info$genus, 
+                                                       Family = taxon_info$family)
+  }
+  
+  # Return the list of taxonomic information for the chunk
+  return(chunk_taxonomic_info)
+}
+
+# Define the chunk size
+chunk_size <- 100  # Adjust the chunk size as needed
+
+# Split the dataframe into chunks based on the chunk size
+chunks <- split(species_no_family, ceiling(seq_along(species_no_family) / chunk_size))
+
+# Initialize an empty list to store taxonomic information for all chunks
+all_taxonomic_info <- list()
+
+# Iterate over each chunk and retrieve taxonomic information
+for (chunk_index in seq_along(chunks)) {
+  # Get the species names in the current chunk
+  chunk_species_names <- chunks[[chunk_index]]
+  
+  # Retrieve taxonomic information for the chunk
+  chunk_taxonomic_info <- get_taxonomic_info_chunk(chunk_species_names)
+  
+  # Append taxonomic information for the chunk to the list
+  all_taxonomic_info <- c(all_taxonomic_info, list(chunk_taxonomic_info))
+}
+
+# Combine taxonomic information from all chunks into a single list
+all_taxonomic_info <- do.call(c, all_taxonomic_info)
+
+# Combine the list of dataframes into a single dataframe
+taxonomic_df <- do.call(rbind, all_taxonomic_info)
+```
+
+
 # Set the seed for reproducibility
 ```{r}
 set.seed(123)
@@ -36,18 +151,41 @@ set.seed(123)
 
 ```{r}
 #replace " " with _ in column names
-names(wide_traits) <- sub(" ", "_", names(wide_traits))
+names(plant_traits) <- sub(" ", "_", names(plant_traits))
 ```
 
 
 # show the missing data pattern
 ```{r}
-md.pattern(wide_traits)
+md.pattern(plant_traits)
+```
+# Trying to prevent error
+Error in edit.setup(data, setup, ...) : 
+  `mice` detected constant and/or collinear variables. No predictors were left after their removal.
+```{r}
+# Subset to numeric plant traits
+num_plant_traits <- plant_traits %>%
+  select_if(is.numeric)
+# Check for constant variables
+constant_vars <- sapply(num_plant_traits, function(x) length(unique(x))) == 1
+constant_vars <- names(constant_vars[constant_vars])
+
+# Remove constant variables
+num_plant_traits <- num_plant_traits[, !names(num_plant_traits) %in% constant_vars]
+
+# Check for collinearity
+cor_matrix <- cor(num_plant_traits)
+
+# Find highly correlated variables
+highly_correlated_pairs <- which(abs(cor_matrix) > 0.8 & upper.tri(cor_matrix, diag = TRUE), arr.ind = TRUE)
+
+# Print highly correlated pairs
+print(highly_correlated_pairs)
 ```
 
 # Perform the imputation
 ```{r}
-imp_model <- mice(wide_traits, method = "cart", maxit = 20)
+imp_model <- mice(plant_traits, method = "cart", maxit = 20)
 ```
 
 ```{r}
