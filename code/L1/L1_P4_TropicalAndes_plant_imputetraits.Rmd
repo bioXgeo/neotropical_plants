@@ -318,7 +318,8 @@ Growth.Form_genus <- unique(Growth.Form$genus)
 
 ##Retrive trait records for species using BIEN & GIFT
 ```{r}
-
+# Dispersal Syndrome
+Dispersal.Syndrome_families_BIEN <- BIEN_trait_traitbyfamily(family = Dispersal.Syndrome_families, trait = "dispersal syndrome")
 ```
 
 
