@@ -35,6 +35,7 @@ plant_traits <- read.csv(file.path(data_path,"TropicalAndes_all_plant_traits_har
 Need a list of families and genus for each trait that needs requesting
 2. add genus and family information to dataframe
 3. list by trait of species and genus
+
 ## Create a dataframe of species and TraitNames with TraitValue = NA
 ```{r}
 # remove X column
@@ -86,8 +87,7 @@ species_no_genus <- na_species_df %>%
 # check if all the species in no_family & no_genus lists are the same
 identical(species_no_family, species_no_genus)
 ```
-## Use taxize for species with no family and genus info
-
+Use taxize for species with no family and genus info
 ```{r}
 library(taxize)
 
@@ -162,16 +162,165 @@ taxonomic_df <- taxonomic_df %>%
 
 ```{r}
 # add to species dataframe
-na_species_df_2 <- na_species_df %>%
-  mutate(family = coalesce(family, taxonomic_df$family),
-         genus = coalesce(genus, taxonomic_df$genus))
+na_species_df$family <- ifelse(is.na(na_species_df$family), taxonomic_df$family[match(na_species_df$species, taxonomic_df$species)], na_species_df$family)
+na_species_df$genus <- ifelse(is.na(na_species_df$genus), taxonomic_df$genus[match(na_species_df$species, taxonomic_df$species)], na_species_df$genus)
+
 
 # retrieve list of species without family & genus information
-species_no_family_2 <- na_species_df_2 %>%
+species_no_family_2 <- na_species_df %>%
   filter(is.na(family) | family == "") %>%
   select(species) %>%
   pull()
 ```
+
+```{r}
+# get powo id
+species_no_family_2_powo <- get_pow(species_no_family_2, messages = TRUE)
+```
+
+
+```{r}
+# Function to retrieve taxonomic information for a chunk of taxon IDs
+get_taxonomic_info_chunk <- function(chunk_taxon_id) {
+  # Initialize an empty list to store taxonomic information for each chunk
+  chunk_taxonomic_info <- list()
+  
+  # Loop through each taxon ID in the chunk and retrieve taxonomic information
+  for (taxon_id in chunk_taxon_id) {
+    tryCatch({
+      # Print taxon ID for debugging
+      print(paste("Processing taxon ID:", taxon_id))
+      
+      # Add a delay between consecutive API requests
+      Sys.sleep(1)
+      
+      # Query POWO database for taxonomic information
+      taxon_info <- pow_lookup(id = taxon_id)
+      
+      # Check if taxon_info is NULL
+      if (is.null(taxon_info)) {
+        # If taxon_info is NULL, return NA values for species, family, and genus
+        chunk_taxonomic_info[[taxon_id]] <- data.frame(taxon_id = taxon_id, species = NA, family = NA, genus = NA)
+      } else {
+        # Store taxonomic information for the taxon ID in the list
+        chunk_taxonomic_info[[taxon_id]] <- data.frame(taxon_id = taxon_id,
+                                                        species = taxon_info$meta$name,
+                                                        genus = taxon_info$meta$genus, 
+                                                        family = taxon_info$meta$family)
+      }
+    }, error = function(e) {
+      # Print error message for debugging
+      print(paste("Error processing taxon ID:", taxon_id))
+      print(e)
+    })
+  }
+  
+  # Return the list of taxonomic information for the chunk
+  return(chunk_taxonomic_info)
+}
+
+# Define the chunk size
+chunk_size <- 300 # Adjust the chunk size as needed
+
+# Split the vector of taxon IDs into chunks based on the chunk size
+chunks <- split(species_no_family_2_powo, ceiling(seq_along(species_no_family_2_powo) / chunk_size))
+
+# Initialize an empty list to store taxonomic information for all chunks
+all_taxonomic_info <- list()
+
+# Iterate over each chunk and retrieve taxonomic information
+for (chunk_index in seq_along(chunks)) {
+  # Get the taxon IDs in the current chunk
+  chunk_taxon_id <- chunks[[chunk_index]]
+  
+  # Retrieve taxonomic information for the chunk
+  chunk_taxonomic_info <- get_taxonomic_info_chunk(chunk_taxon_id)
+  
+  # Append taxonomic information for the chunk to the list
+  all_taxonomic_info <- c(all_taxonomic_info, list(chunk_taxonomic_info))
+  
+  # Add a delay 
+  Sys.sleep(5)
+}
+
+# Combine taxonomic information from all chunks into a single list
+all_taxonomic_info <- do.call(c, all_taxonomic_info)
+
+# Combine the list of dataframes into a single dataframe
+taxonomic_df <- do.call(rbind, all_taxonomic_info)
+
+```
+
+```{r}
+# add to species dataframe
+na_species_df$family <- ifelse(is.na(na_species_df$family), taxonomic_df$family[match(na_species_df$species, taxonomic_df$species)], na_species_df$family)
+na_species_df$genus <- ifelse(is.na(na_species_df$genus), taxonomic_df$genus[match(na_species_df$species, taxonomic_df$species)], na_species_df$genus)
+
+
+# retrieve list of species without family & genus information
+species_no_family_3 <- na_species_df %>%
+  filter(is.na(family) | family == "") %>%
+  select(species) %>%
+  pull()
+```
+
+## Add genus and family info to dataframe with species and traits
+```{r}
+na_traits_family.genus <- merge(na_traits, na_species_df, by = "species", all.x = TRUE)
+```
+
+## Get a list for each trait of species, genus, and family to fill in gaps
+```{r}
+# Get unique traits
+traits <- unique(na_traits_family.genus$TraitName)
+
+# Create an empty list to store dataframes for each trait
+trait_dfs <- list()
+
+# Split the dataframe by traitName and create a dataframe for each trait
+for (trait in traits) {
+  # Subset the dataframe for the current trait
+  trait_df <- subset(na_traits_family.genus, TraitName == trait)
+  
+  # Remove the traitName column from the subsetted dataframe
+  trait_df <- trait_df[, !(names(trait_df) %in% "traitName")]
+  
+  # Add the dataframe to the list
+  trait_dfs[[trait]] <- trait_df
+}
+
+# Seperate dataframes from list
+Dispersal.Syndrome <- trait_dfs$Dispersal.Syndrome
+Fruit.Length <- trait_dfs$Fruit.Length
+Plant.Height <- trait_dfs$Plant.Height
+Fruit.Type <- trait_dfs$Fruit.Type
+Growth.Form <- trait_dfs$Growth.Form
+```
+
+```{r}
+# Create a list of unique genus and families for each trait
+Dispersal.Syndrome_families <- unique(Dispersal.Syndrome$family)
+Dispersal.Syndrome_genus <- unique(Dispersal.Syndrome$genus)
+
+Fruit.Length_families <- unique(Fruit.Length$family)
+Fruit.Length_genus <- unique(Fruit.Length$genus)
+
+Plant.Height_families <- unique(Plant.Height$family)
+Plant.Height_genus <- unique(Plant.Height$genus)
+
+Fruit.Type_families <- unique(Fruit.Type$family)
+Fruit.Type_genus <- unique(Fruit.Type$genus)
+
+Growth.Form_families <- unique(Growth.Form$family)
+Growth.Form_genus <- unique(Growth.Form$genus)
+```
+
+
+##Retrive trait records for species using BIEN & GIFT
+```{r}
+
+```
+
 
 # Set the seed for reproducibility
 ```{r}
