@@ -88,7 +88,7 @@ species_no_genus <- na_species_df %>%
 identical(species_no_family, species_no_genus)
 ```
 Use taxize for species with no family and genus info
-```{r}
+```{r, results='hide',message=FALSE, warning=FALSE}
 library(taxize)
 
 # Function to retrieve taxonomic information for a chunk of species names
@@ -320,8 +320,47 @@ Growth.Form_genus <- unique(Growth.Form$genus)
 ```{r}
 # Dispersal Syndrome
 Dispersal.Syndrome_families_BIEN <- BIEN_trait_traitbyfamily(family = Dispersal.Syndrome_families, trait = "dispersal syndrome")
+Dispersal.Syndrome_genus_BIEN <- BIEN_trait_traitbygenus(genus = Dispersal.Syndrome_genus, trait)
+
+Dispersal.Syndrome_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.3.1")
+Dispersal.Syndrome_families_GIFT <- Dispersal.Syndrome_families_GIFT[Dispersal.Syndrome_families_GIFT$family %in% Dispersal.Syndrome_families, ]
 ```
 
+```{r}
+# Fruit Length
+Fruit.Length_families_BIEN <- BIEN_trait_traitbyfamily(family = Fruit.Length_families, trait = c("maximum fruit length", "minimum fruit length"))
+Fruit.Length_genus_BIEN <- BIEN_trait_traitbygenus(genus = Fruit.Length_genus, trait = c("maximum fruit length", "minimum fruit length"))
+
+Fruit.Length_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.13.3")
+Fruit.Length_families_GIFT <- Fruit.Length_families_GIFT[Fruit.Length_families_GIFT$family %in% Fruit.Length_families, ]
+```
+
+```{r}
+# Plant Height
+Plant.Height_families_BIEN <- BIEN_trait_traitbyfamily(family = Plant.Height_families, trait = "whole plant height")
+Plant.Height_genus_BIEN <- BIEN_trait_traitbygenus(genus = Plant.Height_genus, trait = "whole plant height")
+
+Plant.Height_families_GIFT <- GIFT_traits_tax(trait_IDs = "1.6.3")
+Plant.Height_families_GIFT <- Plant.Height_families_GIFT[Plant.Height_families_GIFT$family %in% Plant.Height_families, ]
+```
+
+```{r}
+# Fruit Type
+Fruit.Type_families_BIEN <- BIEN_trait_traitbyfamily(family = Fruit.Type_families, trait = "fruit type")
+Fruit.Type_genus_BIEN <- BIEN_trait_traitbygenus(genus = Fruit.Type_genus, trait = "fruit type")
+
+Fruit.Type_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.16.1")
+Fruit.Type_families_GIFT <- Fruit.Type_families_GIFT[Fruit.Type_families_GIFT$family %in% Fruit.Type_families, ]
+```
+
+```{r}
+# Growth Form
+Growth.Form_families_BIEN <- BIEN_trait_traitbyfamily(family = Growth.Form_families, trait = "whole plant growth form")
+Growth.Form_genus_BIEN <- BIEN_trait_traitbygenus(genus = Growth.Form_genus, trait = "whole plant growth form")
+
+Growth.Form_families_GIFT <- GIFT_traits_tax(trait_IDs = "1.2.1")
+Growth.Form_families_GIFT <- Growth.Form_families_GIFT[Growth.Form_families_GIFT$family %in% Growth.Form_families, ]
+```
 
 # Set the seed for reproducibility
 ```{r}
