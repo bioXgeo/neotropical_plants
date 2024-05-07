@@ -316,11 +316,11 @@ Growth.Form_genus <- unique(Growth.Form$genus)
 ```
 
 
-##Retrive trait records for species using BIEN & GIFT
+## Retrive trait records for species using BIEN & GIFT
 ```{r}
 # Dispersal Syndrome
-Dispersal.Syndrome_families_BIEN <- BIEN_trait_traitbyfamily(family = Dispersal.Syndrome_families, trait = "dispersal syndrome")
-Dispersal.Syndrome_genus_BIEN <- BIEN_trait_traitbygenus(genus = Dispersal.Syndrome_genus, trait)
+Dispersal.Syndrome_families_BIEN <- BIEN_trait_traitbyfamily(family = Dispersal.Syndrome_families, trait = "whole plant dispersal syndrome")
+Dispersal.Syndrome_genus_BIEN <- BIEN_trait_traitbygenus(genus = Dispersal.Syndrome_genus, trait = "whole plant dispersal syndrome")
 
 Dispersal.Syndrome_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.3.1")
 Dispersal.Syndrome_families_GIFT <- Dispersal.Syndrome_families_GIFT[Dispersal.Syndrome_families_GIFT$family %in% Dispersal.Syndrome_families, ]
@@ -331,8 +331,9 @@ Dispersal.Syndrome_families_GIFT <- Dispersal.Syndrome_families_GIFT[Dispersal.S
 Fruit.Length_families_BIEN <- BIEN_trait_traitbyfamily(family = Fruit.Length_families, trait = c("maximum fruit length", "minimum fruit length"))
 Fruit.Length_genus_BIEN <- BIEN_trait_traitbygenus(genus = Fruit.Length_genus, trait = c("maximum fruit length", "minimum fruit length"))
 
-Fruit.Length_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.13.3")
-Fruit.Length_families_GIFT <- Fruit.Length_families_GIFT[Fruit.Length_families_GIFT$family %in% Fruit.Length_families, ]
+#Error in GIFT_traits_tax(trait_IDs = "3.13.3") : None of the traits asked was available at the taxonomic level.
+#Fruit.Length_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.13.3")
+#Fruit.Length_families_GIFT <- Fruit.Length_families_GIFT[Fruit.Length_families_GIFT$family %in% Fruit.Length_families, ]
 ```
 
 ```{r}
@@ -340,8 +341,9 @@ Fruit.Length_families_GIFT <- Fruit.Length_families_GIFT[Fruit.Length_families_G
 Plant.Height_families_BIEN <- BIEN_trait_traitbyfamily(family = Plant.Height_families, trait = "whole plant height")
 Plant.Height_genus_BIEN <- BIEN_trait_traitbygenus(genus = Plant.Height_genus, trait = "whole plant height")
 
-Plant.Height_families_GIFT <- GIFT_traits_tax(trait_IDs = "1.6.3")
-Plant.Height_families_GIFT <- Plant.Height_families_GIFT[Plant.Height_families_GIFT$family %in% Plant.Height_families, ]
+#Error in GIFT_traits_tax(trait_IDs = "1.6.3") :   None of the traits asked was available at the taxonomic level.
+#Plant.Height_families_GIFT <- GIFT_traits_tax(trait_IDs = "1.6.3")
+#Plant.Height_families_GIFT <- Plant.Height_families_GIFT[Plant.Height_families_GIFT$family %in% Plant.Height_families, ]
 ```
 
 ```{r}
@@ -349,8 +351,9 @@ Plant.Height_families_GIFT <- Plant.Height_families_GIFT[Plant.Height_families_G
 Fruit.Type_families_BIEN <- BIEN_trait_traitbyfamily(family = Fruit.Type_families, trait = "fruit type")
 Fruit.Type_genus_BIEN <- BIEN_trait_traitbygenus(genus = Fruit.Type_genus, trait = "fruit type")
 
-Fruit.Type_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.16.1")
-Fruit.Type_families_GIFT <- Fruit.Type_families_GIFT[Fruit.Type_families_GIFT$family %in% Fruit.Type_families, ]
+# Error in GIFT_traits_tax(trait_IDs = "3.16.1") :   None of the traits asked was available at the taxonomic level.
+#Fruit.Type_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.16.1")
+#Fruit.Type_families_GIFT <- Fruit.Type_families_GIFT[Fruit.Type_families_GIFT$family %in% Fruit.Type_families, ]
 ```
 
 ```{r}
@@ -358,11 +361,39 @@ Fruit.Type_families_GIFT <- Fruit.Type_families_GIFT[Fruit.Type_families_GIFT$fa
 Growth.Form_families_BIEN <- BIEN_trait_traitbyfamily(family = Growth.Form_families, trait = "whole plant growth form")
 Growth.Form_genus_BIEN <- BIEN_trait_traitbygenus(genus = Growth.Form_genus, trait = "whole plant growth form")
 
-Growth.Form_families_GIFT <- GIFT_traits_tax(trait_IDs = "1.2.1")
-Growth.Form_families_GIFT <- Growth.Form_families_GIFT[Growth.Form_families_GIFT$family %in% Growth.Form_families, ]
+# Error in GIFT_traits_tax(trait_IDs = "1.2.1") :   None of the traits asked was available at the taxonomic level.
+#Growth.Form_families_GIFT <- GIFT_traits_tax(trait_IDs = "1.2.1")
+#Growth.Form_families_GIFT <- Growth.Form_families_GIFT[Growth.Form_families_GIFT$family %in% Growth.Form_families, ]
 ```
 
-# Set the seed for reproducibility
+## Combine new info with existing trait table
+Make sure numeric traits match the units of existing trait table. 
+To fill in gaps of missing traits, use genus level data first then family level. Add column to trait dataframe of the level of trait measurement: species, genus, family.
+```{r}
+# for traits to family level from BIEN, keep columns of scrubbed_family, trait_name, trait_value
+Dispersal.Syndrome_families_BIEN_df <- Dispersal.Syndrome_families_BIEN[, c("scrubbed_family", "trait_name", "trait_value")]
+Fruit.Length_families_BIEN_df <- Fruit.Length_families_BIEN[, c("scrubbed_family", "trait_name", "trait_value")]
+Plant.Height_families_BIEN_df <- Plant.Height_families_BIEN[, c("scrubbed_family", "trait_name", "trait_value")]
+Fruit.Type_families_BIEN_df <- Fruit.Type_families_BIEN[, c("scrubbed_family", "trait_name", "trait_value")]
+Growth.Form_families_BIEN_df <- Growth.Form_families_BIEN[, c("scrubbed_family", "trait_name", "trait_value")]
+```
+
+```{r}
+# for traits to genus level from BIEN, keep columns of scrubbed_genus, trait_name, trait_value
+Dispersal.Syndrome_genus_BIEN_df <- Dispersal.Syndrome_genus_BIEN[, c("scrubbed_genus", "trait_name", "trait_value")]
+Fruit.Length_genus_BIEN_df <- Fruit.Length_genus_BIEN[, c("scrubbed_genus", "trait_name", "trait_value")]
+Plant.Height_genus_BIEN_df <- Plant.Height_genus_BIEN[, c("scrubbed_genus", "trait_name", "trait_value")]
+Fruit.Type_genus_BIEN_df <- Fruit.Type_genus_BIEN[, c("scrubbed_genus", "trait_name", "trait_value")]
+Growth.Form_genus_BIEN_df <- Growth.Form_genus_BIEN[, c("scrubbed_genus", "trait_name", "trait_value")]
+```
+
+```{r}
+
+```
+
+
+# Impute Traits
+## Set the seed for reproducibility
 ```{r}
 set.seed(123)
 ```
