@@ -289,7 +289,7 @@ for (trait in traits) {
   trait_dfs[[trait]] <- trait_df
 }
 
-# Seperate dataframes from list
+# Separate dataframes from list
 Dispersal.Syndrome <- trait_dfs$Dispersal.Syndrome
 Fruit.Length <- trait_dfs$Fruit.Length
 Plant.Height <- trait_dfs$Plant.Height
@@ -387,9 +387,173 @@ Fruit.Type_genus_BIEN_df <- Fruit.Type_genus_BIEN[, c("scrubbed_genus", "trait_n
 Growth.Form_genus_BIEN_df <- Growth.Form_genus_BIEN[, c("scrubbed_genus", "trait_name", "trait_value")]
 ```
 
+Get a single trait value for each family/genus
 ```{r}
+# numeric traits
+numeric_traits_combined <- function(df, level) {
+  df$trait_value <- as.numeric(df$trait_value)
+  if (level == "genus") {
+    df %>%
+      group_by(scrubbed_genus) %>%
+      summarise(trait_value = mean(trait_value, na.rm = TRUE)) %>%
+      ungroup()
+  } else if (level == "family") {
+    df %>%
+      group_by(scrubbed_family) %>%
+      summarise(trait_value = mean(trait_value, na.rm = TRUE)) %>%
+      ungroup()
+  }
+}
+
+# non-numeric traits
+cat_traits_combined <- function(df, level){
+  if (level == "genus") {
+    df %>%
+      group_by(scrubbed_genus) %>%
+      summarise_all(.funs = list(mode_trait = ~names(sort(table(.), decreasing = TRUE))[1])) %>%
+      ungroup()
+  } else if (level == "family") {
+    df %>%
+      group_by(scrubbed_family) %>%
+      summarise_all(.funs = list(mode_trait = ~names(sort(table(.), decreasing = TRUE))[1])) %>%
+      ungroup()
+  }
+}
 
 ```
+
+```{r}
+Dispersal.Syndrome_families_BIEN_df <- cat_traits_combined(Dispersal.Syndrome_families_BIEN_df, "family")
+Dispersal.Syndrome_genus_BIEN_df <- cat_traits_combined(Dispersal.Syndrome_genus_BIEN_df, "genus")
+```
+
+```{r}
+Fruit.Length_families_BIEN_df <- numeric_traits_combined(Fruit.Length_families_BIEN_df, "family")
+Fruit.Length_genus_BIEN_df <- numeric_traits_combined(Fruit.Length_genus_BIEN_df, "genus")
+```
+
+```{r}
+Plant.Height_families_BIEN_df <- numeric_traits_combined(Plant.Height_families_BIEN_df, "family")
+Plant.Height_genus_BIEN_df <- numeric_traits_combined(Plant.Height_genus_BIEN_df, "genus")
+```
+
+```{r}
+Fruit.Type_families_BIEN_df <- cat_traits_combined(Fruit.Type_families_BIEN_df, "family")
+Fruit.Type_genus_BIEN_df <- cat_traits_combined(Fruit.Type_genus_BIEN_df, "genus")
+```
+
+```{r}
+Growth.Form_families_BIEN_df <- cat_traits_combined(Growth.Form_families_BIEN_df, "family")
+Growth.Form_genus_BIEN_df <- cat_traits_combined(Growth.Form_genus_BIEN_df, "genus")
+```
+
+add column of trait level (specices, genus, family)
+```{r}
+# Add new column trait_level to long_plant_trait dataframe
+long_plant_traits <- long_plant_traits %>%
+  mutate(TraitLevel = ifelse(!is.na(TraitValue), "species", NA))
+```
+
+```{r}
+# add family and genus information to long_plant_trait dataframe
+long_plant_traits_tax <- merge(long_plant_traits, na_species_df, by = "species", all.x = TRUE)
+```
+
+```{r}
+# combine all family level trait data
+## add column of trait_name for numeric traits
+Dispersal.Syndrome_families_BIEN_df$trait_name <- "Dispersal.Syndrome"
+Fruit.Length_families_BIEN_df$trait_name <- "Fruit.Length_mm"
+Plant.Height_families_BIEN_df$trait_name <- "Plant.Height_m"
+Fruit.Type_families_BIEN_df$trait_name <- "Fruit.Type"
+Growth.Form_families_BIEN_df$trait_name <- "Growth.Form"
+
+## rename trait_value column so it's consistent with other traits
+Fruit.Type_families_BIEN_df$trait_value <- Fruit.Type_families_BIEN_df$trait_value_mode_trait
+Growth.Form_families_BIEN_df$trait_value <- Growth.Form_families_BIEN_df$trait_value_mode_trait
+
+## convert numeric trait values into character
+Plant.Height_families_BIEN_df$trait_value <- as.character(Plant.Height_families_BIEN_df$trait_value)
+Fruit.Length_families_BIEN_df$trait_value <- as.character(Fruit.Length_families_BIEN_df$trait_value)
+
+all_family_traits <- bind_rows(
+  select(Dispersal.Syndrome_families_BIEN_df, scrubbed_family, trait_name, trait_value),
+  select(Fruit.Length_families_BIEN_df, scrubbed_family, trait_name, trait_value),
+  select(Plant.Height_families_BIEN_df, scrubbed_family, trait_name, trait_value),
+  select(Fruit.Type_families_BIEN_df, scrubbed_family, trait_name, trait_value),
+  select(Growth.Form_families_BIEN_df, scrubbed_family, trait_name, trait_value)
+  )
+
+## add trait level column
+all_family_traits$TraitLevel <- "family"
+```
+
+```{r}
+# combine all genus level trait data
+## add column of trait_name for numeric traits
+Dispersal.Syndrome_genus_BIEN_df$trait_name <- "Dispersal.Syndrome"
+Fruit.Length_genus_BIEN_df$trait_name <- "Fruit.Length_mm"
+Plant.Height_genus_BIEN_df$trait_name <- "Plant.Height_m"
+Fruit.Type_genus_BIEN_df$trait_name <- "Fruit.Type"
+Growth.Form_genus_BIEN_df$trait_name <- "Growth.Form"
+
+## rename trait_value column so it's consistent with other traits
+Fruit.Type_genus_BIEN_df$trait_value <- Fruit.Type_genus_BIEN_df$trait_value_mode_trait
+Growth.Form_genus_BIEN_df$trait_value <- Growth.Form_genus_BIEN_df$trait_value_mode_trait
+
+## convert numeric trait values into character
+Plant.Height_genus_BIEN_df$trait_value <- as.character(Plant.Height_genus_BIEN_df$trait_value)
+Fruit.Length_genus_BIEN_df$trait_value <- as.character(Fruit.Length_genus_BIEN_df$trait_value)
+
+all_genus_traits <- bind_rows(
+  select(Dispersal.Syndrome_genus_BIEN_df, scrubbed_genus, trait_name, trait_value),
+  select(Fruit.Length_genus_BIEN_df, scrubbed_genus, trait_name, trait_value),
+  select(Plant.Height_genus_BIEN_df, scrubbed_genus, trait_name, trait_value),
+  select(Fruit.Type_genus_BIEN_df, scrubbed_genus, trait_name, trait_value),
+  select(Growth.Form_genus_BIEN_df, scrubbed_genus, trait_name, trait_value)
+  )
+
+## add trait level column
+all_genus_traits$TraitLevel <- "genus"
+```
+
+make sure column names match between dataframes before combining
+```{r}
+colnames(all_family_traits)
+colnames(all_genus_traits)
+colnames(long_plant_traits_tax)
+```
+
+```{r}
+colnames(all_family_traits)[which(colnames(all_family_traits) == "scrubbed_family")] <- "family"
+colnames(all_family_traits)[which(colnames(all_family_traits) == "trait_name")] <- "TraitName"
+colnames(all_family_traits)[which(colnames(all_family_traits) == "trait_value")] <- "TraitValue"
+
+colnames(all_genus_traits)[which(colnames(all_genus_traits) == "scrubbed_genus")] <- "genus"
+colnames(all_genus_traits)[which(colnames(all_genus_traits) == "trait_name")] <- "TraitName"
+colnames(all_genus_traits)[which(colnames(all_genus_traits) == "trait_value")] <- "TraitValue"
+```
+
+use family & genus level traits to fill in gaps of original dataframe
+genus level prefered over family
+```{r}
+# Join the dataframes based on genus and TraitName
+filled_long_plant_traits_tax <- long_plant_traits_tax %>%
+  left_join(all_genus_traits, by = c("genus", "TraitName"), relationship = "many-to-many") %>%
+  # Fill NAs in TraitValue column with values from all_genus_traits
+  mutate(TraitValue = ifelse(is.na(TraitValue.x), TraitValue.y, TraitValue.x)) %>%
+  # Remove the columns from all_genus_traits (if needed)
+  select(-TraitValue.y)
+```
+
+Add units to wide trait table numeric trait names
+fruit mass -> Fruit.Mass_mg
+fruit length -> Fruit.Length_mm
+plant height -> Plant.Height_m
+plant lifespan -> Plant.Lifespan_years
+seed mass -> Seed.Mass_mg
+seed length -> Seed.Length_mm
+seed width -> Seed.Width_mm
 
 
 # Impute Traits
