@@ -1,5 +1,5 @@
 ---
-title: "TITLE"
+title: "Plant occurrence subset by species with complete trait records"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
@@ -12,11 +12,64 @@ output: html_document
 
 # Set file paths
 ```{r}
-data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
-output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 ```
 
 # Load required packages
 ```{r}
-
+library(dplyr)
+#run if not installed remotes::install_github("FRBCesab/funbiogeo")
+library(funbiogeo)
 ```
+
+# Read in data
+```{r}
+plant_traits <- read.csv(file.path(data_path_L1, file = "TropicalAndes_imputed_plant_traits.csv"))
+plant_occ <- read.csv(file.path(data_path_L1, file = "TropicalAndes_GBIF_plant_occ_cleaned.csv"))
+```
+
+# Check trait coverage
+```{r}
+summary(plant_traits)
+```
+
+```{r}
+fb_plot_number_species_by_trait(plant_traits)
+```
+
+```{r}
+Plant_complete <- fb_filter_species_by_trait_coverage(plant_traits, threshold_traits_proportion =  1)
+```
+
+
+# Create list of species with complete trait records
+```{r}
+plant_species <- unique(Plant_complete$species)
+```
+
+# Subset frugivore occurrence data by species list
+```{r}
+plant_occ_subset <- plant_occ %>%
+  filter(species %in% plant_species)
+```
+
+# Summary
+```{r}
+glimpse(plant_occ_subset)
+```
+
+```{r}
+source("~/GitHub/neotropical_plants/functions/data_summary.R")
+```
+
+```{r}
+data_summary(plant_occ_subset, plant_occ_subset$species, plant_occ_subset$genus, plant_occ_subset$family)
+```
+
+# Write data to csv
+```{r}
+write.csv(plant_occ_subset, file.path(output_path_L1,"TropicalAndes_GBIF_plant_occ_cleaned_subset.csv"))
+```
+
+
