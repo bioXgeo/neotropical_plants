@@ -1,5 +1,5 @@
 ---
-title: "TITLE"
+title: "Plant Trait Imputation"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
@@ -18,5 +18,711 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 
 # Load required packages
 ```{r}
+library(tidyr)
+library(BIEN)
+library(GIFT)
+library(mice)
+library(dplyr)
+```
+
+# Read in data
+```{r}
+plant_traits <- read.csv(file.path(data_path,"TropicalAndes_all_plant_traits_harmonized.csv"))
+```
+
+
+# Use BIEN and GIFT to fill in gaps by genus or family.
+Need a list of families and genus for each trait that needs requesting
+2. add genus and family information to dataframe
+3. list by trait of species and genus
+
+## Create a dataframe of species and TraitNames with TraitValue = NA
+```{r}
+# remove X column
+plant_traits <- plant_traits[, !colnames(plant_traits) %in% "X", drop = FALSE]
+# remove Growth Forme trait
+plant_traits <- plant_traits %>%
+  select(-Growth.Forme)
+# Convert the wide dataframe to long format
+long_plant_traits <- plant_traits %>%
+  gather(TraitName, TraitValue, -species)
+
+# Filter rows with NA values
+na_traits <- long_plant_traits %>%
+  filter(is.na(TraitValue))
+
+# get a list of species
+na_species_list <- unique(na_traits$species)
+```
+
+## Add genus and family information to dataframe
+```{r}
+taxonomic_info <- BIEN_taxonomy_species(na_species_list)
+```
+
+```{r}
+# keep only columns with family, genus, species
+subset_df <- taxonomic_info[, c("scrubbed_family", "scrubbed_genus", "scrubbed_species_binomial")]
+# remove duplicates
+na_species_taxonomy <- distinct(subset_df)
+# rename column to family, genus, species
+na_species_taxonomy <- na_species_taxonomy %>%
+  rename(family = scrubbed_family,
+         genus = scrubbed_genus,
+         species = scrubbed_species_binomial)
+```
+
+```{r}
+# add to species dataframe
+na_species_df <- as.data.frame(na_species_list)
+names(na_species_df) <- "species"
+na_species_df <- merge(na_species_df, na_species_taxonomy, by = "species", all.x = TRUE)
+
+# retrieve list of species without family & genus information
+species_no_family <- na_species_df %>%
+  filter(is.na(family) | family == "") %>%
+  select(species) %>%
+  pull()
+species_no_genus <- na_species_df %>%
+  filter(is.na(genus) | genus == "") %>%
+  select(species) %>%
+  pull()
+# check if all the species in no_family & no_genus lists are the same
+identical(species_no_family, species_no_genus)
+```
+Use taxize for species with no family and genus info
+```{r, results='hide',message=FALSE, warning=FALSE}
+library(taxize)
+
+# Function to retrieve taxonomic information for a chunk of species names
+get_taxonomic_info_chunk <- function(chunk_species_names) {
+  # Initialize an empty list to store taxonomic information for each chunk
+  chunk_taxonomic_info <- list()
+  
+  # Loop through each species name in the chunk and retrieve taxonomic information
+  for (species_name in chunk_species_names) {
+    tryCatch({
+      # Add a delay between consecutive API requests
+      Sys.sleep(1)
+      
+      # Make API request to retrieve taxonomic information
+      taxon_info <- tax_name(species_name, get = c("genus", "family"), db = "ncbi")
+      
+      # Store taxonomic information for the species in the list
+      chunk_taxonomic_info[[species_name]] <- data.frame(Species = species_name, 
+                                                         Genus = taxon_info$genus, 
+                                                         Family = taxon_info$family)
+    }, error = function(e) {
+      # Print error message
+      cat("Error retrieving taxonomic information for", species_name, ":", conditionMessage(e), "\n")
+    })
+  }
+  
+  # Return the list of taxonomic information for the chunk
+  return(chunk_taxonomic_info)
+}
+
+# Define the chunk size
+chunk_size <- 300 # Adjust the chunk size as needed
+
+# Split the dataframe into chunks based on the chunk size
+chunks <- split(species_no_family, ceiling(seq_along(species_no_family) / chunk_size))
+
+# Initialize an empty list to store taxonomic information for all chunks
+all_taxonomic_info <- list()
+
+# Iterate over each chunk and retrieve taxonomic information
+for (chunk_index in seq_along(chunks)) {
+  # Get the species names in the current chunk
+  chunk_species_names <- chunks[[chunk_index]]
+  
+  # Retrieve taxonomic information for the chunk
+  chunk_taxonomic_info <- get_taxonomic_info_chunk(chunk_species_names)
+  
+  # Append taxonomic information for the chunk to the list
+  all_taxonomic_info <- c(all_taxonomic_info, list(chunk_taxonomic_info))
+  
+  # Add a delay 
+  Sys.sleep(5)
+}
+
+# Combine taxonomic information from all chunks into a single list
+all_taxonomic_info <- do.call(c, all_taxonomic_info)
+
+# Combine the list of dataframes into a single dataframe
+taxonomic_df <- do.call(rbind, all_taxonomic_info)
+```
+
+```{r}
+# remove duplicates
+taxonomic_df <- distinct(taxonomic_df)
+# rename column to family, genus, species
+taxonomic_df <- taxonomic_df %>%
+  rename(family = Family,
+         genus = Genus,
+         species = Species)
+```
+
+```{r}
+# add to species dataframe
+na_species_df$family <- ifelse(is.na(na_species_df$family), taxonomic_df$family[match(na_species_df$species, taxonomic_df$species)], na_species_df$family)
+na_species_df$genus <- ifelse(is.na(na_species_df$genus), taxonomic_df$genus[match(na_species_df$species, taxonomic_df$species)], na_species_df$genus)
+
+
+# retrieve list of species without family & genus information
+species_no_family_2 <- na_species_df %>%
+  filter(is.na(family) | family == "") %>%
+  select(species) %>%
+  pull()
+```
+
+```{r}
+# get powo id
+species_no_family_2_powo <- get_pow(species_no_family_2, messages = TRUE)
+```
+
+
+```{r}
+# Function to retrieve taxonomic information for a chunk of taxon IDs
+get_taxonomic_info_chunk <- function(chunk_taxon_id) {
+  # Initialize an empty list to store taxonomic information for each chunk
+  chunk_taxonomic_info <- list()
+  
+  # Loop through each taxon ID in the chunk and retrieve taxonomic information
+  for (taxon_id in chunk_taxon_id) {
+    tryCatch({
+      # Print taxon ID for debugging
+      print(paste("Processing taxon ID:", taxon_id))
+      
+      # Add a delay between consecutive API requests
+      Sys.sleep(1)
+      
+      # Query POWO database for taxonomic information
+      taxon_info <- pow_lookup(id = taxon_id)
+      
+      # Check if taxon_info is NULL
+      if (is.null(taxon_info)) {
+        # If taxon_info is NULL, return NA values for species, family, and genus
+        chunk_taxonomic_info[[taxon_id]] <- data.frame(taxon_id = taxon_id, species = NA, family = NA, genus = NA)
+      } else {
+        # Store taxonomic information for the taxon ID in the list
+        chunk_taxonomic_info[[taxon_id]] <- data.frame(taxon_id = taxon_id,
+                                                        species = taxon_info$meta$name,
+                                                        genus = taxon_info$meta$genus, 
+                                                        family = taxon_info$meta$family)
+      }
+    }, error = function(e) {
+      # Print error message for debugging
+      print(paste("Error processing taxon ID:", taxon_id))
+      print(e)
+    })
+  }
+  
+  # Return the list of taxonomic information for the chunk
+  return(chunk_taxonomic_info)
+}
+
+# Define the chunk size
+chunk_size <- 300 # Adjust the chunk size as needed
+
+# Split the vector of taxon IDs into chunks based on the chunk size
+chunks <- split(species_no_family_2_powo, ceiling(seq_along(species_no_family_2_powo) / chunk_size))
+
+# Initialize an empty list to store taxonomic information for all chunks
+all_taxonomic_info <- list()
+
+# Iterate over each chunk and retrieve taxonomic information
+for (chunk_index in seq_along(chunks)) {
+  # Get the taxon IDs in the current chunk
+  chunk_taxon_id <- chunks[[chunk_index]]
+  
+  # Retrieve taxonomic information for the chunk
+  chunk_taxonomic_info <- get_taxonomic_info_chunk(chunk_taxon_id)
+  
+  # Append taxonomic information for the chunk to the list
+  all_taxonomic_info <- c(all_taxonomic_info, list(chunk_taxonomic_info))
+  
+  # Add a delay 
+  Sys.sleep(5)
+}
+
+# Combine taxonomic information from all chunks into a single list
+all_taxonomic_info <- do.call(c, all_taxonomic_info)
+
+# Combine the list of dataframes into a single dataframe
+taxonomic_df <- do.call(rbind, all_taxonomic_info)
 
 ```
+
+```{r}
+# add to species dataframe
+na_species_df$family <- ifelse(is.na(na_species_df$family), taxonomic_df$family[match(na_species_df$species, taxonomic_df$species)], na_species_df$family)
+na_species_df$genus <- ifelse(is.na(na_species_df$genus), taxonomic_df$genus[match(na_species_df$species, taxonomic_df$species)], na_species_df$genus)
+
+
+# retrieve list of species without family & genus information
+species_no_family_3 <- na_species_df %>%
+  filter(is.na(family) | family == "") %>%
+  select(species) %>%
+  pull()
+```
+
+## Add genus and family info to dataframe with species and traits
+```{r}
+na_traits_family.genus <- merge(na_traits, na_species_df, by = "species", all.x = TRUE)
+```
+
+## Get a list for each trait of species, genus, and family to fill in gaps
+```{r}
+# Get unique traits
+traits <- unique(na_traits_family.genus$TraitName)
+
+# Create an empty list to store dataframes for each trait
+trait_dfs <- list()
+
+# Split the dataframe by traitName and create a dataframe for each trait
+for (trait in traits) {
+  # Subset the dataframe for the current trait
+  trait_df <- subset(na_traits_family.genus, TraitName == trait)
+  
+  # Remove the traitName column from the subsetted dataframe
+  trait_df <- trait_df[, !(names(trait_df) %in% "traitName")]
+  
+  # Add the dataframe to the list
+  trait_dfs[[trait]] <- trait_df
+}
+
+# Separate dataframes from list
+Dispersal.Syndrome <- trait_dfs$Dispersal.Syndrome
+Fruit.Length <- trait_dfs$Fruit.Length
+Plant.Height <- trait_dfs$Plant.Height
+Fruit.Type <- trait_dfs$Fruit.Type
+Growth.Form <- trait_dfs$Growth.Form
+```
+
+```{r}
+# Create a list of unique genus and families for each trait
+Dispersal.Syndrome_families <- unique(Dispersal.Syndrome$family)
+Dispersal.Syndrome_genus <- unique(Dispersal.Syndrome$genus)
+
+Fruit.Length_families <- unique(Fruit.Length$family)
+Fruit.Length_genus <- unique(Fruit.Length$genus)
+
+Plant.Height_families <- unique(Plant.Height$family)
+Plant.Height_genus <- unique(Plant.Height$genus)
+
+Fruit.Type_families <- unique(Fruit.Type$family)
+Fruit.Type_genus <- unique(Fruit.Type$genus)
+
+Growth.Form_families <- unique(Growth.Form$family)
+Growth.Form_genus <- unique(Growth.Form$genus)
+```
+
+
+## Retrive trait records for species using BIEN & GIFT
+```{r}
+# Dispersal Syndrome
+Dispersal.Syndrome_families_BIEN <- BIEN_trait_traitbyfamily(family = Dispersal.Syndrome_families, trait = "whole plant dispersal syndrome")
+Dispersal.Syndrome_genus_BIEN <- BIEN_trait_traitbygenus(genus = Dispersal.Syndrome_genus, trait = "whole plant dispersal syndrome")
+
+Dispersal.Syndrome_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.3.1")
+Dispersal.Syndrome_families_GIFT <- Dispersal.Syndrome_families_GIFT[Dispersal.Syndrome_families_GIFT$family %in% Dispersal.Syndrome_families, ]
+```
+
+```{r}
+# Fruit Length
+Fruit.Length_families_BIEN <- BIEN_trait_traitbyfamily(family = Fruit.Length_families, trait = c("maximum fruit length", "minimum fruit length"))
+Fruit.Length_genus_BIEN <- BIEN_trait_traitbygenus(genus = Fruit.Length_genus, trait = c("maximum fruit length", "minimum fruit length"))
+
+#Error in GIFT_traits_tax(trait_IDs = "3.13.3") : None of the traits asked was available at the taxonomic level.
+#Fruit.Length_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.13.3")
+#Fruit.Length_families_GIFT <- Fruit.Length_families_GIFT[Fruit.Length_families_GIFT$family %in% Fruit.Length_families, ]
+```
+
+```{r}
+# Plant Height
+Plant.Height_families_BIEN <- BIEN_trait_traitbyfamily(family = Plant.Height_families, trait = "whole plant height")
+Plant.Height_genus_BIEN <- BIEN_trait_traitbygenus(genus = Plant.Height_genus, trait = "whole plant height")
+
+#Error in GIFT_traits_tax(trait_IDs = "1.6.3") :   None of the traits asked was available at the taxonomic level.
+#Plant.Height_families_GIFT <- GIFT_traits_tax(trait_IDs = "1.6.3")
+#Plant.Height_families_GIFT <- Plant.Height_families_GIFT[Plant.Height_families_GIFT$family %in% Plant.Height_families, ]
+```
+
+```{r}
+# Fruit Type
+Fruit.Type_families_BIEN <- BIEN_trait_traitbyfamily(family = Fruit.Type_families, trait = "fruit type")
+Fruit.Type_genus_BIEN <- BIEN_trait_traitbygenus(genus = Fruit.Type_genus, trait = "fruit type")
+
+# Error in GIFT_traits_tax(trait_IDs = "3.16.1") :   None of the traits asked was available at the taxonomic level.
+#Fruit.Type_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.16.1")
+#Fruit.Type_families_GIFT <- Fruit.Type_families_GIFT[Fruit.Type_families_GIFT$family %in% Fruit.Type_families, ]
+```
+
+```{r}
+# Growth Form
+Growth.Form_families_BIEN <- BIEN_trait_traitbyfamily(family = Growth.Form_families, trait = "whole plant growth form")
+Growth.Form_genus_BIEN <- BIEN_trait_traitbygenus(genus = Growth.Form_genus, trait = "whole plant growth form")
+
+# Error in GIFT_traits_tax(trait_IDs = "1.2.1") :   None of the traits asked was available at the taxonomic level.
+#Growth.Form_families_GIFT <- GIFT_traits_tax(trait_IDs = "1.2.1")
+#Growth.Form_families_GIFT <- Growth.Form_families_GIFT[Growth.Form_families_GIFT$family %in% Growth.Form_families, ]
+```
+
+## Combine new info with existing trait table
+Make sure numeric traits match the units of existing trait table. 
+To fill in gaps of missing traits, use genus level data first then family level. Add column to trait dataframe of the level of trait measurement: species, genus, family.
+```{r}
+# for traits to family level from BIEN, keep columns of scrubbed_family, trait_name, trait_value
+Dispersal.Syndrome_families_BIEN_df <- Dispersal.Syndrome_families_BIEN[, c("scrubbed_family", "trait_name", "trait_value")]
+Fruit.Length_families_BIEN_df <- Fruit.Length_families_BIEN[, c("scrubbed_family", "trait_name", "trait_value")]
+Plant.Height_families_BIEN_df <- Plant.Height_families_BIEN[, c("scrubbed_family", "trait_name", "trait_value")]
+Fruit.Type_families_BIEN_df <- Fruit.Type_families_BIEN[, c("scrubbed_family", "trait_name", "trait_value")]
+Growth.Form_families_BIEN_df <- Growth.Form_families_BIEN[, c("scrubbed_family", "trait_name", "trait_value")]
+```
+
+```{r}
+# for traits to genus level from BIEN, keep columns of scrubbed_genus, trait_name, trait_value
+Dispersal.Syndrome_genus_BIEN_df <- Dispersal.Syndrome_genus_BIEN[, c("scrubbed_genus", "trait_name", "trait_value")]
+Fruit.Length_genus_BIEN_df <- Fruit.Length_genus_BIEN[, c("scrubbed_genus", "trait_name", "trait_value")]
+Plant.Height_genus_BIEN_df <- Plant.Height_genus_BIEN[, c("scrubbed_genus", "trait_name", "trait_value")]
+Fruit.Type_genus_BIEN_df <- Fruit.Type_genus_BIEN[, c("scrubbed_genus", "trait_name", "trait_value")]
+Growth.Form_genus_BIEN_df <- Growth.Form_genus_BIEN[, c("scrubbed_genus", "trait_name", "trait_value")]
+```
+
+Get a single trait value for each family/genus
+```{r}
+# numeric traits
+numeric_traits_combined <- function(df, level) {
+  df$trait_value <- as.numeric(df$trait_value)
+  if (level == "genus") {
+    df %>%
+      group_by(scrubbed_genus) %>%
+      summarise(trait_value = mean(trait_value, na.rm = TRUE)) %>%
+      ungroup()
+  } else if (level == "family") {
+    df %>%
+      group_by(scrubbed_family) %>%
+      summarise(trait_value = mean(trait_value, na.rm = TRUE)) %>%
+      ungroup()
+  }
+}
+
+# non-numeric traits
+cat_traits_combined <- function(df, level){
+  if (level == "genus") {
+    df %>%
+      group_by(scrubbed_genus) %>%
+      summarise_all(.funs = list(mode_trait = ~names(sort(table(.), decreasing = TRUE))[1])) %>%
+      ungroup()
+  } else if (level == "family") {
+    df %>%
+      group_by(scrubbed_family) %>%
+      summarise_all(.funs = list(mode_trait = ~names(sort(table(.), decreasing = TRUE))[1])) %>%
+      ungroup()
+  }
+}
+
+```
+
+```{r}
+Dispersal.Syndrome_families_BIEN_df <- cat_traits_combined(Dispersal.Syndrome_families_BIEN_df, "family")
+Dispersal.Syndrome_genus_BIEN_df <- cat_traits_combined(Dispersal.Syndrome_genus_BIEN_df, "genus")
+```
+
+```{r}
+Fruit.Length_families_BIEN_df <- numeric_traits_combined(Fruit.Length_families_BIEN_df, "family")
+Fruit.Length_genus_BIEN_df <- numeric_traits_combined(Fruit.Length_genus_BIEN_df, "genus")
+```
+
+```{r}
+Plant.Height_families_BIEN_df <- numeric_traits_combined(Plant.Height_families_BIEN_df, "family")
+Plant.Height_genus_BIEN_df <- numeric_traits_combined(Plant.Height_genus_BIEN_df, "genus")
+```
+
+```{r}
+Fruit.Type_families_BIEN_df <- cat_traits_combined(Fruit.Type_families_BIEN_df, "family")
+Fruit.Type_genus_BIEN_df <- cat_traits_combined(Fruit.Type_genus_BIEN_df, "genus")
+```
+
+```{r}
+Growth.Form_families_BIEN_df <- cat_traits_combined(Growth.Form_families_BIEN_df, "family")
+Growth.Form_genus_BIEN_df <- cat_traits_combined(Growth.Form_genus_BIEN_df, "genus")
+```
+
+add column of trait level (specices, genus, family)
+```{r}
+# Add new column trait_level to long_plant_trait dataframe
+long_plant_traits <- long_plant_traits %>%
+  mutate(TraitLevel = ifelse(!is.na(TraitValue), "species", NA))
+```
+
+```{r}
+# add family and genus information to long_plant_trait dataframe
+long_plant_traits_tax <- merge(long_plant_traits, na_species_df, by = "species", all.x = TRUE)
+```
+
+```{r}
+# combine all family level trait data
+## add column of trait_name for numeric traits
+Dispersal.Syndrome_families_BIEN_df$trait_name <- "Dispersal.Syndrome"
+Fruit.Length_families_BIEN_df$trait_name <- "Fruit.Length_mm"
+Plant.Height_families_BIEN_df$trait_name <- "Plant.Height_m"
+Fruit.Type_families_BIEN_df$trait_name <- "Fruit.Type"
+Growth.Form_families_BIEN_df$trait_name <- "Growth.Form"
+
+## rename trait_value column so it's consistent with other traits
+Fruit.Type_families_BIEN_df$TraitValue <- Fruit.Type_families_BIEN_df$trait_value_mode_trait
+Growth.Form_families_BIEN_df$TraitValue <- Growth.Form_families_BIEN_df$trait_value_mode_trait
+
+## convert numeric trait values into character
+Plant.Height_families_BIEN_df$TraitValue <- as.character(Plant.Height_families_BIEN_df$TraitValue)
+Fruit.Length_families_BIEN_df$TraitValue <- as.character(Fruit.Length_families_BIEN_df$TraitValue)
+
+all_family_traits <- bind_rows(
+  select(Dispersal.Syndrome_families_BIEN_df, scrubbed_family, trait_name, TraitValue),
+  select(Fruit.Length_families_BIEN_df, scrubbed_family, trait_name, TraitValue),
+  select(Plant.Height_families_BIEN_df, scrubbed_family, trait_name, TraitValue),
+  select(Fruit.Type_families_BIEN_df, scrubbed_family, trait_name, TraitValue),
+  select(Growth.Form_families_BIEN_df, scrubbed_family, trait_name, TraitValue)
+  )
+
+## add trait level column
+all_family_traits$TraitLevel <- "family"
+```
+
+```{r}
+# combine all genus level trait data
+## add column of trait_name for numeric traits
+Dispersal.Syndrome_genus_BIEN_df$trait_name <- "Dispersal.Syndrome"
+Fruit.Length_genus_BIEN_df$trait_name <- "Fruit.Length_mm"
+Plant.Height_genus_BIEN_df$trait_name <- "Plant.Height_m"
+Fruit.Type_genus_BIEN_df$trait_name <- "Fruit.Type"
+Growth.Form_genus_BIEN_df$trait_name <- "Growth.Form"
+
+## rename TraitValue column so it's consistent with other traits
+Fruit.Type_genus_BIEN_df$TraitValue <- Fruit.Type_genus_BIEN_df$trait_value_mode_trait
+Growth.Form_genus_BIEN_df$TraitValue <- Growth.Form_genus_BIEN_df$trait_value_mode_trait
+
+## convert numeric trait values into character
+Plant.Height_genus_BIEN_df$TraitValue <- as.character(Plant.Height_genus_BIEN_df$TraitValue)
+Fruit.Length_genus_BIEN_df$TraitValue <- as.character(Fruit.Length_genus_BIEN_df$TraitValue)
+
+all_genus_traits <- bind_rows(
+  select(Dispersal.Syndrome_genus_BIEN_df, scrubbed_genus, trait_name, TraitValue),
+  select(Fruit.Length_genus_BIEN_df, scrubbed_genus, trait_name, TraitValue),
+  select(Plant.Height_genus_BIEN_df, scrubbed_genus, trait_name, TraitValue),
+  select(Fruit.Type_genus_BIEN_df, scrubbed_genus, trait_name, TraitValue),
+  select(Growth.Form_genus_BIEN_df, scrubbed_genus, trait_name, TraitValue)
+  )
+
+## add trait level column
+all_genus_traits$TraitLevel <- "genus"
+```
+
+rename traits to match
+```{r}
+# Replace trait names to match
+long_plant_traits_tax <- long_plant_traits_tax %>%
+  mutate(TraitName = ifelse(TraitName == "Plant.Height", "Plant.Height_m", TraitName)) %>%
+  mutate(TraitName = ifelse(TraitName == "Fruit.Length", "Fruit.Length_mm", TraitName))
+unique(long_plant_traits_tax$TraitName)
+
+na_traits_family.genus <- na_traits_family.genus %>%
+  mutate(TraitName = ifelse(TraitName == "Plant.Height", "Plant.Height_m", TraitName)) %>%
+  mutate(TraitName = ifelse(TraitName == "Fruit.Length", "Fruit.Length_mm", TraitName))
+unique(na_traits_family.genus$TraitName)
+```
+
+
+make sure column names match between dataframes before combining
+```{r}
+colnames(all_family_traits)
+colnames(all_genus_traits)
+colnames(long_plant_traits_tax)
+colnames(na_traits_family.genus)
+```
+
+```{r}
+colnames(all_family_traits)[which(colnames(all_family_traits) == "scrubbed_family")] <- "family"
+colnames(all_family_traits)[which(colnames(all_family_traits) == "trait_name")] <- "TraitName"
+colnames(all_family_traits)[which(colnames(all_family_traits) == "trait_value")] <- "TraitValue"
+
+colnames(all_genus_traits)[which(colnames(all_genus_traits) == "scrubbed_genus")] <- "genus"
+colnames(all_genus_traits)[which(colnames(all_genus_traits) == "trait_name")] <- "TraitName"
+colnames(all_genus_traits)[which(colnames(all_genus_traits) == "trait_value")] <- "TraitValue"
+```
+
+use family & genus level traits to fill in gaps of na_traits_family.genus
+genus level prefered over family
+```{r}
+# Join the dataframes based on genus and TraitName
+filled_na_traits_family.genus <- na_traits_family.genus %>%
+  left_join(all_genus_traits, by = c("genus", "TraitName"), relationship = "many-to-many") %>%
+  # Fill in TraitValue column with values from all_genus_traits
+  mutate(TraitValue = coalesce(TraitValue.x, TraitValue.y)) %>%
+  # Remove the columns
+  select(-TraitValue.y, -TraitValue.x)
+```
+
+```{r}
+na_traits_after_genus <- filled_na_traits_family.genus %>%
+  filter(is.na(TraitValue))
+filled_traits_with_genus <- filled_na_traits_family.genus %>%
+  filter(!is.na(TraitValue))
+```
+
+```{r}
+# Join the dataframes based on family and TraitName
+## remove trait level column from na_traits_after_genus
+na_traits_after_genus <- na_traits_after_genus %>%
+  select(-TraitLevel)
+filled_na_traits_family <- na_traits_after_genus %>%
+  left_join(all_family_traits, by = c("family", "TraitName"), relationship = "many-to-many") %>%
+  # Fill in TraitValue column with values from all_genus_traits
+  mutate(TraitValue = coalesce(TraitValue.x, TraitValue.y)) %>%
+  # Remove the columns
+  select(-TraitValue.y, -TraitValue.x)
+```
+
+```{r}
+filled_traits_with_family <- filled_na_traits_family %>%
+  filter(!is.na(TraitValue))
+na_traits_after_family <- filled_na_traits_family %>%
+  filter(is.na(TraitValue))
+```
+
+```{r}
+nonimputed_traits <- long_plant_traits_tax %>%
+  filter(!is.na(TraitValue))
+```
+
+combine filled_traits_with_genus, filled_traits_with_family, and nonimputed_traits
+```{r}
+colnames(filled_traits_with_genus)
+colnames(filled_traits_with_family)
+colnames(nonimputed_traits)
+```
+
+```{r}
+all_traits_with_tax <- rbind(filled_traits_with_genus, filled_traits_with_family, nonimputed_traits)
+```
+
+
+```{r}
+all_traits_with_tax %>%
+  group_by(TraitName) %>%
+  summarise(num_species = n_distinct(species))
+```
+
+```{r}
+na_traits_after_family %>%
+  group_by(TraitName) %>%
+  summarise(num_species = n_distinct(species))
+```
+
+add NAs back to all traits
+```{r}
+colnames(all_traits_with_tax)
+colnames(na_traits_after_family)
+```
+
+```{r}
+all_traits_with_NAs <- rbind(all_traits_with_tax, na_traits_after_family)
+```
+
+### Save long dataframe
+```{r}
+write.csv(all_traits_with_NAs, file.path(output_path,"TropicalAndes_all_plant_traits_filled_with_family_genus_long.csv"))
+```
+
+## Convert long dataframe to wide
+```{r}
+#remove unused columns
+all_traits_with_NAs_long <- all_traits_with_NAs %>%
+  select(-TraitLevel, -family, -genus)
+wide_traits <- pivot_wider(all_traits_with_NAs_long, names_from = TraitName, values_from = TraitValue)
+```
+make NA if:
+- Growth.Form is numeric
+- Dispersal.Syndrome is numeric or contains multiple values
+- Plant.Height = 0
+- Fruit.Type is numeric
+```{r}
+library(stringr)
+wide_traits$Growth.Form <- ifelse(is.numeric(wide_traits$Growth.Form), NA, wide_traits$Growth.Form)
+wide_traits$Dispersal.Syndrome[stringr::str_detect(wide_traits$Dispersal.Syndrome, ",")] <- NA
+
+# Convert Plant.Height_m to numeric 
+wide_traits$Plant.Height_m[wide_traits$Plant.Height_m == "0"] <- NA
+
+wide_traits$Fruit.Type <- ifelse(is.numeric(wide_traits$Fruit.Type), NA, wide_traits$Fruit.Type)
+```
+
+```{r}
+wide_traits <- wide_traits %>%
+  mutate_all(~sapply(., paste, collapse = ", "))
+
+# Replace values with multiple values with NA
+wide_traits <- wide_traits %>%
+  mutate(Dispersal.Syndrome = if_else(str_count(Dispersal.Syndrome, ", ") > 0, NA_character_, Dispersal.Syndrome), 
+         Growth.Form = if_else(str_count(Growth.Form, ", ") > 0, NA_character_, Growth.Form),
+         Plant.Height_m = if_else(str_count(Plant.Height_m, ", ") > 0, NA_character_, Plant.Height_m), 
+         Fruit.Length_mm = if_else(str_count(Fruit.Length_mm, ", ") > 0, NA_character_, Fruit.Length_mm), 
+         Fruit.Type = if_else(str_count(Fruit.Type, ", ") > 0, NA_character_, Fruit.Type))
+```
+
+
+```{r}
+wide_traits$Plant.Height_m <- unlist(wide_traits$Plant.Height_m)
+wide_traits$Growth.Form <- unlist(wide_traits$Growth.Form)
+wide_traits$Dispersal.Syndrome <- unlist(wide_traits$Dispersal.Syndrome)
+wide_traits$Fruit.Length_mm <- unlist(wide_traits$Fruit.Length_mm)
+wide_traits$Fruit.Type <- unlist(wide_traits$Fruit.Type)
+
+#convert column types from list to character & numeric
+wide_traits$Plant.Height_m <- as.numeric(wide_traits$Plant.Height_m)
+wide_traits$Growth.Form <- as.character(wide_traits$Growth.Form)
+wide_traits$Dispersal.Syndrome <- as.character(wide_traits$Dispersal.Syndrome)
+wide_traits$Fruit.Length_mm <- as.numeric(wide_traits$Fruit.Length_mm)
+wide_traits$Fruit.Type <- as.character(wide_traits$Fruit.Type)
+```
+
+
+
+# Impute Traits
+## Set the seed for reproducibility
+```{r}
+set.seed(123)
+```
+
+
+# show the missing data pattern
+```{r}
+md.pattern(wide_traits)
+```
+# Perform the imputation
+```{r}
+imp_model <- mice(wide_traits, method = "cart", maxit = 20)
+```
+
+```{r}
+imputed_data <- complete(imp_model)
+```
+
+remove dispersal syndrome because I need to fix it 
+```{r}
+imputed_data <- imputed_data %>%
+  select(-Dispersal.Syndrome)
+```
+
+```{r}
+imputed_data %>%
+  summarise_at(vars(Growth.Form:Fruit.Type), ~ sum(is.na(.)))
+```
+
+# Save imputed data
+```{r}
+write.csv(imputed_data, file.path(output_path,"TropicalAndes_imputed_plant_traits.csv"))
+```
+

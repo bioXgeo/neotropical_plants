@@ -56,11 +56,6 @@ all_species <- c(GBIF_species, TRY_species, BIEN_species, GIFT_species)
 all_species <- unique(all_species)
 length(all_species)
 ```
-# Remove NAs
-```{r}
-all_species <- all_species[!is.na(all_species)]
-length(all_species)
-```
 
 # Use bdc to check scientific names 
 ```{r}
@@ -71,6 +66,15 @@ all_species_cleaned <- name_check_results$names_clean
 length(all_species_cleaned)
 ```
 
+# Remove NAs and duplicates
+```{r}
+all_species_cleaned <- all_species[!is.na(all_species_cleaned)]
+length(all_species_cleaned)
+```
+```{r}
+all_species_cleaned <- unique(all_species_cleaned)
+length(all_species_cleaned)
+```
 
 # Using TNRS to get harmonize taxonomy
 
@@ -101,12 +105,14 @@ all_species_invalid <- subset(all_species_hamonized_results, Taxonomic_status ==
 nrow(all_species_invalid)
 all_species_other <- subset(all_species_hamonized_results, Taxonomic_status == "")
 nrow(all_species_other)
+all_species_NA <- subset(all_species_hamonized_results, is.na(all_species_hamonized_results$Taxonomic_status))
+nrow(all_species_NA)
 ```
 # Create species list of names with disparities
 ```{r}
 all_species_disparities <- all_species_hamonized_results %>%
-                            filter(Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", "")) %>%
-                            select(Name_submitted)
+                            filter(Taxonomic_status %in% c("No opinion", "Illegitimate", "Invalid", "", NA)) %>%
+                            dplyr::select(Name_submitted)
 nrow(all_species_disparities)
 ```
 
@@ -178,9 +184,30 @@ lookup_table <- rbind(lookup_table_TNRS, lookup_table_bdc)
 nrow(lookup_table)
 ```
 
-# Save lookup table as csv
+# Check lookup table for duplicates
 ```{r}
-write.csv(lookup_table, file.path(output_path,"plant_lookup_table.csv"))
+n_occur <- data.frame(table(lookup_table$Name_submitted))
+nrow(n_occur)
+duplicate_counts <- n_occur[n_occur$Freq >1,]
+nrow(duplicate_counts)
+duplicates <- lookup_table[lookup_table$Name_submitted %in% n_occur$Var1[n_occur$Freq > 1],]
+nrow(duplicates)
+duplicates_pairs <- duplicates[order(duplicates$Name_submitted),]
+nrow(duplicates_pairs)
+```
+
+# Remove duplicates and accepted names that are NA
+```{r}
+lookup_table <- lookup_table[!duplicated(lookup_table), ]
+nrow(lookup_table)
+lookup_table <- subset(lookup_table, !is.na(Accepted_species))
+nrow(lookup_table)
+```
+
+# Save lookup table and unresolved species list as csv
+```{r}
+write.csv(lookup_table, file.path(output_path,"plant_lookup_table.csv"), row.names = FALSE)
+write.csv(unresolved_species, file.path(output_path,"plant_unresolved_species.csv"), row.names = FALSE)
 ```
 
 # Update data files species names using lookup table
@@ -190,39 +217,102 @@ write.csv(lookup_table, file.path(output_path,"plant_lookup_table.csv"))
 GBIF_occ_subset <- GBIF_occ %>%
   filter(species %in% lookup_table$Name_submitted)
 nrow(GBIF_occ_subset)
-# add accepted species column from lookup table based on species column
-GBIF_occ_subset_harmonized <- merge(GBIF_occ_subset, lookup_table, by.x = "species", by.y = "Name_submitted")
+# filter lookup_table to species in data
+lookup_table_subset <- lookup_table %>%
+  filter(Name_submitted %in% GBIF_occ_subset$species)
+nrow(lookup_table_subset)
+
+## add accepted species column from lookup table based on species column
+GBIF_occ_subset_harmonized <- right_join(lookup_table_subset, GBIF_occ_subset, join_by(Name_submitted == species), keep = TRUE, relationship = "one-to-many")
 nrow(GBIF_occ_subset_harmonized)
 ```
 
 ## TRY
 ```{r}
+# filter data to species in lookup_table$Names_submitted
+TRY_traits_subset <- TRY_traits %>%
+  filter(SpeciesName %in% lookup_table$Name_submitted)
+nrow(TRY_traits_subset)
+# filter lookup_table to species in data
+lookup_table_subset <- lookup_table %>%
+  filter(Name_submitted %in% TRY_traits_subset$SpeciesName)
+nrow(lookup_table_subset)
 
+## add accepted species column from lookup table based on species column
+TRY_traits_subset_harmonized <- right_join(lookup_table_subset, TRY_traits_subset, join_by(Name_submitted == SpeciesName), keep = TRUE, relationship = "one-to-many")
+nrow(TRY_traits_subset_harmonized)
 ```
 
 ## BIEN
 ```{r}
+# filter data to species in lookup_table$Names_submitted
+BIEN_traits_subset <- BIEN_traits %>%
+  filter(scrubbed_species_binomial %in% lookup_table$Name_submitted)
+nrow(BIEN_traits_subset)
+# filter lookup_table to species in data
+lookup_table_subset <- lookup_table %>%
+  filter(Name_submitted %in% BIEN_traits_subset$scrubbed_species_binomial)
+nrow(lookup_table_subset)
 
+## add accepted species column from lookup table based on species column
+BIEN_traits_subset_harmonized <- right_join(lookup_table_subset, BIEN_traits_subset, join_by(Name_submitted == scrubbed_species_binomial), keep = TRUE, relationship = "one-to-many")
+nrow(BIEN_traits_subset_harmonized)
 ```
 
 ## GIFT
 ```{r}
+GIFT_traits_subset <- GIFT_traits %>%
+  filter(species %in% lookup_table$Name_submitted)
+nrow(GIFT_traits_subset)
+# filter lookup_table to species in data
+lookup_table_subset <- lookup_table %>%
+  filter(Name_submitted %in% GIFT_traits_subset$species)
+nrow(lookup_table_subset)
 
+## add accepted species column from lookup table based on species column
+GIFT_traits_subset_harmonized <- right_join(lookup_table_subset, GIFT_traits_subset, join_by(Name_submitted == species), keep = TRUE, relationship = "one-to-many")
+nrow(GIFT_traits_subset_harmonized)
 ```
 
 
 # Summary
+## GBIF
 ```{r}
-source("~/GitHub/neotropical_plants/functions/data_summary.R")
+print("Number of records: ")
+nrow(GBIF_occ_subset_harmonized)
+print("Number of species: ")
+length(unique(GBIF_occ_subset_harmonized$Accepted_species))
 ```
 
+## TRY
 ```{r}
-data_summary(GBIF_occ_subset_harmonized, GBIF_occ_subset_harmonized$species, GBIF_occ_subset_harmonized$genus, GBIF_occ_subset_harmonized$family)
+print("Number of records: ")
+nrow(TRY_traits_subset_harmonized)
+print("Number of species: ")
+length(unique(TRY_traits_subset_harmonized$Accepted_species))
 ```
 
+## BIEN
+```{r}
+print("Number of records: ")
+nrow(BIEN_traits_subset_harmonized)
+print("Number of species: ")
+length(unique(BIEN_traits_subset_harmonized$Accepted_species))
+```
+
+## GIFT
+```{r}
+print("Number of records: ")
+nrow(GIFT_traits_subset_harmonized)
+print("Number of species: ")
+length(unique(GIFT_traits_subset_harmonized$Accepted_species))
+```
 
 # Write data to csv
 ```{r}
-
+write.csv(GBIF_occ_subset_harmonized, file.path(output_path,"TropicalAndes_GBIF_plant_occ_harmonized.csv"), row.names = FALSE)
+write.csv(TRY_traits_subset_harmonized, file.path(output_path,"TropicalAndes_TRY_plant_traits_harmonized.csv"), row.names = FALSE)
+write.csv(BIEN_traits_subset_harmonized, file.path(output_path,"TropicalAndes_BIEN_plant_traits_harmonized.csv"), row.names = FALSE)
+write.csv(GIFT_traits_subset_harmonized, file.path(output_path,"TropicalAndes_GIFT_plant_traits_harmonized.csv"), row.names = FALSE)
 ```
 
