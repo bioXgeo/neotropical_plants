@@ -14,6 +14,7 @@ output: html_document
 ```{r}
 data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+source("~/GitHub/neotropical_plants/functions/data_summary.R")
 ```
 
 # Load required packages
@@ -62,14 +63,7 @@ glimpse(TropicalAndes_GBIF_plant_occ_cleaned)
 ```
 
 ```{r}
-print("The number of records is")
-nrow(TropicalAndes_GBIF_plant_occ_cleaned)
-print("The number of species is")
-length(unique(TropicalAndes_GBIF_plant_occ_cleaned$species))
-print("The number of genera is" )
-length(unique(TropicalAndes_GBIF_plant_occ_cleaned$genus))
-print("The number of families is")
-length(unique(TropicalAndes_GBIF_plant_occ_cleaned$family))
+data_summary(TropicalAndes_GBIF_plant_occ_cleaned, TropicalAndes_GBIF_plant_occ_cleaned$species, TropicalAndes_GBIF_plant_occ_cleaned$genus, TropicalAndes_GBIF_plant_occ_cleaned$family)
 ```
 
 # Write data to csv
