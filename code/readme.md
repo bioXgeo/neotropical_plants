@@ -5,13 +5,17 @@
 NSF GRFP
 
 ## Collaborators
-- Hazel J. Anderson: Ph.D. Student, Michigan State University (MSU), [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
+- Hazel J. Anderson: M.S. Student, Michigan State University (MSU), [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
 - Beth E. Gerstner: Ph.D. Candidate, Michigan State University (MSU), [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
+- Pat Bills: Data Scientist & Data Engineer, Michigan State University (MSU), [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
 - Phoebe L. Zarnetske: PI, Michigan State University (MSU), [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
 
-## Directories
+## Workflow
 
-All directories are named for the data level, in accordance with guidelines from the [Environmental Data Initiative](https://edirepository.org/resources/thematic-standardization).
+All directories are named for the data level, per guidelines from the [Environmental Data Initiative](https://edirepository.org/resources/thematic-standardization).
+As illustrated in the workflow diagram below, the L0 code retrieves the raw data, the L1 code modifies and cleans the data, and the L2 code runs analyses with the data.
+
+<img src="https://raw.githubusercontent.com/bioXgeo/neotropical_plants/master/Workflow_diversity_plants_frugivores.png"/>
 
 ## L0
 The L0 subfolder contains scripts for Level-0 (raw data) analysis. This contains the following scripts:
