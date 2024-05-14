@@ -15,6 +15,7 @@ output: html_document
 ```{r}
 data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 ```
 
 # Load required packages
@@ -24,6 +25,8 @@ library(sf)
 library(rnaturalearth)
 library(dplyr)
 library(terra)
+library(ggplot2)
+library(ggspatial)
 ```
 
 # Load in Ecosystem Functional Groups
@@ -144,7 +147,7 @@ geom_sf(data = BOpoly, fill = Andean_states) +
 geom_sf(data = TropicalAndes, fill = Tropical_Andes) +
 geom_sf(data = Forest_sf, fill = Forest) +
 labs(title = "Tropical Andes IUCN Montane and Lowland forest", x = "Latitude", y = "Longitude") +
-coord_sf(xlim = c(-94, -54), ylim = c(-24, 14), expand = FALSE) +
+coord_sf(xlim = c(-85, -60), ylim = c(-24, 14), expand = FALSE) +
 annotation_scale(location = "bl", width_hint = 0.5) +
 annotation_north_arrow(location = "bl", which_north = "true", 
   pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"), style = north_arrow_fancy_orienteering) +
@@ -155,4 +158,12 @@ MapPlot
 
 ```{r}
 ggsave(filename = "Tropical Andes Forest Map.png", dpi = 300, device="png", path = output_path)
+```
+
+# Cite packages and print session info
+```{r}
+library(report)
+cite_packages()
+
+devtools::session_info()
 ```
