@@ -1,0 +1,361 @@
+---
+title: ""
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "Projecting occurrence data and creating presence-absence matrix for plants and frugivores. "
+data input: 
+data output: 
+date: "2024-05-13"
+output: html_document
+---
+
+# Load required packages
+```{r}
+library(letsR)
+library(mFD)
+library(vegan)
+library(rnaturalearth)
+library(sf)
+library(raster)
+library(fasterize)
+library(dplyr)
+library(funbiogeo)
+```
+
+# Set file paths
+```{r}
+data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Read in Data
+```{r}
+TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_plant_occ_cleaned_subset.csv"))
+TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_frugivore_occ_cleaned_subset.csv"))
+TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
+frugivore_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_Frugivoria_traits_Forest.csv"))
+plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_imputed_plant_traits.csv"))
+```
+
+# Convert data to spatial data
+```{r}
+plants.sf <- st_as_sf(TropicalAndes_plant_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
+
+frugivores.sf <- st_as_sf(TropicalAndes_frugivore_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
+```
+
+# Polygons of countries
+```{r}
+worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
+Americas <- ne_countries(continent = c("North America", "South America"), returnclass = "sf")
+#polygon of Tropical Andes
+TApoly <- worldMap %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
+```
+
+# Transform to projected coordinate reference system (units from degrees to meters)
+```{r}
+Americas <- st_transform(Americas, 5389)
+TApoly <- st_transform(TApoly, 5389)
+TropicalAndes_IUCNHabitat_Forest <- st_transform(TropicalAndes_IUCNHabitat_Forest, 5389)
+plants.sf <- st_transform(plants.sf, 5389)
+frugivores.sf <- st_transform(frugivores.sf, 5389)
+```
+
+```{r}
+#check units
+st_crs(TApoly, parameters = TRUE)$units_gdal
+st_crs(TApoly)
+st_crs(TropicalAndes_IUCNHabitat_Forest)
+```
+
+# Group by species
+```{r}
+plants_sf_species <- plants.sf %>%
+  group_by(species) %>%
+  summarise()
+
+frugivores_sf_species <- frugivores.sf %>%
+  group_by(species) %>%
+  summarise()
+```
+
+# Plot Base Map
+```{r}
+basePlot <-
+ggplot() +
+  geom_sf(data = Americas, fill = "white") +
+  geom_sf(data = TApoly) +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "forestgreen")+
+  labs(title = "Tropical Andes", x = "Latitude", y = "Longitude") +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+basePlot
+```
+
+# Plot points
+```{r}
+plantsPointsPlot <-
+ggplot() +
+  geom_sf(data = Americas, fill = "white") +
+  geom_sf(data = TApoly) +
+  geom_sf(data = plants_sf_species, pch = 21) +
+  labs(title = "Tropical Andes Plant Occurrences", x = "Latitude", y = "Longitude") +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+plantsPointsPlot
+```
+
+```{r}
+frugivoresPointsPlot <-
+ggplot() +
+  geom_sf(data = Americas, fill = "white") +
+  geom_sf(data = TApoly) +
+  geom_sf(data = frugivores_sf_species, pch = 21) +
+  labs(title = "Tropical Andes Frugivore Occurrences", x = "Latitude", y = "Longitude") +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))
+
+frugivoresPointsPlot
+```
+
+
+# Create Presence-Absense matrix
+
+Use project data sf object & convert to dataframe
+```{r}
+plants_occ_projected <- plants.sf %>%
+  mutate(lon = sf::st_coordinates(.)[,1],
+         lat = sf::st_coordinates(.)[,2]) %>%
+  st_drop_geometry()
+frugivores_occ_projected <- frugivores.sf %>%
+  mutate(lon = sf::st_coordinates(.)[,1],
+         lat = sf::st_coordinates(.)[,2]) %>%
+  st_drop_geometry()
+```
+
+ADD CRS argument to lets.presab.points line (in PROJ4 type description)
+```{r}
+x <- plants_occ_projected$lon
+y <- plants_occ_projected$lat
+plant_xy <- cbind(x, y)
+plant_species <- plants_occ_projected$species
+plants_PAM <- letsR::lets.presab.points(plant_xy, plant_species, xmn = -85, xmx = -60, ymn = -24, ymx = 14, resol = 10000, crs = "+proj=utm +zone=19 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs", count = TRUE)
+summary(plants_PAM)
+plot(plants_PAM, xlab = "Longitude", ylab = "Latitude", main = "Plant richness map")
+```
+
+```{r}
+x <- frugivores_occ_projected$lon
+y <- frugivores_occ_projected$lat
+frugivore_xy <- cbind(x, y)
+frugivore_species <- frugivores_occ_projected$species
+frugivore_PAM <- letsR::lets.presab.points(frugivore_xy, frugivore_species, xmn = -85, xmx = -60, ymn = -24, ymx = 14, crs = "+proj=utm +zone=19 +south +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs", count = TRUE)
+summary(frugivore_PAM)
+plot(frugivore_PAM, xlab = "Longitude", ylab = "Latitude", main = "Frugivore richness map")
+```
+
+Check CRS of occurrence and IUCN layer
+```{r}
+st_crs(TropicalAndes_frugivore_occ_forest)
+st_crs(TropicalAndes_plant_occ_forest)
+st_crs(TropicalAndes_IUCNHabitat_Forest)
+```
+
+
+
+## Perform the spatial intersection
+```{r}
+intersections_plant_TA <- st_intersection(plants.sf, TropicalAndes_IUCNHabitat_Forest)
+intersections_frugivore_TA <- st_intersection(plants.sf, TropicalAndes_IUCNHabitat_Forest)
+
+# Convert the intersected sf object back to a dataframe
+coordinates_df_subset_plant <- as.data.frame(intersections_plant_TA)
+coordinates_df_subset_frugivore <- as.data.frame(intersections_frugivore_TA)
+```
+
+
+```{r}
+#Check CRS
+st_crs(intersections_plant_TA)
+st_crs(coordinates_df_subset_plant)
+```
+
+```{r}
+# Print the resulting subset of coordinates
+print(coordinates_df_subset_plant)
+print(coordinates_df_subset_frugivore)
+
+# Convert the point geometry to a dataframe of longitude and latitude
+subset_plant <- as.data.frame(st_coordinates(intersections_plant_TA))
+subset_frugivore <- as.data.frame(st_coordinates(intersections_frugivore_TA))
+```
+
+## Match the coordinates to the original dataframe
+```{r}
+#merge the subset and full dataframe together to get final TA dataset
+plant_PAM_filter <- merge(plants_PAM_matrix, subset_plant, by.x = c("Longitude(x)", "Latitude(y)"), by.y = c("X", "Y"))
+frugivore_PAM_filter <- merge(frugivore_PAM_matrix, subset_frugivore, by.x = c("Longitude(x)", "Latitude(y)"), by.y = c("X", "Y"))
+```
+
+## Turn PAM into matrix
+```{r}
+plant_PAM <- as.matrix(plant_PAM_filter)
+frugivore_PAM <- as.matrix(frugivore_PAM_filter)
+```
+
+
+## Add rownames
+```{r}
+# Get the number of rows in the matrix
+num_rows_plant <- nrow(plant_PAM)
+
+# Generate unique row names
+row_names_plant <- paste0("cell", 1:num_rows_plant)
+
+# Assign row names to the matrix
+rownames(plant_PAM) <- row_names_plant
+
+column_names_plant <- colnames(plant_PAM)
+clean_column_names_plant <- gsub("_", " ", column_names_plant)
+
+#Insert clean column names
+colnames(plant_PAM) <- clean_column_names_plant
+```
+
+```{r}
+# Get the number of rows in the matrix
+num_rows_frugivore <- nrow(frugivore_PAM)
+
+# Generate unique row names
+row_names_frugivore <- paste0("cell", 1:num_rows_frugivore)
+
+# Assign row names to the matrix
+rownames(frugivore_PAM) <- row_names_frugivore
+
+column_names_frugivore <- colnames(frugivore_PAM)
+clean_column_names_frugivore <- gsub("_", " ", column_names_frugivore)
+
+#Insert clean column names
+colnames(frugivore_PAM) <- clean_column_names_frugivore
+```
+
+## Turn data into correct data types for inputs into the trait categories dataframe
+```{r}
+plant_traits$Growth.Form <- as.factor(plant_traits$Growth.Form)
+plant_traits$Plant.Height_m <- as.numeric(plant_traits$Plant.Height_m)
+plant_traits$Fruit.Length_mm <- as.numeric(plant_traits$Fruit.Length_mm)
+plant_traits$Fruit.Type <- as.factor(plant_traits$Fruit.Type)
+```
+
+```{r}
+frugivore_traits$diet_cat <- as.factor(frugivore_traits$diet_cat)
+frugivore_traits$body_mass_e <- as.numeric(frugivore_traits$body_mass_e)
+frugivore_traits$body_size_mm <- as.numeric(frugivore_traits$body_size_mm)
+frugivore_traits$generation_time <- as.numeric(frugivore_traits$generation_time)
+```
+
+## Remove the species from PAM that have no occurrences
+```{r}
+# Remove columns with sum equal to zero
+PAM_plant_site_final <- plant_PAM[, colSums(plant_PAM) != 0]
+PAM_frugivore_site_final <- frugivore_PAM[, colSums(frugivore_PAM) != 0]
+
+#Save coordinates for later
+site_loc_key_plant <- PAM_plant_site_final[,1:2]
+site_loc_key_frugivore <- PAM_frugivore_site_final[,1:2]
+
+columns_to_remove <- c(1,2)
+PAM_plant_site_final <- PAM_plant_site_final[,-columns_to_remove]
+PAM_frugivore_site_final <- PAM_frugivore_site_final[,-columns_to_remove]
+
+colnames_plant <- colnames(PAM_plant_site_final)
+colnames_frugivore <- colnames(PAM_frugivore_site_final)
+```
+
+## Remove species names from trait matrix not in the PAM
+```{r}
+plant_traits_df_subset <- plant_traits %>% filter(species %in% colnames_plant)
+frugivore_traits_df_subset <- frugivore_traits %>% filter(IUCN_species_name %in% colnames_frugivore)
+
+# Turn trait dataframe into a matrix
+class(plant_traits)
+class(frugivore_traits)
+
+plant_traits_matrix <- as.matrix(plant_traits_df_subset)
+frugivore_traits_matrix <- as.matrix(frugivore_traits_df_subset)
+
+# Define row names as species names
+row_names_plant <- plant_traits_matrix[,1]
+row_names_frugivore <- frugivore_traits_matrix[,1]
+
+# Assign row names to the matrix
+rownames(plant_traits_matrix) <- row_names_plant
+rownames(frugivore_traits_matrix) <- row_names_frugivore
+
+# Turn back into dataframe
+plant_traits_df_final <-as.data.frame(plant_traits_matrix)
+frugivore_traits_df_final <-as.data.frame(frugivore_traits_matrix)
+
+plant_traits_df_final$X <-NULL
+frugivore_traits_df_final$X <-NULL
+```
+
+```{r}
+#fix types
+plant_traits_df_final$Growth.Form <- as.factor(plant_traits_df_final$Growth.Form)
+plant_traits_df_final$Plant.Height_m <- as.numeric(plant_traits_df_final$Plant.Height_m)
+plant_traits_df_final$Fruit.Length_mm <- as.numeric(plant_traits_df_final$Fruit.Length_mm)
+plant_traits_df_final$Fruit.Type <- as.factor(plant_traits_df_final$Fruit.Type)
+```
+
+```{r}
+frugivore_traits_df_final$diet_cat <- as.factor(frugivore_traits_df_final$diet_cat)
+frugivore_traits_df_final$body_mass_e <- as.numeric(frugivore_traits_df_final$body_mass_e)
+frugivore_traits_df_final$body_size_mm<- as.numeric(frugivore_traits_df_final$body_size_mm)
+frugivore_traits_df_final$generation_time <- as.numeric(frugivore_traits_df_final$generation_time)
+```
+
+```{r}
+# remove duplicate species name column
+plant_traits_df_final <- plant_traits_df_final[, c("Growth.Form", "Plant.Height_m", "Fruit.Length_mm", "Fruit.Type")]
+frugivore_traits_df_final <- frugivore_traits_df_final[, c("diet_cat", "body_mass_e", "body_size_mm", "generation_time")]
+```
+
+# Export data
+```{r}
+# objects to save
+## sf objects
+save(plants_sf_species, file = file.path(data_path_L1,"plants_sf_species.rdata"))
+save(frugivores_sf_species, file = file.path(data_path_L1,"frugivores_sf_species.rdata"))
+save(Americas, file = file.path(data_path_L1, "Americas.rdata"))
+save(TApoly, file = file.path(data_path_L1,"TApoly.rdata"))
+save(TropicalAndes_IUCNHabitat_Forest, file = file.path(data_path_L1,"TropicalAndes_IUCNHabitat_Forest.rdata"))
+```
+
+```{r}
+# PAM objects
+lets.save(plants_PAM, file = file.path(data_path_L1,"plants_PAM.RData"))
+lets.save(frugivore_PAM, file = file.path(data_path_L1,"frugivore_PAM.RData"))
+```
+
+```{r}
+# objects for functional diversity
+PAM_plant_site_final
+PAM_frugivore_site_final
+plant_traits_df_final
+frugivore_traits_df_final
+```
+
