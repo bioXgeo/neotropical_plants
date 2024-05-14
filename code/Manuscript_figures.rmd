@@ -1,5 +1,20 @@
-Summary plots
+---
+title: "Manuscript Figures"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script generates misc figures for manuscript that corresponds to this project."
+data input: ""
+data output: ""
+date: "2024-05-14"
+output: 
+    html_document:
+      code_link: TRUE
+      code_download: TRUE
+---
+
 # Load required packages
+
 ```{r}
 library(ggplot2)
 library(tidyverse)
@@ -9,6 +24,12 @@ library(tidyr)
 library(ggfunnel)
 library(ggpubr)
 ```
+
+# Creating cleaning occurrence data figures
+
+These numbers are recorded from the summary function at the end of most L0 and L1 scripts. A table is available in the manuscript supplemential materials.
+
+## Frugivores
 
 ```{r}
 Step <- c("Raw", "After cleaning", "Full trait coverage")
@@ -30,6 +51,7 @@ ggplot(frug_records_df, aes(x = Step, y = frug_records)) +
   geom_text(aes(label = frug_records), color = "white") + 
   theme(axis.title.x = element_blank(), axis.text.x = element_blank(),axis.ticks.x = element_blank(), axis.title.y = element_blank())
 ```
+
 ```{r}
 frug_records_fig <- ggfunnel::funnel(frug_records_df, levels = Step, values = frug_records, text_specs = list(colour = "white", size = 3)) +
   labs(title = "Frugivore records", y = NULL)
@@ -54,15 +76,76 @@ frug_families_fig <- ggfunnel::funnel(frug_families_df, levels = Step, values = 
 frug_families_fig
 ```
 
-
 ```{r}
-figure <- ggarrange(frug_records_fig,frug_species_fig, frug_genera_fig, frug_families_fig,
+frug_cleaning <- ggarrange(frug_records_fig,frug_species_fig, frug_genera_fig, frug_families_fig,
                     labels = c("A", "B", "C", "D"),
                     ncol = 2, nrow = 2)
-figure
+frug_cleaning
+```
+
+## Plants
+
+```{r}
+Step <- c("Raw", "After cleaning", "Full trait coverage")
+plant_records <- c(4519792, 1886120, 1700044)
+plant_species <- c(40288, 39972, 33746)
+plant_genera <- c(4083, 3793, 3400)
+plant_families <- c(307, 293, 275)
+
+plant_records_df <- data.frame(Step, plant_records)
+plant_species_df <- data.frame(Step, plant_species)
+plant_genera_df <- data.frame(Step, plant_genera)
+plant_families_df <- data.frame(Step, plant_families)
 ```
 
 ```{r}
-devtools::session_info()
+ggplot(plant_records_df, aes(x = Step, y = plant_records)) +
+  geom_bar(stat = "identity", fill = "darkgreen") +
+  coord_flip() +
+  geom_text(aes(label = plant_records), vjust = -0.3, size = 4) + 
+  labs(title = "Plant Records", y = "Count") +
+  theme_minimal()
 ```
 
+```{r}
+plant_records_fig <- ggfunnel::funnel(plant_records_df, levels = Step, values = plant_records, text_specs = list(colour = "white", size = 3)) +
+  labs(title = "Plant records", y = NULL)
+plant_records_fig
+```
+
+```{r}
+plant_species_fig <- ggfunnel::funnel(plant_species_df, levels = Step, values = plant_species, text_specs = list(colour = "white", size = 3)) +
+  labs(title = "Plant species", y = NULL)
+plant_species_fig
+```
+
+```{r}
+plant_genera_fig <- ggfunnel::funnel(plant_genera_df, levels = Step, values = plant_genera, text_specs = list(colour = "white", size = 3)) +
+  labs(title = "Plant genera", y = NULL)
+plant_genera_fig
+```
+
+```{r}
+plant_families_fig <- ggfunnel::funnel(plant_families_df, levels = Step, values = plant_families, text_specs = list(colour = "white", size = 3)) +
+  labs(title = "Plant families", y = NULL)
+plant_families_fig
+```
+
+```{r}
+plant_cleaning <- ggarrange(plant_records_fig,plant_species_fig, plant_genera_fig, plant_families_fig,
+                    labels = c("A", "B", "C", "D"),
+                    ncol = 2, nrow = 2)
+plant_cleaning
+```
+
+
+# References
+```{r}
+library(report)
+cite_packages()
+```
+
+# Session Info
+```{r, class.source= 'fold-hide'}
+devtools::session_info()
+```
