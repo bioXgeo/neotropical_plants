@@ -282,6 +282,8 @@ saveRDS(frugivore_PAM, file = file.path(data_path_L1,"frugivore_PAM.rds"))
 
 ```{r}
 # objects for functional diversity
+saveRDS(site_loc_key_plant, file = file.path(data_path_L1,"site_loc_key_plant.rds"))
+saveRDS(site_loc_key_frugivore, file = file.path(data_path_L1,"site_loc_key_frugivore.rds"))
 saveRDS(PAM_plant_site_final, file = file.path(data_path_L1,"PAM_plant_site_final.rds"))
 saveRDS(PAM_frugivore_site_final, file = file.path(data_path_L1,"PAM_frugivore_site_final.rds"))
 saveRDS(plant_traits_df_subset, file = file.path(data_path_L1,"plant_traits_df_final.rds"))
