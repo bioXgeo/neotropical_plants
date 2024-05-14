@@ -31,116 +31,46 @@ output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 ```
 
 # Read in Data
+
 ```{r}
-TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_plant_occ_cleaned_subset.csv"))
-TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_frugivore_occ_cleaned_subset.csv"))
-TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
-frugivore_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_Frugivoria_traits_Forest.csv"))
-plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_imputed_plant_traits.csv"))
+## projected sf objects
+plants_sf_species <- readRDS(file = file.path(data_path_L1,"plants_sf_species.rds"))
+frugivores_sf_species <- readRDS(file = file.path(data_path_L1,"frugivores_sf_species.rds"))
+Americas <- readRDS(file = file.path(data_path_L1, "Americas.rds"))
+TApoly <- readRDS(file = file.path(data_path_L1,"TApoly.rds"))
+TropicalAndes_IUCNHabitat_Forest <- readRDS(file = file.path(data_path_L1,"TropicalAndes_IUCNHabitat_Forest.rds"))
 ```
 
-# Calculating Rao's Q
 ```{r}
-# Calculate Rao's Q using occurrence data and trait dissimilarity
-
-## Define different spatial scales (e.g., grid cell sizes)
-spatial_scales <- c(1000, 5000, 10000, 25000, 50000, 75000, 100000)  # In meters
-
-## Create an empty dataframe to store results
-plant_raos_q_results <- data.frame(spatial_scale = numeric(),
-                             raos_q = numeric())
-
-## Iterate over different spatial scales
-for (scale in spatial_scales) {
-  ### Aggregate occurrence data to the current spatial scale
-  plant_occurrence_aggregated <- aggregate_occurrence(plant_abundance_per_species, scale)
-  
-  ### Calculate dissimilarities using trait data
-  plant_trait_dissimilarities <- vegdist(plant_traits, method = "bray")
-  
-  ### Calculate dissimilarities using occurrence data
-  plant_occurrence_dissimilarities <- vegdist(plant_occurrence_aggregated, method = "bray")
-  
-  ### Calculate Rao's Q index
-  raos_q <- raosq(plant_trait_dissimilarities, plant_occurrence_dissimilarities)
-  
-  #### Add results to the dataframe
-  plant_raos_q_results <- rbind(raos_q_results, data.frame(spatial_scale = scale, raos_q = raos_q))
-}
-
-## Create an empty dataframe to store results
-frugivore_raos_q_results <- data.frame(spatial_scale = numeric(),
-                             raos_q = numeric())
-
-## Iterate over different spatial scales
-for (scale in spatial_scales) {
-  ### Aggregate occurrence data to the current spatial scale
-  frugivore_occurrence_aggregated <- aggregate_occurrence(frugivore_abundance_per_species, scale)
-  
-  ### Calculate dissimilarities using trait data
-  frugivore_trait_dissimilarities <- vegdist(frugivore_traits, method = "bray")
-  
-  ### Calculate dissimilarities using occurrence data
-  frugivore_occurrence_dissimilarities <- vegdist(frugivore_occurrence_aggregated, method = "bray")
-  
-  ### Calculate Rao's Q index
-  raos_q <- raosq(frugivore_trait_dissimilarities, frugivore_occurrence_dissimilarities)
-  
-  #### Add results to the dataframe
-  frugivore_raos_q_results <- rbind(raos_q_results, data.frame(spatial_scale = scale, raos_q = raos_q))
-}
+# objects for functional diversity
+PAM_plant_site_final <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final.rds"))
+PAM_frugivore_site_final <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final.rds"))
+plant_traits_df_final <- readRDS(file = file.path(data_path_L1,"plant_traits_df_final.rds"))
+frugivore_traits_df_final <- readRDS(file = file.path(data_path_L1,"frugivore_traits_df_final.rds"))
 ```
 
-
-# Create trait type table
-```{r}
-trait_name <- c("Growth.Form", "Plant.Height_m", "Fruit.Length_mm", "Fruit.Type")
-trait_type <- c("N", "Q", "Q", "N") 
-plant_trait_cat <- as.data.frame(cbind(trait_name, trait_type))
-```
-
+# Frugivores
+## Create trait type table
 ```{r}
 trait_name <- c("diet_cat", "body_mass_e", "body_size_mm", "generation_time")
 trait_type <- c("N", "Q", "Q", "Q")
 frug_trait_cat <- as.data.frame(cbind(trait_name, trait_type))
 ```
 
-# Summary of the assemblages * species dataframe
+## Summary of the assemblages * species dataframe
 ```{r}
-asb_sp_plant_summ <- mFD::asb.sp.summary(asb_sp_w = PAM_plant_site_final)
-
 asb_sp_frugivore_summ <- mFD::asb.sp.summary(asb_sp_w = PAM_frugivore_site_final)
 ```
 
-# Species traits summary
+## Species traits summary
 ```{r}
-plant_traits_summ <- mFD::sp.tr.summary(
-  tr_cat     = plant_trait_cat,   
-  sp_tr      = plant_traits_df_final, 
-  stop_if_NA = TRUE)
-
 frugivore_traits_summ <- mFD::sp.tr.summary(
   tr_cat     = frug_trait_cat,   
   sp_tr      = frugivore_traits_df_final, 
   stop_if_NA = TRUE)
 ```
 
-```{r}
-save(plant_traits_df_final, plant_trait_cat, file = "../../plant_funct.dist_files.rdata")
-```
-
-# Estimate functional trait-based distances between species
-```{r}
-sp_dist_plants <- mFD::funct.dist(
-  sp_tr         = plant_traits_df_final,
-  tr_cat        = plant_trait_cat,
-  metric        = "gower",
-  scale_euclid  = "scale_center",
-  ordinal_var   = "classic",
-  weight_type   = "equal",
-  stop_if_NA    = TRUE)
-```
-
+## Estimate functional trait-based distances between species
 ```{r}
 sp_dist_frugivore <- mFD::funct.dist(
   sp_tr         = frugivore_traits_df_final,
@@ -152,16 +82,7 @@ sp_dist_frugivore <- mFD::funct.dist(
   stop_if_NA    = TRUE)
 ```
 
-# Generate a multidimensional space
-```{r}
-fspaces_quality_plants <- mFD::quality.fspaces(
-  sp_dist             = sp_dist_plants,
-  maxdim_pcoa         = 10,
-  deviation_weighting = "absolute",
-  fdist_scaling       = FALSE,
-  fdendro             = "average")
-```
-
+## Generate a multidimensional space
 ```{r}
 fspaces_quality_frugivore <- mFD::quality.fspaces(
   sp_dist             = sp_dist_frugivore,
@@ -173,21 +94,8 @@ fspaces_quality_frugivore <- mFD::quality.fspaces(
 
 ```{r}
 # Look at the quality spaces only (MAD index looks at mean absolute deviation from the dissimilary matrix; want the deviation to be low, meaning that the true distances have been retained in the PCA)
-round(fspaces_quality_plants$"quality_fspaces", 3)            
 round(fspaces_quality_frugivore$"quality_fspaces", 3)     
 # Plot the quality spaces (chose to look at 3D, 4D, and 5D since they had the lowest MAD). Will go with 4 dimensions.
-mFD::quality.fspaces.plot(
-  fspaces_quality            = fspaces_quality_plants,
-  quality_metric             = "mad",
-  fspaces_plot               = c("pcoa_2d", "pcoa_3d", 
-                                 "pcoa_4d"),
-  name_file                  = NULL,
-  range_dist                 = NULL,
-  range_dev                  = NULL,
-  range_qdev                 = NULL,
-  gradient_deviation         = c(neg = "darkblue", nul = "grey80", pos = "darkred"),
-  gradient_deviation_quality = c(low = "yellow", high = "red"),
-  x_lab                      = "Trait-based distance")
 mFD::quality.fspaces.plot(
   fspaces_quality            = fspaces_quality_frugivore,
   quality_metric             = "mad",
@@ -204,7 +112,6 @@ mFD::quality.fspaces.plot(
 
 ```{r}
 #testing correlation between functional axes and traits
-sp_faxes_coord_plants <- fspaces_quality_plants$"details_fspaces"$"sp_pc_coord"
 sp_faxes_coord_frugivore <- fspaces_quality_frugivore$"details_fspaces"$"sp_pc_coord"
 ```
 
@@ -212,53 +119,20 @@ sp_faxes_coord_frugivore <- fspaces_quality_frugivore$"details_fspaces"$"sp_pc_c
 # View the components of the PCA axes *Remember the first few components explain the most variation in dissimilarity. Clusters into groups
 
 # Computes linear model for continuous traits and Kruskall-Wallis tests for other types. 
-plant_tr_faxes <- mFD::traits.faxes.cor(
-  sp_tr          = plant_traits_df_final, 
-  sp_faxes_coord = sp_faxes_coord_plants[ , c("PC1", "PC2", "PC3", "PC4")], 
-  plot           = TRUE)
-
 frugivore_tr_faxes <- mFD::traits.faxes.cor(
   sp_tr          = frugivore_traits_df_final, 
   sp_faxes_coord = sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")], 
   plot           = TRUE)
 
 # Print traits with significant effect:
-plant_tr_faxes$"tr_faxes_stat"[which(plant_tr_faxes$"tr_faxes_stat"$"p.value" < 0.05), ]
 frugivore_tr_faxes$"tr_faxes_stat"[which(frugivore_tr_faxes$"tr_faxes_stat"$"p.value" < 0.05), ]
 # Return plots:
-plant_tr_faxes$"tr_faxes_plot"
 frugivore_tr_faxes$"tr_faxes_plot"
 ```
 
 ```{r}
 #plotting functional space
-sp_faxes_coord_plants <- fspaces_quality_plants$"details_fspaces"$"sp_pc_coord"
 sp_faxes_coord_frugivore <- fspaces_quality_frugivore$"details_fspaces"$"sp_pc_coord"
-big_plot_plants <- mFD::funct.space.plot(
-  sp_faxes_coord  = sp_faxes_coord_plants[ , c("PC1", "PC2", "PC3", "PC4")],
-  faxes           = c("PC1", "PC2", "PC3", "PC4"),
-  name_file       = NULL,
-  faxes_nm        = NULL,
-  range_faxes     = c(NA, NA),
-  color_bg        = "grey95",
-  color_pool      = "darkgreen",
-  fill_pool       = "white",
-  shape_pool      = 21,
-  size_pool       = 1,
-  plot_ch         = TRUE,
-  color_ch        = "black",
-  fill_ch         = "white",
-  alpha_ch        = 0.5,
-  plot_vertices   = TRUE,
-  color_vert      = "blueviolet",
-  fill_vert       = "blueviolet",
-  shape_vert      = 6,
-  size_vert       = 1,
-  plot_sp_nm      = NULL,
-  nm_size         = 3,
-  nm_color        = "black",
-  nm_fontface     = "plain",
-  check_input     = TRUE)
 
 big_plot_frugivore <- mFD::funct.space.plot(
   sp_faxes_coord  = sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")],
@@ -285,19 +159,283 @@ big_plot_frugivore <- mFD::funct.space.plot(
   nm_color        = "black",
   nm_fontface     = "plain",
   check_input     = TRUE)
+```
+
+```{r}
+big_plot_frugivore
+```
+
+```{r}
+#Need to remove parts of the PAM that have values less than or equal to the number of dimensions (4)
+# Calculate row sums
+row_sums_frugivore <- rowSums(PAM_frugivore_site_final)
+subset_matrix_frugivore <- PAM_frugivore_site_final[row_sums_frugivore >= 4, ]
+```
+
+```{r}
+# match frugivore names
+sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")]
+summary(sp_faxes_coord_frugivore_sub)
+```
+
+
+```{r}
+## check number of species names
+nrow(sp_faxes_coord_frugivore_sub)
+ncol(subset_matrix_frugivore) 
+```
+
+```{r}
+sp_faxes_coord_frugivore_sub_names <- row.names(sp_faxes_coord_frugivore_sub)
+subset_matrix_frugivore_names <- colnames(subset_matrix_frugivore)
+```
+
+```{r}
+sp_faxes_coord_frugivore_sub <- as.data.frame(sp_faxes_coord_frugivore_sub)
+row.names(sp_faxes_coord_frugivore_sub) <- sp_faxes_coord_frugivore_sub_names
+
+sp_faxes_coord_frugivore_sub_names <- row.names(sp_faxes_coord_frugivore_sub)
+subset_matrix_frugivore_names <- colnames(subset_matrix_frugivore)
+
+frugivore_names <- intersect(sp_faxes_coord_frugivore_sub_names, subset_matrix_frugivore_names)
+frugivore_names <- na.omit(frugivore_names)
+
+sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore_sub[ which((row.names(sp_faxes_coord_frugivore_sub) %in% frugivore_names)==TRUE), ]
+
+subset_matrix_frugivore  <- as.data.frame(subset_matrix_frugivore)
+subset_matrix_frugivore <- subset_matrix_frugivore[ ,which((colnames(subset_matrix_frugivore) %in% frugivore_names)==TRUE)]
+
+#remove NAs
+sp_faxes_coord_frugivore_sub <- na.omit(sp_faxes_coord_frugivore_sub)
+subset_matrix_frugivore <- na.omit(subset_matrix_frugivore)
+```
+
+```{r}
+nrow(sp_faxes_coord_frugivore_sub)
+ncol(subset_matrix_frugivore)
+```
+
+```{r}
+sp_faxes_coord_frugivore_sub <- as.matrix(sp_faxes_coord_frugivore_sub)
+subset_matrix_frugivore <- as.matrix(subset_matrix_frugivore)
+```
+
+```{r}
+#computing FD
+# The number of species per assemblage has to be higher or equal to the number of traits
+
+alpha_fd_indices_frugivore <- mFD::alpha.fd.multidim(
+  sp_faxes_coord   = sp_faxes_coord_frugivore_sub,
+  asb_sp_w         = subset_matrix_frugivore,
+  ind_vect         = c("fide", "fdis", "fmpd", "fnnd", "feve", "fori", "fspe"), #did not run fdiv or fric (slows it down)
+  scaling          = TRUE,
+  check_input      = TRUE,
+  details_returned = TRUE)
+
+details_list_frugivore <- alpha_fd_indices_frugivore$"details"
+
+plots_alpha_frugivore <- mFD::alpha.multidim.plot(
+  output_alpha_fd_multidim = alpha_fd_indices_frugivore,
+  plot_asb_nm              = c("cell4", "cell20"),
+  ind_nm                   = c("fdis", "fide", "fnnd"
+                        , "fori", "fspe"),
+  faxes                    = NULL,
+  faxes_nm                 = NULL,
+  range_faxes              = c(NA, NA),
+  color_bg                 = "grey95",
+  shape_sp                 = c(pool = 3, asb1 = 21, asb2 = 21),
+  size_sp                  = c(pool = 0.7, asb1 = 1, asb2 = 1),
+  color_sp                 = c(pool = "grey50", asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
+  color_vert               = c(pool = "grey50", asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
+  fill_sp                  = c(pool = NA, asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
+  fill_vert                = c(pool = NA, asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
+  color_ch          
+  = c(pool = NA, asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
+  fill_ch                  = c(pool = "white", asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
+  alpha_ch                 = c(pool = 1, asb1 = 0.3, asb2 = 0.3),
+  shape_centroid_fdis      = c(asb1 = 22,  asb2 = 24),
+  shape_centroid_fdiv      = c(asb1 = 22,  asb2 = 24),
+  shape_centroid_fspe      = 23,
+  color_centroid_fspe      = "black",
+  size_sp_nm               = 3, 
+  color_sp_nm              = "black",
+  plot_sp_nm               = NULL,
+  fontface_sp_nm           = "plain",
+  save_file                = FALSE,
+  check_input              = TRUE) 
+
+ #comparing convex hulls of different hulls
+plots_alpha_frugivore$"fric"$"patchwork"
+
+plots_alpha_frugivore$"fdiv"$"patchwork"
+
+plots_alpha_frugivore$"fspe"$"patchwork"
+
+plots_alpha_frugivore$"fdis"$"patchwork"
+
+plots_alpha_frugivore$"fori"$"patchwork"
+```
+
+## Turning the FD values into a raster
+Need to subset the coordinates made at the top to the same set of the assemblages (removed values less than 5 so these coords need to be removed to do this correctly)
+
+```{r}
+# Create an empty raster with desired resolution and extent
+resolution <- c(0.75, 0.75)  # Set the desired resolution
+extent <- c(-85, -54, -24, 14)  # Set the desired extent
+empty_raster <- raster(resolution = resolution, xmn = extent[1], xmx = extent[2], ymn = extent[3], ymx = extent[4])
+```
+
+```{r}
+# Generate coordinates
+subset_coords_frugivore <- site_loc_key_frugivore[rowSums(PAM_frugivore_site_final) >= 5, ]
+subset_coords_frugivore_sp <-subset_coords_frugivore[,1:2 ]
+
+#Get functional dispersion
+fdis_frugivore <- alpha_fd_indices_frugivore$functional_diversity_indices$fdis
+
+frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
+```
+
+```{r}
+# Convert the dataframe to sf format
+spatial_fdis_frugivore <- st_as_sf(frugivore_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
+```
+
+```{r}
+# Rasterize the sf data to create the FD raster
+fd_raster_frugivore <- rasterize(spatial_fdis_frugivore, empty_raster)
+writeRaster(fd_raster_frugivore$fdis_frugivore, filename = file.path(output_path,"FD_frugivore_TA.tif"), format="GTiff",overwrite=T)
+writeRaster(fd_raster_frugivore$ID, filename = file.path(output_path,"FD_frugivore_TA_ID.tif"), format="GTiff",overwrite=T)
+```
+
+
+
+# Plants
+## Create trait type table
+```{r}
+trait_name <- c("Growth.Form", "Plant.Height_m", "Fruit.Length_mm", "Fruit.Type")
+trait_type <- c("N", "Q", "Q", "N") 
+plant_trait_cat <- as.data.frame(cbind(trait_name, trait_type))
+```
+
+## Summary of the assemblages * species dataframe
+```{r}
+asb_sp_plant_summ <- mFD::asb.sp.summary(asb_sp_w = PAM_plant_site_final)
+```
+
+## Species traits summary
+```{r}
+plant_traits_summ <- mFD::sp.tr.summary(
+  tr_cat     = plant_trait_cat,   
+  sp_tr      = plant_traits_df_final, 
+  stop_if_NA = TRUE)
+```
+
+```{r}
+save(plant_traits_df_final, plant_trait_cat, file = "../../plant_funct.dist_files.rdata")
+```
+
+## Estimate functional trait-based distances between species
+```{r}
+sp_dist_plants <- mFD::funct.dist(
+  sp_tr         = plant_traits_df_final,
+  tr_cat        = plant_trait_cat,
+  metric        = "gower",
+  scale_euclid  = "scale_center",
+  ordinal_var   = "classic",
+  weight_type   = "equal",
+  stop_if_NA    = TRUE)
+```
+
+
+## Generate a multidimensional space
+```{r}
+fspaces_quality_plants <- mFD::quality.fspaces(
+  sp_dist             = sp_dist_plants,
+  maxdim_pcoa         = 10,
+  deviation_weighting = "absolute",
+  fdist_scaling       = FALSE,
+  fdendro             = "average")
+```
+
+```{r}
+# Look at the quality spaces only (MAD index looks at mean absolute deviation from the dissimilary matrix; want the deviation to be low, meaning that the true distances have been retained in the PCA)
+round(fspaces_quality_plants$"quality_fspaces", 3)            
+# Plot the quality spaces (chose to look at 3D, 4D, and 5D since they had the lowest MAD). Will go with 4 dimensions.
+mFD::quality.fspaces.plot(
+  fspaces_quality            = fspaces_quality_plants,
+  quality_metric             = "mad",
+  fspaces_plot               = c("pcoa_2d", "pcoa_3d", 
+                                 "pcoa_4d"),
+  name_file                  = NULL,
+  range_dist                 = NULL,
+  range_dev                  = NULL,
+  range_qdev                 = NULL,
+  gradient_deviation         = c(neg = "darkblue", nul = "grey80", pos = "darkred"),
+  gradient_deviation_quality = c(low = "yellow", high = "red"),
+  x_lab                      = "Trait-based distance")
+```
+
+```{r}
+#testing correlation between functional axes and traits
+sp_faxes_coord_plants <- fspaces_quality_plants$"details_fspaces"$"sp_pc_coord"
+```
+
+```{r}
+# View the components of the PCA axes *Remember the first few components explain the most variation in dissimilarity. Clusters into groups
+
+# Computes linear model for continuous traits and Kruskall-Wallis tests for other types. 
+plant_tr_faxes <- mFD::traits.faxes.cor(
+  sp_tr          = plant_traits_df_final, 
+  sp_faxes_coord = sp_faxes_coord_plants[ , c("PC1", "PC2", "PC3", "PC4")], 
+  plot           = TRUE)
+
+# Print traits with significant effect:
+plant_tr_faxes$"tr_faxes_stat"[which(plant_tr_faxes$"tr_faxes_stat"$"p.value" < 0.05), ]
+# Return plots:
+plant_tr_faxes$"tr_faxes_plot"
+```
+
+```{r}
+#plotting functional space
+sp_faxes_coord_plants <- fspaces_quality_plants$"details_fspaces"$"sp_pc_coord"
+
+big_plot_plants <- mFD::funct.space.plot(
+  sp_faxes_coord  = sp_faxes_coord_plants[ , c("PC1", "PC2", "PC3", "PC4")],
+  faxes           = c("PC1", "PC2", "PC3", "PC4"),
+  name_file       = NULL,
+  faxes_nm        = NULL,
+  range_faxes     = c(NA, NA),
+  color_bg        = "grey95",
+  color_pool      = "darkgreen",
+  fill_pool       = "white",
+  shape_pool      = 21,
+  size_pool       = 1,
+  plot_ch         = TRUE,
+  color_ch        = "black",
+  fill_ch         = "white",
+  alpha_ch        = 0.5,
+  plot_vertices   = TRUE,
+  color_vert      = "blueviolet",
+  fill_vert       = "blueviolet",
+  shape_vert      = 6,
+  size_vert       = 1,
+  plot_sp_nm      = NULL,
+  nm_size         = 3,
+  nm_color        = "black",
+  nm_fontface     = "plain",
+  check_input     = TRUE)
+
 
 #Need to remove parts of the PAM that have values less than or equal to the number of dimensions (4)
 # Calculate row sums
 row_sums_plant <- rowSums(PAM_plant_site_final)
 subset_matrix_plant <- PAM_plant_site_final[row_sums_plant >= 4, ]
-row_sums_frugivore <- rowSums(PAM_frugivore_site_final)
-subset_matrix_frugivore <- PAM_frugivore_site_final[row_sums_frugivore >= 4, ]
-
 ```
 
 ```{r}
 big_plot_plants
-big_plot_frugivore
 ```
 
 ```{r}
@@ -319,38 +457,6 @@ ncol(subset_matrix_plant)
 subset_matrix_plant <- as.matrix(subset_matrix_plant)
 ```
 
-```{r}
-# match frugivore names
-sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")]
-
-## check number of species names
-nrow(sp_faxes_coord_frugivore_sub) #764
-ncol(subset_matrix_frugivore) #782
-
-sp_faxes_coord_frugivore_sub_names <- chartr(".", " ", sp_faxes_coord_frugivore_sub_names)
-sp_faxes_coord_frugivore_sub <- as.data.frame(sp_faxes_coord_frugivore_sub)
-row.names(sp_faxes_coord_frugivore_sub) <- sp_faxes_coord_frugivore_sub_names
-
-sp_faxes_coord_frugivore_sub_names <- row.names(sp_faxes_coord_frugivore_sub)
-subset_matrix_frugivore_names <- colnames(subset_matrix_frugivore)
-
-frugivore_names <- intersect(sp_faxes_coord_frugivore_sub_names, subset_matrix_frugivore_names)
-frugivore_names <- na.omit(frugivore_names)
-
-sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore_sub[ which((row.names(sp_faxes_coord_frugivore_sub) %in% frugivore_names)==TRUE), ]
-
-subset_matrix_frugivore  <- as.data.frame(subset_matrix_frugivore)
-subset_matrix_frugivore <- subset_matrix_frugivore[ ,which((colnames(subset_matrix_frugivore) %in% frugivore_names)==TRUE)]
-
-#remove NAs
-sp_faxes_coord_frugivore_sub <- na.omit(sp_faxes_coord_frugivore_sub)
-subset_matrix_frugivore <- na.omit(subset_matrix_frugivore)
-
-nrow(sp_faxes_coord_frugivore_sub) #757
-ncol(subset_matrix_frugivore) #757
-sp_faxes_coord_frugivore_sub <- as.matrix(sp_faxes_coord_frugivore_sub)
-subset_matrix_frugivore <- as.matrix(subset_matrix_frugivore)
-```
 
 
 ```{r}
@@ -364,16 +470,8 @@ alpha_fd_indices_plant <- mFD::alpha.fd.multidim(
   check_input      = TRUE,
   details_returned = TRUE)
 
-alpha_fd_indices_frugivore <- mFD::alpha.fd.multidim(
-  sp_faxes_coord   = sp_faxes_coord_frugivore_sub,
-  asb_sp_w         = subset_matrix_frugivore,
-  ind_vect         = c("fide", "fdis", "fmpd", "fnnd", "feve", "fori", "fspe"), #did not run fdiv or fric (slows it down)
-  scaling          = TRUE,
-  check_input      = TRUE,
-  details_returned = TRUE)
 
 details_list_plant <- alpha_fd_indices_plant$"details"
-details_list_frugivore <- alpha_fd_indices_frugivore$"details"
 
 #plot
 plots_alpha_plant <- mFD::alpha.multidim.plot(
@@ -406,80 +504,42 @@ plots_alpha_plant <- mFD::alpha.multidim.plot(
   save_file                = FALSE,
   check_input              = TRUE)
 
-plots_alpha_frugivore <- mFD::alpha.multidim.plot(
-  output_alpha_fd_multidim = alpha_fd_indices_frugivore,
-  plot_asb_nm              = c("cell4", "cell20"),
-  ind_nm                   = c("fdis", "fide", "fnnd"
-                        , "fori", "fspe"),
-  faxes                    = NULL,
-  faxes_nm                 = NULL,
-  range_faxes              = c(NA, NA),
-  color_bg                 = "grey95",
-  shape_sp                 = c(pool = 3, asb1 = 21, asb2 = 21),
-  size_sp                  = c(pool = 0.7, asb1 = 1, asb2 = 1),
-  color_sp                 = c(pool = "grey50", asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  color_vert               = c(pool = "grey50", asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  fill_sp                  = c(pool = NA, asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  fill_vert                = c(pool = NA, asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  color_ch          
-  = c(pool = NA, asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  fill_ch                  = c(pool = "white", asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  alpha_ch                 = c(pool = 1, asb1 = 0.3, asb2 = 0.3),
-  shape_centroid_fdis      = c(asb1 = 22,  asb2 = 24),
-  shape_centroid_fdiv      = c(asb1 = 22,  asb2 = 24),
-  shape_centroid_fspe      = 23,
-  color_centroid_fspe      = "black",
-  size_sp_nm               = 3, 
-  color_sp_nm              = "black",
-  plot_sp_nm               = NULL,
-  fontface_sp_nm           = "plain",
-  save_file                = FALSE,
-  check_input              = TRUE) 
+# comparing convex hulls of different hulls
+plots_alpha_plant$"fric"$"patchwork" 
 
-plots_alpha_plant$"fric"$"patchwork"  #comparing convex hulls of different hulls
-plots_alpha_frugivore$"fric"$"patchwork"
 plots_alpha_plant$"fdiv"$"patchwork"
-plots_alpha_frugivore$"fdiv"$"patchwork"
+
 plots_alpha_plant$"fspe"$"patchwork"
-plots_alpha_frugivore$"fspe"$"patchwork"
+
 plots_alpha_plant$"fdis"$"patchwork"
-plots_alpha_frugivore$"fdis"$"patchwork"
+
 plots_alpha_plant$"fori"$"patchwork"
-plots_alpha_frugivore$"fori"$"patchwork"
+
 ```
 
-# Turning the FD values into a raster
+## Turning the FD values into a raster
+Need to subset the coordinates made at the top to the same set of the assemblages (removed values less than 5 so these coords need to be removed to do this correctly)
+
 ```{r}
-
-#Need to subset the coordinates made at the top to the same set of the assemblages (removed values less than 5 so these coords need to be removed to do this correctly)
-
-#Have coordinates and associated values
-
-library(raster)
-
 # Create an empty raster with desired resolution and extent
 resolution <- c(0.75, 0.75)  # Set the desired resolution
 extent <- c(-85, -54, -24, 14)  # Set the desired extent
 empty_raster <- raster(resolution = resolution, xmn = extent[1], xmx = extent[2], ymn = extent[3], ymx = extent[4])
+```
 
+```{r}
 # Generate coordinates
 subset_coords_plant <- site_loc_key_plant[rowSums(PAM_plant_site_final) >= 5, ]
 subset_coords_plant_sp <-subset_coords_plant[,1:2 ]
-subset_coords_frugivore <- site_loc_key_frugivore[rowSums(PAM_frugivore_site_final) >= 5, ]
-subset_coords_frugivore_sp <-subset_coords_frugivore[,1:2 ]
 
 #Get functional dispersion
 fdis_plant <- alpha_fd_indices_plant$functional_diversity_indices$fdis
-fdis_frugivore <- alpha_fd_indices_frugivore$functional_diversity_indices$fdis
 
 plant_fd_sp <- data.frame(subset_coords_plant_sp, fdis_plant)
-frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
 
 
 # Convert the dataframe to sf format
 spatial_fdis_plant <- st_as_sf(plant_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
-spatial_fdis_frugivore <- st_as_sf(frugivore_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
-
 ```
 
 ```{r}
@@ -487,34 +547,88 @@ spatial_fdis_frugivore <- st_as_sf(frugivore_fd_sp, coords = c("Longitude.x.", "
 fd_raster_plant <- rasterize(spatial_fdis_plant, empty_raster)
 writeRaster(fd_raster_plant$fdis_plant, filename = file.path(output_path,"FD_plant_TA.tif"), format="GTiff",overwrite=T)
 writeRaster(fd_raster_plant$ID, filename = file.path(output_path,"FD_plant_TA_ID.tif"), format="GTiff")
-
-fd_raster_frugivore <- rasterize(spatial_fdis_frugivore, empty_raster)
-writeRaster(fd_raster_frugivore$fdis_frugivore, filename = file.path(output_path,"FD_frugivore_TA.tif"), format="GTiff",overwrite=T)
-writeRaster(fd_raster_frugivore$ID, filename = file.path(output_path,"FD_frugivore_TA_ID.tif"), format="GTiff")
 ```
 
+# Calculating Rao's Q
+Calculate Rao's Q using occurrence data and trait dissimilarity
+
+```{r}
+## Define different spatial scales (e.g., grid cell sizes)
+spatial_scales <- c(1000, 5000, 10000, 25000, 50000, 75000, 100000)  # In meters
+
+## Create an empty dataframe to store results
+plant_raos_q_results <- data.frame(spatial_scale = numeric(),
+                             raos_q = numeric())
+
+## Iterate over different spatial scales
+for (scale in spatial_scales) {
+  ### Aggregate occurrence data to the current spatial scale
+  plant_occurrence_aggregated <- aggregate_occurrence(plant_abundance_per_species, scale)
+  
+  ### Calculate dissimilarities using trait data
+  plant_trait_dissimilarities <- vegdist(plant_traits, method = "bray")
+  
+  ### Calculate dissimilarities using occurrence data
+  plant_occurrence_dissimilarities <- vegdist(plant_occurrence_aggregated, method = "bray")
+  
+  ### Calculate Rao's Q index
+  raos_q <- raosq(plant_trait_dissimilarities, plant_occurrence_dissimilarities)
+  
+  #### Add results to the dataframe
+  plant_raos_q_results <- rbind(raos_q_results, data.frame(spatial_scale = scale, raos_q = raos_q))
+}
+```
+
+```{r}
+## Create an empty dataframe to store results
+frugivore_raos_q_results <- data.frame(spatial_scale = numeric(),
+                             raos_q = numeric())
+
+## Iterate over different spatial scales
+for (scale in spatial_scales) {
+  ### Aggregate occurrence data to the current spatial scale
+  frugivore_occurrence_aggregated <- aggregate_occurrence(frugivore_abundance_per_species, scale)
+  
+  ### Calculate dissimilarities using trait data
+  frugivore_trait_dissimilarities <- vegdist(frugivore_traits, method = "bray")
+  
+  ### Calculate dissimilarities using occurrence data
+  frugivore_occurrence_dissimilarities <- vegdist(frugivore_occurrence_aggregated, method = "bray")
+  
+  ### Calculate Rao's Q index
+  raos_q <- raosq(frugivore_trait_dissimilarities, frugivore_occurrence_dissimilarities)
+  
+  #### Add results to the dataframe
+  frugivore_raos_q_results <- rbind(raos_q_results, data.frame(spatial_scale = scale, raos_q = raos_q))
+}
+```
 
 # Functional diversity plots
-# Polygons of countries
-```{r}
-worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
-Americas <- ne_countries(continent = c("North America", "South America"), returnclass = "sf")
-#polygon of Tropical Andes
-TApoly <- worldMap %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
-```
 
+## Project FD objects
 ```{r}
 # set crs of sf objects
-spatial_fdis_plant <- spatial_fdis_plant %>% st_set_crs(4326)
+#spatial_fdis_plant <- spatial_fdis_plant %>% st_set_crs(4326)
 spatial_fdis_frugivore <- spatial_fdis_frugivore %>% st_set_crs(4326)
 ```
 
 ```{r}
+#spatial_fdis_plant_projected <- st_transform(spatial_fdis_plant, 5389)
+spatial_fdis_frugivore_projected <- st_transform(spatial_fdis_frugivore, 5389)
+```
+
+```{r}
+# determine resolution of spatial_fdis_frugivore_projected 
+st_crs(spatial_fdis_frugivore_projected, parameters = TRUE)$units_gdal
+```
+
+
+```{r}
 # Raster to raster point
-spec_FD_raster_plant_point <- rasterToPoints(fd_raster_plant, spatial = TRUE)
+#spec_FD_raster_plant_point <- rasterToPoints(fd_raster_plant, spatial = TRUE)
 spec_FD_raster_frugivore_point <- rasterToPoints(fd_raster_frugivore, spatial = TRUE)
 # Convert to a 'conventional' dataframe
-fd_raster_plant_point <- data.frame(spec_FD_raster_plant_point)
+#fd_raster_plant_point <- data.frame(spec_FD_raster_plant_point)
 fd_raster_frugivore_point <- data.frame(spec_FD_raster_frugivore_point)
 ```
 
@@ -548,7 +662,7 @@ frugivoregridFDTA <-
   geom_sf(data = TApoly, fill = "grey", size = 0.1) +
   geom_tile(data= fd_raster_frugivore_point, aes(x=x, y=y, fill=fdis_frugivore)) +
   scale_fill_scico(palette = "romaO", direction = 1) +
-  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE) +
+  coord_sf(xlim = c(-85, -60), ylim = c(-24, 14), expand = FALSE) +
   theme(
     plot.background = element_rect(fill = "#f1f2f3"),
     panel.background = element_rect(fill = "lightblue"),
