@@ -20,7 +20,7 @@ library(smoothr)
 library(purrr)
 library(raster)
 library(ggspatial)
-library(gridExtra)
+library(ggpubr)
 ```
 
 # Set file paths
@@ -32,9 +32,12 @@ output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 
 # Read in Data
 ```{r}
-TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_plant_occ_cleaned_subset.csv"))
-TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_frugivore_occ_cleaned_subset.csv"))
-TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
+## projected sf objects
+plants_sf_species <- readRDS(file = file.path(data_path_L1,"plants_sf_species.rds"))
+frugivores_sf_species <- readRDS(file = file.path(data_path_L1,"frugivores_sf_species.rds"))
+Americas <- readRDS(file = file.path(data_path_L1, "Americas.rds"))
+TApoly <- readRDS(file = file.path(data_path_L1,"TApoly.rds"))
+TropicalAndes_IUCNHabitat_Forest <- readRDS(file = file.path(data_path_L1,"TropicalAndes_IUCNHabitat_Forest.rds"))
 ```
 
 # Plot TD/Richness
@@ -69,9 +72,9 @@ create_rich_plots <- function(resolution_meters) {
       geom_sf(data = Americas, fill = "white") +
       geom_sf(data = TApoly, fill = "grey", size = 0.1) +
       geom_sf(aes(fill = num_species), color = NA) +
-      scale_fill_distiller(pallete = "Greens", limits = c(0,6000)) +
+      scale_fill_distiller(palette = "Greens", limits = c(0,6000)) +
       labs(title = title, x = "Longitude", y = "Latitude", fill = "Number of species") +
-      coord_sf(xlim = c(-85, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+      coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
       annotation_scale(location = "bl", width_hint = 0.5)  +
       theme(panel.background = element_rect(fill = "lightblue"))
   }
@@ -80,9 +83,9 @@ create_rich_plots <- function(resolution_meters) {
       geom_sf(data = Americas, fill = "white") +
       geom_sf(data = TApoly, fill = "grey", size = 0.1) +
       geom_sf(aes(fill = num_species), color = NA) +
-      scale_fill_distiller(pallete = "YlOrBr", limits = c(0,500)) + 
+      scale_fill_distiller(palette = "YlOrBr", limits = c(0,500)) + 
       labs(title = title, x = "Longitude", y = "Latitude", fill = "Number of species") +
-      coord_sf(xlim = c(-85, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+      coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
       annotation_scale(location = "bl", width_hint = 0.5)  +
       theme(panel.background = element_rect(fill = "lightblue"))
   }
@@ -92,28 +95,25 @@ create_rich_plots <- function(resolution_meters) {
   frugivore_plot <- generate_frugivore_plot(frugivore_richness_grid)
 
   # Extract cell values
-  plant_cellRichness <- plant_plot[["data"]]
-  frugivore_cellRichness <- plant_plot[["data"]]
-  
-    comparison_data <- data.frame(Plant_Richness = plant_richness_grid$num_species,
+  comparison_data <- data.frame(Plant_Richness = plant_richness_grid$num_species,
                                Frugivore_Richness = frugivore_richness_grid$num_species)
-  # Filter out rows with richness = 0 for both plant and frugivore
-  comparison_data_filtered <- comparison_data %>%
-                                filter(Plant_Richness > 0 | Frugivore_Richness > 0)
   
+  # Filter out rows where either plant or frugivore richness is zero
+  comparison_data_filtered <- comparison_data %>%
+                                filter(Plant_Richness > 0 & Frugivore_Richness > 0)
   # Compare plant and frugivore richness
   ## Fit a linear model
-  compare_richness_linear_summary <- summary(lm(Frugivore_Richness ~ Plant_Richness),
-                                      data = comparison_data_filtered)
+  compare_richness_linear_summary <- summary(lm(comparison_data_filtered$Frugivore_Richness ~
+                                                  comparison_data_filtered$Plant_Richness))
   linear_r_squared <- compare_richness_linear_summary$r.squared
   
   ## Fit an exponential model
-  compare_richness_exponential_summary <- summary(lm(log(Frugivore_Richness) ~ log(Plant_Richness),
-                                      data = comparison_data_filtered))
+  compare_richness_exponential_summary <- summary(lm(exp(comparison_data_filtered$Frugivore_Richness) ~
+                                                       comparison_data_filtered$Plant_Richness))
   exponential_r_squared <- compare_richness_exponential_summary$r.squared
 
   ## Create scatter plot with linear and exponential lines
-  plant_frug_richness_compare <- ggplot(comparison_data_filtered,
+  plant_frug_richness_compare <- ggplot(comparison_data,
                                         aes(x = Plant_Richness, y = Frugivore_Richness)) +
   geom_point() +
   labs(title = paste("Plant Richness vs Frugivore Richness [", resolution_meters/1000, " km]", sep = ""),
@@ -124,23 +124,12 @@ create_rich_plots <- function(resolution_meters) {
     geom_smooth(method = "lm", se = FALSE, color = "blue", formula = y ~ exp(x), linetype = "dashed")
 
   # Create histograms
-  plant_richness_hist <- hist(comparison_data_filtered$PlantRichness, 
+  plant_richness_hist <- hist(comparison_data$Plant_Richness, 
     main = paste("Histogram of Plant Richness [", resolution_meters/1000, " km] by cell", sep = ""),
                               xlab = "Plant Richness by cell")
-  frugivore_richness_hist <- hist(comparison_data_filtered$FrugivoreRichness,
+  frugivore_richness_hist <- hist(comparison_data$Frugivore_Richness,
     main = paste("Histogram of Frugivore Richness [", resolution_meters/1000, " km] by cell", sep = ""),
                                   xlab = "Frugivore Richness by cell")
-
-  # Return a list of plots
-  list(plantgridRichTA = plant_plot,
-       frugivoregridRichTA = frugivore_plot,
-       plant_cellRichness = plant_richness_grid,
-       frugivore_cellRichness = frugivore_richness_grid, 
-       compare_richness_linear_summary = compare_richness_linear_summary,
-       compare_richness_exponential_summary = compare_richness_exponential_summary,
-       plant_frug_richness_compare = plant_frug_richness_compare,
-       plant_richness_hist = plant_richness_hist,
-       frugivore_richness_hist = frugivore_richness_hist)
 }
 
 ```
@@ -252,7 +241,7 @@ compare_richness_r2_100km <- richness_100km$compare_richness_summary$r.squared
 # Multi panel plots
 Richness maps
 ```{r}
-all_richness_plots <- gridExtra::grid.arrange(#plantgridRichTA_1km, plantgridRichTA_5km, 
+all_richness_plots <- ggpubr::ggarrange(#plantgridRichTA_1km, plantgridRichTA_5km, 
                                               plantgridRichTA_10km, plantgridRichTA_25km,
                                               plantgridRichTA_50km, plantgridRichTA_75km,
                                               plantgridRichTA_100km,
@@ -260,7 +249,8 @@ all_richness_plots <- gridExtra::grid.arrange(#plantgridRichTA_1km, plantgridRic
                                               frugivoregridRichTA_10km, frugivoregridRichTA_25km,
                                               frugivoregridRichTA_50km, frugivoregridRichTA_75km,
                                               frugivoregridRichTA_100km, 
-                                              ncol = 5, nrow = 2)
+                                              ncol = 5, nrow = 2,
+                                              labels = c("10km", "25km", ))
 all_richness_plots
 ggsave("all_richness_plots.pdf", all_richness_plots, path = output_path, width = 20, height = 8.5, units = "in")
 ```
@@ -272,7 +262,7 @@ Plot
 #[ADD 1, 5,]
 resolution <- c( 10, 25, 50, 75, 100)
 #ADD compare_richness_r2_1km, compare_richness_r2_5km,
-r_squared <- c( compare_richness_r2_10km, compare_richness_r2_25km, compare_richness_r2_50km, compare_richness_r2_75km, compare_richness_r2_100km)
+r_squared <- c(compare_richness_r2_10km, compare_richness_r2_25km, compare_richness_r2_50km, compare_richness_r2_75km, compare_richness_r2_100km)
 r_squared_compare <- data.frame(resolution, r_squared)
 
 compare_r2_by_res <- ggplot(r_squared_compare, aes(x=resolution, y=r_squared)) +
