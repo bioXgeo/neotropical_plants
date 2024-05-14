@@ -47,6 +47,8 @@ PAM_plant_site_final <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_fi
 PAM_frugivore_site_final <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final.rds"))
 plant_traits_df_final <- readRDS(file = file.path(data_path_L1,"plant_traits_df_final.rds"))
 frugivore_traits_df_final <- readRDS(file = file.path(data_path_L1,"frugivore_traits_df_final.rds"))
+site_loc_key_plant <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant.rds"))
+site_loc_key_frugivore <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore.rds"))
 ```
 
 # Frugivores
@@ -276,13 +278,19 @@ plots_alpha_frugivore$"fdis"$"patchwork"
 plots_alpha_frugivore$"fori"$"patchwork"
 ```
 
+```{r}
+# Get functional dispersion
+fdis_frugivore <- alpha_fd_indices_frugivore$functional_diversity_indices$fdis
+```
+
+
 ## Turning the FD values into a raster
 Need to subset the coordinates made at the top to the same set of the assemblages (removed values less than 5 so these coords need to be removed to do this correctly)
 
 ```{r}
 # Create an empty raster with desired resolution and extent
 resolution <- c(0.75, 0.75)  # Set the desired resolution
-extent <- c(-85, -54, -24, 14)  # Set the desired extent
+extent <- c(-85, 60, -24, 14)  # Set the desired extent
 empty_raster <- raster(resolution = resolution, xmn = extent[1], xmx = extent[2], ymn = extent[3], ymx = extent[4])
 ```
 
@@ -290,9 +298,6 @@ empty_raster <- raster(resolution = resolution, xmn = extent[1], xmx = extent[2]
 # Generate coordinates
 subset_coords_frugivore <- site_loc_key_frugivore[rowSums(PAM_frugivore_site_final) >= 5, ]
 subset_coords_frugivore_sp <-subset_coords_frugivore[,1:2 ]
-
-#Get functional dispersion
-fdis_frugivore <- alpha_fd_indices_frugivore$functional_diversity_indices$fdis
 
 frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
 ```
@@ -309,6 +314,47 @@ writeRaster(fd_raster_frugivore$fdis_frugivore, filename = file.path(output_path
 writeRaster(fd_raster_frugivore$ID, filename = file.path(output_path,"FD_frugivore_TA_ID.tif"), format="GTiff",overwrite=T)
 ```
 
+## Project FD objects
+```{r}
+# set crs of sf objects
+spatial_fdis_frugivore <- spatial_fdis_frugivore %>% st_set_crs(4326)
+```
+
+```{r}
+spatial_fdis_frugivore_projected <- st_transform(spatial_fdis_frugivore, 5389)
+```
+
+```{r}
+# determine resolution of spatial_fdis_frugivore_projected 
+st_crs(spatial_fdis_frugivore_projected, parameters = TRUE)$units_gdal
+```
+
+```{r}
+# Raster to raster point
+spec_FD_raster_frugivore_point <- rasterToPoints(fd_raster_frugivore, spatial = TRUE)
+# Convert to dataframe
+fd_raster_frugivore_point <- data.frame(spec_FD_raster_frugivore_point)
+```
+
+```{r}
+frugivoregridFDTA <-
+  ggplot() +
+  geom_sf(data = Americas, fill = "white")+
+  geom_sf(data = TApoly, fill = "grey", size = 0.1) +
+  geom_tile(data= fd_raster_frugivore_point, aes(x=x, y=y, fill=fdis_frugivore)) +
+  scale_fill_scico(palette = "romaO", direction = 1) +
+  coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE) +
+  theme(
+    plot.background = element_rect(fill = "#f1f2f3"),
+    panel.background = element_rect(fill = "lightblue"),
+    panel.grid = element_blank(),
+    line = element_blank(),
+    rect = element_blank()
+  ) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  labs(title = "Tropical Andes Frugivore Functional Dispersion", x = "Longitude", y = "Latitude", fill = "FD")
+frugivoregridFDTA
+```
 
 
 # Plants
@@ -517,6 +563,12 @@ plots_alpha_plant$"fori"$"patchwork"
 
 ```
 
+```{r}
+#Get functional dispersion
+fdis_plant <- alpha_fd_indices_plant$functional_diversity_indices$fdis
+```
+
+
 ## Turning the FD values into a raster
 Need to subset the coordinates made at the top to the same set of the assemblages (removed values less than 5 so these coords need to be removed to do this correctly)
 
@@ -532,11 +584,7 @@ empty_raster <- raster(resolution = resolution, xmn = extent[1], xmx = extent[2]
 subset_coords_plant <- site_loc_key_plant[rowSums(PAM_plant_site_final) >= 5, ]
 subset_coords_plant_sp <-subset_coords_plant[,1:2 ]
 
-#Get functional dispersion
-fdis_plant <- alpha_fd_indices_plant$functional_diversity_indices$fdis
-
 plant_fd_sp <- data.frame(subset_coords_plant_sp, fdis_plant)
-
 
 # Convert the dataframe to sf format
 spatial_fdis_plant <- st_as_sf(plant_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
@@ -548,6 +596,49 @@ fd_raster_plant <- rasterize(spatial_fdis_plant, empty_raster)
 writeRaster(fd_raster_plant$fdis_plant, filename = file.path(output_path,"FD_plant_TA.tif"), format="GTiff",overwrite=T)
 writeRaster(fd_raster_plant$ID, filename = file.path(output_path,"FD_plant_TA_ID.tif"), format="GTiff")
 ```
+
+
+## Project FD objects
+```{r}
+# set crs of sf objects
+spatial_fdis_plant <- spatial_fdis_plant %>% st_set_crs(4326)
+```
+
+```{r}
+spatial_fdis_plant_projected <- st_transform(spatial_fdis_plant, 5389)
+```
+
+
+```{r}
+# Raster to raster point
+spec_FD_raster_plant_point <- rasterToPoints(fd_raster_plant, spatial = TRUE)
+# Convert to a 'conventional' dataframe
+fd_raster_plant_point <- data.frame(spec_FD_raster_plant_point)
+```
+
+
+```{r}
+plantgridFDTA <-
+  ggplot() +
+  geom_sf(data = Americas, fill = "white")+
+  geom_sf(data = TApoly, fill = "grey", size = 0.1) +
+  geom_tile(data= fd_raster_plant_point, aes(x=x, y=y, fill=fdis_plant)) +
+  scale_fill_scico(palette = "romaO", direction = 1) +
+  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE) +
+  theme(
+    plot.background = element_rect(fill = "#f1f2f3"),
+    panel.background = element_rect(fill = "lightblue"),
+    panel.grid = element_blank(),
+    line = element_blank(),
+    rect = element_blank()
+  ) +
+  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_north_arrow(location = "bl", which_north = "true", 
+  pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  labs(title = "Tropical Andes Plant Functional Dispersion", x = "Longitude", y = "Latitude", fill = "FD")
+plantgridFDTA
+```
+
 
 # Calculating Rao's Q
 Calculate Rao's Q using occurrence data and trait dissimilarity
@@ -601,80 +692,6 @@ for (scale in spatial_scales) {
   #### Add results to the dataframe
   frugivore_raos_q_results <- rbind(raos_q_results, data.frame(spatial_scale = scale, raos_q = raos_q))
 }
-```
-
-# Functional diversity plots
-
-## Project FD objects
-```{r}
-# set crs of sf objects
-#spatial_fdis_plant <- spatial_fdis_plant %>% st_set_crs(4326)
-spatial_fdis_frugivore <- spatial_fdis_frugivore %>% st_set_crs(4326)
-```
-
-```{r}
-#spatial_fdis_plant_projected <- st_transform(spatial_fdis_plant, 5389)
-spatial_fdis_frugivore_projected <- st_transform(spatial_fdis_frugivore, 5389)
-```
-
-```{r}
-# determine resolution of spatial_fdis_frugivore_projected 
-st_crs(spatial_fdis_frugivore_projected, parameters = TRUE)$units_gdal
-```
-
-
-```{r}
-# Raster to raster point
-#spec_FD_raster_plant_point <- rasterToPoints(fd_raster_plant, spatial = TRUE)
-spec_FD_raster_frugivore_point <- rasterToPoints(fd_raster_frugivore, spatial = TRUE)
-# Convert to a 'conventional' dataframe
-#fd_raster_plant_point <- data.frame(spec_FD_raster_plant_point)
-fd_raster_frugivore_point <- data.frame(spec_FD_raster_frugivore_point)
-```
-
-
-```{r}
-plantgridFDTA <-
-  ggplot() +
-  geom_sf(data = worldMap, fill = "white")+
-  geom_sf(data = TApoly, fill = "grey", size = 0.1) +
-  geom_tile(data= fd_raster_plant_point, aes(x=x, y=y, fill=fdis_plant)) +
-  scale_fill_scico(palette = "romaO", direction = 1) +
-  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE) +
-  theme(
-    plot.background = element_rect(fill = "#f1f2f3"),
-    panel.background = element_rect(fill = "lightblue"),
-    panel.grid = element_blank(),
-    line = element_blank(),
-    rect = element_blank()
-  ) +
-  annotation_scale(location = "bl", width_hint = 0.5) +
-  annotation_north_arrow(location = "bl", which_north = "true", 
-  pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
-  labs(title = "Tropical Andes Plant Functional Dispersion", x = "Longitude", y = "Latitude", fill = "FD")
-plantgridFDTA
-```
-
-```{r}
-frugivoregridFDTA <-
-  ggplot() +
-  geom_sf(data = worldMap, fill = "white")+
-  geom_sf(data = TApoly, fill = "grey", size = 0.1) +
-  geom_tile(data= fd_raster_frugivore_point, aes(x=x, y=y, fill=fdis_frugivore)) +
-  scale_fill_scico(palette = "romaO", direction = 1) +
-  coord_sf(xlim = c(-85, -60), ylim = c(-24, 14), expand = FALSE) +
-  theme(
-    plot.background = element_rect(fill = "#f1f2f3"),
-    panel.background = element_rect(fill = "lightblue"),
-    panel.grid = element_blank(),
-    line = element_blank(),
-    rect = element_blank()
-  ) +
-  annotation_scale(location = "bl", width_hint = 0.5) +
-  annotation_north_arrow(location = "bl", which_north = "true", 
-  pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
-  labs(title = "Tropical Andes Frugivore Functional Dispersion", x = "Longitude", y = "Latitude", fill = "FD")
-frugivoregridFDTA
 ```
 
 # Extract cell values
