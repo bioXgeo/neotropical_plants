@@ -12,8 +12,8 @@ output: html_document
 
 # Set file paths
 ```{r}
-data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 ```
 
 # Load required packages
@@ -25,36 +25,42 @@ library(sf)
 
 # Read in Frugivoria species list
 ```{r}
-frugivore_species <- read.csv(file.path(data_path,"TropicalAndes_Frugivoria_frugivore_traits_species.csv"))
-```
-
-# Match species names to GBIF
-```{r}
-gbif_taxon_keys <- frugivore_species$x %>% 
-name_backbone_checklist() %>% # match to backbone 
-filter(!matchType == "NONE") %>% # get matched names
-pull(usageKey) 
+frugivore_species <- read.csv(file.path(data_path_L0,"TropicalAndes_Frugivoria_frugivore_traits_species.csv"))
 ```
 
 # Download data
+Data downloaded on 2023-08-02
 ```{r}
-occ_download(
-pred_in("taxonKey", gbif_taxon_keys),
-pred("hasCoordinate", TRUE),
-pred("hasGeospatialIssue", FALSE),
-pred_in("country",c("EC","CO","VE", "PE", "BO")), 
-format = "SIMPLE_CSV"
-)
+file_name <- "0009771-231002084531237.zip"
+
+if (!file.exists(file.path(output_path_L0, file_name))) {
+    # Match species names to GBIF  
+    gbif_taxon_keys <- frugivore_species$x %>% 
+      name_backbone_checklist() %>% # match to backbone 
+      filter(!matchType == "NONE") %>% # get matched names
+      pull(usageKey) 
+    # Make GBIF request
+    occ_download(
+      pred_in("taxonKey", gbif_taxon_keys),
+      pred("hasCoordinate", TRUE),
+      pred("hasGeospatialIssue", FALSE),
+      pred_in("country",c("EC","CO","VE", "PE", "BO")), 
+      format = "SIMPLE_CSV"
+    )
+    # Download GBIF data
+  d <- occ_download_get("0009771-231002084531237",
+                        path = output_path_L0, overwrite = TRUE) %>%
+    occ_download_import()
+  } else {
+    cat("File already exists:", file_name, "\n")
+    d <- occ_download_get("0009771-231002084531237",
+                        path = output_path_L0, overwrite = TRUE) %>%
+                        curveocc_download_import()
+  }
 ```
 
-# Retrive GBIF download, save file, and load into r
-```{r}
-d <- occ_download_get("0009771-231002084531237", path = output_path, overwrite = TRUE) %>%
-  occ_download_import()
-```
 
 # Subset occurrence to Tropical Andes IUCN Montane and Lowland forest
-
 ## Read in Forest shape
 ```{r}
 TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path, "Forest_sf.shp"), layer = "Forest_sf")
@@ -95,14 +101,9 @@ glimpse(TropicalAndes_frugivore_occ_forest)
 ```
 
 ```{r}
-print("The number of records is")
-nrow(TropicalAndes_frugivore_occ_forest)
-print("The number of species is")
-length(unique(TropicalAndes_frugivore_occ_forest$species))
-print("The number of genera is" )
-length(unique(TropicalAndes_frugivore_occ_forest$genus))
-print("The number of families is")
-length(unique(TropicalAndes_frugivore_occ_forest$family))
+source("~/GitHub/neotropical_plants/code/data_summary.R")
+
+data_summary(TropicalAndes_frugivore_occ_forest, TropicalAndes_frugivore_occ_forest$species, TropicalAndes_frugivore_occ_forest$genus, TropicalAndes_frugivore_occ_forest$family)
 ```
 
 # Extract species list
@@ -112,7 +113,15 @@ GBIF_occ_SpeciesList <- unique(TropicalAndes_frugivore_occ_forest$species)
 
 # Write data to csv
 ```{r}
-write.csv(TropicalAndes_frugivore_occ_forest, file = file.path(output_path,"TropicalAndes_GBIF_frugivore_occ.csv"))
+write.csv(TropicalAndes_frugivore_occ_forest, file = file.path(output_path_L0,"TropicalAndes_GBIF_frugivore_occ.csv"))
 
-write.csv(GBIF_occ_SpeciesList, file = file.path(output_path,"TropicalAndes_GBIF_frugivore_occ_species.csv"))
+write.csv(GBIF_occ_SpeciesList, file = file.path(output_path_L0,"TropicalAndes_GBIF_frugivore_occ_species.csv"))
+```
+
+# Package Citations and Session Info
+```{r}
+library(report)
+report::cite_packages()
+
+devtools::session_info()
 ```
