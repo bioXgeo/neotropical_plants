@@ -4,8 +4,8 @@ author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "This script retrieves plant trait data from the GIFT database for plant species list."
-data input: ""
-data output: ""
+data input: "none"
+data output: "TropicalAndes_GIFT_plant_traits.csv"
 date: "2023-08-03"
 output: html_document
 ---
@@ -25,6 +25,7 @@ library(dplyr)
 
 
 # Retrive GIFT data
+Data downloaded 2023-10-25
 ```{r}
 GIFT_traits_meta()
 ```
