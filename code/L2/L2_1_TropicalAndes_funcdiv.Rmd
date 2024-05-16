@@ -12,15 +12,13 @@ output: html_document
 
 # Load required packages
 ```{r}
+library(mFD)
 library(sf)
 library(dplyr)
 library(ggplot2)
 library(rnaturalearth)
-library(smoothr)
-library(purrr)
-library(raster)
 library(ggspatial)
-library(vegan)
+library(rlang)
 ```
 
 # Set file paths
@@ -28,6 +26,7 @@ library(vegan)
 data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
+figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 ```
 
 # Read in Data
@@ -283,6 +282,78 @@ plots_alpha_frugivore$"fori"$"patchwork"
 fdis_frugivore <- alpha_fd_indices_frugivore$functional_diversity_indices$fdis
 ```
 
+# Mapping without projection 
+Because projecting is being difficult
+```{r}
+TropicalAndes_IUCNHabitat_Forest_latlong <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
+Americas_latlong <- ne_countries(continent = c("North America", "South America"), returnclass = "sf")
+#polygon of Tropical Andes
+TApoly_latlong <- Americas_latlong %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
+```
+
+```{r}
+# Generate coordinates
+subset_coords_frugivore <- site_loc_key_frugivore[rowSums(PAM_frugivore_site_final) >= 5, ]
+subset_coords_frugivore_sp <-subset_coords_frugivore[,1:2 ]
+
+frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
+```
+
+```{r}
+# Convert the dataframe to sf format
+spatial_fdis_frugivore <- st_as_sf(frugivore_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
+```
+
+
+```{r}
+# set crs of sf objects
+spatial_fdis_frugivore <- spatial_fdis_frugivore %>% st_set_crs(4326)
+```
+
+```{r}
+# Create a grid over the area
+create_grid <- function(data, cellsize) {
+  st_make_grid(st_as_sfc(st_bbox(data)), cellsize = cellsize) %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+}
+
+# Aggregate functional dispersion within each grid cell
+aggregate_to_grid <- function(grid, points, value_col) {
+  points %>%
+    st_join(grid) %>%
+    group_by(cellid) %>%
+    summarize(mean_value = mean(get(value_col), na.rm = TRUE)) %>%
+    st_set_geometry("geometry")
+}
+
+# Example usage with your data
+resolution_meters <- 100000
+variable_name <- "fdis_frugivore"
+
+# Create grid
+grid <- create_grid(spatial_fdis_frugivore, cellsize = resolution_meters)
+
+# Aggregate data to grid
+aggregated_data <- aggregate_to_grid(grid, spatial_fdis_frugivore, variable_name)
+
+```
+
+
+```{r}
+FDisplot <-
+    ggplot() +
+    geom_sf(data = Americas_latlong, fill = "white")+
+    geom_sf(data = TApoly_latlong, fill = "lightgrey", size = 0.1) +
+    geom_point(data = spatial_fdis_frugivore , aes(fill = fdis_frugivore)) +
+    scale_fill_gradient(low = "blue", high = "red") +
+    coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+    theme(panel.background = element_rect(fill = "lightblue")) +
+    annotation_scale(location = "bl", width_hint = 0.5) +
+    labs(x = "Longitude", y = "Latitude", fill = "FDis")
+FDisplot
+```
+
 
 ## Project FD objects
 ```{r}
@@ -317,12 +388,15 @@ TAGrid <- TApoly %>%
   st_cast("MULTIPOLYGON") %>%
   st_sf() %>%
   mutate(cellid = row_number())
-
+  
   # Calculate functional dispersion for grid
   fdis_grid <- TAGrid %>%
     st_join(data) %>%
     group_by(cellid) %>%
-    summarize(sum_variable = sum(variable_name, na.rm = TRUE))
+    summarize(
+      sum_variable = sum(variable_name, na.rm = TRUE),
+      mean_variable = mean(variable_name, na.rm = TRUE)
+    )
   
   # Make plot
   FDplot <-
@@ -337,7 +411,8 @@ TAGrid <- TApoly %>%
     labs(x = "Longitude", y = "Latitude", fill = "FDis")
   
   # Return a list of data
-  list(FDplot = FDplot)
+  list(fdis_grid = fdis_grid,
+        FDplot = FDplot)
 }
 ```
 
@@ -351,10 +426,11 @@ create_fdis_plots(100000, spatial_fdis_frugivore_projected, fdis_frugivore)
 # Plants
 Test with small random sample as a subset to make it work before using all data
 ```{r}
+set.seed(100)
 all_plant_species <- row.names(plant_traits_df_final)
 plant_random_subset <- sample(all_plant_species, 1000)
 # objects that need to be subset
-PAM_plant_site_final #matrix
+PAM_plant_site_final_df <- as.dataframe(PAM_plant_site_final) #matrix
 plant_traits_df_final
 ```
 
