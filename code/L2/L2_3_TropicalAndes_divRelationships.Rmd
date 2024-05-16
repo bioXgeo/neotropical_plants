@@ -25,3 +25,69 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 ```{r}
 
 ```
+
+```{r}
+  # Extract cell values
+  comparison_data <- data.frame(Plant_Richness = plant_richness_grid$num_species,
+                               Frugivore_Richness = frugivore_richness_grid$num_species)
+  
+  # Filter out rows where either plant or frugivore richness is zero
+  comparison_data_filtered <- comparison_data %>%
+                                filter(Plant_Richness > 0 & Frugivore_Richness > 0)
+```
+
+
+```{r}
+# Compare plant and frugivore richness
+  ## Fit a linear model
+  compare_richness_linear_summary_100km <- summary(lm(comparison_data_filtered_100km$Frugivore_Richness ~
+                                                  comparison_data_filtered_100km$Plant_Richness))
+  linear_r_squared_100km <- compare_richness_linear_summary_100km$r.squared
+  
+  ## Fit an exponential model
+  compare_richness_exponential_summary_100km <- summary(lm(comparison_data_filtered_100km$Frugivore_Richness ~
+                                                       log(comparison_data_filtered_100km$Plant_Richness)))
+  exponential_r_squared_100km <- compare_richness_exponential_summary_100km$r.squared
+
+  ## Create scatter plot with linear and exponential lines
+  compare_richness_plot_100km <- ggplot(comparison_data_filtered_100km,
+                                        aes(x = Plant_Richness, y = Frugivore_Richness)) +
+  geom_point() +
+  labs(title = paste("Plant Richness vs Frugivore Richness [", resolution_meters/1000, " km]", sep = ""),
+       subtitle =  paste("Linear (Red) R-squared = ", round(linear_r_squared, 2), "\n",
+                  "Exponential (Blue) R-squared = ", round(exponential_r_squared, 2)),
+       x = "Plant Richness by cell", y = "Frugivore Richness by cell") +
+  geom_smooth(method = "lm", se = FALSE, color = "red")+
+  geom_smooth(method = "lm", se = FALSE, color = "blue", formula = y ~ log(x)) +
+  coord_cartesian(xlim = c(0, NA), ylim = c(0, NA))
+```
+
+
+```{r}
+# Fit the nonlinear model using nls
+nls_model <- nls(Frugivore_Richness ~ b * exp(c * Plant_Richness), 
+                 data = comparison_data_filtered_100km, 
+                 start = list(b = 200, c = -0.00001),
+                 algorithm = "port",
+                 control = nls.control(maxiter = 500, minFactor = 1e-10, warnOnly = TRUE))
+
+# Summary of the model
+summary(nls_model)
+```
+
+# Compare r-squared by resolution
+Plot
+```{r}
+# create dataframe of resolutions and r-squared values 
+#[ADD 1, 5,]
+resolution <- c( 10, 25, 50, 75, 100)
+#ADD compare_richness_r2_1km, compare_richness_r2_5km,
+r_squared <- c(compare_richness_r2_10km, compare_richness_r2_25km, compare_richness_r2_50km, compare_richness_r2_75km, compare_richness_r2_100km)
+r_squared_compare <- data.frame(resolution, r_squared)
+
+compare_r2_by_res <- ggplot(r_squared_compare, aes(x=resolution, y=r_squared)) +
+    geom_point()+
+    labs(title = "R-squared values of plant-frugivore richness relationships by resolution",
+         x = "Resolution (km)", y = "R-squared", fill = "Number of species")
+print(compare_r2_by_res)
+```
