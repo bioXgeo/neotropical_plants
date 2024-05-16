@@ -16,9 +16,6 @@ library(sf)
 library(dplyr)
 library(ggplot2)
 library(rnaturalearth)
-library(smoothr)
-library(purrr)
-library(raster)
 library(ggspatial)
 library(ggpubr)
 ```
@@ -28,6 +25,7 @@ library(ggpubr)
 data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
+figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 ```
 
 # Read in Data
@@ -97,10 +95,10 @@ create_rich_plots <- function(resolution_meters) {
 
 
   # Create histograms
-  plant_richness_hist <- hist(comparison_data$Plant_Richness, 
+  plant_richness_hist <- hist(plant_richness_grid$num_species, 
     main = paste("Histogram of Plant Richness [", resolution_meters/1000, " km] by cell", sep = ""),
                               xlab = "Plant Richness by cell")
-  frugivore_richness_hist <- hist(comparison_data$Frugivore_Richness,
+  frugivore_richness_hist <- hist(frugivore_richness_grid$num_species,
     main = paste("Histogram of Frugivore Richness [", resolution_meters/1000, " km] by cell", sep = ""),
                                   xlab = "Frugivore Richness by cell")
   # Return a list of data
@@ -168,10 +166,6 @@ plant_cellRichness_25km <- richness_25km$plant_cellRichness
 frugivore_cellRichness_25km <- richness_25km$frugivore_cellRichness
 ```
 
-```{r}
-
-```
-
 ## 50 km
 ```{r}
 richness_50km <- create_rich_plots(50000)
@@ -212,17 +206,18 @@ frugivore_cellRichness_100km <- richness_100km$frugivore_cellRichness
 Richness maps
 ```{r}
 all_richness_plots <- ggpubr::ggarrange(#plantgridRichTA_1km, plantgridRichTA_5km, 
-                                              plantgridRichTA_10km, plantgridRichTA_25km,
+                                              #plantgridRichTA_10km, 
+                                              plantgridRichTA_25km,
                                               plantgridRichTA_50km, plantgridRichTA_75km,
                                               plantgridRichTA_100km,
                                               #frugivoregridRichTA_1km, frugivoregridRichTA_5km, 
-                                              frugivoregridRichTA_10km, frugivoregridRichTA_25km,
+                                              #frugivoregridRichTA_10km, 
+                                              frugivoregridRichTA_25km,
                                               frugivoregridRichTA_50km, frugivoregridRichTA_75km,
                                               frugivoregridRichTA_100km, 
-                                              ncol = 5, nrow = 2,
-                                              labels = c("10km", "25km", ))
+                                              ncol = 4, nrow = 2)
 all_richness_plots
-ggsave("all_richness_plots.pdf", all_richness_plots, path = output_path, width = 20, height = 8.5, units = "in")
+ggsave("all_richness_plots.png", all_richness_plots, path = output_path, width = 20, height = 8.5, units = "in")
 ```
 
 # Write data to csv
