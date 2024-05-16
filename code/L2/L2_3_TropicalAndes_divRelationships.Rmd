@@ -18,21 +18,50 @@ output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 
 # Load required packages
 ```{r}
-
+library(dplyr)
+library(ggplot2)
+library(smoothr)
+library(purrr)
 ```
 
 # Read in Data
 ```{r}
+plant_cellRichness_1km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_1km.csv"))
+frugivore_cellRichness_1km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_1km.csv"))
 
+plant_cellRichness_5km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_5km.csv"))
+frugivore_cellRichness_5km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_5km.csv"))
+
+plant_cellRichness_10km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_10km.csv"))
+frugivore_cellRichness_10km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_10km.csv"))
+
+plant_cellRichness_25km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_25km.csv"))
+frugivore_cellRichness_25km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_25km.csv"))
+
+plant_cellRichness_50km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_50km.csv"))
+frugivore_cellRichness_50km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_50km.csv"))
+
+plant_cellRichness_75km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_75km.csv"))
+frugivore_cellRichness_75km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_75km.csv"))
+
+plant_cellRichness_100km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_100km.csv"))
+frugivore_cellRichness_100km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_100km.csv"))
 ```
 
+# 1 km
+# 5 km
+# 10 km
+# 25 km
+# 50 km
+# 75 km
+# 100 km
 ```{r}
   # Extract cell values
-  comparison_data <- data.frame(Plant_Richness = plant_richness_grid$num_species,
-                               Frugivore_Richness = frugivore_richness_grid$num_species)
+  comparison_data_100km <- data.frame(Plant_Richness = plant_richness_grid_100km$num_species,
+                               Frugivore_Richness = frugivore_richness_grid_100km$num_species)
   
   # Filter out rows where either plant or frugivore richness is zero
-  comparison_data_filtered <- comparison_data %>%
+  comparison_data_filtered_100km <- comparison_data %>%
                                 filter(Plant_Richness > 0 & Frugivore_Richness > 0)
 ```
 
@@ -76,7 +105,7 @@ summary(nls_model)
 ```
 
 # Compare r-squared by resolution
-Plot
+## Taxonomic diversity
 ```{r}
 # create dataframe of resolutions and r-squared values 
 #[ADD 1, 5,]
@@ -91,3 +120,8 @@ compare_r2_by_res <- ggplot(r_squared_compare, aes(x=resolution, y=r_squared)) +
          x = "Resolution (km)", y = "R-squared", fill = "Number of species")
 print(compare_r2_by_res)
 ```
+## Functional Diversity
+```{r}
+
+```
+
