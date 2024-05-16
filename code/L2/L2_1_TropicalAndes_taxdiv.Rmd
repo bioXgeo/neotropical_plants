@@ -203,21 +203,41 @@ frugivore_cellRichness_100km <- richness_100km$frugivore_cellRichness
 ```
 
 # Multi panel plots
-Richness maps
+## Richness maps
 ```{r}
-all_richness_plots <- ggpubr::ggarrange(#plantgridRichTA_1km, plantgridRichTA_5km, 
+all_plant_richness_plots <- ggpubr::ggarrange(#plantgridRichTA_1km, plantgridRichTA_5km, 
                                               #plantgridRichTA_10km, 
                                               plantgridRichTA_25km,
                                               plantgridRichTA_50km, plantgridRichTA_75km,
                                               plantgridRichTA_100km,
-                                              #frugivoregridRichTA_1km, frugivoregridRichTA_5km, 
+                                              ncol = 4, nrow = 1,
+                                              labels = c("25 km", "50 km", "75 km", "100 km"),
+                                              common.legend = TRUE, legend = "right")
+all_plant_richness_plots_labeled <- ggpubr::annotate_figure(all_plant_richness_plots,
+                                                            left = ggpubr::text_grob("Plants", face = "bold", size = 14))
+all_plant_richness_plots_labeled
+```
+
+```{r}
+all_frugivore_richness_plots <- ggpubr::ggarrange(#frugivoregridRichTA_1km, frugivoregridRichTA_5km, 
                                               #frugivoregridRichTA_10km, 
                                               frugivoregridRichTA_25km,
                                               frugivoregridRichTA_50km, frugivoregridRichTA_75km,
-                                              frugivoregridRichTA_100km, 
-                                              ncol = 4, nrow = 2)
+                                              frugivoregridRichTA_100km,
+                                              ncol = 4, nrow = 1,
+                                              labels = c("25 km", "50 km", "75 km", "100 km"),
+                                              common.legend = TRUE, legend = "right")
+all_frugivore_richness_plots_labeled <- ggpubr::annotate_figure(all_frugivore_richness_plots,
+                                                            left = ggpubr::text_grob("Frugivores", face = "bold", size = 14))
+all_frugivore_richness_plots_labeled
+```
+
+```{r}
+all_richness_plots <- ggpubr::ggarrange(all_plant_richness_plots_labeled,
+                                        all_frugivore_richness_plots_labeled,
+                                        ncol = 1, nrow = 2)
 all_richness_plots
-ggsave("all_richness_plots.png", all_richness_plots, path = output_path, width = 20, height = 8.5, units = "in")
+ggsave("all_richness_plots.png", all_richness_plots, path = figure_path, width = 11, height = 8, units = "in")
 ```
 
 # Write data to csv
