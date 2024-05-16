@@ -12,8 +12,8 @@ output: html_document
 
 # Set file paths
 ```{r}
-data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 ```
 
 # Load required packages
@@ -24,7 +24,7 @@ library(dplyr)
 ```
 
 # Retrived desired trait data from BIEN
-
+Data downloaded on 2023-10-25
 ```{r}
 BIEN_trait_list()
 ```
@@ -58,14 +58,9 @@ glimpse(AllDesired_BIEN_plant_traits)
 ```
 
 ```{r}
-print("The number of records is")
-nrow(AllDesired_BIEN_plant_traits)
-print("The number of species is")
-length(unique(AllDesired_BIEN_plant_traits$scrubbed_species_binomial))
-print("The number of genera is" )
-length(unique(AllDesired_BIEN_plant_traits$scrubbed_genus))
-print("The number of families is")
-length(unique(AllDesired_BIEN_plant_traits$scrubbed_family))
+source("~/GitHub/neotropical_plants/code/data_summary.R")
+
+data_summary(AllDesired_BIEN_plant_traits, AllDesired_BIEN_plant_traits$scrubbed_species_binomial, AllDesired_BIEN_plant_traits$scrubbed_genus, AllDesired_BIEN_plant_traits$scrubbed_family)
 ```
 
 ```{r}
@@ -78,14 +73,9 @@ glimpse(TropicalAndes_BIEN_plant_traits)
 ```
 
 ```{r}
-print("The number of records is")
-nrow(TropicalAndes_BIEN_plant_traits)
-print("The number of species is")
-length(unique(TropicalAndes_BIEN_plant_traits$scrubbed_species_binomial))
-print("The number of genera is" )
-length(unique(TropicalAndes_BIEN_plant_traits$scrubbed_genus))
-print("The number of families is")
-length(unique(TropicalAndes_BIEN_plant_traits$scrubbed_family))
+source("~/GitHub/neotropical_plants/code/data_summary.R")
+
+data_summary(AllDesired_BIEN_plant_traits, TropicalAndes_BIEN_plant_traits$scrubbed_species_binomial, TropicalAndes_BIEN_plant_traits$scrubbed_genus, TropicalAndes_BIEN_plant_traits$scrubbed_family)
 ```
 
 ```{r}
