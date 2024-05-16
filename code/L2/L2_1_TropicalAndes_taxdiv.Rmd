@@ -101,33 +101,6 @@ create_rich_plots <- function(resolution_meters) {
   # Filter out rows where either plant or frugivore richness is zero
   comparison_data_filtered <- comparison_data %>%
                                 filter(Plant_Richness > 0 & Frugivore_Richness > 0)
-  # Compare plant and frugivore richness
-  ## Fit a linear model
-  compare_richness_linear_summary <- summary(lm(comparison_data_filtered$Frugivore_Richness ~
-                                                  comparison_data_filtered$Plant_Richness))
-  linear_r_squared <- compare_richness_linear_summary$r.squared
-  
-  ## Fit an exponential model
-  compare_richness_exponential_summary <- summary(lm(comparison_data_filtered$Frugivore_Richness ~
-                                                       log(comparison_data_filtered$Plant_Richness)))
-  exponential_r_squared <- compare_richness_exponential_summary$r.squared
-
-  ## Create scatter plot with linear and exponential lines
-  compare_richness_linear_plot <- ggplot(comparison_data,
-                                        aes(x = Plant_Richness, y = Frugivore_Richness)) +
-  geom_point() +
-  labs(title = paste("Plant Richness vs Frugivore Richness [", resolution_meters/1000, " km]", sep = ""),
-       subtitle =  paste("Linear (Red) R-squared = ", round(linear_r_squared, 2)),
-       x = "Plant Richness by cell", y = "Frugivore Richness by cell") +
-    geom_smooth(method = "lm", se = FALSE, color = "red")
-  
-  compare_richness_exponential_plot <- ggplot(comparison_data,
-                                        aes(x = Plant_Richness, y = Frugivore_Richness)) +
-  geom_point() +
-  labs(title = paste("Plant Richness vs Frugivore Richness [", resolution_meters/1000, " km]", sep = ""),
-       subtitle =  paste("Exponential (Blue) R-squared = ", round(exponential_r_squared, 2)),
-       x = "Plant Richness by cell", y = "Frugivore Richness by cell") +
-    geom_smooth(method = "lm", se = FALSE, color = "blue", formula = y ~ log(x))
 
   # Create histograms
   plant_richness_hist <- hist(comparison_data$Plant_Richness, 
@@ -136,15 +109,12 @@ create_rich_plots <- function(resolution_meters) {
   frugivore_richness_hist <- hist(comparison_data$Frugivore_Richness,
     main = paste("Histogram of Frugivore Richness [", resolution_meters/1000, " km] by cell", sep = ""),
                                   xlab = "Frugivore Richness by cell")
-  # Return a list of plots
+  # Return a list of data
   list(plantgridRichTA = plant_plot,
        frugivoregridRichTA = frugivore_plot,
        plant_cellRichness = plant_richness_grid,
        frugivore_cellRichness = frugivore_richness_grid, 
-       compare_richness_linear_summary = compare_richness_linear_summary,
-       compare_richness_exponential_summary = compare_richness_exponential_summary,
-       compare_richness_linear_plot = compare_richness_linear_plot,
-       compare_richness_exponential_plot = compare_richness_exponential_plot,
+       comparison_data_filtered = comparison_data_filtered,
        plant_richness_hist = plant_richness_hist,
        frugivore_richness_hist = frugivore_richness_hist)
 }
@@ -163,12 +133,12 @@ frugivoregridRichTA_1km <- richness_1km$frugivoregridRichTA
 # save richness data
 plant_cellRichness_1km <- richness_1km$plant_cellRichness
 frugivore_cellRichness_1km <- richness_1km$frugivore_cellRichness
-# save linear and exponential summaries
-compare_richness_linear_summary_1km <- richness_1km$compare_richness_linear_summary
-compare_richness_exponential_summary_1km <- richness_1km$compare_richness_exponential_summary
-# save r-squared for linear and exponential models
-compare_richness_linear_r2_1km <- richness_1km$compare_richness_linear_summary$r.squared
-compare_richness_exponential_r2_1km <- richness_1km$compare_richness_exponential_summary$r.squared
+
+comparison_data_filtered_1km <- richness_1km$comparison_data_filtered
+```
+
+```{r}
+
 ```
 
 ## 5 km resolution
@@ -182,12 +152,12 @@ frugivoregridRichTA_5km <- richness_5km$frugivoregridRichTA
 ## Extract cell values
 plant_cellRichness_5km <- richness_5km$plant_cellRichness
 frugivore_cellRichness_5km <- richness_5km$frugivore_cellRichness
-# save linear and exponential summaries
-compare_richness_linear_summary_5km <- richness_5km$compare_richness_linear_summary
-compare_richness_exponential_summary_5km <- richness_5km$compare_richness_exponential_summary
-# save r-squared for linear and exponential models
-compare_richness_linear_r2_5km <- richness_5km$compare_richness_linear_summary$r.squared
-compare_richness_exponential_r2_5km <- richness_5km$compare_richness_exponential_summary$r.squared
+
+comparison_data_filtered_5km <- richness_5km$comparison_data_filtered
+```
+
+```{r}
+
 ```
 
 ## 10 km
@@ -201,12 +171,12 @@ frugivoregridRichTA_10km <- richness_10km$frugivoregridRichTA
 ## Extract cell values
 plant_cellRichness_10km <- richness_10km$plant_cellRichness
 frugivore_cellRichness_10km <- richness_10km$frugivore_cellRichness
-# save linear and exponential summaries
-compare_richness_linear_summary_10km <- richness_10km$compare_richness_linear_summary
-compare_richness_exponential_summary_10km <- richness_10km$compare_richness_exponential_summary
-# save r-squared for linear and exponential models
-compare_richness_linear_r2_10km <- richness_10km$compare_richness_linear_summary$r.squared
-compare_richness_exponential_r2_10km <- richness_10km$compare_richness_exponential_summary$r.squared
+
+comparison_data_filtered_10km <- richness_10km$comparison_data_filtered
+```
+
+```{r}
+
 ```
 
 ## 25 km
@@ -220,12 +190,12 @@ frugivoregridRichTA_25km <- richness_25km$frugivoregridRichTA
 ## Extract cell values
 plant_cellRichness_25km <- richness_25km$plant_cellRichness
 frugivore_cellRichness_25km <- richness_25km$frugivore_cellRichness
-# save linear and exponential summaries
-compare_richness_linear_summary_25km <- richness_25km$compare_richness_linear_summary
-compare_richness_exponential_summary_25km <- richness_25km$compare_richness_exponential_summary
-# save r-squared for linear and exponential models
-compare_richness_linear_r2_25km <- richness_25km$compare_richness_linear_summary$r.squared
-compare_richness_exponential_r2_25km <- richness_25km$compare_richness_exponential_summary$r.squared
+
+comparison_data_filtered_25km <- richness_25km$comparison_data_filtered
+```
+
+```{r}
+
 ```
 
 ## 50 km
@@ -238,12 +208,12 @@ frugivoregridRichTA_50km <- richness_50km$frugivoregridRichTA
 ## Extract cell values
 plant_cellRichness_50km <- richness_50km$plant_cellRichness
 frugivore_cellRichness_50km <- richness_50km$frugivore_cellRichness
-# save linear and exponential summaries
-compare_richness_linear_summary_50km <- richness_50km$compare_richness_linear_summary
-compare_richness_exponential_summary_50km <- richness_50km$compare_richness_exponential_summary
-# save r-squared for linear and exponential models
-compare_richness_linear_r2_50km <- richness_50km$compare_richness_linear_summary$r.squared
-compare_richness_exponential_r2_50km <- richness_50km$compare_richness_exponential_summary$r.squared
+
+comparison_data_filtered_50km <- richness_50km$comparison_data_filtered
+```
+
+```{r}
+
 ```
 
 ## 75 km 
@@ -256,12 +226,12 @@ frugivoregridRichTA_75km <- richness_75km$frugivoregridRichTA
 ## Extract cell values
 plant_cellRichness_75km <- richness_75km$plant_cellRichness
 frugivore_cellRichness_75km <- richness_75km$frugivore_cellRichness
-# save linear and exponential summaries
-compare_richness_linear_summary_75km <- richness_75km$compare_richness_linear_summary
-compare_richness_exponential_summary_75km <- richness_75km$compare_richness_exponential_summary
-# save r-squared for linear and exponential models
-compare_richness_linear_r2_75km <- richness_75km$compare_richness_linear_summary$r.squared
-compare_richness_exponential_r2_75km <- richness_75km$compare_richness_exponential_summary$r.squared
+
+comparison_data_filtered_75km <- richness_75km$comparison_data_filtered
+```
+
+```{r}
+
 ```
 
 ## 100 km 
@@ -274,12 +244,50 @@ frugivoregridRichTA_100km <- richness_100km$frugivoregridRichTA
 ## Extract cell values
 plant_cellRichness_100km <- richness_100km$plant_cellRichness
 frugivore_cellRichness_100km <- richness_100km$frugivore_cellRichness
-# save linear and exponential summaries
-compare_richness_linear_summary_100km <- richness_100km$compare_richness_linear_summary
-compare_richness_exponential_summary_100km <- richness_100km$compare_richness_exponential_summary
-# save r-squared for linear and exponential models
-compare_richness_linear_r2_100km <- richness_100km$compare_richness_linear_summary$r.squared
-compare_richness_exponential_r2_100km <- richness_100km$compare_richness_exponential_summary$r.squared
+
+comparison_data_filtered_100km <- richness_100km$comparison_data_filtered
+```
+
+```{r}
+
+```
+
+```{r}
+# Compare plant and frugivore richness
+  ## Fit a linear model
+  compare_richness_linear_summary_100km <- summary(lm(comparison_data_filtered_100km$Frugivore_Richness ~
+                                                  comparison_data_filtered_100km$Plant_Richness))
+  linear_r_squared_100km <- compare_richness_linear_summary_100km$r.squared
+  
+  ## Fit an exponential model
+  compare_richness_exponential_summary_100km <- summary(lm(comparison_data_filtered_100km$Frugivore_Richness ~
+                                                       log(comparison_data_filtered_100km$Plant_Richness)))
+  exponential_r_squared_100km <- compare_richness_exponential_summary_100km$r.squared
+
+  ## Create scatter plot with linear and exponential lines
+  compare_richness_plot_100km <- ggplot(comparison_data_filtered_100km,
+                                        aes(x = Plant_Richness, y = Frugivore_Richness)) +
+  geom_point() +
+  labs(title = paste("Plant Richness vs Frugivore Richness [", resolution_meters/1000, " km]", sep = ""),
+       subtitle =  paste("Linear (Red) R-squared = ", round(linear_r_squared, 2), "\n",
+                  "Exponential (Blue) R-squared = ", round(exponential_r_squared, 2)),
+       x = "Plant Richness by cell", y = "Frugivore Richness by cell") +
+  geom_smooth(method = "lm", se = FALSE, color = "red")+
+  geom_smooth(method = "lm", se = FALSE, color = "blue", formula = y ~ log(x)) +
+  coord_cartesian(xlim = c(0, NA), ylim = c(0, NA))
+```
+
+
+```{r}
+# Fit the nonlinear model using nls
+nls_model <- nls(Frugivore_Richness ~ b * exp(c * Plant_Richness), 
+                 data = comparison_data_filtered_100km, 
+                 start = list(b = 200, c = -0.00001),
+                 algorithm = "port",
+                 control = nls.control(maxiter = 500, minFactor = 1e-10, warnOnly = TRUE))
+
+# Summary of the model
+summary(nls_model)
 ```
 
 
