@@ -49,21 +49,47 @@ create_rich_plots <- function(resolution_meters) {
     st_cast("MULTIPOLYGON") %>%
     st_sf() %>%
     mutate(cellid = row_number())
-
-  # Calculate cell richness for plants
-  plant_richness_grid <- TAGrid %>%
-    st_join(plants_sf_species) %>%
-    mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
-    group_by(cellid) %>%
-    summarize(num_species = sum(overlap))
-
-  # Calculate cell richness for frugivores
-  frugivore_richness_grid <- TAGrid %>%
-    st_join(frugivores_sf_species) %>%
-    mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
-    group_by(cellid) %>%
-    summarize(num_species = sum(overlap))
-
+  
+  # Function to calculate richness for a given dataset
+  calculate_richness <- function(data_sf, species_sf) {
+    result <- data_sf %>%
+      st_join(species_sf) %>%
+      mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
+      group_by(cellid) %>%
+      summarize(num_species = sum(overlap)) %>%
+      ungroup()
+    return(result)
+  }  
+  
+  # Determine the chunk size
+  chunk_size <- 1000
+  
+  # Split the TAGrid into chunks if necessary
+  TAGrid_chunks <- split(TAGrid, ceiling(seq_along(TAGrid$cellid) / chunk_size))
+  
+  # Initialize empty data frames for results
+  plant_richness_grid <- list()
+  frugivore_richness_grid <- list()
+  
+  # Iterate over chunks to calculate richness
+  for (i in seq_along(TAGrid_chunks)) {
+    chunk <- TAGrid_chunks[[i]]
+    
+    # Debug: Print chunk info
+    print(paste("Processing chunk", i, "of", length(TAGrid_chunks)))
+    
+    plant_richness_chunk <- calculate_richness(chunk, plants_sf_species)
+    frugivore_richness_chunk <- calculate_richness(chunk, frugivores_sf_species)
+    
+    # Store the chunks in lists
+    plant_richness_grid[[i]] <- plant_richness_chunk
+    frugivore_richness_grid[[i]] <- frugivore_richness_chunk
+  }
+  
+  # Combine all chunks into final data frames
+  plant_richness_grid <- bind_rows(plant_richness_grid)
+  frugivore_richness_grid <- bind_rows(frugivore_richness_grid)
+  
   # Helper functions to generate plots
   generate_plant_plot <- function(data) {
     ggplot(data) +
@@ -91,7 +117,6 @@ create_rich_plots <- function(resolution_meters) {
   # Generate plots
   plant_plot <- generate_plant_plot(plant_richness_grid)
   frugivore_plot <- generate_frugivore_plot(frugivore_richness_grid)
-
 
 
   # Create histograms
