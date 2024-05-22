@@ -23,7 +23,7 @@ data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 ```
 
-# Read in data
+# Read in harmonized data
 ```{r}
 plant_occ <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_plant_occ_harmonized.csv"))
 TRY_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_TRY_plant_traits_harmonized.csv"))
