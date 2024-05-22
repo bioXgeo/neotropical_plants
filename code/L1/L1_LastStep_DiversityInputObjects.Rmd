@@ -134,6 +134,42 @@ frugivoresPointsPlot
 
 # Create Presence-Absense matrix
 
+```{r}
+# Define the function
+create_presence_absence_matrix <- function(resolution_meters, species_sf) {
+  # Make the grid
+  TAGrid <- TApoly %>%
+    st_make_grid(cellsize = c(resolution_meters)) %>%
+    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+
+  # Join species data to the grid
+  species_grid <- TAGrid %>%
+    st_join(species_sf) %>%
+    filter(!is.na(species)) %>%
+    select(cellid, species)
+
+  # Create the presence-absence matrix
+  presence_absence_matrix <- species_grid %>%
+    mutate(presence = 1) %>%
+    pivot_wider(names_from = species, values_from = presence, values_fill = list(presence = 0)) %>%
+    as.data.frame()
+
+  # Ensure the cellid column is the first column
+  presence_absence_matrix <- presence_absence_matrix %>%
+    select(cellid, everything())
+
+  return(presence_absence_matrix)
+}
+```
+
+```{r}
+presence_absence_matrix <- create_presence_absence_matrix(resolution_meters, species_sf)
+```
+
+
 Use unprojected data because projected data is causing issues
 ```{r}
 x <- TropicalAndes_plant_occ_forest$decimalLongitude
@@ -155,11 +191,19 @@ summary(frugivore_PAM)
 plot(frugivore_PAM, xlab = "Longitude", ylab = "Latitude", main = "Frugivore richness map")
 ```
 
+
+
 ## Turn PAM into matrix
 ```{r}
 plant_PAM_matrix <- lets.presab.points(plant_xy, plant_species, xmn = -85, xmx = -60, ymn = -24, ymx = 14, show.matrix = TRUE, remove.cells = TRUE, count = TRUE)
 frugivore_PAM_matrix <- lets.presab.points(frugivore_xy, frugivore_species, xmn = -85, xmx = -60, ymn = -24, ymx = 14, show.matrix = TRUE, remove.cells = TRUE, count = TRUE)
 ```
+
+```{r}
+summary(plant_PAM_matrix)
+summary(frugivore_PAM_matrix)
+```
+
 
 ## Project PAM
 ```{r}
