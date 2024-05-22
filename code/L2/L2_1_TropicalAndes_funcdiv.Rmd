@@ -282,6 +282,71 @@ plots_alpha_frugivore$"fori"$"patchwork"
 fdis_frugivore <- alpha_fd_indices_frugivore$functional_diversity_indices$fdis
 ```
 
+
+## Mapping FD
+
+```{r}
+# Generate coordinates
+subset_coords_frugivore <- site_loc_key_frugivore[rowSums(PAM_frugivore_site_final) >= 5, ]
+subset_coords_frugivore_sp <-subset_coords_frugivore[,1:2 ]
+
+frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
+```
+
+```{r}
+# Convert the dataframe to sf format
+spatial_fdis_frugivore <- st_as_sf(frugivore_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
+```
+
+
+```{r}
+# set crs of sf objects
+spatial_fdis_frugivore <- spatial_fdis_frugivore %>% st_set_crs(4326)
+```
+
+```{r}
+# Create a grid over the area
+create_grid <- function(data, cellsize) {
+  st_make_grid(st_as_sfc(st_bbox(data)), cellsize = cellsize) %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+}
+
+# Aggregate functional dispersion within each grid cell
+aggregate_to_grid <- function(grid, points, value_col) {
+  points %>%
+    st_join(grid) %>%
+    group_by(cellid) %>%
+    summarize(mean_value = mean(get(value_col), na.rm = TRUE)) %>%
+    st_set_geometry("geometry")
+}
+
+# Example usage with your data
+resolution_meters <- 100000
+variable_name <- "fdis_frugivore"
+
+# Create grid
+grid <- create_grid(spatial_fdis_frugivore, cellsize = resolution_meters)
+
+# Aggregate data to grid
+aggregated_data <- aggregate_to_grid(grid, spatial_fdis_frugivore, variable_name)
+
+```
+
+```{r}
+FDisplot <-
+    ggplot() +
+    geom_sf(data = Americas_latlong, fill = "white")+
+    geom_sf(data = TApoly_latlong, fill = "lightgrey", size = 0.1) +
+    geom_point(data = spatial_fdis_frugivore , aes(fill = fdis_frugivore)) +
+    scale_fill_gradient(low = "blue", high = "red") +
+    coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+    theme(panel.background = element_rect(fill = "lightblue")) +
+    annotation_scale(location = "bl", width_hint = 0.5) +
+    labs(x = "Longitude", y = "Latitude", fill = "FDis")
+FDisplot
+```
+
 # Mapping without projection 
 Because projecting is being difficult
 ```{r}
@@ -339,7 +404,6 @@ aggregated_data <- aggregate_to_grid(grid, spatial_fdis_frugivore, variable_name
 
 ```
 
-
 ```{r}
 FDisplot <-
     ggplot() +
@@ -352,74 +416,6 @@ FDisplot <-
     annotation_scale(location = "bl", width_hint = 0.5) +
     labs(x = "Longitude", y = "Latitude", fill = "FDis")
 FDisplot
-```
-
-
-## Project FD objects
-```{r}
-# Generate coordinates
-subset_coords_frugivore <- site_loc_key_frugivore[rowSums(PAM_frugivore_site_final) >= 5, ]
-subset_coords_frugivore_sp <-subset_coords_frugivore[,1:2 ]
-
-frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
-```
-
-```{r}
-# Convert the dataframe to sf format
-spatial_fdis_frugivore <- st_as_sf(frugivore_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
-```
-
-
-```{r}
-# set crs of sf objects
-spatial_fdis_frugivore <- spatial_fdis_frugivore %>% st_set_crs(4326)
-```
-
-```{r}
-spatial_fdis_frugivore_projected <- st_transform(spatial_fdis_frugivore, 5389)
-```
-
-```{r}
-create_fdis_plots <- function(resolution_meters, data, variable_name) {
-# Make Grid
-TAGrid <- TApoly %>%
-  st_make_grid(cellsize = c(resolution_meters)) %>%
-  st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
-  st_cast("MULTIPOLYGON") %>%
-  st_sf() %>%
-  mutate(cellid = row_number())
-  
-  # Calculate functional dispersion for grid
-  fdis_grid <- TAGrid %>%
-    st_join(data) %>%
-    group_by(cellid) %>%
-    summarize(
-      sum_variable = sum(variable_name, na.rm = TRUE),
-      mean_variable = mean(variable_name, na.rm = TRUE)
-    )
-  
-  # Make plot
-  FDplot <-
-    ggplot() +
-    geom_sf(data = Americas, fill = "white")+
-    geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
-    geom_sf(data = fdis_grid, aes(fill = fdis_frugivore)) +
-    scale_fill_gradient(low = "blue", high = "red") +
-    coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-    theme(panel.background = element_rect(fill = "lightblue")) +
-    annotation_scale(location = "bl", width_hint = 0.5) +
-    labs(x = "Longitude", y = "Latitude", fill = "FDis")
-  
-  # Return a list of data
-  list(fdis_grid = fdis_grid,
-        FDplot = FDplot)
-}
-```
-
-
-
-```{r}
-create_fdis_plots(100000, spatial_fdis_frugivore_projected, fdis_frugivore)
 ```
 
 
