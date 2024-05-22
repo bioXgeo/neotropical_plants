@@ -1,5 +1,5 @@
 ---
-title: "TITLE"
+title: "Plant trait cleaning and combining"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
@@ -13,6 +13,7 @@ output: html_document
 # Load required packages
 ```{r}
 library(dplyr)
+library(tidyr)
 ```
 
 # Set file paths
@@ -45,12 +46,34 @@ TRY_filtered <- TRY_traits %>%
 nrow(TRY_filtered)
 ```
 
+```{r}
+TRY_traits %>%
+  count(TraitName)
+```
+
+```{r}
+TRY_traits %>%
+  distinct(Accepted_species, TraitName) %>%
+  count(TraitName)
+```
+
 ## BIEN
 ```{r}
 nrow(BIEN_traits)
 BIEN_filtered <- BIEN_traits %>%
   filter(Accepted_species %in% plant_species)
 nrow(BIEN_filtered)
+```
+
+```{r}
+BIEN_traits %>%
+  count(trait_name)
+```
+
+```{r}
+BIEN_traits %>%
+  distinct(Accepted_species, trait_name) %>%
+  count(trait_name)
 ```
 
 ## GIFT
@@ -61,6 +84,17 @@ GIFT_filtered <- GIFT_traits %>%
 nrow(GIFT_filtered)
 ```
 
+```{r}
+GIFT_traits %>%
+  count(trait_name)
+```
+
+```{r}
+GIFT_traits %>%
+  distinct(Accepted_species, trait_name) %>%
+  count(trait_name)
+```
+
 # Combine trait information from TRY, BIEN, GIFT
 
 ```{r}
@@ -69,6 +103,9 @@ TRYTraitTypes <- TRY_filtered %>%
   distinct(DataName)
 ```
 
+```{r}
+unique(TRYTraitTypes$TraitName)
+```
 
 ```{r}
 colnames(TRY_filtered)
@@ -80,6 +117,15 @@ TRY_filtered_subset <- TRY_filtered[ , c("Accepted_species", "TraitName", "OrigV
 colnames(TRY_filtered_subset) <- c("Accepted_species", "TraitName", "TraitValue", "Unit")
 ```
 
+```{r}
+# save sources/references
+TRY_references <- unique(TRY_filtered[ , c("Dataset", "Reference")])
+write.csv(TRY_references, file.path(output_path,"TRY_references.csv"))
+```
+
+```{r}
+unique(BIEN_filtered$trait_name)
+```
 
 ```{r}
 colnames(BIEN_filtered)
@@ -89,6 +135,16 @@ columns to keep : Accepted_species, trait_name, trait_value, unit
 ```{r}
 BIEN_filtered_subset <- BIEN_filtered[ , c("Accepted_species", "trait_name", "trait_value", "unit")]
 colnames(BIEN_filtered_subset) <- c("Accepted_species", "TraitName", "TraitValue", "Unit")
+```
+
+```{r}
+# save sources/references
+BIEN_references <- unique(BIEN_filtered[ , c("url_source", "source_citation")])
+write.csv(BIEN_references, file.path(output_path,"BIEN_references.csv"))
+```
+
+```{r}
+unique(GIFT_filtered$trait_name)
 ```
 
 ```{r}
@@ -142,6 +198,32 @@ nrow(traits_clean)
 traits %>%
   count(TraitName)
 ```
+
+```{r}
+traits %>%
+  distinct(Accepted_species, TraitName) %>%
+  count(TraitName)
+```
+
+```{r}
+# Group by TraitName and summarize the unique TraitValues
+unique_trait_values <- traits %>%
+  group_by(TraitName) %>%
+  summarize(UniqueValues = list(unique(TraitValue)))%>%
+  unnest(UniqueValues)
+```
+
+Final trait list:
+- dispersal syndrome
+- Fruit mass
+- Fruit length
+- Fruit type
+- Plant growth form
+- Plant height
+- Plant Lifespan
+- Seed mass
+- Seed length
+- Seed width
 
 
 # Standardize trait measurements
@@ -210,6 +292,8 @@ merged_data$TraitName <- traitname
 traits_dispersal <- traits %>%
   filter(grepl('Dispersal syndrome|whole plant dispersal syndrome|dispersal_syndrome_1|dispersal_syndrome_2', TraitName))
 traits_dispersal$OrigTraitValue <- traits_dispersal$TraitValue
+nrow(traits_dispersal)
+length(unique(traits_dispersal$Accepted_species))
 ```
 
 ```{r}
@@ -219,6 +303,19 @@ nrow(traits_dispersal)
 length(unique(traits_dispersal$Accepted_species))
 ```
 
+```{r}
+# remove rows where TraitValue is numeric
+traits_dispersal <- traits_dispersal %>%
+  filter(is.na(as.numeric(TraitValue)))
+nrow(traits_dispersal)
+length(unique(traits_dispersal$Accepted_species))
+```
+
+
+```{r}
+traits_dispersal %>%
+  distinct(TraitValue)
+```
 
 Reclassify to the following:
 anemochorous - wind dispersal
@@ -246,16 +343,32 @@ length(unique(traits_dispersal$Accepted_species))
 ```
 
 ```{r}
-print(unique(traits_dispersal$TraitValue))
+traits_dispersal %>%
+  distinct(TraitValue)
 ```
 
 ```{r}
+# standardize trait names
 traits_dispersal <- traits_dispersal %>%
-  mutate(TraitName = "dispersal_syndrome")
+  mutate(TraitName = "DispersalSyndrome")
 ```
 
 ```{r}
-averagetraits_dispersal <- factor_data_merge(traits_dispersal, "Dispersal Syndrome")
+averagetraits_dispersal <- factor_data_merge(traits_dispersal, "DispersalSyndrome")
+```
+
+```{r}
+nrow(averagetraits_dispersal)
+length(unique(averagetraits_dispersal$Accepted_species))
+```
+
+```{r}
+averagetraits_dispersal %>%
+  count(TraitValue)
+```
+
+```{r}
+summary(averagetraits_dispersal)
 ```
 
 
@@ -264,14 +377,43 @@ averagetraits_dispersal <- factor_data_merge(traits_dispersal, "Dispersal Syndro
 traits_fruitMass <- traits %>%
   filter(grepl('Fruit dry mass', TraitName))
 traits_fruitMass$OrigTraitValue <- traits_fruitMass$TraitValue
+nrow(traits_fruitMass)
+length(unique(traits_fruitMass$Accepted_species))
 ```
 
 ```{r}
+# remove non-numeric rows
+traits_fruitMass <- traits_fruitMass %>%
+  filter(!is.na(as.numeric(TraitValue))) %>%
+  mutate(TraitValue = as.numeric(TraitValue))
+
+nrow(traits_fruitMass)
+length(unique(traits_fruitMass$Accepted_species))
+```
+
+```{r}
+# check that units match
 print(unique(traits_fruitMass$Unit))
 ```
 
 ```{r}
-averagetraits_fruitMass <- numeric_data_average(traits_fruitMass, "mg", "Fruit Mass")
+# standardize trait names with units
+traits_fruitMass <- traits_fruitMass %>%
+  mutate(TraitName = "FruitMass_mg")
+```
+
+
+```{r}
+averagetraits_fruitMass <- numeric_data_average(traits_fruitMass, "mg", "FruitMass_mg")
+```
+
+```{r}
+nrow(averagetraits_fruitMass)
+length(unique(averagetraits_fruitMass$Accepted_species))
+```
+
+```{r}
+summary(averagetraits_fruitMass)
 ```
 
 
@@ -280,10 +422,9 @@ averagetraits_fruitMass <- numeric_data_average(traits_fruitMass, "mg", "Fruit M
 traits_fruitLength <- traits %>%
   filter(grepl('Fruit length|maximum fruit length|minimum fruit length|fruit_length_min|fruit_length_max|fruit_length_mean', TraitName))
 traits_fruitLength$OrigTraitValue <- traits_fruitLength$TraitValue
-```
 
-```{r}
-print(unique(traits_fruitLength$Unit))
+nrow(traits_fruitLength)
+length(unique(traits_fruitLength$Accepted_species))
 ```
 
 ```{r}
@@ -291,6 +432,14 @@ print(unique(traits_fruitLength$Unit))
 traits_fruitLength <- traits_fruitLength %>%
   filter(!is.na(as.numeric(TraitValue))) %>%
   mutate(TraitValue = as.numeric(TraitValue))
+
+nrow(traits_fruitLength)
+length(unique(traits_fruitLength$Accepted_species))
+```
+
+```{r}
+# check that units match
+print(unique(traits_fruitLength$Unit))
 ```
 
 ```{r}
@@ -301,14 +450,44 @@ traits_fruitLength <- traits_fruitLength %>%
 ```
 
 ```{r}
-averagetraits_fruitLength <- numeric_data_average(traits_fruitLength, "mm", "Fruit Length")
+# standardize trait names with units
+traits_fruitLength <- traits_fruitLength %>%
+  mutate(TraitName = "FruitLength_mm")
 ```
+
+
+```{r}
+averagetraits_fruitLength <- numeric_data_average(traits_fruitLength, "mm", "FruitLength_mm")
+```
+
+```{r}
+nrow(averagetraits_fruitLength)
+length(unique(averagetraits_fruitLength$Accepted_species))
+```
+
+```{r}
+summary(averagetraits_fruitLength)
+```
+
 
 ## Plant height
 ```{r}
 traits_plantHeight <- traits %>%
   filter(grepl('Plant height generative|Plant height vegetative|maximum whole plant height|minimum whole plant height|plant_height|plant_height_max|plant_height_min|whole plant height', TraitName))
 traits_plantHeight$OrigTraitValue <- traits_plantHeight$TraitValue
+
+nrow(traits_plantHeight)
+length(unique(traits_plantHeight$Accepted_species))
+```
+
+```{r}
+# remove non-numeric rows
+traits_plantHeight <- traits_plantHeight %>%
+  filter(!is.na(as.numeric(TraitValue))) %>%
+  mutate(TraitValue = as.numeric(TraitValue))
+
+nrow(traits_plantHeight)
+length(unique(traits_plantHeight$Accepted_species))
 ```
 
 ```{r}
@@ -316,55 +495,153 @@ print(unique(traits_plantHeight$Unit))
 ```
 
 ```{r}
-averagetraits_plantHeight <- numeric_data_average(traits_plantHeight, "m", "Plant Height")
+# standardize trait names with units
+traits_plantHeight <- traits_plantHeight %>%
+  mutate(TraitName = "PlantHeight_m")
 ```
+
+
+```{r}
+averagetraits_plantHeight <- numeric_data_average(traits_plantHeight, "m", "PlantHeight_m")
+```
+
+```{r}
+nrow(averagetraits_plantHeight)
+length(unique(averagetraits_plantHeight$Accepted_species))
+```
+
+
+```{r}
+summary(averagetraits_plantHeight)
+```
+
 
 ## Plant lifespan/longevity
 ```{r}
 traits_plantLifespan <- traits %>%
-  filter(grepl('Plant lifespan (longevity)|longest whole plant longevity|maximum whole plant longevity|plant_lifespan', TraitName))
+  filter(grepl('Plant lifespan \\(longevity\\)|longest whole plant longevity|maximum whole plant longevity|plant_lifespan', TraitName))
 traits_plantLifespan$OrigTraitValue <- traits_plantLifespan$TraitValue
+
+nrow(traits_plantLifespan)
+length(unique(traits_plantLifespan$Accepted_species))
 ```
 
 ```{r}
+# remove rows if TraitValue is non-numeric
+traits_plantLifespan <- traits_plantLifespan %>%
+  filter(!is.na(as.numeric(TraitValue))) %>%
+  mutate(TraitValue = as.numeric(TraitValue))
+
+nrow(traits_plantLifespan)
+length(unique(traits_plantLifespan$Accepted_species))
+```
+
+```{r}
+# check that units match
+print(unique(traits_plantLifespan$Unit))
+traits_plantLifespan$Unit <- "years"
 print(unique(traits_plantLifespan$Unit))
 ```
 
 ```{r}
-averagetraits_plantLifespan <- numeric_data_average(traits_plantLifespan, "years", "Plant Lifespan")
+# standardize trait names with units
+traits_plantLifespan <- traits_plantLifespan %>%
+  mutate(TraitName = "PlantLifespan_years")
+
 ```
+
+
+```{r}
+averagetraits_plantLifespan <- numeric_data_average(traits_plantLifespan, "years", "PlantLifespan_years")
+```
+
+```{r}
+nrow(averagetraits_plantLifespan)
+length(unique(averagetraits_plantLifespan$Accepted_species))
+```
+
+```{r}
+summary(averagetraits_plantLifespan)
+```
+
 
 ## Fruit type
 ```{r}
 traits_fruitType <- traits %>%
-  filter(grepl('Fruit dehiscence type|Fruit surface type|Fruit texture inside (fleshy, leathrey, …)|Fruit type|fruit type|fruit_dryness|fruit_type', TraitName))
+  filter(grepl('Fruit type|fruit type|fruit_type', TraitName))
 traits_fruitType$OrigTraitValue <- traits_fruitType$TraitValue
+
+nrow(traits_fruitType)
+length(unique(traits_fruitType$Accepted_species))
 ```
 
 ```{r}
-print(unique(traits_fruitType$Unit))
+traits_fruitType <- traits_fruitType %>%
+  filter(is.na(as.numeric(TraitValue)))
+
+nrow(traits_fruitType)
+length(unique(traits_fruitType$Accepted_species))
+```
+
+
+```{r}
+traits_fruitType %>%
+  distinct(TraitValue)
+```
+
+```{r}
+# standardize trait values
+traits_fruitType <- traits_fruitType %>%
+  filter() %>%
+  mutate(TraitValue= case_when(
+    grepl('drupe|ectozoochorous|zoochorous', OrigTraitValue, ignore.case = TRUE) ~ "zoochorous",
+    grepl('capsule|Capsule|Capsule |', OrigTraitValue, ignore.case = TRUE) ~ "myrmecochorous",
+  )) %>%
+  filter(!is.na(TraitValue))
+```
+
+```{r}
+# standardize trait name
+traits_fruitType <- traits_fruitType %>%
+  mutate(TraitName = "FruitType")
 ```
 
 ```{r}
 averagetraits_fruitType <- factor_data_merge(traits_fruitType, "Fruit Type")
 ```
 
+```{r}
+nrow(averagetraits_fruitType)
+length(unique(averagetraits_fruitType$Accepted_species))
+```
+
+```{r}
+summary(averagetraits_fruitType)
+```
+
+
 ## Seed mass
 ```{r}
 traits_seedMass <- traits %>%
   filter(grepl('Seed dry mass|seed mass|seed_mass_max|seed_mass_mean|seed_mass_min', TraitName))
 traits_seedMass$OrigTraitValue <- traits_seedMass$TraitValue
+
+nrow(traits_seedMass)
+length(unique(traits_seedMass$Accepted_species))
+```
+
+```{r}
+# remove non-numeric rows
+traits_seedMass <- traits_seedMass %>%
+  filter(!is.na(as.numeric(TraitValue))) %>%
+  mutate(TraitValue = as.numeric(TraitValue))
+
+nrow(traits_seedMass)
+length(unique(traits_seedMass$Accepted_species))
 ```
 
 ```{r}
 print(unique(traits_seedMass$Unit))
-```
-
-```{r}
-# remove rows if TraitValue is non-numeric
-traits_seedMass <- traits_seedMass %>%
-  filter(!is.na(as.numeric(TraitValue))) %>%
-  mutate(TraitValue = as.numeric(TraitValue))
 ```
 
 ```{r}
@@ -375,14 +652,43 @@ traits_seedMass <- traits_seedMass %>%
 ```
 
 ```{r}
-averagetraits_seedMass <- numeric_data_average(traits_seedMass, "mg", "Seed Mass")
+# standardize trait names with units
+traits_seedMass <- traits_seedMass %>%
+  mutate(TraitName = "SeedMass_g")
 ```
+
+```{r}
+averagetraits_seedMass <- numeric_data_average(traits_seedMass, "mg", "SeedMass_g")
+```
+
+```{r}
+nrow(averagetraits_seedMass)
+length(unique(averagetraits_seedMass$Accepted_species))
+```
+
+```{r}
+summary(averagetraits_seedMass)
+```
+
 
 ## Seed length
 ```{r}
 traits_seedLength <- traits %>%
   filter(grepl('Seed length|seed_length_max|seed_length_mean|seed_length_min', TraitName))
 traits_seedLength$OrigTraitValue <- traits_seedLength$TraitValue
+
+nrow(traits_seedLength)
+length(unique(traits_seedLength$Accepted_species))
+```
+
+```{r}
+# remove non-numeric rows
+traits_seedLength <- traits_seedLength %>%
+  filter(!is.na(as.numeric(TraitValue))) %>%
+  mutate(TraitValue = as.numeric(TraitValue))
+
+nrow(traits_seedLength)
+length(unique(traits_seedLength$Accepted_species))
 ```
 
 ```{r}
@@ -390,8 +696,24 @@ print(unique(traits_seedLength$Unit))
 ```
 
 ```{r}
-averagetraits_seedLength <- numeric_data_average(traits_seedLength, "mm", "Seed Length")
+# standardize trait names with units
+traits_seedLength <- traits_seedLength %>%
+  mutate(TraitName = "SeedLength_mm")
 ```
+
+```{r}
+averagetraits_seedLength <- numeric_data_average(traits_seedLength, "mm", "SeedLength_mm")
+```
+
+```{r}
+nrow(averagetraits_seedLength)
+length(unique(averagetraits_seedLength$Accepted_species))
+```
+
+```{r}
+summary(averagetraits_fruitLength)
+```
+
 
 ## Seed width
 ```{r}
@@ -399,22 +721,70 @@ traits_seedWidth <- traits %>%
   filter(grepl('Seed width|seed_width_max|seed_width_mean|seed_width_min'
 , TraitName))
 traits_seedWidth$OrigTraitValue <- traits_seedWidth$TraitValue
+
+nrow(traits_seedWidth)
+length(unique(traits_seedWidth$Accepted_species))
 ```
+
+```{r}
+# remove non-numeric rows
+traits_seedWidth <- traits_seedWidth %>%
+  filter(!is.na(as.numeric(TraitValue))) %>%
+  mutate(TraitValue = as.numeric(TraitValue))
+
+nrow(traits_seedWidth)
+length(unique(traits_seedWidth$Accepted_species))
+```
+
 
 ```{r}
 print(unique(traits_seedWidth$Unit))
 ```
 
 ```{r}
-averagetraits_seedWidth <- numeric_data_average(traits_seedWidth, "mm", "Seed Width")
+# standardize trait names with units
+traits_seedWidth <- traits_seedWidth %>%
+  mutate(TraitName = "SeedWidth_mm")
 ```
+
+```{r}
+averagetraits_seedWidth <- numeric_data_average(traits_seedWidth, "mm", "SeedWidth_mm")
+```
+
+```{r}
+nrow(averagetraits_seedWidth)
+length(unique(averagetraits_seedWidth$Accepted_species))
+```
+
+```{r}
+summary(averagetraits_seedWidth)
+```
+
 
 ## Growth form
 ```{r}
 traits_growthForm <- traits %>%
-  filter(grepl('Plant growth form|growth_form|whole plant growth form|whole plant growth form diversity'
+  filter(grepl('Plant growth form|growth_form|whole plant growth form'
 , TraitName))
 traits_growthForm$OrigTraitValue <- traits_growthForm$TraitValue
+
+nrow(traits_growthForm)
+length(unique(traits_growthForm$Accepted_species))
+```
+
+```{r}
+# remove numeric rows
+traits_growthForm <- traits_growthForm %>%
+  filter(is.na(as.numeric(TraitValue)))
+
+nrow(traits_growthForm)
+length(unique(traits_growthForm$Accepted_species))
+```
+
+```{r}
+# look at unique trait values
+traits_growthForm %>%
+  distinct(TraitValue)
 ```
 
 ```{r}
@@ -512,9 +882,9 @@ wide_plant_traits <- wide_traits[, !colnames(wide_traits) %in% "X", drop = FALSE
 # Assign data types
 wide_plant_traits$`Fruit Length` <- as.numeric(wide_plant_traits$`Fruit Length`)
 wide_plant_traits$`Plant Height` <- as.numeric(wide_plant_traits$`Plant Height`)
-wide_plant_traits$`Dispersal Syndrome` <- as.character(wide_plant_traits$`Dispersal Syndrome`)
-wide_plant_traits$`Growth Forme` <- as.character(wide_plant_traits$`Growth Form`)
-wide_plant_traits$`Fruit Type` <- as.character(wide_plant_traits$`Fruit Type`)
+wide_plant_traits$`Dispersal Syndrome` <- as.factor(wide_plant_traits$`Dispersal Syndrome`)
+wide_plant_traits$`Growth Form` <- as.factor(wide_plant_traits$`Growth Form`)
+wide_plant_traits$`Fruit Type` <- as.factor(wide_plant_traits$`Fruit Type`)
 ```
 
 
