@@ -1,0 +1,35 @@
+---
+title: "Tropical Andes plant trait data FRUBASE"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script retrives plant trait data from the FRUBASE database for the Tropical Andes."
+data input: ""
+data output: ""
+date: "2024-05-14"
+output: 
+    html_document:
+      code_link: TRUE
+---
+
+# Set file paths
+```{r}
+data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+```
+
+# Load required packages
+```{r}
+#devtools::install_github("pedroj/FRUBASE")
+library(frubase)
+library(dplyr)
+```
+
+# Retrive data from FRUBASE
+Data downloaded on 2024-05-22
+For more information about FRUBASE, see https://github.com/pedroj/FRUBASE 
+```{r}
+data(frubase)
+```
+
+
