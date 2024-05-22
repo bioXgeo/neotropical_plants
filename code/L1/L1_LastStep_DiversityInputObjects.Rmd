@@ -157,36 +157,121 @@ plot(frugivore_PAM, xlab = "Longitude", ylab = "Latitude", main = "Frugivore ric
 
 ## Turn PAM into matrix
 ```{r}
-plants_PAM_matrix <- lets.presab.points(plant_xy, plant_species, xmn = -85, xmx = -60, ymn = -24, ymx = 14, show.matrix = TRUE, remove.cells = TRUE, count = TRUE)
+plant_PAM_matrix <- lets.presab.points(plant_xy, plant_species, xmn = -85, xmx = -60, ymn = -24, ymx = 14, show.matrix = TRUE, remove.cells = TRUE, count = TRUE)
 frugivore_PAM_matrix <- lets.presab.points(frugivore_xy, frugivore_species, xmn = -85, xmx = -60, ymn = -24, ymx = 14, show.matrix = TRUE, remove.cells = TRUE, count = TRUE)
 ```
 
+## Project PAM
+```{r}
+# check dimensions
+dim(plant_PAM_matrix)
+dim(frugivore_PAM_matrix)
+```
+
+```{r}
+# convert PAM matrix to dataframe
+plant_PAM_df <- as.data.frame(plant_PAM_matrix)
+frugivore_PAM_df <- as.data.frame(frugivore_PAM_matrix)
+```
+
+```{r}
+# check dimensions
+dim(plant_PAM_df)
+dim(frugivore_PAM_df)
+```
+
+```{r}
+# Convert to sf object and assign crs
+plant_PAM.sf <- st_as_sf(plant_PAM_df, coords = c("Longitude(x)", "Latitude(y)"), crs = 4326)
+frugivore_PAM.sf <- st_as_sf(frugivore_PAM_df, coords = c("Longitude(x)", "Latitude(y)"), crs = 4326)
+```
+
+```{r}
+# check dimensions
+dim(plant_PAM.sf)
+dim(frugivore_PAM.sf)
+```
+
+```{r}
+# project to crs to match taxonomic diversity
+plant_PAM.sf <- st_transform(plant_PAM.sf, 5389)
+frugivore_PAM.sf <- st_transform(frugivore_PAM.sf, 5389)
+```
+
+```{r}
+# check units
+st_crs(plant_PAM.sf)
+st_crs(frugivore_PAM.sf)
+```
+
+```{r}
+# convert sf to dataframe and retain lat & long as first two columns
+## extract coordinates
+plant_coords <- st_coordinates(plant_PAM.sf)
+frugivore_coords <- st_coordinates(frugivore_PAM.sf)
+
+## convert sf to dataframe
+plant_PAM.sf_df <- as.data.frame(st_drop_geometry(plant_PAM.sf))
+frugivore_PAM.sf_df <- as.data.frame(st_drop_geometry(frugivore_PAM.sf))
+
+# add coordinates as separate columns
+plant_PAM.sf_df$Longitude <- plant_coords[, 1]
+plant_PAM.sf_df$Latitude <- plant_coords[, 2]
+
+frugivore_PAM.sf_df$Longitude <- frugivore_coords[, 1]
+frugivore_PAM.sf_df$Latitude <- frugivore_coords[, 2]
+
+# rearrange columns to make Longitude and Latitude the first two columns
+plant_PAM.sf_df <- plant_PAM.sf_df[, c("Longitude", "Latitude", setdiff(names(plant_PAM.sf_df), c("Longitude", "Latitude")))]
+frugivore_PAM.sf_df <- frugivore_PAM.sf_df[, c("Longitude", "Latitude", setdiff(names(frugivore_PAM.sf_df), c("Longitude", "Latitude")))]
+```
+
+```{r}
+#check str of dataframes
+plant_PAM.sf_df[1:4, 1:4]
+frugivore_PAM.sf_df[1:4, 1:4]
+```
+
+```{r}
+# convert back to matrix and make sure all columns are numeric
+plant_PAM.sf_matrix <- as.matrix(plant_PAM.sf_df)
+frugivore_PAM.sf_matrix <- as.matrix(frugivore_PAM.sf_df)
+
+plant_PAM.sf_matrix <- apply(plant_PAM.sf_matrix, 2, as.numeric)
+frugivore_PAM.sf_matrix <- apply(frugivore_PAM.sf_matrix, 2, as.numeric)
+```
+
+```{r}
+# check dimensions
+dim(plant_PAM.sf_matrix)
+dim(frugivore_PAM.sf_matrix)
+```
 
 ## Add rownames
 ```{r}
 # Get the number of rows in the matrix
-num_rows_plant <- nrow(plants_PAM_matrix)
+num_rows_plant <- nrow(plant_PAM.sf_matrix)
 
 # Generate unique row names
 row_names_plant <- paste0("cell", 1:num_rows_plant)
 
 # Assign row names to the matrix
-rownames(plants_PAM_matrix) <- row_names_plant
+rownames(plant_PAM.sf_matrix) <- row_names_plant
 
-column_names_plant <- colnames(plants_PAM_matrix)
+column_names_plant <- colnames(plant_PAM.sf_matrix)
 ```
 
 ```{r}
 # Get the number of rows in the matrix
-num_rows_frugivore <- nrow(frugivore_PAM_matrix)
+num_rows_frugivore <- nrow(frugivore_PAM.sf_matrix)
 
 # Generate unique row names
 row_names_frugivore <- paste0("cell", 1:num_rows_frugivore)
 
 # Assign row names to the matrix
-rownames(frugivore_PAM_matrix) <- row_names_frugivore
+rownames(frugivore_PAM.sf_matrix) <- row_names_frugivore
 
-column_names_frugivore <- colnames(frugivore_PAM_matrix)
+column_names_frugivore <- colnames(frugivore_PAM.sf_matrix)
 ```
 
 ## Turn data into correct data types for inputs into the trait categories dataframe
@@ -207,8 +292,8 @@ frugivore_traits$generation_time <- as.numeric(frugivore_traits$generation_time)
 ## Remove the species from PAM that have no occurrences
 ```{r}
 # Remove columns with sum equal to zero
-PAM_plant_site_final <- plants_PAM_matrix[, colSums(plants_PAM_matrix) != 0]
-PAM_frugivore_site_final <- frugivore_PAM_matrix[, colSums(frugivore_PAM_matrix) != 0]
+PAM_plant_site_final <- plant_PAM.sf_matrix[, colSums(plant_PAM.sf_matrix) != 0]
+PAM_frugivore_site_final <- frugivore_PAM.sf_matrix[, colSums(frugivore_PAM.sf_matrix) != 0]
 
 #Save coordinates for later
 site_loc_key_plant <- PAM_plant_site_final[,1:2]
