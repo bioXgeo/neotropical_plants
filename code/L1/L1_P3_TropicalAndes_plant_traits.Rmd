@@ -23,7 +23,7 @@ data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 ```
 
-# Read in harmonized data
+# Read in subset fruiting species data
 ```{r}
 plant_occ <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_plant_occ_harmonized.csv"))
 TRY_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_TRY_plant_traits_harmonized.csv"))
@@ -31,169 +31,7 @@ BIEN_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_BIEN_plant_traits_
 GIFT_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_GIFT_plant_traits_harmonized.csv"))
 ```
 
-# Get species list from plant_occ data
-```{r}
-plant_species <- unique(plant_occ$Accepted_species)
-length(plant_species)
-```
-
-# Subset TRY, BIEN, and GIFT by species list
-## TRY
-```{r}
-nrow(TRY_traits)
-TRY_filtered <- TRY_traits %>%
-  filter(Accepted_species %in% plant_species)
-nrow(TRY_filtered)
-```
-
-```{r}
-TRY_traits %>%
-  count(TraitName)
-```
-
-```{r}
-TRY_traits %>%
-  distinct(Accepted_species, TraitName) %>%
-  count(TraitName)
-```
-
-## BIEN
-```{r}
-nrow(BIEN_traits)
-BIEN_filtered <- BIEN_traits %>%
-  filter(Accepted_species %in% plant_species)
-nrow(BIEN_filtered)
-```
-
-```{r}
-BIEN_traits %>%
-  count(trait_name)
-```
-
-```{r}
-BIEN_traits %>%
-  distinct(Accepted_species, trait_name) %>%
-  count(trait_name)
-```
-
-## GIFT
-```{r}
-nrow(GIFT_traits)
-GIFT_filtered <- GIFT_traits %>%
-  filter(Accepted_species %in% plant_species)
-nrow(GIFT_filtered)
-```
-
-```{r}
-GIFT_traits %>%
-  count(trait_name)
-```
-
-```{r}
-GIFT_traits %>%
-  distinct(Accepted_species, trait_name) %>%
-  count(trait_name)
-```
-
-# Combine trait information from TRY, BIEN, GIFT
-
-```{r}
-TRYTraitTypes <- TRY_filtered %>%
-  group_by(TraitName) %>%
-  distinct(DataName)
-```
-
-```{r}
-unique(TRYTraitTypes$TraitName)
-```
-
-```{r}
-colnames(TRY_filtered)
-```
-columns to keep : Accepted_species, TraitName, OrigValueStr
-
-```{r}
-TRY_filtered_subset <- TRY_filtered[ , c("Accepted_species", "TraitName", "OrigValueStr", "UnitName")]
-colnames(TRY_filtered_subset) <- c("Accepted_species", "TraitName", "TraitValue", "Unit")
-```
-
-```{r}
-# save sources/references
-TRY_references <- unique(TRY_filtered[ , c("Dataset", "Reference")])
-write.csv(TRY_references, file.path(output_path,"TRY_references.csv"))
-```
-
-```{r}
-unique(BIEN_filtered$trait_name)
-```
-
-```{r}
-colnames(BIEN_filtered)
-```
-columns to keep : Accepted_species, trait_name, trait_value, unit
-
-```{r}
-BIEN_filtered_subset <- BIEN_filtered[ , c("Accepted_species", "trait_name", "trait_value", "unit")]
-colnames(BIEN_filtered_subset) <- c("Accepted_species", "TraitName", "TraitValue", "Unit")
-```
-
-```{r}
-# save sources/references
-BIEN_references <- unique(BIEN_filtered[ , c("url_source", "source_citation")])
-write.csv(BIEN_references, file.path(output_path,"BIEN_references.csv"))
-```
-
-```{r}
-unique(GIFT_filtered$trait_name)
-```
-
-```{r}
-colnames(GIFT_filtered)
-```
-columns to keep : Accepted_species, trait_value, trait_name
-
-```{r}
-GIFT_filtered_subset <- GIFT_filtered[ , c("Accepted_species", "trait_name", "trait_value")]
-colnames(GIFT_filtered_subset) <- c("Accepted_species", "TraitName", "TraitValue")
-```
-
-Add Unit column to GIFT dataframe
-```{r}
-GIFT_filtered_subset <- GIFT_filtered_subset %>%
-  mutate(Unit = case_when(
-  TraitName == "plant_height" ~ "m",
-  TraitName == "plant_height_max" ~ "m",
-  TraitName == "plant_height_min" ~ "m",
-  TraitName == "seed_mass_mean" ~ "g",
-  TraitName == "seed_mass_min" ~ "g",
-  TraitName == "seed_mass_max" ~ "g",
-  TraitName == "fruit_length_min" ~ "cm",
-  TraitName == "fruit_length_max" ~ "cm",
-  TraitName == "fruit_length_mean" ~ "cm",
-  TraitName == "seed_length_max" ~ "mm",
-  TraitName == "seed_length_min" ~ "mm",
-  TraitName == "seed_length_mean" ~ "mm",
-  TraitName == "seed_width_max" ~ "mm",
-  TraitName == "seed_width_min" ~ "mm",
-  TraitName == "seed_width_mean" ~ "mm",
-  TraitName == "plant_lifespan" ~ "years",
-  .default = ""
-  ))
-```
-
-
-```{r}
-traits <- rbind(TRY_filtered_subset, BIEN_filtered_subset, GIFT_filtered_subset)
-nrow(traits)
-```
-
-```{r}
-# remove rows without accepted species names
-traits_clean <- traits[!(is.na(traits$Accepted_species) | traits$Accepted_species==""), ]
-nrow(traits_clean)
-```
-
-
+# Look at trait numbers
 ```{r}
 traits %>%
   count(TraitName)
@@ -203,14 +41,6 @@ traits %>%
 traits %>%
   distinct(Accepted_species, TraitName) %>%
   count(TraitName)
-```
-
-```{r}
-# Group by TraitName and summarize the unique TraitValues
-unique_trait_values <- traits %>%
-  group_by(TraitName) %>%
-  summarize(UniqueValues = list(unique(TraitValue)))%>%
-  unnest(UniqueValues)
 ```
 
 Final trait list:
@@ -563,62 +393,6 @@ length(unique(averagetraits_plantLifespan$Accepted_species))
 ```{r}
 summary(averagetraits_plantLifespan)
 ```
-
-
-## Fruit type
-```{r}
-traits_fruitType <- traits %>%
-  filter(grepl('Fruit type|fruit type|fruit_type', TraitName))
-traits_fruitType$OrigTraitValue <- traits_fruitType$TraitValue
-
-nrow(traits_fruitType)
-length(unique(traits_fruitType$Accepted_species))
-```
-
-```{r}
-traits_fruitType <- traits_fruitType %>%
-  filter(is.na(as.numeric(TraitValue)))
-
-nrow(traits_fruitType)
-length(unique(traits_fruitType$Accepted_species))
-```
-
-
-```{r}
-traits_fruitType %>%
-  distinct(TraitValue)
-```
-
-```{r}
-# standardize trait values
-traits_fruitType <- traits_fruitType %>%
-  filter() %>%
-  mutate(TraitValue= case_when(
-    grepl('drupe|ectozoochorous|zoochorous', OrigTraitValue, ignore.case = TRUE) ~ "zoochorous",
-    grepl('capsule|Capsule|Capsule |', OrigTraitValue, ignore.case = TRUE) ~ "myrmecochorous",
-  )) %>%
-  filter(!is.na(TraitValue))
-```
-
-```{r}
-# standardize trait name
-traits_fruitType <- traits_fruitType %>%
-  mutate(TraitName = "FruitType")
-```
-
-```{r}
-averagetraits_fruitType <- factor_data_merge(traits_fruitType, "Fruit Type")
-```
-
-```{r}
-nrow(averagetraits_fruitType)
-length(unique(averagetraits_fruitType$Accepted_species))
-```
-
-```{r}
-summary(averagetraits_fruitType)
-```
-
 
 ## Seed mass
 ```{r}
