@@ -1,0 +1,300 @@
+---
+title: "Subsetting plant species list by fruiting species"
+author: "Hazel J. Anderson"
+project: "Plant-Frugivore Diversity"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+overview: "This script subsets plant occurrence and trait data by fruiting plant species."
+data input: "ADD"
+data output: "ADD"
+date: "2024-05-29"
+output: html_document
+---
+
+# Load required packages
+```{r}
+library(dplyr)
+library(tidyr)
+```
+
+# Set file paths
+```{r}
+data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Read in harmonized data
+```{r}
+plant_occ <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_plant_occ_harmonized.csv"))
+TRY_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_TRY_plant_traits_harmonized.csv"))
+BIEN_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_BIEN_plant_traits_harmonized.csv"))
+GIFT_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_GIFT_plant_traits_harmonized.csv"))
+```
+
+# Get species list from plant_occ data
+```{r}
+plant_species <- unique(plant_occ$Accepted_species)
+length(plant_species)
+```
+
+# Subset TRY, BIEN, and GIFT by species list
+## TRY
+```{r}
+nrow(TRY_traits)
+TRY_filtered <- TRY_traits %>%
+  filter(Accepted_species %in% plant_species)
+nrow(TRY_filtered)
+```
+
+```{r}
+TRY_traits %>%
+  distinct(Accepted_species, TraitName) %>%
+  count(TraitName)
+```
+
+## BIEN
+```{r}
+nrow(BIEN_traits)
+BIEN_filtered <- BIEN_traits %>%
+  filter(Accepted_species %in% plant_species)
+nrow(BIEN_filtered)
+```
+
+```{r}
+BIEN_traits %>%
+  count(trait_name)
+```
+
+```{r}
+BIEN_traits %>%
+  distinct(Accepted_species, trait_name) %>%
+  count(trait_name)
+```
+
+## GIFT
+```{r}
+nrow(GIFT_traits)
+GIFT_filtered <- GIFT_traits %>%
+  filter(Accepted_species %in% plant_species)
+nrow(GIFT_filtered)
+```
+
+```{r}
+GIFT_traits %>%
+  count(trait_name)
+```
+
+```{r}
+GIFT_traits %>%
+  distinct(Accepted_species, trait_name) %>%
+  count(trait_name)
+```
+
+# Combine trait information from TRY, BIEN, GIFT
+
+```{r}
+TRYTraitTypes <- TRY_filtered %>%
+  group_by(TraitName) %>%
+  distinct(DataName)
+```
+
+```{r}
+unique(TRYTraitTypes$TraitName)
+```
+
+```{r}
+colnames(TRY_filtered)
+```
+columns to keep : Accepted_species, TraitName, OrigValueStr
+
+```{r}
+TRY_filtered_subset <- TRY_filtered[ , c("Accepted_species", "TraitName", "OrigValueStr", "UnitName")]
+colnames(TRY_filtered_subset) <- c("Accepted_species", "TraitName", "TraitValue", "Unit")
+```
+
+```{r}
+# save sources/references
+TRY_references <- unique(TRY_filtered[ , c("Dataset", "Reference")])
+write.csv(TRY_references, file.path(output_path,"TRY_references.csv"))
+```
+
+```{r}
+unique(BIEN_filtered$trait_name)
+```
+
+```{r}
+colnames(BIEN_filtered)
+```
+columns to keep : Accepted_species, trait_name, trait_value, unit
+
+```{r}
+BIEN_filtered_subset <- BIEN_filtered[ , c("Accepted_species", "trait_name", "trait_value", "unit")]
+colnames(BIEN_filtered_subset) <- c("Accepted_species", "TraitName", "TraitValue", "Unit")
+```
+
+```{r}
+# save sources/references
+BIEN_references <- unique(BIEN_filtered[ , c("url_source", "source_citation")])
+write.csv(BIEN_references, file.path(output_path,"BIEN_references.csv"))
+```
+
+```{r}
+unique(GIFT_filtered$trait_name)
+```
+
+```{r}
+colnames(GIFT_filtered)
+```
+columns to keep : Accepted_species, trait_value, trait_name
+
+```{r}
+GIFT_filtered_subset <- GIFT_filtered[ , c("Accepted_species", "trait_name", "trait_value")]
+colnames(GIFT_filtered_subset) <- c("Accepted_species", "TraitName", "TraitValue")
+```
+
+Add Unit column to GIFT dataframe
+```{r}
+GIFT_filtered_subset <- GIFT_filtered_subset %>%
+  mutate(Unit = case_when(
+  TraitName == "plant_height" ~ "m",
+  TraitName == "plant_height_max" ~ "m",
+  TraitName == "plant_height_min" ~ "m",
+  TraitName == "seed_mass_mean" ~ "g",
+  TraitName == "seed_mass_min" ~ "g",
+  TraitName == "seed_mass_max" ~ "g",
+  TraitName == "fruit_length_min" ~ "cm",
+  TraitName == "fruit_length_max" ~ "cm",
+  TraitName == "fruit_length_mean" ~ "cm",
+  TraitName == "seed_length_max" ~ "mm",
+  TraitName == "seed_length_min" ~ "mm",
+  TraitName == "seed_length_mean" ~ "mm",
+  TraitName == "seed_width_max" ~ "mm",
+  TraitName == "seed_width_min" ~ "mm",
+  TraitName == "seed_width_mean" ~ "mm",
+  TraitName == "plant_lifespan" ~ "years",
+  .default = ""
+  ))
+```
+
+
+```{r}
+traits <- rbind(TRY_filtered_subset, BIEN_filtered_subset, GIFT_filtered_subset)
+nrow(traits)
+```
+
+```{r}
+# remove rows without accepted species names
+traits_clean <- traits[!(is.na(traits$Accepted_species) | traits$Accepted_species==""), ]
+nrow(traits_clean)
+```
+
+
+```{r}
+traits %>%
+  count(TraitName)
+```
+
+```{r}
+traits %>%
+  distinct(Accepted_species, TraitName) %>%
+  count(TraitName)
+```
+
+```{r}
+# Group by TraitName and summarize the unique TraitValues
+unique_trait_values <- traits %>%
+  group_by(TraitName) %>%
+  summarize(UniqueValues = list(unique(TraitValue)))%>%
+  unnest(UniqueValues)
+```
+
+# Function to get one value per species
+```{r}
+# categorical data
+factor_data_merge <- function(data, traitname) {
+# remove duplicate rows
+data <- data %>%
+  distinct(.keep_all = TRUE)
+# remove rows with missing or empty species names
+data <- data[!is.na(data$Accepted_species) & data$Accepted_species != "", ]
+# Subset data to just species and TraitValue
+data <- data[,c("Accepted_species", "TraitValue")]
+# Find the most common trait value for each species
+  most_common_values <- aggregate(. ~ Accepted_species, data, function(x) {
+    # Find the mode (most common value) of the trait values
+    mode_value <- names(sort(table(x), decreasing = TRUE))[1]
+    return(mode_value)
+  })
+# Merge most common trait values back to the original data
+merged_data <- merge(data, most_common_values, by = "Accepted_species", all.x = TRUE)
+  
+# Rename the merged column
+colnames(merged_data)[ncol(merged_data)] <- "TraitValue"
+
+# Remove column TraitValue.x
+merged_data <- merged_data[, !colnames(merged_data) %in% "TraitValue.x", drop = FALSE]
+
+# remove duplicate rows
+merged_data <- merged_data %>%
+  distinct(.keep_all = TRUE)
+  
+# Add unit & trait column
+merged_data$TraitName <- traitname
+
+  return(merged_data)
+}
+```
+
+# Fruit type
+```{r}
+traits_fruitType <- traits %>%
+  filter(grepl('Fruit type|fruit type|fruit_type', TraitName))
+traits_fruitType$OrigTraitValue <- traits_fruitType$TraitValue
+
+nrow(traits_fruitType)
+length(unique(traits_fruitType$Accepted_species))
+```
+
+```{r}
+traits_fruitType <- traits_fruitType %>%
+  filter(is.na(as.numeric(TraitValue)))
+
+nrow(traits_fruitType)
+length(unique(traits_fruitType$Accepted_species))
+```
+
+```{r}
+traits_fruitType %>%
+  count(TraitValue)
+```
+
+```{r}
+# standardize trait values
+traits_fruitType <- traits_fruitType %>%
+  filter() %>%
+  mutate(TraitValue= case_when(
+    grepl('Berry|berry|Berry ', OrigTraitValue, ignore.case = TRUE) ~ "berry",
+    grepl('capsule|Capsule|Capsule ', OrigTraitValue, ignore.case = TRUE) ~ "capsule",
+    grepl('follicle|Follicle', OrigTraitValue, ignore.case = TRUE) ~ "follicle",
+  )) %>%
+  filter(!is.na(TraitValue))
+```
+
+```{r}
+# standardize trait name
+traits_fruitType <- traits_fruitType %>%
+  mutate(TraitName = "FruitType")
+```
+
+```{r}
+averagetraits_fruitType <- factor_data_merge(traits_fruitType, "Fruit Type")
+```
+
+```{r}
+nrow(averagetraits_fruitType)
+length(unique(averagetraits_fruitType$Accepted_species))
+```
+
+```{r}
+summary(averagetraits_fruitType)
+```
