@@ -12,8 +12,9 @@ output: html_document
 
 # Set file paths
 ```{r}
-data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
-output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 ```
 
 # Load required packages
@@ -27,7 +28,7 @@ library(dplyr)
 
 # Read in data
 ```{r}
-plant_traits <- read.csv(file.path(data_path,"TropicalAndes_all_plant_traits_harmonized.csv"))
+plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_all_plant_traits_standardized.csv"))
 ```
 
 
@@ -40,9 +41,7 @@ Need a list of families and genus for each trait that needs requesting
 ```{r}
 # remove X column
 plant_traits <- plant_traits[, !colnames(plant_traits) %in% "X", drop = FALSE]
-# remove Growth Forme trait
-plant_traits <- plant_traits %>%
-  select(-Growth.Forme)
+
 # Convert the wide dataframe to long format
 long_plant_traits <- plant_traits %>%
   gather(TraitName, TraitValue, -species)
@@ -90,6 +89,7 @@ species_no_genus <- na_species_df %>%
 # check if all the species in no_family & no_genus lists are the same
 identical(species_no_family, species_no_genus)
 ```
+
 Use taxize for species with no family and genus info
 ```{r, results='hide',message=FALSE, warning=FALSE}
 library(taxize)
