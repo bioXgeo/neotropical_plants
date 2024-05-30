@@ -4,7 +4,8 @@ author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "This script subsets plant occurrence and trait data by fruiting plant species."
-data input: "ADD"
+data input: "TropicalAndes_GBIF_plant_occ_harmonized.csv, TropicalAndes_TRY_plant_traits_harmonized.csv,
+             TropicalAndes_BIEN_plant_traits_harmonized.csv, TropicalAndes_GIFT_plant_traits_harmonized.csv"
 data output: "ADD"
 date: "2024-05-29"
 output: html_document
@@ -190,23 +191,16 @@ nrow(traits_clean)
 
 
 ```{r}
-traits %>%
+traits_clean %>%
   count(TraitName)
 ```
 
 ```{r}
-traits %>%
+traits_clean %>%
   distinct(Accepted_species, TraitName) %>%
   count(TraitName)
 ```
 
-```{r}
-# Group by TraitName and summarize the unique TraitValues
-unique_trait_values <- traits %>%
-  group_by(TraitName) %>%
-  summarize(UniqueValues = list(unique(TraitValue)))%>%
-  unnest(UniqueValues)
-```
 
 # Function to get one value per species
 ```{r}
@@ -247,7 +241,7 @@ merged_data$TraitName <- traitname
 
 # Fruit type
 ```{r}
-traits_fruitType <- traits %>%
+traits_fruitType <- traits_clean %>%
   filter(grepl('Fruit type|fruit type|fruit_type', TraitName))
 traits_fruitType$OrigTraitValue <- traits_fruitType$TraitValue
 
@@ -275,9 +269,19 @@ traits_fruitType <- traits_fruitType %>%
   mutate(TraitValue= case_when(
     grepl('Berry|berry|Berry ', OrigTraitValue, ignore.case = TRUE) ~ "berry",
     grepl('capsule|Capsule|Capsule ', OrigTraitValue, ignore.case = TRUE) ~ "capsule",
-    grepl('follicle|Follicle', OrigTraitValue, ignore.case = TRUE) ~ "follicle",
+    grepl('drupe|Drupe|Drupe |Drupaceous', OrigTraitValue, ignore.case = TRUE) ~ "drupe",
+    grepl('aggregate berries', OrigTraitValue, ignore.case = TRUE) ~ "aggregate berries",
+    grepl('aggregate drupelets', OrigTraitValue, ignore.case = TRUE) ~ "aggregate drupelets",
+    grepl('fleshy', OrigTraitValue, ignore.case = TRUE) ~ "fleshy",
+    grepl('pome', OrigTraitValue, ignore.case = TRUE) ~ "pome",
+    grepl('Squash', OrigTraitValue, ignore.case = TRUE) ~ "squash",
   )) %>%
   filter(!is.na(TraitValue))
+```
+
+```{r}
+traits_fruitType %>%
+  count(TraitValue)
 ```
 
 ```{r}
@@ -296,5 +300,39 @@ length(unique(averagetraits_fruitType$Accepted_species))
 ```
 
 ```{r}
+averagetraits_fruitType$TraitValue <- as.factor(averagetraits_fruitType$TraitValue)
 summary(averagetraits_fruitType)
 ```
+
+```{r}
+fruiting_species <- averagetraits_fruitType$Accepted_species
+```
+
+# Subset trait data and occurrence data by fruiting species list
+```{r}
+nrow(plant_occ)
+plant_occ_subset <- plant_occ %>%
+  filter(Accepted_species %in% fruiting_species)
+nrow(plant_occ_subset)
+```
+
+```{r}
+nrow(traits_clean)
+traits_subset <- traits_clean%>%
+  filter(Accepted_species %in% fruiting_species)
+nrow(traits_subset)
+```
+
+```{r}
+traits_subset %>%
+  distinct(Accepted_species, TraitName) %>%
+  count(TraitName)
+```
+
+# Write data to csv
+```{r}
+write.csv(plant_occ_subset, file.path(output_path, "TropicalAndes_GBIF_plant_occ_harmonized_subset.csv"))
+write.csv(traits_subset, file.path(output_path, "TropicalAndes_all_plant_traits_harmonized_subset.csv"))
+```
+
+
