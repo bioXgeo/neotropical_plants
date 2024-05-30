@@ -14,6 +14,9 @@ output: html_document
 ```{r}
 library(dplyr)
 library(tidyr)
+library(purrr)
+library(funbiogeo)
+library(visdat)
 ```
 
 # Set file paths
@@ -21,24 +24,22 @@ library(tidyr)
 data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 ```
 
 # Read in subset fruiting species data
 ```{r}
-plant_occ <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_plant_occ_harmonized.csv"))
-TRY_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_TRY_plant_traits_harmonized.csv"))
-BIEN_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_BIEN_plant_traits_harmonized.csv"))
-GIFT_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_GIFT_plant_traits_harmonized.csv"))
+plant_traits <- read.csv(file.path(data_path_L1, "TropicalAndes_all_plant_traits_harmonized_subset.csv"))
 ```
 
 # Look at trait numbers
 ```{r}
-traits %>%
+plant_traits %>%
   count(TraitName)
 ```
 
 ```{r}
-traits %>%
+plant_traits %>%
   distinct(Accepted_species, TraitName) %>%
   count(TraitName)
 ```
@@ -47,7 +48,6 @@ Final trait list:
 - dispersal syndrome
 - Fruit mass
 - Fruit length
-- Fruit type
 - Plant growth form
 - Plant height
 - Plant Lifespan
@@ -59,67 +59,74 @@ Final trait list:
 # Standardize trait measurements
 ## Create functions
 ```{r}
-# Numeric data
 numeric_data_average <- function(data, unit, traitname) {
-# remove rows if TraitValue is non-numeric
-data <- data %>%
-  filter(!is.na(as.numeric(TraitValue))) %>%
-  mutate(TraitValue = as.numeric(TraitValue))
-# remove duplicate rows
-data <- data %>%
-  distinct(.keep_all = TRUE)
-# calculate average value per trait per species
-average_data <- aggregate(TraitValue ~ Accepted_species, data, FUN = mean, na.rm = TRUE)
-# Remove rows with missing or empty species names
-average_data <- average_data[!is.na(average_data$Accepted_species) & average_data$Accepted_species !="", ]
-# Add unit & trait column
-average_data$Unit <- unit
-average_data$TraitName <- traitname
-
-return(average_data)
+  # Remove rows if TraitValue is non-numeric and convert to numeric
+  data <- data %>%
+    filter(!is.na(as.numeric(TraitValue))) %>%
+    mutate(TraitValue = as.numeric(TraitValue))
+  
+  # Remove duplicate rows
+  data <- data %>%
+    distinct(.keep_all = TRUE)
+  
+  # Remove rows with missing or empty species names
+  data <- data[!is.na(data$Accepted_species) & data$Accepted_species != "", ]
+  
+  # Calculate average value, count, and variance per trait per species
+  summary_data <- data %>%
+    group_by(Accepted_species) %>%
+    summarise(
+      TraitValue_mean = mean(TraitValue, na.rm = TRUE),
+      records_used = n(),
+      variance = var(TraitValue, na.rm = TRUE)
+    )
+  
+  # Add trait name column
+  summary_data$TraitName <- traitname
+  
+  # Rename the mean column to TraitValue
+  summary_data <- summary_data %>%
+    rename(TraitValue = TraitValue_mean)
+  
+  return(summary_data)
 }
+
 ```
 
 ```{r}
-# categorical data
 factor_data_merge <- function(data, traitname) {
-# remove duplicate rows
-data <- data %>%
-  distinct(.keep_all = TRUE)
-# remove rows with missing or empty species names
-data <- data[!is.na(data$Accepted_species) & data$Accepted_species != "", ]
-# Subset data to just species and TraitValue
-data <- data[,c("Accepted_species", "TraitValue")]
-# Find the most common trait value for each species
-  most_common_values <- aggregate(. ~ Accepted_species, data, function(x) {
-    # Find the mode (most common value) of the trait values
-    mode_value <- names(sort(table(x), decreasing = TRUE))[1]
-    return(mode_value)
-  })
-# Merge most common trait values back to the original data
-merged_data <- merge(data, most_common_values, by = "Accepted_species", all.x = TRUE)
   
-# Rename the merged column
-colnames(merged_data)[ncol(merged_data)] <- "TraitValue"
-
-# Remove column TraitValue.x
-merged_data <- merged_data[, !colnames(merged_data) %in% "TraitValue.x", drop = FALSE]
-
-# remove duplicate rows
-merged_data <- merged_data %>%
-  distinct(.keep_all = TRUE)
+  # Remove rows with missing or empty species names
+  data <- data[!is.na(data$Accepted_species) & data$Accepted_species != "", ]
   
-# Add unit & trait column
-merged_data$TraitName <- traitname
-
-  return(merged_data)
+  # Subset data to just species and TraitValue
+  data <- data[, c("Accepted_species", "TraitValue")]
+  
+  # Calculate mode, count, and variance-like measure (using mode frequency)
+  summary_data <- data %>%
+    group_by(Accepted_species) %>%
+    summarise(
+      ModeValue = names(sort(table(TraitValue), decreasing = TRUE))[1],
+      records_used = n(),
+      mode_freq = max(table(TraitValue)),
+      variance = 1 - (max(table(TraitValue)) / n())
+    )
+  
+  # Add trait name column
+  summary_data$TraitName <- traitname
+  
+  # Rename the mean column to TraitValue
+  summary_data <- summary_data %>%
+    rename(TraitValue = ModeValue)
+  
+  return(summary_data)
 }
 ```
 
 
 ## Dispersal syndrome
 ```{r}
-traits_dispersal <- traits %>%
+traits_dispersal <- plant_traits %>%
   filter(grepl('Dispersal syndrome|whole plant dispersal syndrome|dispersal_syndrome_1|dispersal_syndrome_2', TraitName))
 traits_dispersal$OrigTraitValue <- traits_dispersal$TraitValue
 nrow(traits_dispersal)
@@ -204,7 +211,7 @@ summary(averagetraits_dispersal)
 
 ## Fruit dry mass
 ```{r}
-traits_fruitMass <- traits %>%
+traits_fruitMass <- plant_traits %>%
   filter(grepl('Fruit dry mass', TraitName))
 traits_fruitMass$OrigTraitValue <- traits_fruitMass$TraitValue
 nrow(traits_fruitMass)
@@ -249,7 +256,7 @@ summary(averagetraits_fruitMass)
 
 ## Fruit length
 ```{r}
-traits_fruitLength <- traits %>%
+traits_fruitLength <- plant_traits %>%
   filter(grepl('Fruit length|maximum fruit length|minimum fruit length|fruit_length_min|fruit_length_max|fruit_length_mean', TraitName))
 traits_fruitLength$OrigTraitValue <- traits_fruitLength$TraitValue
 
@@ -302,7 +309,7 @@ summary(averagetraits_fruitLength)
 
 ## Plant height
 ```{r}
-traits_plantHeight <- traits %>%
+traits_plantHeight <- plant_traits %>%
   filter(grepl('Plant height generative|Plant height vegetative|maximum whole plant height|minimum whole plant height|plant_height|plant_height_max|plant_height_min|whole plant height', TraitName))
 traits_plantHeight$OrigTraitValue <- traits_plantHeight$TraitValue
 
@@ -536,10 +543,10 @@ summary(averagetraits_seedWidth)
 
 
 ## Growth form
+Just using data from GIFT 
 ```{r}
-traits_growthForm <- traits %>%
-  filter(grepl('Plant growth form|growth_form|whole plant growth form'
-, TraitName))
+traits_growthForm <- plant_traits %>%
+  filter(TraitName == 'growth_form')
 traits_growthForm$OrigTraitValue <- traits_growthForm$TraitValue
 
 nrow(traits_growthForm)
@@ -562,15 +569,52 @@ traits_growthForm %>%
 ```
 
 ```{r}
-averagetraits_growthForm <- factor_data_merge(traits_growthForm, "Growth Form")
+# standardize trait names with units
+traits_growthForm <- traits_growthForm %>%
+  mutate(TraitName = "GrowthForm")
+```
+
+```{r}
+averagetraits_growthForm <- factor_data_merge(traits_growthForm, "GrowthForm")
+```
+
+```{r}
+nrow(averagetraits_growthForm)
+length(unique(averagetraits_growthForm$Accepted_species))
+```
+
+```{r}
+summary(averagetraits_growthForm)
 ```
 
 # Combine all traits
 ```{r}
-# add unit column to categorical traits
-cat_traits <- rbind(averagetraits_dispersal, averagetraits_fruitType, averagetraits_growthForm)
-cat_traits$Unit <- ""
-clean_traits <- rbind(averagetraits_fruitLength, averagetraits_fruitMass, averagetraits_plantHeight, averagetraits_plantLifespan, averagetraits_seedLength, averagetraits_seedMass, averagetraits_seedWidth, cat_traits)
+trait_dfs <- list(averagetraits_fruitLength, averagetraits_fruitMass, averagetraits_plantHeight, averagetraits_plantLifespan, averagetraits_seedLength, averagetraits_seedMass, averagetraits_seedWidth, averagetraits_dispersal, averagetraits_growthForm)
+
+# Function to combine trait dataframes only matching columns
+combine_matching_columns <- function(df_list) {
+  # Find the common columns across all data frames
+  common_cols <- Reduce(intersect, lapply(df_list, colnames))
+  
+  # Ensure TraitValue column is of the same type across all data frames
+  df_list <- lapply(df_list, function(df) {
+    if ("TraitValue" %in% colnames(df)) {
+      df <- df %>% mutate(TraitValue = as.character(TraitValue))
+    }
+    return(df)
+  })
+  
+  # Filter each data frame to keep only the common columns
+  df_list_filtered <- lapply(df_list, function(df) {
+    df %>% select(all_of(common_cols))
+  })
+  
+  # Combine the data frames using reduce and full_join
+  combined_df <- reduce(df_list_filtered, full_join, by = common_cols)
+  
+  return(combined_df)
+}
+clean_traits <- combine_matching_columns(trait_dfs)
 nrow(clean_traits)
 ```
 
@@ -579,98 +623,54 @@ clean_traits %>%
   count(TraitName)
 ```
 
-# Summary
-```{r}
-print("Number of records: ")
-nrow(clean_traits)
-print("Number of species: ")
-length(unique(clean_traits$Accepted_species))
-```
-
-# Get one trait value per species
-```{r}
-#remove unit column from dataframe
-clean_traits <- clean_traits[, !colnames(clean_traits) %in% "Unit", drop = FALSE]
-```
-
-```{r}
-# separate numeric and non-numeric traits
-numeric_traits <- clean_traits[clean_traits$TraitName %in% c("Fruit Length", "Fruit Mass", "Plant Height", "Plant Lifespan", "Seed Length", "Seed Width", "Seed Mass"), ]
-cat_traits <- clean_traits[clean_traits$TraitName %in% c("Dispersal Syndrome", "Fruit Type", "Growth Form"), ]
-
-numeric_traits$TraitValue <- as.numeric(numeric_traits$TraitValue)
-```
-
-```{r}
-# numeric traits
-## Group by species and TraitName, and calculate the mean TraitValue for each combination
-numeric_traits_combined <- numeric_traits %>%
-  group_by(species, TraitName) %>%
-  summarise(TraitValue = mean(TraitValue, na.rm = TRUE)) %>%
-  ungroup()
-
-# non-numeric traits
-cat_traits_combined <- cat_traits %>%
-  group_by(species) %>%
-  summarise_all(.funs = list(mode_trait = function(x) {
-    mode_value <- names(sort(table(x), decreasing = TRUE))[1]  # Calculate mode
-    return(mode_value)
-  }))
-```
-
-```{r}
-#rename columns to original values
-colnames(cat_traits_combined)[which(colnames(cat_traits_combined) == "TraitValue_mode_trait")] <- "TraitValue"
-colnames(cat_traits_combined)[which(colnames(cat_traits_combined) == "TraitName_mode_trait")] <- "TraitName"
-
-# Remove rows with "?" or numbers in the TraitValue column
-cleaned_cat_traits <- cat_traits_combined %>%
-  filter(!grepl("\\?", TraitValue) & !grepl("\\d", TraitValue))
-```
-
-
-```{r}
-#combine numeric and non-numeric traits
-combined_clean_traits <- rbind(cat_traits_combined, numeric_traits_combined)
-```
-
-```{r}
-combined_clean_traits %>%
-  count(TraitName)
-```
-
-# Remove traits with less than 10 records
-```{r}
-combined_clean_traits <- combined_clean_traits[!(combined_clean_traits$TraitName %in% c("Fruit Mass", "Seed Mass")), ]
-```
-
 # Transform plant dataframe from long to wide
 ```{r}
-wide_traits <- spread(combined_clean_traits, key = TraitName, value = TraitValue)
+wide_traits <- spread(clean_traits, key = TraitName, value = TraitValue)
 
 #remove X column from dataframe
-wide_plant_traits <- wide_traits[, !colnames(wide_traits) %in% "X", drop = FALSE]
+wide_plant_traits <- wide_traits[, !colnames(wide_traits) %in% c("X", "records_used", "variance"), drop = FALSE]
 ```
 
 ```{r}
 # Assign data types
-wide_plant_traits$`Fruit Length` <- as.numeric(wide_plant_traits$`Fruit Length`)
-wide_plant_traits$`Plant Height` <- as.numeric(wide_plant_traits$`Plant Height`)
-wide_plant_traits$`Dispersal Syndrome` <- as.factor(wide_plant_traits$`Dispersal Syndrome`)
-wide_plant_traits$`Growth Form` <- as.factor(wide_plant_traits$`Growth Form`)
-wide_plant_traits$`Fruit Type` <- as.factor(wide_plant_traits$`Fruit Type`)
+wide_plant_traits$`FruitLength_mm` <- as.numeric(wide_plant_traits$`FruitLength_mm`)
+wide_plant_traits$`FruitMass_mg` <- as.numeric(wide_plant_traits$`FruitMass_mg`)
+wide_plant_traits$`PlantHeight_m` <- as.numeric(wide_plant_traits$`PlantHeight_m`)
+wide_plant_traits$`PlantLifespan_years` <- as.numeric(wide_plant_traits$`PlantLifespan_years`)
+wide_plant_traits$`SeedLength_mm` <- as.numeric(wide_plant_traits$`SeedLength_mm`)
+wide_plant_traits$`SeedMass_g` <- as.numeric(wide_plant_traits$`SeedMass_g`)
+wide_plant_traits$`SeedWidth_mm` <- as.numeric(wide_plant_traits$`SeedWidth_mm`)
+wide_plant_traits$`DispersalSyndrome` <- as.factor(wide_plant_traits$`DispersalSyndrome`)
+wide_plant_traits$`GrowthForm` <- as.factor(wide_plant_traits$`GrowthForm`)
 ```
 
+```{r}
+# rename accepted_species column to species
+wide_plant_traits <- wide_plant_traits %>%
+  rename(species = Accepted_species)
+```
 
 
 # Summary
 ```{r}
-print("Number of species: ")
-length(unique(wide_plant_traits$species))
+cat("Number of records:", nrow(clean_traits), "\n")
+cat("Number of species:", length(unique(clean_traits$Accepted_species)), "\n")
 ```
+
+```{r}
+fb_plot_species_traits_completeness(wide_plant_traits)
+fb_plot_number_species_by_trait(wide_plant_traits)
+fb_table_trait_summary(wide_plant_traits)
+```
+
+```{r}
+vis_dat(wide_plant_traits)
+vis_miss(wide_plant_traits)
+```
+
 
 # Write data to csv
 ```{r}
-write.csv(wide_plant_traits, file.path(output_path,"TropicalAndes_all_plant_traits_harmonized.csv"))
-write.csv(clean_traits, file.path(output_path,"TropicalAndes_all_plant_traits_harmonized_with_units.csv"))
+write.csv(wide_plant_traits, file.path(output_path,"TropicalAndes_all_plant_traits_standardized.csv"))
+write.csv(clean_traits, file.path(output_path,"TropicalAndes_all_plant_traits_standardized_with_recordCount.csv"))
 ```
