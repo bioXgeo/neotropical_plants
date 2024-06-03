@@ -42,16 +42,12 @@ Need a list of families and genus for each trait that needs requesting
 # remove X column
 plant_traits <- plant_traits[, !colnames(plant_traits) %in% "X", drop = FALSE]
 
-# Convert the wide dataframe to long format
-long_plant_traits <- plant_traits %>%
-  gather(TraitName, TraitValue, -species)
-
-# Filter rows with NA values
-na_traits <- long_plant_traits %>%
-  filter(is.na(TraitValue))
-
 # get a list of species
-na_species_list <- unique(na_traits$species)
+na_species_list <- unique(plant_traits$species)
+```
+
+```{r}
+length(na_species_list)
 ```
 
 ## Add genus and family information to dataframe
@@ -293,44 +289,85 @@ for (trait in traits) {
 }
 
 # Separate dataframes from list
-Dispersal.Syndrome <- trait_dfs$Dispersal.Syndrome
-Fruit.Length <- trait_dfs$Fruit.Length
-Plant.Height <- trait_dfs$Plant.Height
-Fruit.Type <- trait_dfs$Fruit.Type
-Growth.Form <- trait_dfs$Growth.Form
+DispersalSyndrome <- trait_dfs$DispersalSyndrome
+PlantLifespan_years <- trait_dfs$PlantLifespan_years
+FruitMass_mg <- trait_dfs$FruitMass_mg
+PlantHeight_m <- trait_dfs$PlantHeight_m
+GrowthForm <- trait_dfs$GrowthForm
+FruitLength_mm <- trait_dfs$FruitLength_mm
+SeedWidth_mm <- trait_dfs$SeedWidth_mm
+SeedLength_mm <- trait_dfs$SeedLength_mm
+SeedMass_g <- trait_dfs$SeedMass_g
+```
+
+## Create a list of unique genus and families for each trait
+```{r}
+DispersalSyndrome_families <- unique(DispersalSyndrome$family)
+DispersalSyndrome_genus <- unique(DispersalSyndrome$genus)
+length(DispersalSyndrome_families)
+length(DispersalSyndrome_genus)
 ```
 
 ```{r}
-# Create a list of unique genus and families for each trait
-Dispersal.Syndrome_families <- unique(Dispersal.Syndrome$family)
-Dispersal.Syndrome_genus <- unique(Dispersal.Syndrome$genus)
+PlantLifespan_years_families <- unique(PlantLifespan_years$family)
+PlantLifespan_years_genus <- unique(PlantLifespan_years$genus)
+length(PlantLifespan_years_families)
+length(PlantLifespan_years_genus)
+```
 
-Fruit.Length_families <- unique(Fruit.Length$family)
-Fruit.Length_genus <- unique(Fruit.Length$genus)
+```{r}
 
-Plant.Height_families <- unique(Plant.Height$family)
-Plant.Height_genus <- unique(Plant.Height$genus)
+FruitMass_mg_families <- unique(FruitMass_mg$family)
+FruitMass_mg_genus <- unique(FruitMass_mg$genus)
 
-Fruit.Type_families <- unique(Fruit.Type$family)
-Fruit.Type_genus <- unique(Fruit.Type$genus)
+PlantHeight_m_families <- unique(PlantHeight_m$family)
+PlantHeight_m_genus <- unique(PlantHeight_m$genus)
 
-Growth.Form_families <- unique(Growth.Form$family)
-Growth.Form_genus <- unique(Growth.Form$genus)
+GrowthForm_families <- unique(GrowthForm$family)
+GrowthForm_genus <- unique(GrowthForm$genus)
+
+FruitLength_mm_families <- unique(FruitLength_mm$family)
+FruitLength_mm_genus <- unique(FruitLength_mm$genus)
+
+SeedWidth_mm_families <- unique(SeedWidth_mm$family)
+SeedWidth_mm_genus <- unique(SeedWidth_mm$genus)
+
+SeedLength_mm_families <- unique(SeedLength_mm$family)
+SeedLength_mm_genus <- unique(SeedLength_mm$genus)
+
+SeedMass_g_families <- unique(SeedMass_g$family)
+SeedMass_g_genus <- unique(SeedMass_g$genus)
 ```
 
 
 ## Retrive trait records for species using BIEN & GIFT
+### Dispersal Syndrome
 ```{r}
-# Dispersal Syndrome
-Dispersal.Syndrome_families_BIEN <- BIEN_trait_traitbyfamily(family = Dispersal.Syndrome_families, trait = "whole plant dispersal syndrome")
-Dispersal.Syndrome_genus_BIEN <- BIEN_trait_traitbygenus(genus = Dispersal.Syndrome_genus, trait = "whole plant dispersal syndrome")
+DispersalSyndrome_families_BIEN <- BIEN_trait_traitbyfamily(family = DispersalSyndrome_families, trait = "whole plant dispersal syndrome")
+DispersalSyndrome_genus_BIEN <- BIEN_trait_traitbygenus(genus = DispersalSyndrome_genus, trait = "whole plant dispersal syndrome")
 
-Dispersal.Syndrome_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.3.1")
-Dispersal.Syndrome_families_GIFT <- Dispersal.Syndrome_families_GIFT[Dispersal.Syndrome_families_GIFT$family %in% Dispersal.Syndrome_families, ]
+DispersalSyndrome_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.3.1")
+DispersalSyndrome_families_GIFT <- DispersalSyndrome_families_GIFT[DispersalSyndrome_families_GIFT$family %in% DispersalSyndrome_families, ]
 ```
 
 ```{r}
-# Fruit Length
+nrow(DispersalSyndrome_families_BIEN)
+length(unique(DispersalSyndrome_families_BIEN$scrubbed_family))
+unique(DispersalSyndrome_families_BIEN$trait_value)
+```
+```{r}
+nrow(DispersalSyndrome_genus_BIEN)
+length(unique(DispersalSyndrome_genus_BIEN$scrubbed_genus))
+unique(DispersalSyndrome_genus_BIEN$trait_value)
+```
+
+```{r}
+nrow(DispersalSyndrome_families_GIFT)
+```
+
+
+### Fruit Length
+```{r}
 Fruit.Length_families_BIEN <- BIEN_trait_traitbyfamily(family = Fruit.Length_families, trait = c("maximum fruit length", "minimum fruit length"))
 Fruit.Length_genus_BIEN <- BIEN_trait_traitbygenus(genus = Fruit.Length_genus, trait = c("maximum fruit length", "minimum fruit length"))
 
@@ -338,6 +375,13 @@ Fruit.Length_genus_BIEN <- BIEN_trait_traitbygenus(genus = Fruit.Length_genus, t
 #Fruit.Length_families_GIFT <- GIFT_traits_tax(trait_IDs = "3.13.3")
 #Fruit.Length_families_GIFT <- Fruit.Length_families_GIFT[Fruit.Length_families_GIFT$family %in% Fruit.Length_families, ]
 ```
+
+```{r}
+nrow(DispersalSyndrome_families_BIEN)
+length(unique(DispersalSyndrome_families_BIEN$scrubbed_family))
+unique(DispersalSyndrome_families_BIEN$trait_value)
+```
+
 
 ```{r}
 # Plant Height
@@ -450,7 +494,7 @@ Growth.Form_families_BIEN_df <- cat_traits_combined(Growth.Form_families_BIEN_df
 Growth.Form_genus_BIEN_df <- cat_traits_combined(Growth.Form_genus_BIEN_df, "genus")
 ```
 
-add column of trait level (specices, genus, family)
+add column of trait level (species, genus, family)
 ```{r}
 # Add new column trait_level to long_plant_trait dataframe
 long_plant_traits <- long_plant_traits %>%
