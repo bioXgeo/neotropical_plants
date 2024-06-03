@@ -267,46 +267,42 @@ spatial_fdis_frugivore <- spatial_fdis_frugivore %>% st_set_crs(5389)
 ```
 
 ```{r}
-# Create a grid over the area
-create_grid <- function(data, cellsize) {
-  st_make_grid(st_as_sfc(st_bbox(data)), cellsize = cellsize) %>%
-    st_sf() %>%
-    mutate(cellid = row_number())
-}
-
-# Aggregate functional dispersion within each grid cell
-aggregate_to_grid <- function(grid, points, value_col) {
-  points %>%
-    st_join(grid) %>%
-    group_by(cellid) %>%
-    summarize(mean_value = mean(get(value_col), na.rm = TRUE)) %>%
-    ungroup() %>%
-    st_set_geometry("geometry")
-}
-
-# use funtion
-resolution_meters <- 100000
-variable_name <- "fdis_frugivore"
-
-# Create grid
-grid <- create_grid(spatial_fdis_frugivore, cellsize = resolution_meters)
-
-# Aggregate data to grid
-aggregated_data <- aggregate_to_grid(grid, spatial_fdis_frugivore, variable_name)
-
-# Convert geometries to centroids
-aggregated_data_centroids <- st_centroid(aggregated_data)
-
-# Extract coordinates from centroids
-aggregated_data_coords <- st_coordinates(aggregated_data_centroids)
+# Extract coordinates 
+spatial_fdis_frugivore_coords <- st_coordinates(spatial_fdis_frugivore)
 
 # Add coordinates as separate columns
-aggregated_data <- aggregated_data %>%
-  mutate(x = aggregated_data_coords[, 1], y = aggregated_data_coords[, 2])
+spatial_fdis_frugivore <- spatial_fdis_frugivore %>%
+  mutate(x = spatial_fdis_frugivore_coords[, 1], y = spatial_fdis_frugivore_coords[, 2])
+```
 
-# Remove rows with NA values in mean_value
-aggregated_data <- aggregated_data %>%
-  filter(!is.na(mean_value))
+```{r}
+summary(spatial_fdis_frugivore)
+```
+
+```{r}
+TAGrid_100km <- TApoly %>%
+  st_make_grid(cellsize = c(100000)) %>%
+  st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+  st_cast("MULTIPOLYGON") %>%
+  st_sf() %>%
+  mutate(cellid = row_number())
+
+spatial_fdis_frugivore$cellid <- sapply(1:nrow(TAGrid_100km), function(i) {
+  contains <- st_contains(TAGrid_100km[i, ], spatial_fdis_frugivore)
+  cellid <- ifelse(any(contains), i, NA)
+  return(cellid)
+})
+
+spatial_fdis_frugivore_grid <- TAGrid_100km %>%
+   st_join(spatial_fdis_frugivore) %>%
+   group_by(cellid) %>%
+   summarize(fdis_value = sum(fdis_frugivore, na.rm = TRUE)) %>%
+   ungroup()
+```
+
+
+```{r}
+summary(spatial_fdis_frugivore_grid)
 ```
 
 ```{r}
@@ -314,100 +310,16 @@ FDisplot <-
     ggplot() +
     geom_sf(data = Americas, fill = "white")+
     geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
-    geom_sf(data = grid, fill = "grey")+
-    geom_sf(data = aggregated_data, aes(fill = mean_value), color = NA) +
+    geom_sf(data = spatial_fdis_frugivore_grid, aes(fill = fdis_value), color = NA) +
     labs(x = "Longitude", y = "Latitude", fill = "FDis") +
-    scale_fill_gradient(low = "blue", high = "red") +
+    scale_fill_distiller(palette = "YlOrBr", direction = 1) +
     coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-    theme(panel.background = element_rect(fill = "lightblue")) +
-    theme(text = element_text(size = 12)) # Explicitly setting text size
+    theme(panel.background = element_rect(fill = "lightblue"),
+        text = element_text(size = 12))
 FDisplot
 ```
-
-# Mapping without projection 
-Because projecting is being difficult
-```{r}
-TropicalAndes_IUCNHabitat_Forest_latlong <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
-Americas_latlong <- ne_countries(continent = c("North America", "South America"), returnclass = "sf")
-#polygon of Tropical Andes
-TApoly_latlong <- Americas_latlong %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
-```
-
-```{r}
-# Generate coordinates
-subset_coords_frugivore <- site_loc_key_frugivore[rowSums(PAM_frugivore_site_final) >= 5, ]
-subset_coords_frugivore_sp <-subset_coords_frugivore[,1:2 ]
-
-frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
-```
-
-```{r}
-# Convert the dataframe to sf format
-spatial_fdis_frugivore <- st_as_sf(frugivore_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
-```
-
-
-```{r}
-# set crs of sf objects
-spatial_fdis_frugivore <- spatial_fdis_frugivore %>% st_set_crs(4326)
-```
-
-```{r}
-# Create a grid over the area
-create_grid <- function(data, cellsize) {
-  st_make_grid(st_as_sfc(st_bbox(data)), cellsize = cellsize) %>%
-    st_sf() %>%
-    mutate(cellid = row_number())
-}
-
-# Aggregate functional dispersion within each grid cell
-aggregate_to_grid <- function(grid, points, value_col) {
-  points %>%
-    st_join(grid) %>%
-    group_by(cellid) %>%
-    summarize(mean_value = mean(get(value_col), na.rm = TRUE)) %>%
-    st_set_geometry("geometry")
-}
-
-# Example usage with your data
-resolution_meters <- 100000
-variable_name <- "fdis_frugivore"
-
-# Create grid
-grid <- create_grid(spatial_fdis_frugivore, cellsize = resolution_meters)
-
-# Aggregate data to grid
-aggregated_data <- aggregate_to_grid(grid, spatial_fdis_frugivore, variable_name)
-
-```
-
-```{r}
-FDisplot <-
-    ggplot() +
-    geom_sf(data = Americas_latlong, fill = "white")+
-    geom_sf(data = TApoly_latlong, fill = "lightgrey", size = 0.1) +
-    geom_point(data = spatial_fdis_frugivore , aes(fill = fdis_frugivore)) +
-    scale_fill_gradient(low = "blue", high = "red") +
-    coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-    theme(panel.background = element_rect(fill = "lightblue")) +
-    annotation_scale(location = "bl", width_hint = 0.5) +
-    labs(x = "Longitude", y = "Latitude", fill = "FDis")
-FDisplot
-```
-
 
 # Plants
-Test with small random sample as a subset to make it work before using all data
-```{r}
-set.seed(100)
-all_plant_species <- row.names(plant_traits_df_final)
-plant_random_subset <- sample(all_plant_species, 1000)
-# objects that need to be subset
-PAM_plant_site_final_df <- as.dataframe(PAM_plant_site_final) #matrix
-plant_traits_df_final
-```
-
-
 ## Create trait type table
 ```{r}
 trait_name <- c("Growth.Form", "Plant.Height_m", "Fruit.Length_mm", "Fruit.Type")
@@ -699,6 +611,9 @@ Calculate Rao's Q using occurrence data and trait dissimilarity
 ## Define different spatial scales (e.g., grid cell sizes)
 spatial_scales <- c(1000, 5000, 10000, 25000, 50000, 75000, 100000)  # In meters
 
+```
+
+```{r}
 ## Create an empty dataframe to store results
 plant_raos_q_results <- data.frame(spatial_scale = numeric(),
                              raos_q = numeric())
