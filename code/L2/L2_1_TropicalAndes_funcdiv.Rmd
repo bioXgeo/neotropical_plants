@@ -287,11 +287,7 @@ TAGrid_100km <- TApoly %>%
   st_sf() %>%
   mutate(cellid = row_number())
 
-spatial_fdis_frugivore$cellid <- sapply(1:nrow(TAGrid_100km), function(i) {
-  contains <- st_contains(TAGrid_100km[i, ], spatial_fdis_frugivore)
-  cellid <- ifelse(any(contains), i, NA)
-  return(cellid)
-})
+spatial_fdis_frugivore$cellid <- st_intersects(spatial_fdis_frugivore, TAGrid_100km)$nn
 
 spatial_fdis_frugivore_grid <- TAGrid_100km %>%
    st_join(spatial_fdis_frugivore) %>%
@@ -306,7 +302,7 @@ summary(spatial_fdis_frugivore_grid)
 ```
 
 ```{r}
-FDisplot <-
+frugivoregridFDisTA_100km <-
     ggplot() +
     geom_sf(data = Americas, fill = "white")+
     geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
@@ -316,7 +312,13 @@ FDisplot <-
     coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
     theme(panel.background = element_rect(fill = "lightblue"),
         text = element_text(size = 12))
-FDisplot
+frugivoregridFDisTA_100km
+```
+
+```{r}
+# Extract cell values
+frugivore_cellFDis_100km <- spatial_fdis_frugivore_grid
+hist(frugivore_cellFDis_100km$fdis_value)
 ```
 
 # Plants
@@ -533,133 +535,6 @@ fdis_plant <- alpha_fd_indices_plant$functional_diversity_indices$fdis
 ```
 
 
-## Turning the FD values into a raster
-Need to subset the coordinates made at the top to the same set of the assemblages (removed values less than 5 so these coords need to be removed to do this correctly)
-
-```{r}
-# Create an empty raster with desired resolution and extent
-resolution <- c(0.75, 0.75)  # Set the desired resolution
-extent <- c(-85, -54, -24, 14)  # Set the desired extent
-empty_raster <- raster(resolution = resolution, xmn = extent[1], xmx = extent[2], ymn = extent[3], ymx = extent[4])
-```
-
-```{r}
-# Generate coordinates
-subset_coords_plant <- site_loc_key_plant[rowSums(PAM_plant_site_final) >= 5, ]
-subset_coords_plant_sp <-subset_coords_plant[,1:2 ]
-
-plant_fd_sp <- data.frame(subset_coords_plant_sp, fdis_plant)
-
-# Convert the dataframe to sf format
-spatial_fdis_plant <- st_as_sf(plant_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
-```
-
-```{r}
-# Rasterize the sf data to create the FD raster
-fd_raster_plant <- rasterize(spatial_fdis_plant, empty_raster)
-writeRaster(fd_raster_plant$fdis_plant, filename = file.path(output_path,"FD_plant_TA.tif"), format="GTiff",overwrite=T)
-writeRaster(fd_raster_plant$ID, filename = file.path(output_path,"FD_plant_TA_ID.tif"), format="GTiff")
-```
-
-
-## Project FD objects
-```{r}
-# set crs of sf objects
-spatial_fdis_plant <- spatial_fdis_plant %>% st_set_crs(4326)
-```
-
-```{r}
-spatial_fdis_plant_projected <- st_transform(spatial_fdis_plant, 5389)
-```
-
-
-```{r}
-# Raster to raster point
-spec_FD_raster_plant_point <- rasterToPoints(fd_raster_plant, spatial = TRUE)
-# Convert to a 'conventional' dataframe
-fd_raster_plant_point <- data.frame(spec_FD_raster_plant_point)
-```
-
-
-```{r}
-plantgridFDTA <-
-  ggplot() +
-  geom_sf(data = Americas, fill = "white")+
-  geom_sf(data = TApoly, fill = "grey", size = 0.1) +
-  geom_tile(data= fd_raster_plant_point, aes(x=x, y=y, fill=fdis_plant)) +
-  scale_fill_scico(palette = "romaO", direction = 1) +
-  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE) +
-  theme(
-    plot.background = element_rect(fill = "#f1f2f3"),
-    panel.background = element_rect(fill = "lightblue"),
-    panel.grid = element_blank(),
-    line = element_blank(),
-    rect = element_blank()
-  ) +
-  annotation_scale(location = "bl", width_hint = 0.5) +
-  annotation_north_arrow(location = "bl", which_north = "true", 
-  pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
-  labs(title = "Tropical Andes Plant Functional Dispersion", x = "Longitude", y = "Latitude", fill = "FD")
-plantgridFDTA
-```
-
-
-# Calculating Rao's Q
-Calculate Rao's Q using occurrence data and trait dissimilarity
-
-```{r}
-## Define different spatial scales (e.g., grid cell sizes)
-spatial_scales <- c(1000, 5000, 10000, 25000, 50000, 75000, 100000)  # In meters
-
-```
-
-```{r}
-## Create an empty dataframe to store results
-plant_raos_q_results <- data.frame(spatial_scale = numeric(),
-                             raos_q = numeric())
-
-## Iterate over different spatial scales
-for (scale in spatial_scales) {
-  ### Aggregate occurrence data to the current spatial scale
-  plant_occurrence_aggregated <- aggregate_occurrence(plant_abundance_per_species, scale)
-  
-  ### Calculate dissimilarities using trait data
-  plant_trait_dissimilarities <- vegdist(plant_traits, method = "bray")
-  
-  ### Calculate dissimilarities using occurrence data
-  plant_occurrence_dissimilarities <- vegdist(plant_occurrence_aggregated, method = "bray")
-  
-  ### Calculate Rao's Q index
-  raos_q <- raosq(plant_trait_dissimilarities, plant_occurrence_dissimilarities)
-  
-  #### Add results to the dataframe
-  plant_raos_q_results <- rbind(raos_q_results, data.frame(spatial_scale = scale, raos_q = raos_q))
-}
-```
-
-```{r}
-## Create an empty dataframe to store results
-frugivore_raos_q_results <- data.frame(spatial_scale = numeric(),
-                             raos_q = numeric())
-
-## Iterate over different spatial scales
-for (scale in spatial_scales) {
-  ### Aggregate occurrence data to the current spatial scale
-  frugivore_occurrence_aggregated <- aggregate_occurrence(frugivore_abundance_per_species, scale)
-  
-  ### Calculate dissimilarities using trait data
-  frugivore_trait_dissimilarities <- vegdist(frugivore_traits, method = "bray")
-  
-  ### Calculate dissimilarities using occurrence data
-  frugivore_occurrence_dissimilarities <- vegdist(frugivore_occurrence_aggregated, method = "bray")
-  
-  ### Calculate Rao's Q index
-  raos_q <- raosq(frugivore_trait_dissimilarities, frugivore_occurrence_dissimilarities)
-  
-  #### Add results to the dataframe
-  frugivore_raos_q_results <- rbind(raos_q_results, data.frame(spatial_scale = scale, raos_q = raos_q))
-}
-```
 
 # Extract cell values
 ```{r}
@@ -667,11 +542,3 @@ plantgridFDTA <- plantgridFDTA[["data"]]
 frugivoregridFDTA <- frugivoregridFDTA[["data"]]
 ```
 
-
-```{r}
-plot(spatial_fdis_plant$fdis_plant, spatial_fdis_frugivore$fdis_frugivore,
-     main = "Plant FD vs Frugivore FD",
-     xlab = "Plant Functional Dispersion by cell", ylab = "Frugivore Functional Dispersion by cell")
-abline(lm(spatial_fdis_frugivore$fdis_frugivore ~ spatial_fdis_plant$fdis_plant))
-summary(lm(spatial_fdis_frugivore$fdis_frugivore ~ spatial_fdis_plant$fdis_plant))
-```
