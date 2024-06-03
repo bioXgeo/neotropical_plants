@@ -137,20 +137,6 @@ create_rich_plots <- function(resolution_meters) {
 
 ```
 
-
-## 1 km resolution
-```{r}
-richness_1km <- create_rich_plots(1000)
-print(richness_1km)
-
-# save plots
-plantgridRichTA_1km <- richness_1km$plant_plot
-frugivoregridRichTA_1km <- richness_1km$frugivoregridRichTA
-# save richness data
-plant_cellRichness_1km <- richness_1km$plant_cellRichness
-frugivore_cellRichness_1km <- richness_1km$frugivore_cellRichness
-```
-
 ## 5 km resolution
 ```{r}
 richness_5km <- create_rich_plots(5000)
@@ -230,7 +216,7 @@ frugivore_cellRichness_100km <- richness_100km$frugivore_cellRichness
 # Multi panel plots
 ## Richness maps
 ```{r}
-all_plant_richness_plots <- ggpubr::ggarrange(#plantgridRichTA_1km, plantgridRichTA_5km, 
+all_plant_richness_plots <- ggpubr::ggarrange(# plantgridRichTA_5km, 
                                               plantgridRichTA_10km, plantgridRichTA_25km,
                                               plantgridRichTA_50km, plantgridRichTA_75km,
                                               plantgridRichTA_100km,
@@ -244,7 +230,7 @@ all_plant_richness_plots_labeled
 ```
 
 ```{r}
-all_frugivore_richness_plots <- ggpubr::ggarrange(#frugivoregridRichTA_1km, frugivoregridRichTA_5km, 
+all_frugivore_richness_plots <- ggpubr::ggarrange(#frugivoregridRichTA_5km, 
                                               frugivoregridRichTA_10km, frugivoregridRichTA_25km,
                                               frugivoregridRichTA_50km, frugivoregridRichTA_75km,
                                               frugivoregridRichTA_100km,
@@ -265,10 +251,6 @@ ggsave("all_richness_plots.png", all_richness_plots, path = figure_path, width =
 ```
 
 # Write data to csv
-```{r}
-write.csv(plant_cellRichness_1km, file.path(output_path,"TropicalAndes_plantRichness_1km.csv"))
-write.csv(frugivore_cellRichness_1km, file.path(output_path,"TropicalAndes_frugivoreRichness_1km.csv"))
-```
 
 ```{r}
 write.csv(plant_cellRichness_5km, file.path(output_path,"TropicalAndes_plantRichness_5km.csv"))
