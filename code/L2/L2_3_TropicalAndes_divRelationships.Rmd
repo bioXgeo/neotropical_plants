@@ -6,14 +6,15 @@ collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "This script compares taxonomic and functional diversity relationships for plants and frugivores for various spatial grains and combined diversity for each grain."
 data input: "ADD"
 data output: "ADD"
-date: "2023-10-04"
+date: "2024-05-16"
 output: html_document
 ---
 
 # Set file paths
 ```{r}
-data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
-output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
+data_path_L2 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
+output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
+figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 ```
 
 # Load required packages
@@ -26,26 +27,26 @@ library(purrr)
 
 # Read in Data
 ```{r}
-plant_cellRichness_1km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_1km.csv"))
-frugivore_cellRichness_1km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_1km.csv"))
+plant_cellRichness_1km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantRichness_1km.csv"))
+frugivore_cellRichness_1km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreRichness_1km.csv"))
 
-plant_cellRichness_5km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_5km.csv"))
-frugivore_cellRichness_5km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_5km.csv"))
+plant_cellRichness_5km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantRichness_5km.csv"))
+frugivore_cellRichness_5km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreRichness_5km.csv"))
 
-plant_cellRichness_10km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_10km.csv"))
-frugivore_cellRichness_10km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_10km.csv"))
+plant_cellRichness_10km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantRichness_10km.csv"))
+frugivore_cellRichness_10km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreRichness_10km.csv"))
 
-plant_cellRichness_25km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_25km.csv"))
-frugivore_cellRichness_25km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_25km.csv"))
+plant_cellRichness_25km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantRichness_25km.csv"))
+frugivore_cellRichness_25km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreRichness_25km.csv"))
 
-plant_cellRichness_50km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_50km.csv"))
-frugivore_cellRichness_50km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_50km.csv"))
+plant_cellRichness_50km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantRichness_50km.csv"))
+frugivore_cellRichness_50km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreRichness_50km.csv"))
 
-plant_cellRichness_75km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_75km.csv"))
-frugivore_cellRichness_75km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_75km.csv"))
+plant_cellRichness_75km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantRichness_75km.csv"))
+frugivore_cellRichness_75km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreRichness_75km.csv"))
 
-plant_cellRichness_100km <- read.csv(file.path(output_path,"TropicalAndes_plantRichness_100km.csv"))
-frugivore_cellRichness_100km <- read.csv(file.path(output_path,"TropicalAndes_frugivoreRichness_100km.csv"))
+plant_cellRichness_100km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantRichness_100km.csv"))
+frugivore_cellRichness_100km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreRichness_100km.csv"))
 ```
 
 # 1 km
