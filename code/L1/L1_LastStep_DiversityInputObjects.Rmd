@@ -138,7 +138,6 @@ frugivoresPointsPlot
 # Create Presence-Absense matrix
 
 ```{r}
-# Define the function
 create_presence_absence_matrix <- function(resolution_meters, species_sf) {
   # Make Grid
   TAGrid <- TApoly %>%
@@ -146,34 +145,40 @@ create_presence_absence_matrix <- function(resolution_meters, species_sf) {
     st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
     st_cast("MULTIPOLYGON") %>%
     st_sf() %>%
-    mutate(cellid = row_number(),
-           centroid = st_centroid(geometry)) %>%
-    mutate(longitude = st_coordinates(centroid)[, 1],
-           latitude = st_coordinates(centroid)[, 2]) %>%
-    dplyr::select(-centroid)
-  
+    mutate(cellid = row_number())
+
   # Join with species data and filter out NA species
   species_grid <- TAGrid %>%
     st_join(species_sf) %>%
     filter(!is.na(species)) %>%
-    dplyr::select(cellid, longitude, latitude, species)
+    dplyr::select(cellid, species, geometry)
+
+  # Extract the coordinates for each grid cell
+  species_grid_coords <- species_grid %>%
+    st_centroid() %>%
+    st_coordinates() %>%
+    as.data.frame() %>%
+    rename(Longitude = X, Latitude = Y)
+  
+  # Combine coordinates with the species grid
+  species_grid <- bind_cols(species_grid, species_grid_coords)
 
   # Create Presence-Absence Matrix
   presence_absence_matrix <- species_grid %>%
     st_set_geometry(NULL) %>%
     mutate(presence = 1) %>%
-    pivot_wider(names_from = species, values_from = presence, values_fill = list(presence = 0)) %>%
-    arrange(cellid) %>%
-    dplyr::select(cellid, longitude, latitude, everything())
+    pivot_wider(names_from = species, values_from = presence, values_fill = list(presence = 0))
 
-  # Convert to matrix and set row names
-  presence_absence_matrix <- as.data.frame(presence_absence_matrix)
-  rownames(presence_absence_matrix) <- presence_absence_matrix$cellid
-  presence_absence_matrix <- presence_absence_matrix %>%
-    dplyr::select(-cellid) %>%
-    as.matrix()
+  # Convert to matrix
+  presence_absence_matrix_matrix <- as.matrix(presence_absence_matrix)
   
-  return(presence_absence_matrix)
+  # Set row names as "cell_rowNumber"
+  rownames(presence_absence_matrix_matrix) <- paste0("cell_", seq_len(nrow(presence_absence_matrix_matrix)))
+
+  # Ensure latitude and longitude are the first columns
+  presence_absence_matrix_matrix <- presence_absence_matrix_matrix[, c("Latitude", "Longitude", setdiff(colnames(presence_absence_matrix_matrix), c("Latitude", "Longitude", "cellid")))]
+
+  return(presence_absence_matrix_matrix)
 }
 ```
 
@@ -191,11 +196,16 @@ frugivore_PAM_100km[1:4, 1:4]
 
 ### Remove the species from PAM that have no occurrences
 ```{r}
+dim(plant_PAM_100km)
+dim(frugivore_PAM_100km)
 # Remove columns with sum equal to zero
 PAM_plant_site_final_100km <- plant_PAM_100km[, colSums(plant_PAM_100km) != 0]
 PAM_frugivore_site_final_100km <- frugivore_PAM_100km[, colSums(frugivore_PAM_100km) != 0]
 
-#Save coordinates for later
+dim(PAM_plant_site_final_100km)
+dim(PAM_frugivore_site_final_100km)
+
+# Save coordinates for later
 site_loc_key_plant_100km <- PAM_plant_site_final_100km[,1:2]
 site_loc_key_frugivore_100km <- PAM_frugivore_site_final_100km[,1:2]
 
@@ -204,6 +214,7 @@ PAM_frugivore_site_final_100km <- PAM_frugivore_site_final_100km[,-(1:2)]
 
 colnames_plant_100km <- colnames(PAM_plant_site_final_100km)
 colnames_frugivore_100km <- colnames(PAM_frugivore_site_final_100km)
+
 ```
 
 ```{r}
