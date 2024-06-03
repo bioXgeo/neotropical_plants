@@ -391,41 +391,6 @@ str(PAM_plant_site_final_5km)
 str(PAM_frugivore_site_final_5km)
 ```
 
-## 1 km 
-```{r}
-plant_PAM_1km <- create_presence_absence_matrix(1000, plants_sf_species)
-frugivore_PAM_1km <- create_presence_absence_matrix(1000, frugivores_sf_species)
-```
-
-```{r}
-#check str 
-plant_PAM_1km[1:4, 1:4]
-frugivore_PAM_1km[1:4, 1:4]
-```
-
-### Remove the species from PAM that have no occurrences
-```{r}
-# Remove columns with sum equal to zero
-PAM_plant_site_final_1km <- plant_PAM_1km[, colSums(plant_PAM_1km) != 0]
-PAM_frugivore_site_final_1km <- frugivore_PAM_1km[, colSums(frugivore_PAM_1km) != 0]
-
-#Save coordinates for later
-site_loc_key_plant_1km <- PAM_plant_site_final_1km[,1:2]
-site_loc_key_frugivore_1km <- PAM_frugivore_site_final_1km[,1:2]
-
-PAM_plant_site_final_1km <- PAM_plant_site_final_1km[,-c(1:2)]
-PAM_frugivore_site_final_1km <- PAM_frugivore_site_final_1km[,-(1:2)]
-
-colnames_plant_1km <- colnames(PAM_plant_site_final_1km)
-colnames_frugivore_1km <- colnames(PAM_frugivore_site_final_1km)
-```
-
-```{r}
-str(PAM_plant_site_final_1km)
-str(PAM_frugivore_site_final_1km)
-```
-
-
 ## Remove species names from trait matrix not in the PAM
 ```{r}
 plant_traits_df_subset <- plant_traits %>%
@@ -504,10 +469,6 @@ saveRDS(plant_PAM_5km, file = file.path(data_path_L1,"plant_PAM_5km.rds"))
 saveRDS(frugivore_PAM_5km, file = file.path(data_path_L1,"frugivore_PAM_5km.rds"))
 ```
 
-```{r}
-saveRDS(plant_PAM_1km, file = file.path(data_path_L1,"plant_PAM_1km.rds"))
-saveRDS(frugivore_PAM_1km, file = file.path(data_path_L1,"frugivore_PAM_1km.rds"))
-```
 
 ## objects for functional diversity
 ```{r}
@@ -555,11 +516,4 @@ saveRDS(site_loc_key_plant_5km, file = file.path(data_path_L1,"site_loc_key_plan
 saveRDS(site_loc_key_frugivore_5km, file = file.path(data_path_L1,"site_loc_key_frugivore_5km.rds"))
 saveRDS(PAM_plant_site_final_5km, file = file.path(data_path_L1,"PAM_plant_site_final_5km.rds"))
 saveRDS(PAM_frugivore_site_final_5km, file = file.path(data_path_L1,"PAM_frugivore_site_final_5km.rds"))
-```
-
-```{r}
-saveRDS(site_loc_key_plant_1km, file = file.path(data_path_L1,"site_loc_key_plant_1km.rds"))
-saveRDS(site_loc_key_frugivore_1km, file = file.path(data_path_L1,"site_loc_key_frugivore_1km.rds"))
-saveRDS(PAM_plant_site_final_1km, file = file.path(data_path_L1,"PAM_plant_site_final_1km.rds"))
-saveRDS(PAM_frugivore_site_final_1km, file = file.path(data_path_L1,"PAM_frugivore_site_final_1km.rds"))
 ```
