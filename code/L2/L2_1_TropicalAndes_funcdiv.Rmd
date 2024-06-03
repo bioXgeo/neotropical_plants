@@ -41,13 +41,15 @@ TropicalAndes_IUCNHabitat_Forest <- readRDS(file = file.path(data_path_L1,"Tropi
 ```
 
 ```{r}
-# objects for functional diversity
-PAM_plant_site_final <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final.rds"))
-PAM_frugivore_site_final <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final.rds"))
 plant_traits_df_final <- readRDS(file = file.path(data_path_L1,"plant_traits_df_final.rds"))
 frugivore_traits_df_final <- readRDS(file = file.path(data_path_L1,"frugivore_traits_df_final.rds"))
-site_loc_key_plant <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant.rds"))
-site_loc_key_frugivore <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore.rds"))
+```
+
+```{r}
+site_loc_key_plant_100km <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant_100km.rds"))
+site_loc_key_frugivore_100km <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore_100km.rds"))
+PAM_plant_site_final_100km <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final_100km.rds"))
+PAM_frugivore_site_final_100km <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final_100km.rds"))
 ```
 
 # Frugivores
@@ -60,7 +62,7 @@ frug_trait_cat <- as.data.frame(cbind(trait_name, trait_type))
 
 ## Summary of the assemblages * species dataframe
 ```{r}
-asb_sp_frugivore_summ <- mFD::asb.sp.summary(asb_sp_w = PAM_frugivore_site_final)
+asb_sp_frugivore_summ <- mFD::asb.sp.summary(asb_sp_w = PAM_frugivore_site_final_100km)
 ```
 
 ## Species traits summary
@@ -169,8 +171,8 @@ big_plot_frugivore
 ```{r}
 #Need to remove parts of the PAM that have values less than or equal to the number of dimensions (4)
 # Calculate row sums
-row_sums_frugivore <- rowSums(PAM_frugivore_site_final)
-subset_matrix_frugivore <- PAM_frugivore_site_final[row_sums_frugivore >= 4, ]
+row_sums_frugivore <- rowSums(PAM_frugivore_site_final_100km)
+subset_matrix_frugivore <- PAM_frugivore_site_final_100km[row_sums_frugivore >= 4, ]
 ```
 
 ```{r}
@@ -228,53 +230,13 @@ subset_matrix_frugivore <- as.matrix(subset_matrix_frugivore)
 alpha_fd_indices_frugivore <- mFD::alpha.fd.multidim(
   sp_faxes_coord   = sp_faxes_coord_frugivore_sub,
   asb_sp_w         = subset_matrix_frugivore,
-  ind_vect         = c("fide", "fdis", "fmpd", "fnnd", "feve", "fori", "fspe"), #did not run fdiv or fric (slows it down)
+  ind_vect         = "fdis",
+  #did not run fdiv or fric (slows it down); c("fide", "fdis", "fmpd", "fnnd", "feve", "fori", "fspe")
   scaling          = TRUE,
   check_input      = TRUE,
   details_returned = TRUE)
 
 details_list_frugivore <- alpha_fd_indices_frugivore$"details"
-
-plots_alpha_frugivore <- mFD::alpha.multidim.plot(
-  output_alpha_fd_multidim = alpha_fd_indices_frugivore,
-  plot_asb_nm              = c("cell4", "cell20"),
-  ind_nm                   = c("fdis", "fide", "fnnd"
-                        , "fori", "fspe"),
-  faxes                    = NULL,
-  faxes_nm                 = NULL,
-  range_faxes              = c(NA, NA),
-  color_bg                 = "grey95",
-  shape_sp                 = c(pool = 3, asb1 = 21, asb2 = 21),
-  size_sp                  = c(pool = 0.7, asb1 = 1, asb2 = 1),
-  color_sp                 = c(pool = "grey50", asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  color_vert               = c(pool = "grey50", asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  fill_sp                  = c(pool = NA, asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  fill_vert                = c(pool = NA, asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  color_ch          
-  = c(pool = NA, asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  fill_ch                  = c(pool = "white", asb1 = "#1F968BFF", asb2 = "#DCE319FF"),
-  alpha_ch                 = c(pool = 1, asb1 = 0.3, asb2 = 0.3),
-  shape_centroid_fdis      = c(asb1 = 22,  asb2 = 24),
-  shape_centroid_fdiv      = c(asb1 = 22,  asb2 = 24),
-  shape_centroid_fspe      = 23,
-  color_centroid_fspe      = "black",
-  size_sp_nm               = 3, 
-  color_sp_nm              = "black",
-  plot_sp_nm               = NULL,
-  fontface_sp_nm           = "plain",
-  save_file                = FALSE,
-  check_input              = TRUE) 
-
- #comparing convex hulls of different hulls
-plots_alpha_frugivore$"fric"$"patchwork"
-
-plots_alpha_frugivore$"fdiv"$"patchwork"
-
-plots_alpha_frugivore$"fspe"$"patchwork"
-
-plots_alpha_frugivore$"fdis"$"patchwork"
-
-plots_alpha_frugivore$"fori"$"patchwork"
 ```
 
 ```{r}
@@ -287,7 +249,7 @@ fdis_frugivore <- alpha_fd_indices_frugivore$functional_diversity_indices$fdis
 
 ```{r}
 # Generate coordinates
-subset_coords_frugivore <- site_loc_key_frugivore[rowSums(PAM_frugivore_site_final) >= 5, ]
+subset_coords_frugivore <-site_loc_key_frugivore_100km[rowSums(PAM_frugivore_site_final_100km) >= 4, ]
 subset_coords_frugivore_sp <-subset_coords_frugivore[,1:2 ]
 
 frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
@@ -295,13 +257,13 @@ frugivore_fd_sp <- data.frame(subset_coords_frugivore_sp, fdis_frugivore)
 
 ```{r}
 # Convert the dataframe to sf format
-spatial_fdis_frugivore <- st_as_sf(frugivore_fd_sp, coords = c("Longitude.x.", "Latitude.y."))
+spatial_fdis_frugivore <- st_as_sf(frugivore_fd_sp, coords = c("Longitude", "Latitude"))
 ```
 
 
 ```{r}
 # set crs of sf objects
-spatial_fdis_frugivore <- spatial_fdis_frugivore %>% st_set_crs(4326)
+spatial_fdis_frugivore <- spatial_fdis_frugivore %>% st_set_crs(5389)
 ```
 
 ```{r}
@@ -318,10 +280,11 @@ aggregate_to_grid <- function(grid, points, value_col) {
     st_join(grid) %>%
     group_by(cellid) %>%
     summarize(mean_value = mean(get(value_col), na.rm = TRUE)) %>%
+    ungroup() %>%
     st_set_geometry("geometry")
 }
 
-# Example usage with your data
+# use funtion
 resolution_meters <- 100000
 variable_name <- "fdis_frugivore"
 
@@ -331,19 +294,33 @@ grid <- create_grid(spatial_fdis_frugivore, cellsize = resolution_meters)
 # Aggregate data to grid
 aggregated_data <- aggregate_to_grid(grid, spatial_fdis_frugivore, variable_name)
 
+# Convert geometries to centroids
+aggregated_data_centroids <- st_centroid(aggregated_data)
+
+# Extract coordinates from centroids
+aggregated_data_coords <- st_coordinates(aggregated_data_centroids)
+
+# Add coordinates as separate columns
+aggregated_data <- aggregated_data %>%
+  mutate(x = aggregated_data_coords[, 1], y = aggregated_data_coords[, 2])
+
+# Remove rows with NA values in mean_value
+aggregated_data <- aggregated_data %>%
+  filter(!is.na(mean_value))
 ```
 
 ```{r}
 FDisplot <-
     ggplot() +
-    geom_sf(data = Americas_latlong, fill = "white")+
-    geom_sf(data = TApoly_latlong, fill = "lightgrey", size = 0.1) +
-    geom_point(data = spatial_fdis_frugivore , aes(fill = fdis_frugivore)) +
+    geom_sf(data = Americas, fill = "white")+
+    geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
+    geom_sf(data = grid, fill = "grey")+
+    geom_sf(data = aggregated_data, aes(fill = mean_value), color = NA) +
+    labs(x = "Longitude", y = "Latitude", fill = "FDis") +
     scale_fill_gradient(low = "blue", high = "red") +
     coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
     theme(panel.background = element_rect(fill = "lightblue")) +
-    annotation_scale(location = "bl", width_hint = 0.5) +
-    labs(x = "Longitude", y = "Latitude", fill = "FDis")
+    theme(text = element_text(size = 12)) # Explicitly setting text size
 FDisplot
 ```
 
