@@ -3,16 +3,20 @@ title: "Frugivoria frugivore trait subset"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
-overview: "Subsetting Frugivoria to the species and traits of interest"
-data input: "TropicalAndes_Frugivoria_frugivore_traits.csv", "TropicalAndes_GBIF_frugivore_occ_cleaned.csv"
+overview: "Subsetting Frugivoria to the species and traits of interest."
+data input: "TropicalAndes_Frugivoria_frugivore_traits.csv, TropicalAndes_GBIF_frugivore_occ_cleaned.csv"
 data output: "TropicalAndes_Frugivoria_traits_subset.csv"
 date: "2023-10-31"
-output: html_document
+output: 
+  html_document:
+    code-link: true
 ---
 
 # Load required packages
 ```{r}
 library(dplyr)
+library(funbiogeo)
+library(visdat)
 ```
 
 # Set file paths
@@ -51,15 +55,33 @@ glimpse(Frugivoria_subset)
 ```
 
 ```{r}
-source("~/GitHub/neotropical_plants/code/L0/data_summary.R")
+source("~/GitHub/neotropical_plants/code/data_summary.R")
 ```
 
 ```{r}
 data_summary(Frugivoria_subset, Frugivoria_subset$species, Frugivoria_subset$genus, Frugivoria_subset$family)
 ```
 
+```{r}
+fb_plot_species_traits_completeness(Frugivoria_subset)
+fb_plot_number_species_by_trait(Frugivoria_subset)
+fb_table_trait_summary(Frugivoria_subset)
+```
+
+```{r}
+vis_dat(Frugivoria_subset)
+vis_miss(Frugivoria_subset)
+```
 
 # Write data to csv
 ```{r}
 write.csv(Frugivoria_subset, file.path(output_path,"TropicalAndes_Frugivoria_traits_subset.csv"))
+```
+
+# Package citations and session info
+```{r}
+library(report)
+report::cite_packages()
+
+devtools::session_info()
 ```
