@@ -4,7 +4,7 @@ author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "This script subsets plant trait data by synonyms species list and combine."
-data input: "ADD"
+data input: "TropicalAndes_all_plant_traits_harmonized_subset.csv"
 data output: "ADD"
 date: "2023-11-04"
 output: html_document
@@ -15,13 +15,13 @@ output: html_document
 library(dplyr)
 library(tidyr)
 library(purrr)
+library(rstatix)
 library(funbiogeo)
 library(visdat)
 ```
 
 # Set file paths
 ```{r}
-data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
@@ -54,6 +54,7 @@ Final trait list:
 - Seed mass
 - Seed length
 - Seed width
+- Fruit type
 
 
 # Standardize trait measurements
@@ -72,11 +73,11 @@ numeric_data_average <- function(data, unit, traitname) {
   # Remove rows with missing or empty species names
   data <- data[!is.na(data$Accepted_species) & data$Accepted_species != "", ]
   
-  # Calculate average value, count, and variance per trait per species
+  # Calculate geometic mean value, count, and variance per trait per species
   summary_data <- data %>%
     group_by(Accepted_species) %>%
     summarise(
-      TraitValue_mean = mean(TraitValue, na.rm = TRUE),
+      TraitValue_mean = exp(mean(log(TraitValue))),
       records_used = n(),
       variance = var(TraitValue, na.rm = TRUE)
     )
@@ -122,6 +123,62 @@ factor_data_merge <- function(data, traitname) {
   return(summary_data)
 }
 ```
+
+```{r}
+# Detect outliers and report species with multiple entries per trait
+detect_outliers <- function(data) {
+  outlier_results <- data %>%
+    group_by(Accepted_species) %>%
+    filter(n() >= 3) %>%
+    nest() %>%
+    mutate(outliers = map(data, ~identify_outliers(.x, variable = "TraitValue"))) %>%
+    unnest(outliers) %>%
+    select(Accepted_species, TraitName, TraitValue, is.outlier, is.extreme) %>%
+    ungroup()
+  
+  return(outlier_results)
+}
+
+# Get the species with outliers
+species_with_outliers <- function(data) {
+  outliers_by_species <- data %>%
+    group_by(Accepted_species) %>%
+    summarize(outlier_count = sum(is.outlier, na.rm = TRUE)) %>%
+    filter(outlier_count > 0) %>%
+    ungroup()
+  
+  return(outliers_by_species)
+}
+```
+
+```{r}
+summarize_species_records <- function(df) {
+  # Count the total number of species
+  total_species <- df %>% 
+    distinct(Accepted_species) %>% 
+    nrow()
+  
+  # Count the number of species with only one trait record
+  species_with_one_record <- df %>% 
+    group_by(Accepted_species) %>% 
+    summarize(record_count = n()) %>% 
+    filter(record_count == 1) %>% 
+    nrow()
+  
+  # Count the number of species with more than three records
+  species_with_more_than_three_records <- df %>% 
+    group_by(Accepted_species) %>% 
+    summarize(record_count = n()) %>% 
+    filter(record_count > 3) %>% 
+    nrow()
+  
+  # Print the results
+  cat("Total number of species:", total_species, "\n")
+  cat("Number of species with only one trait record:", species_with_one_record, "\n")
+  cat("Number of species with more than three records:", species_with_more_than_three_records, "\n")
+}
+```
+
 
 
 ## Dispersal syndrome
@@ -191,6 +248,10 @@ traits_dispersal <- traits_dispersal %>%
 ```
 
 ```{r}
+summarize_species_records(traits_dispersal)
+```
+
+```{r}
 averagetraits_dispersal <- factor_data_merge(traits_dispersal, "DispersalSyndrome")
 ```
 
@@ -237,6 +298,22 @@ print(unique(traits_fruitMass$Unit))
 # standardize trait names with units
 traits_fruitMass <- traits_fruitMass %>%
   mutate(TraitName = "FruitMass_mg")
+```
+
+```{r}
+dotchart(traits_fruitMass$TraitValue)
+```
+
+```{r}
+# detect outliers
+fruitMass_outliers <- detect_outliers(traits_fruitMass)
+print(fruitMass_outliers)
+fruitMass_outliers_species <- species_with_outliers(fruitMass_outliers)
+print(fruitMass_outliers_species)
+```
+
+```{r}
+summarize_species_records(traits_fruitMass)
 ```
 
 
@@ -292,6 +369,21 @@ traits_fruitLength <- traits_fruitLength %>%
   mutate(TraitName = "FruitLength_mm")
 ```
 
+```{r}
+dotchart(traits_fruitLength$TraitValue)
+```
+
+```{r}
+# detect outliers
+fruitLength_outliers <- detect_outliers(traits_fruitLength)
+print(fruitLength_outliers)
+fruitLength_outliers_species <- species_with_outliers(fruitLength_outliers)
+print(fruitLength_outliers_species)
+```
+
+```{r}
+summarize_species_records(traits_fruitLength)
+```
 
 ```{r}
 averagetraits_fruitLength <- numeric_data_average(traits_fruitLength, "mm", "FruitLength_mm")
@@ -337,6 +429,21 @@ traits_plantHeight <- traits_plantHeight %>%
   mutate(TraitName = "PlantHeight_m")
 ```
 
+```{r}
+dotchart(traits_plantHeight$TraitValue)
+```
+
+```{r}
+# detect outliers
+plantHeight_outliers <- detect_outliers(traits_plantHeight)
+print(plantHeight_outliers)
+plantHeight_outliers_species <- species_with_outliers(plantHeight_outliers)
+print(plantHeight_outliers_species)
+```
+
+```{r}
+summarize_species_records(traits_plantHeight)
+```
 
 ```{r}
 averagetraits_plantHeight <- numeric_data_average(traits_plantHeight, "m", "PlantHeight_m")
@@ -387,6 +494,21 @@ traits_plantLifespan <- traits_plantLifespan %>%
 
 ```
 
+```{r}
+dotchart(traits_plantLifespan$TraitValue)
+```
+
+```{r}
+# detect outliers
+plantLifespan_outliers <- detect_outliers(traits_plantLifespan)
+print(plantLifespan_outliers)
+plantLifespan_outliers_species <- species_with_outliers(plantLifespan_outliers)
+print(plantLifespan_outliers_species)
+```
+
+```{r}
+summarize_species_records(traits_plantLifespan)
+```
 
 ```{r}
 averagetraits_plantLifespan <- numeric_data_average(traits_plantLifespan, "years", "PlantLifespan_years")
@@ -439,6 +561,22 @@ traits_seedMass <- traits_seedMass %>%
 ```
 
 ```{r}
+dotchart(traits_seedMass$TraitValue)
+```
+
+```{r}
+# detect outliers
+seedMass_outliers <- detect_outliers(traits_seedMass)
+print(seedMass_outliers)
+seedMass_outliers_species <- species_with_outliers(seedMass_outliers)
+print(seedMass_outliers_species)
+```
+
+```{r}
+summarize_species_records(traits_seedMass)
+```
+
+```{r}
 averagetraits_seedMass <- numeric_data_average(traits_seedMass, "mg", "SeedMass_g")
 ```
 
@@ -483,6 +621,22 @@ traits_seedLength <- traits_seedLength %>%
 ```
 
 ```{r}
+dotchart(traits_seedLength$TraitValue)
+```
+
+```{r}
+# detect outliers
+seedLength_outliers <- detect_outliers(traits_seedLength)
+print(seedLength_outliers)
+seedLength_outliers_species <- species_with_outliers(seedLength_outliers)
+print(seedLength_outliers_species)
+```
+
+```{r}
+summarize_species_records(traits_seedLength)
+```
+
+```{r}
 averagetraits_seedLength <- numeric_data_average(traits_seedLength, "mm", "SeedLength_mm")
 ```
 
@@ -492,7 +646,7 @@ length(unique(averagetraits_seedLength$Accepted_species))
 ```
 
 ```{r}
-summary(averagetraits_fruitLength)
+summary(averagetraits_seedLength)
 ```
 
 
@@ -526,6 +680,22 @@ print(unique(traits_seedWidth$Unit))
 # standardize trait names with units
 traits_seedWidth <- traits_seedWidth %>%
   mutate(TraitName = "SeedWidth_mm")
+```
+
+```{r}
+dotchart(traits_seedWidth$TraitValue)
+```
+
+```{r}
+# detect outliers
+seedWidth_outliers <- detect_outliers(traits_seedWidth)
+print(seedWidth_outliers)
+seedWidth_outliers_species <- species_with_outliers(seedWidth_outliers)
+print(seedWidth_outliers_species)
+```
+
+```{r}
+summarize_species_records(traits_seedWidth)
 ```
 
 ```{r}
@@ -575,6 +745,10 @@ traits_growthForm <- traits_growthForm %>%
 ```
 
 ```{r}
+summarize_species_records(traits_growthForm)
+```
+
+```{r}
 averagetraits_growthForm <- factor_data_merge(traits_growthForm, "GrowthForm")
 ```
 
@@ -587,9 +761,92 @@ length(unique(averagetraits_growthForm$Accepted_species))
 summary(averagetraits_growthForm)
 ```
 
+# Fruit type
+```{r}
+traits_fruitType <- plant_traits %>%
+  filter(grepl('Fruit type|fruit type|fruit_type', TraitName))
+traits_fruitType$OrigTraitValue <- traits_fruitType$TraitValue
+
+nrow(traits_fruitType)
+length(unique(traits_fruitType$Accepted_species))
+```
+
+```{r}
+# remove numeric values
+traits_fruitType <- traits_fruitType %>%
+  filter(is.na(as.numeric(TraitValue)))
+
+nrow(traits_fruitType)
+length(unique(traits_fruitType$Accepted_species))
+```
+
+```{r}
+traits_fruitType %>%
+  count(TraitValue)
+```
+
+```{r}
+# standardize trait values
+traits_fruitType <- traits_fruitType %>%
+  filter() %>%
+  mutate(TraitValue= case_when(
+    grepl('Berry|berry|Berry ', OrigTraitValue, ignore.case = TRUE) ~ "berry",
+    grepl('capsule|Capsule|Capsule |Pixidium|Dehiscent capsule|Indehiscent capsule', OrigTraitValue, ignore.case = TRUE) ~ "capsule",
+    grepl('drupe|Drupe|Drupe |Drupaceous', OrigTraitValue, ignore.case = TRUE) ~ "drupe",
+    grepl('aggregate berries', OrigTraitValue, ignore.case = TRUE) ~ "aggregate berries",
+    grepl('aggregate drupelets', OrigTraitValue, ignore.case = TRUE) ~ "aggregate drupelets",
+    grepl('fleshy', OrigTraitValue, ignore.case = TRUE) ~ "fleshy",
+    grepl('pome', OrigTraitValue, ignore.case = TRUE) ~ "pome",
+    grepl('Squash', OrigTraitValue, ignore.case = TRUE) ~ "squash",
+    grepl('aggregate follicles', OrigTraitValue, ignore.case = TRUE) ~ "aggregate follicles",
+    grepl('aggregate nutlets', OrigTraitValue, ignore.case = TRUE) ~ "aggregate nutlets",
+    grepl('achene', OrigTraitValue, ignore.case = TRUE) ~ "achene",
+    grepl('follicle|Follicle ', OrigTraitValue, ignore.case = TRUE) ~ "follicle",
+    grepl('legume|Legume ', OrigTraitValue, ignore.case = TRUE) ~ "legume",
+    grepl('lomentum', OrigTraitValue, ignore.case = TRUE) ~ "lomentum",
+    grepl('nut', OrigTraitValue, ignore.case = TRUE) ~ "nut",
+    grepl('pod|Pod|Pod ', OrigTraitValue, ignore.case = TRUE) ~ "pod",
+    grepl('Samara|Samaroid', OrigTraitValue, ignore.case = TRUE) ~ "samara",
+    grepl('schizocarp', OrigTraitValue, ignore.case = TRUE) ~ "schizocarp",
+    grepl('siliqua', OrigTraitValue, ignore.case = TRUE) ~ "siliqua",
+    grepl('syncarpous', OrigTraitValue, ignore.case = TRUE) ~ "syncarpous",
+    grepl('utricle', OrigTraitValue, ignore.case = TRUE) ~ "utricle",
+    grepl('other|apocarpous|pericarp, aril, arillode|pseudosyncarpous|vegetative|dry|fleshy', OrigTraitValue, ignore.case = TRUE) ~ "unspecified",
+  )) %>%
+  filter(!is.na(TraitValue))
+```
+
+```{r}
+traits_fruitType %>%
+  count(TraitValue)
+```
+
+```{r}
+# standardize trait name
+traits_fruitType <- traits_fruitType %>%
+  mutate(TraitName = "FruitType")
+```
+
+```{r}
+summarize_species_records(traits_fruitType)
+```
+
+```{r}
+averagetraits_fruitType <- factor_data_merge(traits_fruitType, "FruitType")
+```
+
+```{r}
+nrow(averagetraits_fruitType)
+length(unique(averagetraits_fruitType$Accepted_species))
+```
+
+```{r}
+summary(averagetraits_fruitType)
+```
+
 # Combine all traits
 ```{r}
-trait_dfs <- list(averagetraits_fruitLength, averagetraits_fruitMass, averagetraits_plantHeight, averagetraits_plantLifespan, averagetraits_seedLength, averagetraits_seedMass, averagetraits_seedWidth, averagetraits_dispersal, averagetraits_growthForm)
+trait_dfs <- list(averagetraits_fruitLength, averagetraits_fruitMass, averagetraits_plantHeight, averagetraits_plantLifespan, averagetraits_seedLength, averagetraits_seedMass, averagetraits_seedWidth, averagetraits_dispersal, averagetraits_growthForm, averagetraits_fruitType)
 
 # Function to combine trait dataframes only matching columns
 combine_matching_columns <- function(df_list) {
@@ -633,15 +890,16 @@ wide_plant_traits <- wide_traits[, !colnames(wide_traits) %in% c("X", "records_u
 
 ```{r}
 # Assign data types
+wide_plant_traits$`DispersalSyndrome` <- as.factor(wide_plant_traits$`DispersalSyndrome`)
 wide_plant_traits$`FruitLength_mm` <- as.numeric(wide_plant_traits$`FruitLength_mm`)
 wide_plant_traits$`FruitMass_mg` <- as.numeric(wide_plant_traits$`FruitMass_mg`)
+wide_plant_traits$`FruitType` <- as.factor(wide_plant_traits$`FruitType`)
+wide_plant_traits$`GrowthForm` <- as.factor(wide_plant_traits$`GrowthForm`)
 wide_plant_traits$`PlantHeight_m` <- as.numeric(wide_plant_traits$`PlantHeight_m`)
 wide_plant_traits$`PlantLifespan_years` <- as.numeric(wide_plant_traits$`PlantLifespan_years`)
 wide_plant_traits$`SeedLength_mm` <- as.numeric(wide_plant_traits$`SeedLength_mm`)
 wide_plant_traits$`SeedMass_g` <- as.numeric(wide_plant_traits$`SeedMass_g`)
 wide_plant_traits$`SeedWidth_mm` <- as.numeric(wide_plant_traits$`SeedWidth_mm`)
-wide_plant_traits$`DispersalSyndrome` <- as.factor(wide_plant_traits$`DispersalSyndrome`)
-wide_plant_traits$`GrowthForm` <- as.factor(wide_plant_traits$`GrowthForm`)
 ```
 
 ```{r}
