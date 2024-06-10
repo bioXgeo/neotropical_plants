@@ -62,14 +62,9 @@ glimpse(TropicalAndes_GBIF_frugivore_occ_cleaned)
 ```
 
 ```{r}
-print("The number of records is")
-nrow(TropicalAndes_GBIF_frugivore_occ_cleaned)
-print("The number of species is")
-length(unique(TropicalAndes_GBIF_frugivore_occ_cleaned$species))
-print("The number of genera is" )
-length(unique(TropicalAndes_GBIF_frugivore_occ_cleaned$genus))
-print("The number of families is")
-length(unique(TropicalAndes_GBIF_frugivore_occ_cleaned$family))
+source("~/GitHub/neotropical_plants/code/data_summary.R")
+
+data_summary(TropicalAndes_GBIF_frugivore_occ_cleaned, TropicalAndes_GBIF_frugivore_occ_cleaned$species, TropicalAndes_GBIF_frugivore_occ_cleaned$genus, TropicalAndes_GBIF_frugivore_occ_cleaned$family)
 ```
 
 # Write data to csv
