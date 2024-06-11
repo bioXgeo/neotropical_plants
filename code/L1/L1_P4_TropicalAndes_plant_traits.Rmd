@@ -5,9 +5,12 @@ project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "This script subsets plant trait data by synonyms species list and combine."
 data input: "TropicalAndes_all_plant_traits_harmonized_subset.csv"
-data output: "ADD"
+data output: "TropicalAndes_all_plant_traits_standardized.csv, TropicalAndes_all_plant_traits_standardized_with_recordCount.csv"
 date: "2023-11-04"
-output: html_document
+output: 
+  html_document:
+    code-link: true
+    df_print: paged
 ---
 
 # Load required packages
@@ -18,6 +21,7 @@ library(purrr)
 library(rstatix)
 library(funbiogeo)
 library(visdat)
+library(ggplot2)
 ```
 
 # Set file paths
@@ -31,6 +35,20 @@ figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figu
 ```{r}
 plant_traits <- read.csv(file.path(data_path_L1, "TropicalAndes_all_plant_traits_harmonized_subset.csv"))
 ```
+
+```{r}
+# remove X column
+plant_traits <- plant_traits[, !colnames(plant_traits) %in% "X", drop = FALSE]
+
+# Convert all character columns to UTF-8 encoding to handle encoding issues
+plant_traits <- plant_traits %>%
+    mutate(across(where(is.character), ~ iconv(., from = "", to = "UTF-8", sub = "byte")))
+
+# Replace the specific value in TraitName column
+plant_traits <- plant_traits %>%
+  mutate(TraitName = gsub("Fruit texture inside \\(fleshy, leathrey, .+\\)", "Fruit texture inside", TraitName))
+```
+
 
 # Look at trait numbers
 ```{r}
@@ -462,7 +480,7 @@ summary(averagetraits_plantHeight)
 
 ## Plant lifespan/longevity
 ```{r}
-traits_plantLifespan <- traits %>%
+traits_plantLifespan <- plant_traits %>%
   filter(grepl('Plant lifespan \\(longevity\\)|longest whole plant longevity|maximum whole plant longevity|plant_lifespan', TraitName))
 traits_plantLifespan$OrigTraitValue <- traits_plantLifespan$TraitValue
 
@@ -525,7 +543,7 @@ summary(averagetraits_plantLifespan)
 
 ## Seed mass
 ```{r}
-traits_seedMass <- traits %>%
+traits_seedMass <- plant_traits %>%
   filter(grepl('Seed dry mass|seed mass|seed_mass_max|seed_mass_mean|seed_mass_min', TraitName))
 traits_seedMass$OrigTraitValue <- traits_seedMass$TraitValue
 
@@ -592,7 +610,7 @@ summary(averagetraits_seedMass)
 
 ## Seed length
 ```{r}
-traits_seedLength <- traits %>%
+traits_seedLength <- plant_traits %>%
   filter(grepl('Seed length|seed_length_max|seed_length_mean|seed_length_min', TraitName))
 traits_seedLength$OrigTraitValue <- traits_seedLength$TraitValue
 
@@ -652,7 +670,7 @@ summary(averagetraits_seedLength)
 
 ## Seed width
 ```{r}
-traits_seedWidth <- traits %>%
+traits_seedWidth <- plant_traits %>%
   filter(grepl('Seed width|seed_width_max|seed_width_mean|seed_width_min'
 , TraitName))
 traits_seedWidth$OrigTraitValue <- traits_seedWidth$TraitValue
@@ -846,11 +864,16 @@ summary(averagetraits_fruitType)
 
 # Combine all traits
 ```{r}
+# for summary
+unaveraged_traits <- rbind(traits_dispersal, traits_fruitLength, traits_fruitMass, traits_fruitType, traits_growthForm, traits_plantHeight, traits_plantLifespan, traits_seedLength, traits_seedMass, traits_seedWidth)
+```
+
+```{r}
 trait_dfs <- list(averagetraits_fruitLength, averagetraits_fruitMass, averagetraits_plantHeight, averagetraits_plantLifespan, averagetraits_seedLength, averagetraits_seedMass, averagetraits_seedWidth, averagetraits_dispersal, averagetraits_growthForm, averagetraits_fruitType)
 
 # Function to combine trait dataframes only matching columns
 combine_matching_columns <- function(df_list) {
-  # Find the common columns across all data frames
+  # Only use specified columns
   common_cols <- Reduce(intersect, lapply(df_list, colnames))
   
   # Ensure TraitValue column is of the same type across all data frames
@@ -882,10 +905,10 @@ clean_traits %>%
 
 # Transform plant dataframe from long to wide
 ```{r}
-wide_traits <- spread(clean_traits, key = TraitName, value = TraitValue)
-
-#remove X column from dataframe
-wide_plant_traits <- wide_traits[, !colnames(wide_traits) %in% c("X", "records_used", "variance"), drop = FALSE]
+wide_plant_traits <- clean_traits %>%
+  select(Accepted_species, TraitName, TraitValue) %>%
+  pivot_wider(names_from = TraitName, values_from = TraitValue)
+nrow(wide_plant_traits)
 ```
 
 ```{r}
@@ -917,13 +940,35 @@ cat("Number of species:", length(unique(clean_traits$Accepted_species)), "\n")
 
 ```{r}
 fb_plot_species_traits_completeness(wide_plant_traits)
+ggsave("plant_trait_completeness.png", plot = last_plot(), path = figure_path)
 fb_plot_number_species_by_trait(wide_plant_traits)
+ggsave("plant_number_species_trait.png", plot = last_plot(), path = figure_path)
 fb_table_trait_summary(wide_plant_traits)
 ```
 
 ```{r}
 vis_dat(wide_plant_traits)
+ggsave("plant_trait_visual_type.png", plot = last_plot(), path = figure_path)
 vis_miss(wide_plant_traits)
+ggsave("plant_trait_visual_missing.png", plot = last_plot(), path = figure_path)
+```
+
+```{r}
+# Count the number of traits per DatabaseSource and TraitName
+trait_counts <- unaveraged_traits %>%
+  count(DatabaseSource, TraitName)
+
+# Create the faceted bar plot with free y-axis scales
+ggplot(trait_counts, aes(x = DatabaseSource, y = n, fill = DatabaseSource)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Trait Counts per Database",
+       x = "Trait Name",
+       y = "Trait Count",
+       fill = "Database Source") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_wrap(~ TraitName, scales = "free_y")
+ggsave("plant_trait_counts_per_database.png", plot = last_plot(), path = figure_path)
 ```
 
 
@@ -931,4 +976,13 @@ vis_miss(wide_plant_traits)
 ```{r}
 write.csv(wide_plant_traits, file.path(output_path,"TropicalAndes_all_plant_traits_standardized.csv"))
 write.csv(clean_traits, file.path(output_path,"TropicalAndes_all_plant_traits_standardized_with_recordCount.csv"))
+write.csv(unaveraged_traits, file.path(output_path,"TropicalAndes_all_plant_traits_cleaned_unaveraged.csv"))
+```
+
+# Package citations and session info
+```{r}
+library(report)
+report::cite_packages()
+
+devtools::session_info()
 ```
