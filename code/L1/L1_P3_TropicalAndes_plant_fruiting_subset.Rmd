@@ -248,6 +248,26 @@ traits_subset %>%
   count(TraitName)
 ```
 
+# Summary
+```{r}
+cat("Number of occurrence records:", nrow(plant_occ_subset), "\n")
+cat("Number of species with occurrence records:", length(unique(plant_occ_subset$Accepted_species)), "\n")
+```
+
+```{r}
+# the number of records and species per trait database
+database_summary <- traits_subset %>%
+  group_by(DatabaseSource) %>%
+  summarise(
+    num_records = n(),
+    num_species = n_distinct(Accepted_species)
+  )
+
+# Print the result
+print(database_summary)
+```
+
+
 # Write data to csv
 ```{r}
 write.csv(plant_occ_subset, file.path(output_path, "TropicalAndes_GBIF_plant_occ_harmonized_subset.csv"))
