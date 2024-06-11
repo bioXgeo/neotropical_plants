@@ -25,6 +25,10 @@ library(GIFT)
 library(purrr)
 library(mice)
 library(dplyr)
+library(funbiogeo)
+library(visdat)
+library(ggplot2)
+library(forcats)
 ```
 
 # Read in data
@@ -754,7 +758,7 @@ numeric_traits_combined <- function(df, level, traitname) {
   
       # Rename the mean column to TraitValue
       summary_data <- summary_data %>%
-        rename(trait_value = trait_value_mean)
+        rename(TraitValue = trait_value_mean)
   
     return(summary_data)
   } else if (level == "family") {
@@ -903,18 +907,24 @@ colnames(PlantHeight_m_families_BIEN_df_average)
 ```
 
 ```{r}
-family_level_trait_data <- list(PlantLifespan_years_families_BIEN_df_average, FruitType_families_BIEN_df_average, GrowthForm_families_BIEN_df_average, FruitLength_mm_families_BIEN_df_average, SeedMass_g_families_BIEN_df_average, PlantHeight_m_genus_BIEN_df_average)
+family_level_trait_data <- list(PlantLifespan_years_families_BIEN_df_average, 
+                                FruitType_families_BIEN_df_average, 
+                                GrowthForm_families_BIEN_df_average, 
+                                FruitLength_mm_families_BIEN_df_average, 
+                                SeedMass_g_families_BIEN_df_average, 
+                                PlantHeight_m_families_BIEN_df_average)
 
 # Function to select and convert columns to character
 select_and_convert <- function(df) {
   df %>%
-    select(scrubbed_family, TraitName, TraitValue) %>%
+    dplyr::select(scrubbed_family, TraitName, TraitValue) %>%
     mutate(across(everything(), as.character))
 }
 
 # Apply the function to each dataframe in the list and combine them
 all_family_traits <- family_level_trait_data %>%
-  purrr::map_df(select_and_convert)
+  map_df(select_and_convert) %>%
+  bind_rows()
 ```
 
 ```{r}
@@ -925,45 +935,36 @@ all_family_traits$TraitLevel <- "family"
 
 #### Combine all genus level trait data
 ```{r}
-## add column of trait_name for numeric traits
-Dispersal.Syndrome_genus_BIEN_df$trait_name <- "Dispersal.Syndrome"
-Fruit.Length_genus_BIEN_df$trait_name <- "Fruit.Length_mm"
-Plant.Height_genus_BIEN_df$trait_name <- "Plant.Height_m"
-Fruit.Type_genus_BIEN_df$trait_name <- "Fruit.Type"
-Growth.Form_genus_BIEN_df$trait_name <- "Growth.Form"
+colnames(PlantLifespan_years_genus_BIEN_df_average)
+colnames(FruitType_genus_BIEN_df_average)
+colnames(GrowthForm_genus_BIEN_df_average)
+colnames(FruitLength_mm_genus_BIEN_df_average)
+colnames(SeedMass_g_genus_BIEN_df_average)
+colnames(PlantHeight_m_genus_BIEN_df_average)
+```
 
-## rename TraitValue column so it's consistent with other traits
-Fruit.Type_genus_BIEN_df$TraitValue <- Fruit.Type_genus_BIEN_df$trait_value_mode_trait
-Growth.Form_genus_BIEN_df$TraitValue <- Growth.Form_genus_BIEN_df$trait_value_mode_trait
+```{r}
+genus_level_trait_data <- list(PlantLifespan_years_genus_BIEN_df_average, 
+                                FruitType_genus_BIEN_df_average, 
+                                GrowthForm_genus_BIEN_df_average, 
+                                FruitLength_mm_genus_BIEN_df_average, 
+                                SeedMass_g_genus_BIEN_df_average, 
+                                PlantHeight_m_genus_BIEN_df_average)
 
-## convert numeric trait values into character
-Plant.Height_genus_BIEN_df$TraitValue <- as.character(Plant.Height_genus_BIEN_df$TraitValue)
-Fruit.Length_genus_BIEN_df$TraitValue <- as.character(Fruit.Length_genus_BIEN_df$TraitValue)
+# Function to select and convert columns to character
+select_and_convert <- function(df) {
+  df %>%
+    dplyr::select(scrubbed_genus, TraitName, TraitValue) %>%
+    mutate(across(everything(), as.character))
+}
 
-all_genus_traits <- bind_rows(
-  select(Dispersal.Syndrome_genus_BIEN_df, scrubbed_genus, trait_name, TraitValue),
-  select(Fruit.Length_genus_BIEN_df, scrubbed_genus, trait_name, TraitValue),
-  select(Plant.Height_genus_BIEN_df, scrubbed_genus, trait_name, TraitValue),
-  select(Fruit.Type_genus_BIEN_df, scrubbed_genus, trait_name, TraitValue),
-  select(Growth.Form_genus_BIEN_df, scrubbed_genus, trait_name, TraitValue)
-  )
+# Apply the function to each dataframe in the list and combine them
+all_genus_traits <- genus_level_trait_data %>%
+  map_df(select_and_convert) %>%
+  bind_rows()
 
 ## add trait level column
 all_genus_traits$TraitLevel <- "genus"
-```
-
-rename traits to match
-```{r}
-# Replace trait names to match
-long_plant_traits_tax <- long_plant_traits_tax %>%
-  mutate(TraitName = ifelse(TraitName == "Plant.Height", "Plant.Height_m", TraitName)) %>%
-  mutate(TraitName = ifelse(TraitName == "Fruit.Length", "Fruit.Length_mm", TraitName))
-unique(long_plant_traits_tax$TraitName)
-
-na_traits_family.genus <- na_traits_family.genus %>%
-  mutate(TraitName = ifelse(TraitName == "Plant.Height", "Plant.Height_m", TraitName)) %>%
-  mutate(TraitName = ifelse(TraitName == "Fruit.Length", "Fruit.Length_mm", TraitName))
-unique(na_traits_family.genus$TraitName)
 ```
 
 
@@ -977,12 +978,8 @@ colnames(na_traits_family.genus)
 
 ```{r}
 colnames(all_family_traits)[which(colnames(all_family_traits) == "scrubbed_family")] <- "family"
-colnames(all_family_traits)[which(colnames(all_family_traits) == "trait_name")] <- "TraitName"
-colnames(all_family_traits)[which(colnames(all_family_traits) == "trait_value")] <- "TraitValue"
 
 colnames(all_genus_traits)[which(colnames(all_genus_traits) == "scrubbed_genus")] <- "genus"
-colnames(all_genus_traits)[which(colnames(all_genus_traits) == "trait_name")] <- "TraitName"
-colnames(all_genus_traits)[which(colnames(all_genus_traits) == "trait_value")] <- "TraitValue"
 ```
 
 use family & genus level traits to fill in gaps of na_traits_family.genus
@@ -1000,8 +997,10 @@ filled_na_traits_family.genus <- na_traits_family.genus %>%
 ```{r}
 na_traits_after_genus <- filled_na_traits_family.genus %>%
   filter(is.na(TraitValue))
+nrow(na_traits_after_genus)
 filled_traits_with_genus <- filled_na_traits_family.genus %>%
   filter(!is.na(TraitValue))
+nrow(filled_traits_with_genus)
 ```
 
 ```{r}
@@ -1020,8 +1019,10 @@ filled_na_traits_family <- na_traits_after_genus %>%
 ```{r}
 filled_traits_with_family <- filled_na_traits_family %>%
   filter(!is.na(TraitValue))
+nrow(filled_traits_with_family)
 na_traits_after_family <- filled_na_traits_family %>%
   filter(is.na(TraitValue))
+nrow(na_traits_after_family)
 ```
 
 ```{r}
@@ -1063,6 +1064,29 @@ colnames(na_traits_after_family)
 all_traits_with_NAs <- rbind(all_traits_with_tax, na_traits_after_family)
 ```
 
+```{r}
+# Count number of NA records
+na_records_count <- sum(is.na(all_traits_with_NAs$TraitValue))
+
+# Count number of unique species with NA records
+species_with_na_count <- all_traits_with_NAs %>%
+  filter(is.na(TraitValue)) %>%
+  distinct(species) %>%
+  nrow()
+
+# Count number of unique traits with NA records
+traits_with_na_count <- all_traits_with_NAs %>%
+  filter(is.na(TraitValue)) %>%
+  distinct(TraitName) %>%
+  nrow()
+
+# Print results
+cat("Number of NA records:", na_records_count, "\n")
+cat("Number of species with NA records:", species_with_na_count, "\n")
+cat("Number of traits with NA records:", traits_with_na_count, "\n")
+```
+
+
 ### Save long dataframe
 ```{r}
 write.csv(all_traits_with_NAs, file.path(output_path,"TropicalAndes_all_plant_traits_filled_with_family_genus_long.csv"))
@@ -1072,52 +1096,28 @@ write.csv(all_traits_with_NAs, file.path(output_path,"TropicalAndes_all_plant_tr
 ```{r}
 #remove unused columns
 all_traits_with_NAs_long <- all_traits_with_NAs %>%
-  select(-TraitLevel, -family, -genus)
+  select(-TraitLevel, -family, -genus) %>%
+  distinct()
 wide_traits <- pivot_wider(all_traits_with_NAs_long, names_from = TraitName, values_from = TraitValue)
 ```
-make NA if:
-- Growth.Form is numeric
-- Dispersal.Syndrome is numeric or contains multiple values
-- Plant.Height = 0
-- Fruit.Type is numeric
-```{r}
-library(stringr)
-wide_traits$Growth.Form <- ifelse(is.numeric(wide_traits$Growth.Form), NA, wide_traits$Growth.Form)
-wide_traits$Dispersal.Syndrome[stringr::str_detect(wide_traits$Dispersal.Syndrome, ",")] <- NA
-
-# Convert Plant.Height_m to numeric 
-wide_traits$Plant.Height_m[wide_traits$Plant.Height_m == "0"] <- NA
-
-wide_traits$Fruit.Type <- ifelse(is.numeric(wide_traits$Fruit.Type), NA, wide_traits$Fruit.Type)
-```
 
 ```{r}
-wide_traits <- wide_traits %>%
-  mutate_all(~sapply(., paste, collapse = ", "))
-
-# Replace values with multiple values with NA
-wide_traits <- wide_traits %>%
-  mutate(Dispersal.Syndrome = if_else(str_count(Dispersal.Syndrome, ", ") > 0, NA_character_, Dispersal.Syndrome), 
-         Growth.Form = if_else(str_count(Growth.Form, ", ") > 0, NA_character_, Growth.Form),
-         Plant.Height_m = if_else(str_count(Plant.Height_m, ", ") > 0, NA_character_, Plant.Height_m), 
-         Fruit.Length_mm = if_else(str_count(Fruit.Length_mm, ", ") > 0, NA_character_, Fruit.Length_mm), 
-         Fruit.Type = if_else(str_count(Fruit.Type, ", ") > 0, NA_character_, Fruit.Type))
+glimpse(wide_traits)
 ```
 
 
 ```{r}
-wide_traits$Plant.Height_m <- unlist(wide_traits$Plant.Height_m)
-wide_traits$Growth.Form <- unlist(wide_traits$Growth.Form)
-wide_traits$Dispersal.Syndrome <- unlist(wide_traits$Dispersal.Syndrome)
-wide_traits$Fruit.Length_mm <- unlist(wide_traits$Fruit.Length_mm)
-wide_traits$Fruit.Type <- unlist(wide_traits$Fruit.Type)
-
-#convert column types from list to character & numeric
-wide_traits$Plant.Height_m <- as.numeric(wide_traits$Plant.Height_m)
-wide_traits$Growth.Form <- as.character(wide_traits$Growth.Form)
-wide_traits$Dispersal.Syndrome <- as.character(wide_traits$Dispersal.Syndrome)
-wide_traits$Fruit.Length_mm <- as.numeric(wide_traits$Fruit.Length_mm)
-wide_traits$Fruit.Type <- as.character(wide_traits$Fruit.Type)
+#convert column types from character to factor & numeric
+wide_traits$PlantLifespan_years <- as.numeric(wide_traits$PlantLifespan_years)
+wide_traits$GrowthForm <- as.factor(wide_traits$GrowthForm)
+wide_traits$SeedMass_g <- as.numeric(wide_traits$SeedMass_g)
+wide_traits$PlantHeight_m <- as.numeric(wide_traits$PlantHeight_m)
+wide_traits$FruitType <- as.factor(wide_traits$FruitType)
+wide_traits$FruitLength_mm <- as.numeric(wide_traits$FruitLength_mm)
+wide_traits$SeedWidth_mm <- as.numeric(wide_traits$SeedWidth_mm)
+wide_traits$FruitMass_mg <- as.numeric(wide_traits$FruitMass_mg)
+wide_traits$SeedLength_mm <- as.numeric(wide_traits$SeedLength_mm)
+wide_traits$DispersalSyndrome <- as.factor(wide_traits$DispersalSyndrome)
 ```
 
 
@@ -1128,11 +1128,6 @@ wide_traits$Fruit.Type <- as.character(wide_traits$Fruit.Type)
 set.seed(123)
 ```
 
-
-# show the missing data pattern
-```{r}
-md.pattern(wide_traits)
-```
 # Perform the imputation
 ```{r}
 imp_model <- mice(wide_traits, method = "cart", maxit = 20)
@@ -1142,15 +1137,68 @@ imp_model <- mice(wide_traits, method = "cart", maxit = 20)
 imputed_data <- complete(imp_model)
 ```
 
-remove dispersal syndrome because I need to fix it 
+
 ```{r}
-imputed_data <- imputed_data %>%
-  select(-Dispersal.Syndrome)
+glimpse(imputed_data)
+```
+
+# Summary
+```{r}
+fb_plot_species_traits_completeness(wide_traits)
+ggsave("plant_trait_completeness_familygenus.png", plot = last_plot(), path = figure_path)
+fb_plot_number_species_by_trait(wide_traits)
+ggsave("plant_number_species_trait_familygenus.png", plot = last_plot(), path = figure_path)
+fb_table_trait_summary(wide_traits)
 ```
 
 ```{r}
-imputed_data %>%
-  summarise_at(vars(Growth.Form:Fruit.Type), ~ sum(is.na(.)))
+fb_plot_species_traits_completeness(imputed_data)
+ggsave("plant_trait_completeness_imputed.png", plot = last_plot(), path = figure_path)
+fb_plot_number_species_by_trait(imputed_data)
+ggsave("plant_number_species_trait_imputed.png", plot = last_plot(), path = figure_path)
+fb_table_trait_summary(imputed_data)
+```
+
+```{r}
+# Reassign NA values in TraitLevel as "Imputed"
+all_traits_with_NAs$TraitLevel[is.na(all_traits_with_NAs$TraitLevel)] <- "Imputed"
+
+# Count the number of traits per TraitLevel and TraitName
+trait_counts <- all_traits_with_NAs %>%
+  count(TraitLevel, TraitName) %>%
+  mutate(TraitLevel = fct_relevel(TraitLevel, "species", "genus", "family", "Imputed"))
+
+# Create the faceted bar plot with free y-axis scales
+ggplot(trait_counts, aes(x = TraitLevel, y = n, fill = TraitLevel)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Trait Counts per Level",
+       x = "Trait Level",
+       y = "Trait Count",
+       fill = "Level") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none") +  # Remove legend
+  facet_wrap(~ TraitName, scales = "free_y") +
+  guides(fill = "none")  # Remove legend
+ggsave("plant_trait_counts_per_level.png", plot = last_plot(), path = figure_path)
+```
+
+```{r}
+# Count the number of traits per TraitLevel
+trait_counts_overall <- all_traits_with_NAs %>%
+  count(TraitLevel) %>%
+  mutate(TraitLevel = fct_relevel(TraitLevel, "species", "genus", "family", "Imputed"))
+
+# Create the faceted bar plot with free y-axis scales
+ggplot(trait_counts_overall, aes(x = TraitLevel, y = n, fill = TraitLevel)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Trait Counts per Level",
+       x = "Trait Level",
+       y = "Trait Count",
+       fill = "Level") +
+  theme_minimal() +
+  guides(fill = "none")  # Remove legend
+ggsave("plant_trait_counts_per_level_overall.png", plot = last_plot(), path = figure_path)
 ```
 
 # Save imputed data
