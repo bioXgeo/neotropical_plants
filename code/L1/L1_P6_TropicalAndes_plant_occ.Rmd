@@ -3,55 +3,79 @@ title: "Plant occurrence subset by species with complete trait records"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
-overview: "This script subsets plant occurrence data to species with complete trait coverage."
-data input: "ADD"
-data output: "ADD"
+overview: "This script subsets plant occurrence data to species with complete trait coverage and summarizes the taxonomic coverage."
+data input: "TropicalAndes_imputed_plant_traits.csv, TropicalAndes_GBIF_plant_occ_harmonized_subset.csv, TropicalAndes_plant_checklist.csv"
+data output: "TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv"
 date: "2023-10-04"
 output: html_document
 ---
 
 # Set file paths
 ```{r}
+data_path_L0 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
+
 ```
 
 # Load required packages
 ```{r}
+library(GIFT)
 library(dplyr)
-#run if not installed remotes::install_github("FRBCesab/funbiogeo")
-library(funbiogeo)
+library(sf)
+library(tidyr)
+library(ggplot2)
 ```
 
 # Read in data
 ```{r}
 plant_traits <- read.csv(file.path(data_path_L1, file = "TropicalAndes_imputed_plant_traits.csv"))
-plant_occ <- read.csv(file.path(data_path_L1, file = "TropicalAndes_GBIF_plant_occ_cleaned.csv"))
-```
+plant_occ <- read.csv(file.path(data_path_L1, file = "TropicalAndes_GBIF_plant_occ_harmonized_subset.csv"))
 
-# Check trait coverage
-```{r}
-summary(plant_traits)
+# Load Tropical Andes Forest shape
+TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
 ```
-
-```{r}
-fb_plot_number_species_by_trait(plant_traits)
-```
-
-```{r}
-Plant_complete <- fb_filter_species_by_trait_coverage(plant_traits, threshold_traits_proportion =  1)
-```
-
 
 # Create list of species with complete trait records
 ```{r}
-plant_species <- unique(Plant_complete$species)
+plant_species <- unique(plant_traits$species)
+length(plant_species)
 ```
 
 # Subset frugivore occurrence data by species list
 ```{r}
 plant_occ_subset <- plant_occ %>%
   filter(species %in% plant_species)
+nrow(plant_occ_subset)
+```
+
+# Get a checklist of Angiosperms (flowering plants) in the Tropical Andes Forest shapefile
+```{r}
+checklist <- GIFT_checklists(taxon_name = "Angiospermae", taxonomic_group = TRUE, floristic_group = "all", shp = TropicalAndes_IUCNHabitat_Forest, overlap = "extent_intersect")
+```
+## Add genus based on work_ID
+```{r}
+full <- GIFT_taxonomy()
+```
+
+```{r}
+genus_ID <- checklist$checklists$genus_ID
+genus_list <- full %>% filter(taxon_ID %in% genus_ID) %>% select(taxon_ID, taxon_name)
+names(genus_list) <- c("genus_ID", "genus")
+```
+
+```{r}
+checklist_tax <- dplyr::inner_join(checklist$checklists, genus_list)
+```
+
+```{r}
+reference_ID_list <- unique(checklist_tax$ref_ID)
+ref <- GIFT_references()
+checklist_ref <- ref[which(ref$ref_ID %in% reference_ID_list),
+           c("ref_ID", "ref_long", "geo_entity_ref")]
+checklist_ref %>%
+  mutate(ref_long = iconv(ref_long, from = "UTF-8", to = "ASCII//TRANSLIT"))
 ```
 
 # Summary
@@ -60,16 +84,70 @@ glimpse(plant_occ_subset)
 ```
 
 ```{r}
-source("~/GitHub/neotropical_plants/functions/data_summary.R")
+source("~/GitHub/neotropical_plants/code/data_summary.R")
 ```
 
 ```{r}
-data_summary(plant_occ_subset, plant_occ_subset$species, plant_occ_subset$genus, plant_occ_subset$family)
+data_summary(plant_occ_subset, plant_occ_subset$Accepted_species, plant_occ_subset$genus, plant_occ_subset$family)
 ```
+
+```{r}
+data_summary(checklist_tax, checklist_tax$work_species, checklist_tax$genus, checklist_tax$family)
+```
+
+# Visualize taxonomic coverage
+```{r}
+GBIF_occ_summary <- plant_occ_subset %>%
+  summarise(
+    num_species = n_distinct(Accepted_species),
+    num_families = n_distinct(family),
+    num_genera = n_distinct(genus)
+  )
+GIFT_checklist_summary <- checklist_tax %>%
+  summarise(
+    num_species = n_distinct(work_species),
+    num_families = n_distinct(family),
+    num_genera = n_distinct(genus)
+  )
+```
+
+
+```{r}
+# Combine the summaries into one dataframe
+combined_summary <- bind_rows(
+  GBIF_occ_summary %>% mutate(source = "Data"),
+  GIFT_checklist_summary %>% mutate(source = "Checklist")
+)
+
+# Reshape to long format for easier plotting
+combined_summary_long <- combined_summary %>%
+  pivot_longer(cols = c(num_species, num_families, num_genera), 
+               names_to = "category", 
+               values_to = "count")
+```
+
+```{r}
+ggplot(combined_summary_long, aes(x = source, y = count, fill = source)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Comparison of Species, Genera, and Families",
+       x = "Source",
+       y = "Count",
+       fill = "Source") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),  # Angled x-axis labels
+    plot.title = element_text(hjust = 0.5),             # Center the plot title
+    plot.margin = margin(t = 10, r = 10, b = 10, l = 10)
+  ) +
+  facet_wrap(~ category, scales = "free_y") +
+  theme(strip.text.x = element_text(size = 12, face = "bold"))
+ggsave("plant_taxonomic_coverage.png", plot = last_plot(), path = figure_path)
+```
+
 
 # Write data to csv
 ```{r}
-write.csv(plant_occ_subset, file.path(output_path_L1,"TropicalAndes_GBIF_plant_occ_cleaned_subset.csv"))
+write.csv(plant_occ_subset, file.path(output_path_L1,"TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv"))
 ```
 
 
