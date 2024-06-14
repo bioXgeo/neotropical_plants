@@ -3,18 +3,26 @@ title: "Tropical Andes frugivore trait data Frugivoria"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
-overview: ""
-data input: ""
-data output: ""
+overview: "This script retrived the Frugivoria database from EDI."
+#data input: "None"
+#data output: "TropicalAndes_Frugivoria_frugivore_traits.csv, TropicalAndes_Frugivoria_frugivore_traits_species.csv, TropicalAndes_frugivore_LookupTable.csv"
 date: "2023-07-18"
-output: html_document
+output:
+  html_document:
+    highlight_downlit: TRUE
+    df_print: tibble
 ---
 
 # Set file paths
 ```{r}
-data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-output_path2<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+```
+
+# Load required packages
+```{r}
+library(dplyr)
 ```
 
 # Retrive Frugivoria data
@@ -791,25 +799,30 @@ glimpse(Frugivoria)
 ```
 
 ```{r}
-print("The number of records is")
-nrow(Frugivoria)
-print("The number of species is" )
-length(unique(Frugivoria$IUCN_species_name))
-print("The number of families is" )
-length(unique(Frugivoria$family))
+source("~/GitHub/neotropical_plants/code/data_summary.R")
+```
+
+```{r}
+data_summary(Frugivoria, Frugivoria$IUCN_species_name, Frugivoria$genus, Frugivoria$family)
 ```
 
 # Extract species list
 ```{r}
 Frugivoria_SpeciesList <- unique(Frugivoria$IUCN_species_name)
+length(Frugivoria_SpeciesList)
 ```
 
 # Write data to csv
 ```{r}
-TropicalAndes_Frugivoria_path <- file.path(output_path,"TropicalAndes_Frugivoria_frugivore_traits.csv") 
-write.csv(Frugivoria, file = TropicalAndes_Frugivoria_path)
-Frugivoria_species_path <- file.path(output_path,"TropicalAndes_Frugivoria_frugivore_traits_species.csv") 
-write.csv(Frugivoria_SpeciesList, file = Frugivoria_species_path)
-Frugivore_LookupTable_path <- file.path(output_path2,"TropicalAndes_frugivore_LookupTable.csv") 
-write.csv(Frugivore_LookupTable, file = Frugivore_LookupTable_path)
+write.csv(Frugivoria, file = file.path(output_path_L0,"TropicalAndes_Frugivoria_frugivore_traits.csv"))
+write.csv(Frugivoria_SpeciesList, file = file.path(output_path_L0,"TropicalAndes_Frugivoria_frugivore_traits_species.csv"))
+write.csv(Frugivore_LookupTable, file = file.path(output_path_L1,"TropicalAndes_frugivore_LookupTable.csv"))
+```
+
+# Package citations and session info
+```{r}
+library(report)
+report::cite_packages()
+
+devtools::session_info()
 ```
