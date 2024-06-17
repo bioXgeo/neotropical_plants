@@ -4,10 +4,13 @@ author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "Calculating and mapping taxonomic diversity as species richness using occurrence data for plants and frugivores in the Tropical Andes Moist Lowland and Montane forests. Note: some code is adapted from https://luisdva.github.io/rstats/richness/."
-data input: "TropicalAndes_plant_occ.csv, TropicalAndes_frugivore_occ.csv"
-data output: "TropicalAndes_frugivore_richness.csv, TropicalAndes_GBIF_plant_richness.csv"
+#data input: "TropicalAndes_plant_occ.csv, TropicalAndes_frugivore_occ.csv"
+#data output: "TropicalAndes_frugivore_richness.csv, TropicalAndes_GBIF_plant_richness.csv"
 date: "2023-08-01"
-output: html_document
+output: 
+  html_document:
+    highlight_downlit = TRUE
+    df_print: tibble
 ---
 
 # Load required packages
@@ -15,15 +18,17 @@ output: html_document
 library(sf)
 library(dplyr)
 library(ggplot2)
-library(rnaturalearth)
+library(parallel)
+library(foreach)
+library(doParallel)
 library(ggspatial)
 library(ggpubr)
 ```
 
 # Set file paths
 ```{r}
-data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 ```
@@ -39,78 +44,76 @@ TropicalAndes_IUCNHabitat_Forest <- readRDS(file = file.path(data_path_L1,"Tropi
 ```
 
 # Plot TD/Richness
-## Function for richness plots
+## Function for richness plots using parallel processing
 ```{r}
+# Define the calculate_richness function outside
+calculate_richness <- function(data_sf, species_sf) {
+  result <- data_sf %>%
+    st_join(species_sf) %>%
+    mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
+    group_by(cellid) %>%
+    summarize(num_species = sum(overlap)) %>%
+    ungroup()
+  return(result)
+}
+
 create_rich_plots <- function(resolution_meters) {
- # Make Grid
+  # Make Grid
   TAGrid <- TApoly %>%
     st_make_grid(cellsize = c(resolution_meters)) %>%
     st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
     st_cast("MULTIPOLYGON") %>%
     st_sf() %>%
     mutate(cellid = row_number())
-  
-  # Function to calculate richness for a given dataset
-  calculate_richness <- function(data_sf, species_sf) {
-    result <- data_sf %>%
-      st_join(species_sf) %>%
-      mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
-      group_by(cellid) %>%
-      summarize(num_species = sum(overlap)) %>%
-      ungroup()
-    return(result)
-  }  
-  
+
   # Determine the chunk size
   chunk_size <- 1000
-  
-  # Split the TAGrid into chunks if necessary
+
+  # Split the TAGrid into chunks
   TAGrid_chunks <- split(TAGrid, ceiling(seq_along(TAGrid$cellid) / chunk_size))
-  
-  # Initialize empty data frames for results
-  plant_richness_grid <- list()
-  frugivore_richness_grid <- list()
-  
-  # Iterate over chunks to calculate richness
-  for (i in seq_along(TAGrid_chunks)) {
-    chunk <- TAGrid_chunks[[i]]
-    
-    # Debug: Print chunk info
-    print(paste("Processing chunk", i, "of", length(TAGrid_chunks)))
-    
-    plant_richness_chunk <- calculate_richness(chunk, plants_sf_species)
-    frugivore_richness_chunk <- calculate_richness(chunk, frugivores_sf_species)
-    
-    # Store the chunks in lists
-    plant_richness_grid[[i]] <- plant_richness_chunk
-    frugivore_richness_grid[[i]] <- frugivore_richness_chunk
+
+  # Set up parallel processing
+  no_cores <- detectCores() - 1
+  cl <- makeCluster(no_cores)
+  registerDoParallel(cl)
+
+  # Export necessary objects to the cluster
+  clusterExport(cl, varlist = c("plants_sf_species", "frugivores_sf_species", "calculate_richness"))
+
+  # Process chunks in parallel
+  plant_richness_grid <- foreach(chunk = TAGrid_chunks, .combine = bind_rows, .packages = c("dplyr", "sf")) %dopar% {
+    calculate_richness(chunk, plants_sf_species)
   }
-  
-  # Combine all chunks into final data frames
-  plant_richness_grid <- bind_rows(plant_richness_grid)
-  frugivore_richness_grid <- bind_rows(frugivore_richness_grid)
-  
+
+  frugivore_richness_grid <- foreach(chunk = TAGrid_chunks, .combine = bind_rows, .packages = c("dplyr", "sf")) %dopar% {
+    calculate_richness(chunk, frugivores_sf_species)
+  }
+
+  # Stop the parallel cluster
+  stopCluster(cl)
+
   # Helper functions to generate plots
   generate_plant_plot <- function(data) {
     ggplot(data) +
       geom_sf(data = Americas, fill = "white") +
       geom_sf(data = TApoly, fill = "grey", size = 0.1) +
       geom_sf(aes(fill = num_species), color = NA) +
-      scale_fill_distiller(palette = "Greens", direction = 1, limits = c(0,6000)) +
-      labs( x = "Longitude", y = "Latitude", fill = "Number of species") +
+      scale_fill_distiller(palette = "Greens", direction = 1, limits = c(0,1200)) +
+      labs(x = "Longitude", y = "Latitude", fill = "S") +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-      annotation_scale(location = "bl", width_hint = 0.5)  +
+      annotation_scale(location = "bl", width_hint = 0.5) +
       theme(panel.background = element_rect(fill = "lightblue"))
   }
+
   generate_frugivore_plot <- function(data) {
     ggplot(data) +
       geom_sf(data = Americas, fill = "white") +
       geom_sf(data = TApoly, fill = "grey", size = 0.1) +
       geom_sf(aes(fill = num_species), color = NA) +
-      scale_fill_distiller(palette = "YlOrBr", direction = 1, limits = c(0,500)) + 
-      labs(x = "Longitude", y = "Latitude", fill = "Number of species") +
+      scale_fill_distiller(palette = "YlOrBr", direction = 1, limits = c(0,500)) +
+      labs(x = "Longitude", y = "Latitude", fill = "S") +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-      annotation_scale(location = "bl", width_hint = 0.5)  +
+      annotation_scale(location = "bl", width_hint = 0.5) +
       theme(panel.background = element_rect(fill = "lightblue"))
   }
 
@@ -118,28 +121,30 @@ create_rich_plots <- function(resolution_meters) {
   plant_plot <- generate_plant_plot(plant_richness_grid)
   frugivore_plot <- generate_frugivore_plot(frugivore_richness_grid)
 
-
   # Create histograms
-  plant_richness_hist <- hist(plant_richness_grid$num_species, 
-    main = paste("Histogram of Plant Richness [", resolution_meters/1000, " km] by cell", sep = ""),
+  plant_richness_hist <- hist(plant_richness_grid$num_species,
+                              main = paste("Histogram of Plant Richness [", resolution_meters / 1000, " km] by cell", sep = ""),
                               xlab = "Plant Richness by cell")
   frugivore_richness_hist <- hist(frugivore_richness_grid$num_species,
-    main = paste("Histogram of Frugivore Richness [", resolution_meters/1000, " km] by cell", sep = ""),
+                                  main = paste("Histogram of Frugivore Richness [", resolution_meters / 1000, " km] by cell", sep = ""),
                                   xlab = "Frugivore Richness by cell")
+
   # Return a list of data
   list(plantgridRichTA = plant_plot,
        frugivoregridRichTA = frugivore_plot,
        plant_cellRichness = plant_richness_grid,
-       frugivore_cellRichness = frugivore_richness_grid, 
+       frugivore_cellRichness = frugivore_richness_grid,
        plant_richness_hist = plant_richness_hist,
        frugivore_richness_hist = frugivore_richness_hist)
 }
-
 ```
 
 ## 5 km resolution
 ```{r}
 richness_5km <- create_rich_plots(5000)
+```
+
+```{r}
 print(richness_5km)
 
 # save plots
@@ -153,6 +158,9 @@ frugivore_cellRichness_5km <- richness_5km$frugivore_cellRichness
 ## 10 km
 ```{r}
 richness_10km <- create_rich_plots(10000)
+```
+
+```{r}
 print(richness_10km)
 
 # save plots
@@ -167,6 +175,9 @@ frugivore_cellRichness_10km <- richness_10km$frugivore_cellRichness
 ## 25 km
 ```{r}
 richness_25km <- create_rich_plots(25000)
+```
+
+```{r}
 print(richness_25km)
 
 # save plots
@@ -180,6 +191,9 @@ frugivore_cellRichness_25km <- richness_25km$frugivore_cellRichness
 ## 50 km
 ```{r}
 richness_50km <- create_rich_plots(50000)
+```
+
+```{r}
 print(richness_50km)
 # save plots
 plantgridRichTA_50km <- richness_50km$plantgridRichTA
@@ -192,6 +206,9 @@ frugivore_cellRichness_50km <- richness_50km$frugivore_cellRichness
 ## 75 km 
 ```{r}
 richness_75km <- create_rich_plots(75000)
+```
+
+```{r}
 print(richness_75km)
 # save plots
 plantgridRichTA_75km <- richness_75km$plantgridRichTA
@@ -204,6 +221,9 @@ frugivore_cellRichness_75km <- richness_75km$frugivore_cellRichness
 ## 100 km 
 ```{r}
 richness_100km <- create_rich_plots(100000)
+```
+
+```{r}
 print(richness_100km)
 # save plots
 plantgridRichTA_100km <- richness_100km$plantgridRichTA
@@ -213,22 +233,97 @@ plant_cellRichness_100km <- richness_100km$plant_cellRichness
 frugivore_cellRichness_100km <- richness_100km$frugivore_cellRichness
 ```
 
-# Multi panel plots
-## Richness maps
+# Save richness objects to file
 ```{r}
-all_plant_richness_plots <- ggpubr::ggarrange(# plantgridRichTA_5km, 
-                                              plantgridRichTA_10km, plantgridRichTA_25km,
-                                              plantgridRichTA_50km, plantgridRichTA_75km,
-                                              plantgridRichTA_100km,
-                                              ncol = 5, nrow = 1,
-                                              labels = c("10 km", "25 km", "50 km", "75 km", "100 km"),
-                                              common.legend = TRUE, legend = "right")
-all_plant_richness_plots
-all_plant_richness_plots_labeled <- ggpubr::annotate_figure(all_plant_richness_plots,
-                                                            left = ggpubr::text_grob("Plants", face = "bold", size = 14))
-all_plant_richness_plots_labeled
+saveRDS(richness_5km, file = file.path(output_path,"richness_5km.rds"))
+saveRDS(richness_10km, file = file.path(output_path,"richness_10km.rds"))
+saveRDS(richness_25km, file = file.path(output_path,"richness_25km.rds"))
+saveRDS(richness_50km, file = file.path(output_path,"richness_50km.rds"))
+saveRDS(richness_75km, file = file.path(output_path,"richness_75km.rds"))
+saveRDS(richness_100km, file = file.path(output_path,"richness_100km.rds"))
 ```
 
+# Save plots to file
+```{r}
+plot_list <- list(plantgridRichTA_5km = plantgridRichTA_5km, plantgridRichTA_10km = plantgridRichTA_10km,
+                  plantgridRichTA_25km = plantgridRichTA_25km, plantgridRichTA_50km = plantgridRichTA_50km,
+                  plantgridRichTA_75km = plantgridRichTA_75km, plantgridRichTA_100km = plantgridRichTA_100km,
+                  frugivoregridRichTA_5km = frugivoregridRichTA_5km, frugivoregridRichTA_10km = frugivoregridRichTA_10km,
+                  frugivoregridRichTA_25km = frugivoregridRichTA_25km, frugivoregridRichTA_50km = frugivoregridRichTA_50km,
+                  frugivoregridRichTA_75km = frugivoregridRichTA_75km, frugivoregridRichTA_100km = frugivoregridRichTA_100km)
+#histogram_list <- list(plant_richness_hist_5km = richness_5km$plant_richness_hist, 
+#                       frugivore_richness_hist_5km = richness_5km$frugivore_richness_hist,
+#                       plant_richness_hist_10km = richness_10km$plant_richness_hist,
+#                       frugivore_richness_hist_10km = richness_10km$frugivore_richness_hist,
+#                       plant_richness_hist_25km = richness_25km$plant_richness_hist,
+#                       frugivore_richness_hist_55km = richness_25km$frugivore_richness_hist,
+#                       plant_richness_hist_50km = richness_50km$plant_richness_hist,
+#                       frugivore_richness_hist_50km = richness_50km$frugivore_richness_hist,
+#                       plant_richness_hist_75km = richness_75km$plant_richness_hist,
+#                       frugivore_richness_hist_75km = richness_75km$frugivore_richness_hist,
+#                       plant_richness_hist_100km = richness_100km$plant_richness_hist,
+#                       frugivore_richness_hist_100km = richness_100km$frugivore_richness_hist)
+#histograms would have to be converted to ggplot to save
+```
+
+```{r}
+save_plots <- function(plot_list, figure_path) {
+  # Iterate over the list and save each plot
+  for (plot_name in names(plot_list)) {
+    plot_path <- file.path(figure_path, paste0(plot_name, ".png"))
+    
+    # Try to save the plot and handle any potential errors
+    tryCatch({
+      ggsave(filename = plot_path, 
+             plot = plot_list[[plot_name]])
+      cat("Saved plot:", plot_path, "\n")
+    }, error = function(e) {
+      cat("Failed to save plot:", plot_name, "\nError message:", e$message, "\n")
+    })
+  }
+}
+```
+
+```{r}
+# Save the plots
+save_plots(plot_list, figure_path)
+```
+
+
+
+# Multi panel plots of richness maps
+## Plants
+```{r}
+# Add labels and remove axis labels from all plots
+plantgridRichTA_5km_labeled <- plantgridRichTA_5km + ggtitle("5 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+plantgridRichTA_10km_labeled <- plantgridRichTA_10km + ggtitle("10 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+plantgridRichTA_25km_labeled <- plantgridRichTA_25km + ggtitle("25 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+plantgridRichTA_50km_labeled <- plantgridRichTA_50km + ggtitle("50 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+plantgridRichTA_75km_labeled <- plantgridRichTA_75km + ggtitle("75 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+plantgridRichTA_100km_labeled <- plantgridRichTA_100km + ggtitle("100 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+plantgridRichTA_100km_labeled
+```
+
+```{r}
+# Arrange the plots with common legend
+all_plant_richness_plots <- ggarrange(plantgridRichTA_5km_labeled, plantgridRichTA_10km_labeled,
+                                      plantgridRichTA_25km_labeled, plantgridRichTA_50km_labeled,
+                                      plantgridRichTA_75km_labeled, plantgridRichTA_100km_labeled,
+                                      ncol = 6, nrow = 1,
+                                      common.legend = TRUE, legend = "left")
+
+all_plant_richness_plots
+```
+
+
+```{r}
+# Add "Plants" label above the legend
+all_plant_richness_plots_labeled <- all_plant_richness_plots + theme(legend.title = element_text("Plants\n S"))
+all_plant_richness_plots_labeled
+ggsave("plant_richness_plots.png", all_plant_richness_plots_labeled, path = figure_path, width = 18, height = 8, units = "in")
+```
+
+## Frugivores
 ```{r}
 all_frugivore_richness_plots <- ggpubr::ggarrange(#frugivoregridRichTA_5km, 
                                               frugivoregridRichTA_10km, frugivoregridRichTA_25km,
@@ -237,11 +332,16 @@ all_frugivore_richness_plots <- ggpubr::ggarrange(#frugivoregridRichTA_5km,
                                               ncol = 5, nrow = 1,
                                               labels = c("10 km", "25 km", "50 km", "75 km", "100 km"),
                                               common.legend = TRUE, legend = "right")
+```
+
+```{r}
 all_frugivore_richness_plots_labeled <- ggpubr::annotate_figure(all_frugivore_richness_plots,
                                                             left = ggpubr::text_grob("Frugivores", face = "bold", size = 14))
 all_frugivore_richness_plots_labeled
+ggsave("frugivore_richness_plots.png", all_frugivore_richness_plots_labeled, path = figure_path, width = 11, height = 8, units = "in")
 ```
 
+## Combine plants & frugivores
 ```{r}
 all_richness_plots <- ggpubr::ggarrange(all_plant_richness_plots_labeled,
                                         all_frugivore_richness_plots_labeled,
@@ -251,7 +351,6 @@ ggsave("all_richness_plots.png", all_richness_plots, path = figure_path, width =
 ```
 
 # Write data to csv
-
 ```{r}
 write.csv(plant_cellRichness_5km, file.path(output_path,"TropicalAndes_plantRichness_5km.csv"))
 write.csv(frugivore_cellRichness_5km, file.path(output_path,"TropicalAndes_frugivoreRichness_5km.csv"))
