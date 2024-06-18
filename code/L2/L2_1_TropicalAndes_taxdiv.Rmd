@@ -317,28 +317,40 @@ all_plant_richness_plots
 
 
 ```{r}
-# Add "Plants" label above the legend
-all_plant_richness_plots_labeled <- all_plant_richness_plots + theme(legend.title = element_text("Plants\n S"))
+all_plant_richness_plots_labeled <- ggpubr::annotate_figure(all_plant_richness_plots,
+                                                            left = ggpubr::text_grob("Plants", face = "bold", size = 14, 
+                                                                                     rot = 90))
 all_plant_richness_plots_labeled
-ggsave("plant_richness_plots.png", all_plant_richness_plots_labeled, path = figure_path, width = 18, height = 8, units = "in")
+ggsave("plant_richness_plots.png", all_plant_richness_plots_labeled, path = figure_path, width = 20, height = 5, units = "in")
 ```
 
 ## Frugivores
 ```{r}
-all_frugivore_richness_plots <- ggpubr::ggarrange(#frugivoregridRichTA_5km, 
-                                              frugivoregridRichTA_10km, frugivoregridRichTA_25km,
-                                              frugivoregridRichTA_50km, frugivoregridRichTA_75km,
-                                              frugivoregridRichTA_100km,
-                                              ncol = 5, nrow = 1,
-                                              labels = c("10 km", "25 km", "50 km", "75 km", "100 km"),
-                                              common.legend = TRUE, legend = "right")
+# Add labels and remove axis labels from all plots
+frugivoregridRichTA_5km_labeled <- frugivoregridRichTA_5km + ggtitle("5 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+frugivoregridRichTA_10km_labeled <- frugivoregridRichTA_10km + ggtitle("10 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+frugivoregridRichTA_25km_labeled <- frugivoregridRichTA_25km + ggtitle("25 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+frugivoregridRichTA_50km_labeled <- frugivoregridRichTA_50km + ggtitle("50 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+frugivoregridRichTA_75km_labeled <- frugivoregridRichTA_75km + ggtitle("75 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+frugivoregridRichTA_100km_labeled <- frugivoregridRichTA_100km + ggtitle("100 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+frugivoregridRichTA_100km_labeled
+```
+
+```{r}
+all_frugivore_richness_plots <- ggpubr::ggarrange(frugivoregridRichTA_5km_labeled,frugivoregridRichTA_10km_labeled,
+                                                  frugivoregridRichTA_25km_labeled, frugivoregridRichTA_50km_labeled,
+                                                  frugivoregridRichTA_75km_labeled, frugivoregridRichTA_100km_labeled,
+                                                  ncol = 6, nrow = 1,
+                                                  common.legend = TRUE, legend = "left")
+all_frugivore_richness_plots
 ```
 
 ```{r}
 all_frugivore_richness_plots_labeled <- ggpubr::annotate_figure(all_frugivore_richness_plots,
-                                                            left = ggpubr::text_grob("Frugivores", face = "bold", size = 14))
+                                                            left = ggpubr::text_grob("Frugivores", face = "bold", size = 14,
+                                                                                     rot = 90))
 all_frugivore_richness_plots_labeled
-ggsave("frugivore_richness_plots.png", all_frugivore_richness_plots_labeled, path = figure_path, width = 11, height = 8, units = "in")
+ggsave("frugivore_richness_plots.png", all_frugivore_richness_plots_labeled, path = figure_path, width = 20, height = 4, units = "in")
 ```
 
 ## Combine plants & frugivores
@@ -346,8 +358,11 @@ ggsave("frugivore_richness_plots.png", all_frugivore_richness_plots_labeled, pat
 all_richness_plots <- ggpubr::ggarrange(all_plant_richness_plots_labeled,
                                         all_frugivore_richness_plots_labeled,
                                         ncol = 1, nrow = 2)
+# Add a white background to the plot
+all_richness_plots <- all_richness_plots + theme(plot.background = element_rect(fill = "white", color = NA))
 all_richness_plots
-ggsave("all_richness_plots.png", all_richness_plots, path = figure_path, width = 11, height = 8, units = "in")
+
+ggsave("all_richness_plots.png", all_richness_plots, path = figure_path, width = 20, height = 8, units = "in")
 ```
 
 # Write data to csv
