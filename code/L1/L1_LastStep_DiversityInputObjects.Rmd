@@ -1,13 +1,16 @@
 ---
-title: ""
+title: "Creating Diversity Input Objects"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "Projecting occurrence data and creating presence-absence matrix for plants and frugivores. "
-data input: 
-data output: 
+#data input: ""
+#data output: ""
 date: "2024-05-13"
-output: html_document
+output: 
+  html_document:
+    highlight_downlit = TRUE
+    df_print: tibble
 ---
 
 # Load required packages
@@ -22,6 +25,7 @@ library(fasterize)
 library(funbiogeo)
 library(dplyr)
 library(tidyr)
+library(ggspatial)
 library(ggplot2)
 library(ggpubr)
 ```
@@ -31,11 +35,12 @@ library(ggpubr)
 data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 ```
 
 # Read in Data
 ```{r}
-TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_plant_occ_cleaned_subset.csv"))
+TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv"))
 TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_frugivore_occ_cleaned_subset.csv"))
 TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
 frugivore_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_Frugivoria_traits_Forest.csv"))
@@ -99,6 +104,7 @@ ggplot() +
   theme(panel.background = element_rect(fill = "lightblue"))
 
 basePlot
+ggsave("tropical_andes_forest_map.png", plot = last_plot(), path = figure_path)
 ```
 
 # Plot points
@@ -116,6 +122,7 @@ ggplot() +
   theme(panel.background = element_rect(fill = "lightblue"))
 
 plantsPointsPlot
+ggsave("plant_occurrence_points_map.png", plot = last_plot(), path = figure_path)
 ```
 
 ```{r}
@@ -130,13 +137,20 @@ ggplot() +
   annotation_north_arrow(location = "bl", which_north = "true", 
     pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
   theme(panel.background = element_rect(fill = "lightblue"))
-
 frugivoresPointsPlot
+ggsave("frugivore_occurrence_points_map.png", plot = last_plot(), path = figure_path)
+```
+
+```{r}
+both_points_maps <- ggpubr::ggarrange(plantsPointsPlot,
+                                        frugivoresPointsPlot,
+                                        ncol = 2, nrow = 1)
+both_points_maps
+ggsave("both_points_maps.png", both_points_maps, path = figure_path)
 ```
 
 
 # Create Presence-Absense matrix
-
 ```{r}
 create_presence_absence_matrix <- function(resolution_meters, species_sf) {
   # Make Grid
@@ -419,7 +433,7 @@ rownames(frugivore_traits_df_subset) <- row_names_frugivore
 plant_traits_df_subset$X <-NULL
 frugivore_traits_df_subset$X <-NULL
 # remove duplicate species name column
-plant_traits_df_subset <- plant_traits_df_subset[, c("Growth.Form", "Plant.Height_m", "Fruit.Length_mm", "Fruit.Type")]
+plant_traits_df_subset$species <- NULL
 frugivore_traits_df_subset <- frugivore_traits_df_subset[, c("diet_cat", "body_mass_e", "body_size_mm", "generation_time")]
 ```
 
