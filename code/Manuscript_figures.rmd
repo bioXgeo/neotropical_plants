@@ -4,8 +4,6 @@ author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "This script generates misc figures for manuscript that corresponds to this project."
-data input: ""
-data output: ""
 date: "2024-05-14"
 output: 
     html_document:
@@ -23,69 +21,70 @@ library(ggplot2)
 library(tidyverse)
 library(dplyr)
 library(tidyr)
-# devtools::install_github("pedropark99/ggfunnel")
-library(ggfunnel)
 library(ggpubr)
 library(networkD3)
+#devtools::install_github("davidsjoberg/ggsankey")
+library(ggsankey)
 ```
 
 # Creating cleaning occurrence data figures
 
-These numbers are recorded from the summary function at the end of most L0 and L1 scripts. A table is available in the manuscript supplemential materials.
+These numbers are recorded from the summary function at the end of most L0 and L1 scripts. A table is available in the manuscript supplemental materials.
 
 ## Frugivores
-
 ```{r}
 Step <- c("Raw", "After cleaning", "Full trait coverage")
-frug_records <- c(8089513, 1721825, 1667892)
-frug_species <- c(1222, 1219, 1074)
+frug_records <- c(8885330, 1721825, 1667892)
+frug_species <- c(1360, 1219, 1074)
 frug_genera <- c(400, 398, 370)
 frug_families <- c(66, 66, 64)
 
-frug_records_df <- data.frame(Step, frug_records)
-frug_species_df <- data.frame(Step, frug_species)
-frug_genera_df <- data.frame(Step, frug_genera)
-frug_families_df <- data.frame(Step, frug_families)
+frug_summary_df <- data.frame(Step, frug_records, frug_species, frug_genera, frug_families)
+
+# Reshape data to long format suitable for plotting
+frug_summary_long <- frug_summary_df %>%
+  pivot_longer(cols = starts_with("frug"), names_to = "Category", values_to = "Value")
 ```
 
 ```{r}
-ggplot(frug_records_df, aes(x = Step, y = frug_records)) +
-  geom_bar(stat = "identity") +
-  coord_flip() +
-  geom_text(aes(label = frug_records), color = "white") + 
-  theme(axis.title.x = element_blank(), axis.text.x = element_blank(),axis.ticks.x = element_blank(), axis.title.y = element_blank())
+# Define the order of steps with "Raw" at the top
+step_order <- c("Full trait coverage", "After cleaning", "Raw")
+
+# Convert Step to factor with defined order
+frug_summary_long$Step <- factor(frug_summary_long$Step, levels = step_order)
+
+# Replace Category labels with more descriptive names
+frug_summary_long <- frug_summary_long %>%
+  mutate(Category = case_when(
+    Category == "frug_records"   ~ "Records",
+    Category == "frug_species"   ~ "Species",
+    Category == "frug_genera"    ~ "Genera",
+    Category == "frug_families"  ~ "Families",
+    TRUE                         ~ as.character(Category)  # Handle any other cases
+  ))
+
+# Define the order of categories
+category_order <- c("Records", "Species", "Genera", "Families")
+
+# Convert Category to factor with defined order
+frug_summary_long$Category <- factor(frug_summary_long$Category, levels = category_order)
+
 ```
 
 ```{r}
-frug_records_fig <- ggfunnel::funnel(frug_records_df, levels = Step, values = frug_records, text_specs = list(colour = "white", size = 3)) +
-  labs(title = "Frugivore records", y = NULL)
-frug_records_fig
+(frugivore_summary_plot <- ggplot(frug_summary_long, aes(y = Step, x = Value, fill = Category)) +
+  geom_bar(stat = "identity", position = "stack") +
+  facet_wrap(. ~ Category, scales = "free_x") +
+  labs(title = "Frugivore Data Summary",
+       x = "Value",
+       y = NULL) +
+  theme_minimal() +
+  theme(strip.background = element_blank(),  # Remove background from facet labels
+        strip.text = element_text(size = 12, face = "bold"),
+        legend.position = "none"))
+ggsave("frugivore_summary_plot.png", frugivore_summary_plot, path = figure_path)
 ```
 
-```{r}
-frug_species_fig <- ggfunnel::funnel(frug_species_df, levels = Step, values = frug_species, text_specs = list(colour = "white", size = 3)) +
-  labs(title = "Frugivore species", y = NULL)
-frug_species_fig
-```
-
-```{r}
-frug_genera_fig <- ggfunnel::funnel(frug_genera_df, levels = Step, values = frug_genera, text_specs = list(colour = "white", size = 3)) +
-  labs(title = "Frugivore genera", y = NULL)
-frug_genera_fig
-```
-
-```{r}
-frug_families_fig <- ggfunnel::funnel(frug_families_df, levels = Step, values = frug_families, text_specs = list(colour = "white", size = 3)) +
-  labs(title = "Frugivore families", y = NULL)
-frug_families_fig
-```
-
-```{r}
-frug_cleaning <- ggarrange(frug_records_fig,frug_species_fig, frug_genera_fig, frug_families_fig,
-                    labels = c("A", "B", "C", "D"),
-                    ncol = 2, nrow = 2)
-frug_cleaning
-```
 
 ## Plants
 
@@ -96,58 +95,111 @@ plant_species <- c(40288, 39972, 33746)
 plant_genera <- c(4083, 3793, 3400)
 plant_families <- c(307, 293, 275)
 
-plant_records_df <- data.frame(Step, plant_records)
-plant_species_df <- data.frame(Step, plant_species)
-plant_genera_df <- data.frame(Step, plant_genera)
-plant_families_df <- data.frame(Step, plant_families)
+plant_summary_df <- data.frame(Step, plant_records, plant_species, plant_genera, plant_families)
+
+# Reshape data to long format suitable for plotting
+plant_summary_long <- plant_summary_df %>%
+  pivot_longer(cols = starts_with("plant"), names_to = "Category", values_to = "Value")
 ```
 
 ```{r}
-ggplot(plant_records_df, aes(x = Step, y = plant_records)) +
-  geom_bar(stat = "identity", fill = "darkgreen") +
-  coord_flip() +
-  geom_text(aes(label = plant_records), vjust = -0.3, size = 4) + 
-  labs(title = "Plant Records", y = "Count") +
-  theme_minimal()
+# Define the order of steps with "Raw" at the top
+step_order <- c("Full trait coverage", "After cleaning", "Raw")
+
+# Convert Step to factor with defined order
+plant_summary_long$Step <- factor(plant_summary_long$Step, levels = step_order)
+
+# Replace Category labels with more descriptive names
+plant_summary_long <- frug_summary_long %>%
+  mutate(Category = case_when(
+    Category == "plant_records"   ~ "Records",
+    Category == "plant_species"   ~ "Species",
+    Category == "plant_genera"    ~ "Genera",
+    Category == "plant_families"  ~ "Families",
+    TRUE                         ~ as.character(Category)  # Handle any other cases
+  ))
+
+# Define the order of categories
+category_order <- c("Records", "Species", "Genera", "Families")
+
+# Convert Category to factor with defined order
+plant_summary_long$Category <- factor(plant_summary_long$Category, levels = category_order)
+
 ```
 
 ```{r}
-plant_records_fig <- ggfunnel::funnel(plant_records_df, levels = Step, values = plant_records, text_specs = list(colour = "white", size = 3)) +
-  labs(title = "Plant records", y = NULL)
-plant_records_fig
+(plant_summary_plot <- ggplot(plant_summary_long, aes(y = Step, x = Value, fill = Category)) +
+  geom_bar(stat = "identity", position = "stack") +
+  facet_wrap(. ~ Category, scales = "free_x") +
+  labs(title = "Plant Data Summary",
+       x = "Value",
+       y = NULL) +
+  theme_minimal() +
+  theme(strip.background = element_blank(),  # Remove background from facet labels
+        strip.text = element_text(size = 12, face = "bold"),
+        legend.position = "none"))
+ggsave("plant_summary_plot.png", plant_summary_plot, path = figure_path)
 ```
 
-```{r}
-plant_species_fig <- ggfunnel::funnel(plant_species_df, levels = Step, values = plant_species, text_specs = list(colour = "white", size = 3)) +
-  labs(title = "Plant species", y = NULL)
-plant_species_fig
-```
-
-```{r}
-plant_genera_fig <- ggfunnel::funnel(plant_genera_df, levels = Step, values = plant_genera, text_specs = list(colour = "white", size = 3)) +
-  labs(title = "Plant genera", y = NULL)
-plant_genera_fig
-```
-
-```{r}
-plant_families_fig <- ggfunnel::funnel(plant_families_df, levels = Step, values = plant_families, text_specs = list(colour = "white", size = 3)) +
-  labs(title = "Plant families", y = NULL)
-plant_families_fig
-```
-
-```{r}
-plant_cleaning <- ggarrange(plant_records_fig,plant_species_fig, plant_genera_fig, plant_families_fig,
-                    labels = c("A", "B", "C", "D"),
-                    ncol = 2, nrow = 2)
-plant_cleaning
-```
-
-# Create Sankey diagram for 
+# Create Sankey diagram for taxonomic harmonization
 Inspiration figures: https://conbio-onlinelibrary-wiley-com.proxy2.cl.msu.edu/doi/10.1111/csp2.311#csp2311-fig-0003 and https://bsapubs-onlinelibrary-wiley-com.proxy2.cl.msu.edu/doi/full/10.1002/aps3.11575#aps311575-fig-0003
 
+Package used (databases)    Plant species inputted    Matches   Disparities
+TNRS                        487,201                   472,680   14,548
+bdc (COL)                   14,548                    5,177     9,371
+
+*The following code doesn't generate the figure like I want.*
 ```{r}
+# Create connection dataframe
+links <- data.frame(
+  source = c("Plant species inputted", "TNRS", "TNRS", "Disparities", "bdc (COL)", "bdc (COL)", "Matches"),
+  target = c("TNRS", "Matches", "Disparities", "bdc (COL)", "Matches", "Species dropped", "Species harmonized"),
+  value = c(487201, 472680, 14548, 14548, 5177, 9371, 476010)
+)
+
+# Create nodes
+nodes <- data.frame(
+  name = c(as.character(links$source),
+           as.character(links$target) %>% unique())
+)
+
+# Reformat connections
+links$IDsource <- match(links$source, nodes$name)-1
+links$IDtarget <- match(links$target, nodes$name)-1
+
+
+
+# Create the Sankey diagram
+sankeyNetwork(Links = links, Nodes = nodes, Source = "IDsource", Target = "IDtarget",
+              Value = "value", NodeID = "name")
+```
+
+```{r}
+# Create the data frames for the nodes and links
+sankey_data <- data.frame(
+  x = c("source", "target", "target", "source", "target", "target", "source", "target", "source"),
+  node = c("Plant species inputted", "TNRS", "TNRS", "Disparities", "bdc (COL)", "bdc (COL)", "Species dropped", "Matches", "Species harmonized"),
+  next_x = c("target", "source", "source", "target", "source", "source", NA, "source", NA),
+  next_node = c("TNRS", "Matches", "Disparities", "bdc (COL)", "Matches", "Species dropped", NA, "Species harmonized", NA),
+  value = c(487201, 472680, 14548, 14548, 5177, 9371, 9371, 476010, 476010)
+)
 
 ```
+
+```{r}
+# Create the Sankey diagram
+ggplot(sankey_data, aes(x = x, next_x = next_x, node = node, next_node = next_node, value = value)) +
+  geom_sankey(flow.fill = "darkgrey", node.fill = "darkblue", node.color = "darkblue", alpha = 0.5) +
+  geom_sankey_label(aes(label = node), size = 3, fill = "white") +
+  theme_sankey(base_size = 12) +
+  theme_void() +
+  labs(title = "Plant Species Matching Workflow",
+       subtitle = "Visualization of species input, TNRS and BDC matching process",
+       x = NULL,
+       y = NULL) +
+  theme(legend.position = "none")
+```
+
 
 # References
 
@@ -156,12 +208,8 @@ library(report)
 cite_packages()
 ```
 
-<details>
-
-<summary><h1>Session Info</h1></summary>
 
 ```{r, class.source= 'fold-hide'}
 devtools::session_info()
 ```
 
-</details>
