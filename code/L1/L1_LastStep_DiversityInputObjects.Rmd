@@ -95,7 +95,7 @@ basePlot <-
 ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
-  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "forestgreen")+
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "forestgreen") +
   labs(title = "Tropical Andes", x = "Latitude", y = "Longitude") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
   annotation_scale(location = "bl", width_hint = 0.5) +
@@ -113,16 +113,19 @@ plantsPointsPlot <-
 ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
-  geom_sf(data = plants_sf_species, pch = 21) +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "forestgreen") + 
+  geom_sf(data = plants_sf_species, pch = 16, alpha = 0.1, size = 0.01) +
   labs(title = "Tropical Andes Plant Occurrences", x = "Latitude", y = "Longitude") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
   annotation_scale(location = "bl", width_hint = 0.5) +
-  annotation_north_arrow(location = "bl", which_north = "true", 
-    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  annotation_north_arrow(location = "tr", which_north = "true",
+                         height = unit(0.5, "in"), width = unit(0.5, "in"),
+                         pad_x = unit(0.1, "in"), pad_y = unit(0.1, "in"),
+                         style = north_arrow_fancy_orienteering) +
   theme(panel.background = element_rect(fill = "lightblue"))
 
 plantsPointsPlot
-ggsave("plant_occurrence_points_map.png", plot = last_plot(), path = figure_path)
+#ggsave("plant_occurrence_points_map.png", plot = last_plot(), path = figure_path)
 ```
 
 ```{r}
@@ -130,15 +133,18 @@ frugivoresPointsPlot <-
 ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
-  geom_sf(data = frugivores_sf_species, pch = 21) +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "forestgreen") +
+  geom_sf(data = frugivores_sf_species, pch = 16, alpha = 0.1, size = 0.01) +
   labs(title = "Tropical Andes Frugivore Occurrences", x = "Latitude", y = "Longitude") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
   annotation_scale(location = "bl", width_hint = 0.5) +
-  annotation_north_arrow(location = "bl", which_north = "true", 
-    pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
+  annotation_north_arrow(location = "tr", which_north = "true",
+                         height = unit(0.5, "in"), width = unit(0.5, "in"),
+                         pad_x = unit(0.1, "in"), pad_y = unit(0.1, "in"),
+                         style = north_arrow_fancy_orienteering) +
   theme(panel.background = element_rect(fill = "lightblue"))
 frugivoresPointsPlot
-ggsave("frugivore_occurrence_points_map.png", plot = last_plot(), path = figure_path)
+#ggsave("frugivore_occurrence_points_map.png", plot = last_plot(), path = figure_path)
 ```
 
 ```{r}
@@ -146,7 +152,7 @@ both_points_maps <- ggpubr::ggarrange(plantsPointsPlot,
                                         frugivoresPointsPlot,
                                         ncol = 2, nrow = 1)
 both_points_maps
-ggsave("both_points_maps.png", both_points_maps, path = figure_path)
+ggsave("both_points_maps.png", both_points_maps, path = figure_path, height =  7, width = 8, units = "in")
 ```
 
 
