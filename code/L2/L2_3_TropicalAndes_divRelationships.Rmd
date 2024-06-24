@@ -3,9 +3,7 @@ title: "Diversity relationships for plants and frugivores"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
-overview: "This script compares taxonomic and functional diversity relationships for plants and frugivores for various spatial grains and combined diversity for each grain."
-data input: "ADD"
-data output: "ADD"
+overview: "This script compares taxonomic and functional diversity relationships for plants and frugivores for various spatial grains."
 date: "2024-05-16"
 output: html_document
 ---
@@ -23,13 +21,13 @@ library(dplyr)
 library(ggplot2)
 library(smoothr)
 library(purrr)
+library(ggtrendline)
+library(ggpubr)
+library(tidyr)
 ```
 
 # Read in Data
 ```{r}
-plant_cellRichness_1km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantRichness_1km.csv"))
-frugivore_cellRichness_1km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreRichness_1km.csv"))
-
 plant_cellRichness_5km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantRichness_5km.csv"))
 frugivore_cellRichness_5km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreRichness_5km.csv"))
 
@@ -49,80 +47,797 @@ plant_cellRichness_100km <- read.csv(file.path(data_path_L2,"TropicalAndes_plant
 frugivore_cellRichness_100km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreRichness_100km.csv"))
 ```
 
-# 1 km
-# 5 km
-# 10 km
-# 25 km
-# 50 km
-# 75 km
-# 100 km
 ```{r}
+plant_cellFDis_5km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantFDis_5km.csv"))
+frugivore_cellFDis_5km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreFDis_5km.csv"))
+
+plant_cellFDis_10km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantFDis_10km.csv"))
+frugivore_cellFDis_10km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreFDis_10km.csv"))
+
+plant_cellFDis_25km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantFDis_25km.csv"))
+frugivore_cellFDis_25km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreFDis_25km.csv"))
+
+plant_cellFDis_50km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantFDis_50km.csv"))
+frugivore_cellFDis_50km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreFDis_50km.csv"))
+
+plant_cellFDis_75km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantFDis_75km.csv"))
+frugivore_cellFDis_75km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreFDis_75km.csv"))
+
+plant_cellFDis_100km <- read.csv(file.path(data_path_L2,"TropicalAndes_plantFDis_100km.csv"))
+frugivore_cellFDis_100km <- read.csv(file.path(data_path_L2,"TropicalAndes_frugivoreFDis_100km.csv"))
+```
+
+# Preliminary plots
+Check the data and inspect possible relationships
+
+```{r}
+plot(plant_cellRichness_100km$num_species, frugivore_cellRichness_100km$num_species)
+plot(plant_cellRichness_75km$num_species, frugivore_cellRichness_75km$num_species)
+plot(plant_cellRichness_50km$num_species, frugivore_cellRichness_50km$num_species)
+plot(plant_cellRichness_25km$num_species, frugivore_cellRichness_25km$num_species)
+plot(plant_cellRichness_10km$num_species, frugivore_cellRichness_10km$num_species)
+plot(plant_cellRichness_5km$num_species, frugivore_cellRichness_5km$num_species)
+```
+
+```{r}
+plot(plant_cellFDis_100km$fdis_value, frugivore_cellFDis_100km$fdis_value)
+plot(plant_cellFDis_75km$fdis_value, frugivore_cellFDis_75km$fdis_value)
+plot(plant_cellFDis_50km$fdis_value, frugivore_cellFDis_50km$fdis_value)
+plot(plant_cellFDis_25km$fdis_value, frugivore_cellFDis_25km$fdis_value)
+plot(plant_cellFDis_10km$fdis_value, frugivore_cellFDis_10km$fdis_value)
+plot(plant_cellFDis_5km$fdis_value, frugivore_cellFDis_5km$fdis_value)
+```
+
+```{r}
+plot(plant_cellRichness_5km$num_species, plant_cellFDis_5km$fdis_value)
+plot(plant_cellRichness_10km$num_species, plant_cellFDis_10km$fdis_value)
+plot(plant_cellRichness_25km$num_species, plant_cellFDis_25km$fdis_value)
+plot(plant_cellRichness_50km$num_species, plant_cellFDis_50km$fdis_value)
+plot(plant_cellRichness_75km$num_species, plant_cellFDis_75km$fdis_value)
+plot(plant_cellRichness_100km$num_species, plant_cellFDis_100km$fdis_value)
+```
+
+```{r}
+plot(frugivore_cellRichness_5km$num_species, frugivore_cellFDis_5km$fdis_value)
+plot(frugivore_cellRichness_10km$num_species, frugivore_cellFDis_10km$fdis_value)
+plot(frugivore_cellRichness_25km$num_species, frugivore_cellFDis_25km$fdis_value)
+plot(frugivore_cellRichness_50km$num_species, frugivore_cellFDis_50km$fdis_value)
+plot(frugivore_cellRichness_75km$num_species, frugivore_cellFDis_75km$fdis_value)
+plot(frugivore_cellRichness_100km$num_species, frugivore_cellFDis_100km$fdis_value)
+```
+
+# Compare diversity relationships between plants and frugivores
+## Function for comparing diversity relationships
+For comparing richness, use exp3P and line2P for line types
+For comparing FDis, use line3P and line2P for line types
+
+line colors: line2P is "red", line3P is "blue", exp3P is "purple"
+```{r}
+compare_Richness <- function(plant_Richness_grid, frugivore_Richness_grid, resolution_meters){
   # Extract cell values
-  comparison_data_100km <- data.frame(Plant_Richness = plant_richness_grid_100km$num_species,
-                               Frugivore_Richness = frugivore_richness_grid_100km$num_species)
+  comparison_Richness <- data.frame(Plant_Richness = plant_Richness_grid$num_species,
+                               Frugivore_Richness = frugivore_Richness_grid$num_species)
   
   # Filter out rows where either plant or frugivore richness is zero
-  comparison_data_filtered_100km <- comparison_data %>%
+  comparison_Richness_filtered <- comparison_Richness %>%
                                 filter(Plant_Richness > 0 & Frugivore_Richness > 0)
-```
-
-
-```{r}
-# Compare plant and frugivore richness
-  ## Fit a linear model
-  compare_richness_linear_summary_100km <- summary(lm(comparison_data_filtered_100km$Frugivore_Richness ~
-                                                  comparison_data_filtered_100km$Plant_Richness))
-  linear_r_squared_100km <- compare_richness_linear_summary_100km$r.squared
   
-  ## Fit an exponential model
-  compare_richness_exponential_summary_100km <- summary(lm(comparison_data_filtered_100km$Frugivore_Richness ~
-                                                       log(comparison_data_filtered_100km$Plant_Richness)))
-  exponential_r_squared_100km <- compare_richness_exponential_summary_100km$r.squared
-
-  ## Create scatter plot with linear and exponential lines
-  compare_richness_plot_100km <- ggplot(comparison_data_filtered_100km,
-                                        aes(x = Plant_Richness, y = Frugivore_Richness)) +
-  geom_point() +
-  labs(title = paste("Plant Richness vs Frugivore Richness [", resolution_meters/1000, " km]", sep = ""),
-       subtitle =  paste("Linear (Red) R-squared = ", round(linear_r_squared, 2), "\n",
-                  "Exponential (Blue) R-squared = ", round(exponential_r_squared, 2)),
+  # Calculate Annotation position
+  mean_x <- max(comparison_Richness_filtered$Plant_Richness) / 2
+  annot_y <- max(comparison_Richness_filtered$Frugivore_Richness) + 25
+  
+  # Create scatter plots
+  compare_Richness_plot_line2P <- ggtrendline(comparison_Richness_filtered$Plant_Richness,
+               comparison_Richness_filtered$Frugivore_Richness, model = "line2P", linecolor = "red", linewidth = 1,
+               CI.level = NA, summary = FALSE, show.eq = FALSE, show.pvalue = FALSE, rrp.x = mean_x, rrp.y = annot_y, 
+               text.col = "red", eSize = 4) +
+      geom_point(aes(x = comparison_Richness_filtered$Plant_Richness,
+                                           y = comparison_Richness_filtered$Frugivore_Richness), alpha = 0.25, size = 1) +
+      labs(title = paste("Comparing Richness [", resolution_meters/1000, " km]", sep = ""),
+           subtitle = "Fitted with a linear model",
        x = "Plant Richness by cell", y = "Frugivore Richness by cell") +
-  geom_smooth(method = "lm", se = FALSE, color = "red")+
-  geom_smooth(method = "lm", se = FALSE, color = "blue", formula = y ~ log(x)) +
-  coord_cartesian(xlim = c(0, NA), ylim = c(0, NA))
+      scale_x_continuous(expand = c(0, 0)) + 
+      scale_y_continuous(expand = c(0, 0)) + 
+      theme_minimal() +
+      theme(panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            axis.line = element_line(color = "black"),
+            axis.ticks = element_line(color = "black"),
+            axis.text = element_text(color = "black"))
+  
+  compare_Richness_plot_exp3P <- ggtrendline(comparison_Richness_filtered$Plant_Richness,
+               comparison_Richness_filtered$Frugivore_Richness, model = "exp3P", linecolor = "purple", linewidth = 1,
+               CI.level = NA, summary = FALSE, show.eq = FALSE, show.pvalue = FALSE, rrp.x = mean_x, rrp.y = annot_y, 
+               text.col = "purple", eSize = 4) +
+      geom_point(aes(x = comparison_Richness_filtered$Plant_Richness,
+                                           y = comparison_Richness_filtered$Frugivore_Richness), alpha = 0.25, size = 1) +
+      labs(title = paste("Comparing Richness [", resolution_meters/1000, " km]", sep = ""),
+           subtitle = "Fitted with an exponential model",
+       x = "Plant Richness by cell", y = "Frugivore Richness by cell") +
+      scale_x_continuous(expand = c(0, 0)) + 
+      scale_y_continuous(expand = c(0, 0)) + 
+      theme_minimal() +
+      theme(panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            axis.line = element_line(color = "black"),
+            axis.ticks = element_line(color = "black"),
+            axis.text = element_text(color = "black"))
+  
+    # Summaries of models used for trendlines
+  line2P_summary <- trendline_sum(comparison_Richness_filtered$Plant_Richness,
+               comparison_Richness_filtered$Frugivore_Richness, model = "line2P")
+  exp3P_summary <- trendline_sum(comparison_Richness_filtered$Plant_Richness,
+               comparison_Richness_filtered$Frugivore_Richness, model = "exp3P")
+  
+  # Combine trendlines into one plot
+  compare_Richness_plot_both <- ggtrendline(comparison_Richness_filtered$Plant_Richness,
+               comparison_Richness_filtered$Frugivore_Richness, model = "exp3P", linecolor = "purple", linewidth = 1,
+               CI.level = NA, summary = FALSE, show.eq = FALSE, show.pvalue = FALSE, show.Rsquare = FALSE) +
+      geom_smooth(aes(x = comparison_Richness_filtered$Plant_Richness, y = comparison_Richness_filtered$Frugivore_Richness), 
+              method = "lm", se = FALSE, color = "red", linetype = "solid") +
+      geom_point(aes(x = comparison_Richness_filtered$Plant_Richness,
+                                           y = comparison_Richness_filtered$Frugivore_Richness), alpha = 0.25, size = 1) +
+      labs(title = paste("Comparing Richness [", resolution_meters/1000, " km]", sep = ""),
+       x = "Plant Richness by cell", y = "Frugivore Richness by cell") +
+      scale_x_continuous(expand = c(0, 0)) + 
+      scale_y_continuous(expand = c(0, 0)) + 
+      theme_minimal() +
+      theme(panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            axis.line = element_line(color = "black"),
+            axis.ticks = element_line(color = "black"),
+            axis.text = element_text(color = "black")) +
+      annotate("text", x = mean_x, y = annot_y-10, label = paste("Linear R² =", round(line2P_summary$R.squared, 3)),
+               color = "red", size = 4) +
+      annotate("text", x = mean_x, y = annot_y-30, label = paste("Exponential R² =", round(exp3P_summary$R.squared, 3)),
+               color = "purple", size = 4)
+  
+  list(compare_Richness_plot_line2P = compare_Richness_plot_line2P,
+       compare_Richness_plot_exp3P = compare_Richness_plot_exp3P,
+       line2P_summary = line2P_summary,
+       exp3P_summary = exp3P_summary,
+       compare_Richness_plot_both = compare_Richness_plot_both)
+}
 ```
-
 
 ```{r}
-# Fit the nonlinear model using nls
-nls_model <- nls(Frugivore_Richness ~ b * exp(c * Plant_Richness), 
-                 data = comparison_data_filtered_100km, 
-                 start = list(b = 200, c = -0.00001),
-                 algorithm = "port",
-                 control = nls.control(maxiter = 500, minFactor = 1e-10, warnOnly = TRUE))
-
-# Summary of the model
-summary(nls_model)
+compare_FDis <- function(plant_FDis_grid, frugivore_FDis_grid, resolution_meters){
+  # Extract cell values
+  comparison_FDis <- data.frame(Plant_FDis = plant_FDis_grid$fdis_value,
+                               Frugivore_FDis = frugivore_FDis_grid$fdis_value)
+  
+  # Filter out rows where either plant or frugivore FDis is zero
+  comparison_FDis_filtered <- comparison_FDis %>%
+                                filter(Plant_FDis > 0 & Frugivore_FDis > 0)
+  # Calculate Annotation position
+  mean_x <- max(comparison_FDis_filtered$Plant_FDis) / 2
+  annot_y <- max(comparison_FDis_filtered$Frugivore_FDis) + 0.25
+  
+  ## Create scatter plots
+  compare_FDis_plot_line2P <- ggtrendline(comparison_FDis_filtered$Plant_FDis,
+               comparison_FDis_filtered$Frugivore_FDis, model = "line2P", linecolor = "red", linewidth = 1,
+               CI.level = NA, summary = FALSE, show.eq = FALSE, show.pvalue = FALSE, rrp.x = mean_x, rrp.y = annot_y, 
+               text.col = "red", eSize = 4) +
+      geom_point(aes(x = comparison_FDis_filtered$Plant_FDis,
+                                           y = comparison_FDis_filtered$Frugivore_FDis), alpha = 0.25, size = 1) +
+      labs(title = paste("Compare FDis [", resolution_meters/1000, " km]", sep = ""),
+           subtitle = "Fitted with a linear model",
+       x = "Plant FDis by cell", y = "Frugivore FDis by cell") +
+      scale_x_continuous(expand = c(0, 0)) + 
+      scale_y_continuous(expand = c(0, 0)) + 
+      theme_minimal() +
+      theme(panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            axis.line = element_line(color = "black"),
+            axis.ticks = element_line(color = "black"),
+            axis.text = element_text(color = "black"))
+  
+  compare_FDis_plot_line3P <- ggtrendline(comparison_FDis_filtered$Plant_FDis,
+               comparison_FDis_filtered$Frugivore_FDis, model = "line3P", linecolor = "blue", linewidth = 1,
+               CI.level = NA, summary = FALSE, show.eq = FALSE, show.pvalue = FALSE, rrp.x = mean_x, rrp.y = annot_y, 
+               text.col = "blue", eSize = 4) +
+      geom_point(aes(x = comparison_FDis_filtered$Plant_FDis,
+                                           y = comparison_FDis_filtered$Frugivore_FDis), alpha = 0.25, size = 1) +
+      labs(title = paste("Compare FDis [", resolution_meters/1000, " km]", sep = ""),
+           subtitle = "Fitted with a quadratic model",
+       x = "Plant FDis by cell", y = "Frugivore FDis by cell") +
+      scale_x_continuous(expand = c(0, 0)) + 
+      scale_y_continuous(expand = c(0, 0)) + 
+      theme_minimal() +
+      theme(panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            axis.line = element_line(color = "black"),
+            axis.ticks = element_line(color = "black"),
+            axis.text = element_text(color = "black"))
+  
+  # Summaries of models used for trendlines
+  line2P_summary <- trendline_sum(comparison_FDis_filtered$Plant_FDis,
+               comparison_FDis_filtered$Frugivore_FDis, model = "line2P")
+  line3P_summary <- trendline_sum(comparison_FDis_filtered$Plant_FDis,
+               comparison_FDis_filtered$Frugivore_FDis, model = "line3P")
+  
+  # Combine trendlines into one plot
+  compare_FDis_plot_both <- ggtrendline(comparison_FDis_filtered$Plant_FDis,
+               comparison_FDis_filtered$Frugivore_FDis, model = "line3P", linecolor = "blue", linewidth = 1,
+               CI.level = NA, summary = FALSE, show.eq = FALSE, show.pvalue = FALSE, show.Rsquare = FALSE) +
+      geom_smooth(aes(x = comparison_FDis_filtered$Plant_FDis, y = comparison_FDis_filtered$Frugivore_FDis), 
+              method = "lm", se = FALSE, color = "red", linetype = "solid") +
+      geom_point(aes(x = comparison_FDis_filtered$Plant_FDis,
+                                           y = comparison_FDis_filtered$Frugivore_FDis), alpha = 0.25, size = 1) +
+      labs(title = paste("Comparing FDis [", resolution_meters/1000, " km]", sep = ""),
+       x = "Plant FDis by cell", y = "Frugivore FDis by cell") +
+      scale_x_continuous(expand = c(0, 0)) + 
+      scale_y_continuous(expand = c(0, 0)) + 
+      theme_minimal() +
+      theme(panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            axis.line = element_line(color = "black"),
+            axis.ticks = element_line(color = "black"),
+            axis.text = element_text(color = "black")) +
+      annotate("text", x = mean_x, y = annot_y, label = paste("Linear R² =", round(line2P_summary$R.squared, 3)),
+               color = "red", size = 4) +
+      annotate("text", x = mean_x, y = annot_y-0.5, label = paste("Quadratic R² =", round(line3P_summary$R.squared, 3)),
+               color = "blue", size = 4)
+  
+  list(compare_FDis_plot_line2P = compare_FDis_plot_line2P,
+       compare_FDis_plot_line3P = compare_FDis_plot_line3P,
+       line2P_summary = line2P_summary,
+       line3P_summary = line3P_summary,
+       compare_FDis_plot_both = compare_FDis_plot_both)
+}
 ```
+
+## 5 km
+```{r}
+compare_Richness_5km <- compare_Richness(plant_cellRichness_5km, frugivore_cellRichness_5km, 5000)
+(compare_Richness_5km_linear <- compare_Richness_5km$compare_Richness_plot_line2P)
+(compare_Richness_5km_exp <- compare_Richness_5km$compare_Richness_plot_exp3P)
+(compare_Richness_5km_plots <- compare_Richness_5km$compare_Richness_plot_both)
+compare_Richness_r2_5km_linear <- compare_Richness_5km$line2P_summary$R.squared
+compare_Richness_r2_5km_exp <- compare_Richness_5km$exp3P_summary$R.squared
+compare_Richness_slopecoefficent_5km_linear <- compare_Richness_5km$line2P_summary$parameter["a"]
+compare_Richness_slopecoefficent_5km_exp <- compare_Richness_5km$exp3P_summary$parameter["b"]
+```
+
+```{r}
+compare_FDis_5km <- compare_FDis(plant_cellFDis_5km, frugivore_cellFDis_5km, 5000)
+(compare_FDis_5km_linear <- compare_FDis_5km$compare_FDis_plot_line2P)
+(compare_FDis_5km_quad <- compare_FDis_5km$compare_FDis_plot_line3P)
+(compare_FDis_5km_plots <- compare_FDis_5km$compare_FDis_plot_both)
+compare_FDis_r2_5km_linear <- compare_FDis_5km$line2P_summary$R.squared
+compare_FDis_r2_5km_quad <- compare_FDis_5km$line3P_summary$R.squared
+compare_FDis_slopecoefficent_5km_linear <- compare_FDis_5km$line2P_summary$parameter["a"]
+compare_FDis_slopecoefficent_5km_quad <- compare_FDis_5km$line3P_summary$parameter["b"]
+```
+
+## 10 km
+```{r}
+compare_Richness_10km <- compare_Richness(plant_cellRichness_10km, frugivore_cellRichness_10km, 10000)
+(compare_Richness_10km_linear <- compare_Richness_10km$compare_Richness_plot_line2P)
+(compare_Richness_10km_exp <- compare_Richness_10km$compare_Richness_plot_exp3P)
+(compare_Richness_10km_plots <- compare_Richness_10km$compare_Richness_plot_both)
+compare_Richness_r2_10km_linear <- compare_Richness_10km$line2P_summary$R.squared
+compare_Richness_r2_10km_exp <- compare_Richness_10km$exp3P_summary$R.squared
+compare_Richness_slopecoefficent_10km_linear <- compare_Richness_10km$line2P_summary$parameter["a"]
+compare_Richness_slopecoefficent_10km_exp <- compare_Richness_10km$exp3P_summary$parameter["b"]
+```
+
+```{r}
+compare_FDis_10km <- compare_FDis(plant_cellFDis_10km, frugivore_cellFDis_10km, 10000)
+(compare_FDis_10km_linear <- compare_FDis_10km$compare_FDis_plot_line2P)
+(compare_FDis_10km_quad <- compare_FDis_10km$compare_FDis_plot_line3P)
+(compare_FDis_10km_plots <- compare_FDis_10km$compare_FDis_plot_both)
+compare_FDis_r2_10km_linear <- compare_FDis_10km$line2P_summary$R.squared
+compare_FDis_r2_10km_quad <- compare_FDis_10km$line3P_summary$R.squared
+compare_FDis_slopecoefficent_10km_linear <- compare_FDis_10km$line2P_summary$parameter["a"]
+compare_FDis_slopecoefficent_10km_quad <- compare_FDis_10km$line3P_summary$parameter["b"]
+```
+
+## 25 km
+```{r}
+compare_Richness_25km <- compare_Richness(plant_cellRichness_25km, frugivore_cellRichness_25km, 25000)
+(compare_Richness_25km_linear <- compare_Richness_25km$compare_Richness_plot_line2P)
+(compare_Richness_25km_exp <- compare_Richness_25km$compare_Richness_plot_exp3P)
+(compare_Richness_25km_plots <- compare_Richness_25km$compare_Richness_plot_both)
+compare_Richness_r2_25km_linear <- compare_Richness_25km$line2P_summary$R.squared
+compare_Richness_r2_25km_exp <- compare_Richness_25km$exp3P_summary$R.squared
+compare_Richness_slopecoefficent_25km_linear <- compare_Richness_25km$line2P_summary$parameter["a"]
+compare_Richness_slopecoefficent_25km_exp <- compare_Richness_25km$exp3P_summary$parameter["b"]
+```
+
+```{r}
+compare_FDis_25km <- compare_FDis(plant_cellFDis_25km, frugivore_cellFDis_25km, 25000)
+(compare_FDis_25km_linear <- compare_FDis_25km$compare_FDis_plot_line2P)
+(compare_FDis_25km_quad <- compare_FDis_25km$compare_FDis_plot_line3P)
+(compare_FDis_25km_plots <- compare_FDis_25km$compare_FDis_plot_both)
+compare_FDis_r2_25km_linear <- compare_FDis_25km$line2P_summary$R.squared
+compare_FDis_r2_25km_quad <- compare_FDis_25km$line3P_summary$R.squared
+compare_FDis_slopecoefficent_25km_linear <- compare_FDis_25km$line2P_summary$parameter["a"]
+compare_FDis_slopecoefficent_25km_quad <- compare_FDis_25km$line3P_summary$parameter["b"]
+```
+
+## 50 km
+```{r}
+compare_Richness_50km <- compare_Richness(plant_cellRichness_50km, frugivore_cellRichness_50km, 50000)
+(compare_Richness_50km_linear <- compare_Richness_50km$compare_Richness_plot_line2P)
+(compare_Richness_50km_exp <- compare_Richness_50km$compare_Richness_plot_exp3P)
+(compare_Richness_50km_plots <- compare_Richness_50km$compare_Richness_plot_both)
+compare_Richness_r2_50km_linear <- compare_Richness_50km$line2P_summary$R.squared
+compare_Richness_r2_50km_exp <- compare_Richness_50km$exp3P_summary$R.squared
+compare_Richness_slopecoefficent_50km_linear <- compare_Richness_50km$line2P_summary$parameter["a"]
+compare_Richness_slopecoefficent_50km_exp <- compare_Richness_50km$exp3P_summary$parameter["b"]
+```
+
+```{r}
+compare_FDis_50km <- compare_FDis(plant_cellFDis_50km, frugivore_cellFDis_50km, 50000)
+(compare_FDis_50km_linear <- compare_FDis_50km$compare_FDis_plot_line2P)
+(compare_FDis_50km_quad <- compare_FDis_50km$compare_FDis_plot_line3P)
+(compare_FDis_50km_plots <- compare_FDis_50km$compare_FDis_plot_both)
+compare_FDis_r2_50km_linear <- compare_FDis_50km$line2P_summary$R.squared
+compare_FDis_r2_50km_quad <- compare_FDis_50km$line3P_summary$R.squared
+compare_FDis_slopecoefficent_50km_linear <- compare_FDis_50km$line2P_summary$parameter["a"]
+compare_FDis_slopecoefficent_50km_quad <- compare_FDis_50km$line3P_summary$parameter["b"]
+```
+
+## 75 km
+```{r}
+compare_Richness_75km <- compare_Richness(plant_cellRichness_75km, frugivore_cellRichness_75km, 75000)
+(compare_Richness_75km_linear <- compare_Richness_75km$compare_Richness_plot_line2P)
+(compare_Richness_75km_exp <- compare_Richness_75km$compare_Richness_plot_exp3P)
+(compare_Richness_75km_plots <- compare_Richness_75km$compare_Richness_plot_both)
+compare_Richness_r2_75km_linear <- compare_Richness_75km$line2P_summary$R.squared
+compare_Richness_r2_75km_exp <- compare_Richness_75km$exp3P_summary$R.squared
+compare_Richness_slopecoefficent_75km_linear <- compare_Richness_75km$line2P_summary$parameter["a"]
+compare_Richness_slopecoefficent_75km_exp <- compare_Richness_75km$exp3P_summary$parameter["b"]
+```
+
+```{r}
+compare_FDis_75km <- compare_FDis(plant_cellFDis_75km, frugivore_cellFDis_75km, 75000)
+(compare_FDis_75km_linear <- compare_FDis_75km$compare_FDis_plot_line2P)
+(compare_FDis_75km_quad <- compare_FDis_75km$compare_FDis_plot_line3P)
+(compare_FDis_75km_plots <- compare_FDis_75km$compare_FDis_plot_both)
+compare_FDis_r2_75km_linear <- compare_FDis_75km$line2P_summary$R.squared
+compare_FDis_r2_75km_quad <- compare_FDis_75km$line3P_summary$R.squared
+compare_FDis_slopecoefficent_75km_linear <- compare_FDis_75km$line2P_summary$parameter["a"]
+compare_FDis_slopecoefficent_75km_quad <- compare_FDis_75km$line3P_summary$parameter["b"]
+```
+
+## 100 km
+```{r}
+compare_Richness_100km <- compare_Richness(plant_cellRichness_100km, frugivore_cellRichness_100km, 100000)
+(compare_Richness_100km_linear <- compare_Richness_100km$compare_Richness_plot_line2P)
+(compare_Richness_100km_exp <- compare_Richness_100km$compare_Richness_plot_exp3P)
+(compare_Richness_100km_plots <- compare_Richness_100km$compare_Richness_plot_both)
+compare_Richness_r2_100km_linear <- compare_Richness_100km$line2P_summary$R.squared
+compare_Richness_r2_100km_exp <- compare_Richness_100km$exp3P_summary$R.squared
+compare_Richness_slopecoefficent_100km_linear <- compare_Richness_100km$line2P_summary$parameter["a"]
+compare_Richness_slopecoefficent_100km_exp <- compare_Richness_100km$exp3P_summary$parameter["b"]
+```
+
+```{r}
+compare_FDis_100km <- compare_FDis(plant_cellFDis_100km, frugivore_cellFDis_100km, 100000)
+(compare_FDis_100km_linear <- compare_FDis_100km$compare_FDis_plot_line2P)
+(compare_FDis_100km_quad <- compare_FDis_100km$compare_FDis_plot_line3P)
+(compare_FDis_100km_plots <- compare_FDis_100km$compare_FDis_plot_both)
+compare_FDis_r2_100km_linear <- compare_FDis_100km$line2P_summary$R.squared
+compare_FDis_r2_100km_quad <- compare_FDis_100km$line3P_summary$R.squared
+compare_FDis_slopecoefficent_100km_linear <- compare_FDis_100km$line2P_summary$parameter["a"]
+compare_FDis_slopecoefficent_100km_quad <- compare_FDis_100km$line3P_summary$parameter["b"]
+```
+
+## Combine plots using for richness and fdis into one figure
+
+```{r}
+(compare_Richness_all_plots <- ggarrange(compare_Richness_5km_plots, compare_Richness_10km_plots,
+                                     compare_Richness_25km_plots, compare_Richness_50km_plots,
+                                     compare_Richness_75km_plots, compare_Richness_100km_plots,
+                                        ncol = 3, nrow = 2))
+```
+
+```{r}
+(compare_FDis_all_plots <- ggarrange(compare_FDis_5km_plots, compare_FDis_10km_plots,
+                                     compare_FDis_25km_plots, compare_FDis_50km_plots,
+                                     compare_FDis_75km_plots, compare_FDis_100km_plots,
+                                        ncol = 3, nrow = 2))
+```
+
 
 # Compare r-squared by resolution
 ## Taxonomic diversity
 ```{r}
 # create dataframe of resolutions and r-squared values 
-#[ADD 1, 5,]
-resolution <- c( 10, 25, 50, 75, 100)
-#ADD compare_richness_r2_1km, compare_richness_r2_5km,
-r_squared <- c(compare_richness_r2_10km, compare_richness_r2_25km, compare_richness_r2_50km, compare_richness_r2_75km, compare_richness_r2_100km)
-r_squared_compare <- data.frame(resolution, r_squared)
+resolution <- c(5, 10, 25, 50, 75, 100)
+taxdiv_r_squared_linear <- c(compare_Richness_r2_5km_linear, compare_Richness_r2_10km_linear, compare_Richness_r2_25km_linear, compare_Richness_r2_50km_linear, compare_Richness_r2_75km_linear, compare_Richness_r2_100km_linear)
+taxdiv_r_squared_exp <- c(compare_Richness_r2_5km_exp, compare_Richness_r2_10km_exp, compare_Richness_r2_25km_exp, compare_Richness_r2_50km_exp, compare_Richness_r2_75km_exp, compare_Richness_r2_100km_exp)
+taxdiv_r_squared_compare <- data.frame(resolution, taxdiv_r_squared_linear, taxdiv_r_squared_exp)
 
-compare_r2_by_res <- ggplot(r_squared_compare, aes(x=resolution, y=r_squared)) +
-    geom_point()+
-    labs(title = "R-squared values of plant-frugivore richness relationships by resolution",
-         x = "Resolution (km)", y = "R-squared", fill = "Number of species")
-print(compare_r2_by_res)
+# reshape to long format for ease of plotting
+taxdiv_r_squared_long <- taxdiv_r_squared_compare %>%
+  pivot_longer(cols = c(taxdiv_r_squared_linear, taxdiv_r_squared_exp), 
+               names_to = "model", 
+               values_to = "taxdiv_r_squared")
+
 ```
+
+```{r}
+# Define custom colors for the points
+custom_colors <- c(taxdiv_r_squared_linear = "red", taxdiv_r_squared_exp = "purple")
+
+# Define custom legend labels
+custom_labels <- c(taxdiv_r_squared_linear = "Linear Model", taxdiv_r_squared_exp = "Exponential Model")
+
+(taxdiv_r_squared_plot <- ggplot(taxdiv_r_squared_long,aes(x = resolution, y = taxdiv_r_squared, color = model)) +
+  geom_line() +
+  geom_point(size = 3) +
+  scale_color_manual(values = custom_colors, labels = custom_labels) +
+  scale_x_continuous(breaks = taxdiv_r_squared_compare$resolution) + 
+  labs(title = "Comparison of Richness R-squared Values by Resolution",
+       x = "Resolution (km)",
+       y = "R-squared Value",
+       color = "Model Type") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.ticks = element_line(color = "black"),
+        axis.text = element_text(color = "black"),
+        legend.position = "inside",
+        legend.position.inside = c(.85, .3),
+        legend.box.margin = margin(10, 10, 10, 10)))
+
+# Calculate R-squared values for linear model
+taxdiv_lm_linear <- lm(taxdiv_r_squared_linear ~ resolution, data = taxdiv_r_squared_compare)
+taxdiv_r_squared_linear <- summary(taxdiv_lm_linear)$r.squared
+taxdiv_slopecoefficent_linear <- coef(taxdiv_lm_linear)["resolution"]
+
+# Calculate R-squared values for exponential model
+taxdiv_lm_exp <- lm(taxdiv_r_squared_exp ~ resolution, data = taxdiv_r_squared_compare)
+taxdiv_r_squared_exp <- summary(taxdiv_lm_exp)$r.squared
+taxdiv_slopecoefficent_exp <- coef(taxdiv_lm_exp)["resolution"]
+
+
+(taxdiv_r_squared_plot_trendlines <- ggplot() +
+  geom_smooth(aes(x = taxdiv_r_squared_compare$resolution, y = taxdiv_r_squared_compare$taxdiv_r_squared_linear), 
+              method = "lm", se = FALSE, color = "red", linetype = "solid") +
+  geom_smooth(aes(x = taxdiv_r_squared_compare$resolution, y = taxdiv_r_squared_compare$taxdiv_r_squared_exp), 
+              method = "lm", se = FALSE, color = "purple", linetype = "solid") +
+  geom_point(aes(x = taxdiv_r_squared_long$resolution, y = taxdiv_r_squared_long$taxdiv_r_squared, color = taxdiv_r_squared_long$model),
+             size = 3) +
+  scale_color_manual(values = custom_colors, labels = custom_labels) +
+  scale_x_continuous(breaks = taxdiv_r_squared_compare$resolution) + 
+  labs(title = "Comparison of Richness R-squared Values by Resolution",
+       x = "Resolution (km)",
+       y = "R-squared Value",
+       color = "Model Type") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.ticks = element_line(color = "black"),
+        axis.text = element_text(color = "black"),
+        legend.position = "inside",
+        legend.position.inside = c(.85, .3),
+        legend.box.margin = margin(10, 10, 10, 10)) +
+  annotate("text", x = 55, y = 0.4, label = paste("R² =", round(taxdiv_r_squared_linear, 2)), color = "red", size = 4) +
+  annotate("text", x = 60, y = 0.7, label = paste("R² =", round(taxdiv_r_squared_exp, 2)), color = "purple", size = 4))
+```
+
+```{r}
+ggtrendline(taxdiv_r_squared_compare$resolution, taxdiv_r_squared_compare$taxdiv_r_squared_linear, model = "line2P", summary = FALSE, linecolor = "red", linewidth = 1, CI.level = NA, show.eq = FALSE, show.pvalue = FALSE, text.col = "red", eSize = 4)
+ggtrendline(taxdiv_r_squared_compare$resolution, taxdiv_r_squared_compare$taxdiv_r_squared_exp, model = "line2P", summary = FALSE, linecolor = "purple", linewidth = 1, CI.level = NA, show.eq = FALSE, show.pvalue = FALSE, text.col = "purple", eSize = 4)
+
+ggtrendline(taxdiv_r_squared_compare$resolution, taxdiv_r_squared_compare$taxdiv_r_squared_linear, model = "line3P", summary = FALSE, linecolor = "red", linewidth = 1, CI.level = NA, show.eq = FALSE, show.pvalue = FALSE, text.col = "red", eSize = 4)
+ggtrendline(taxdiv_r_squared_compare$resolution, taxdiv_r_squared_compare$taxdiv_r_squared_exp, model = "line3P", summary = FALSE, linecolor = "purple", linewidth = 1, CI.level = NA, show.eq = FALSE, show.pvalue = FALSE, text.col = "purple", eSize = 4)
+```
+
+
 ## Functional Diversity
 ```{r}
+# create dataframe of resolutions and r-squared values 
+resolution <- c(5, 10, 25, 50, 75, 100)
+fundiv_r_squared_linear <- c(compare_FDis_r2_5km_linear, compare_FDis_r2_10km_linear, compare_FDis_r2_25km_linear, compare_FDis_r2_50km_linear, compare_FDis_r2_75km_linear, compare_FDis_r2_100km_linear)
+fundiv_r_squared_quad <- c(compare_FDis_r2_5km_quad, compare_FDis_r2_10km_quad, compare_FDis_r2_25km_quad, compare_FDis_r2_50km_quad, compare_FDis_r2_75km_quad, compare_FDis_r2_100km_quad)
+fundiv_r_squared_compare <- data.frame(resolution, fundiv_r_squared_linear, fundiv_r_squared_quad)
+
+# reshape to long format for ease of plotting
+fundiv_r_squared_long <- fundiv_r_squared_compare %>%
+  pivot_longer(cols = c(fundiv_r_squared_linear, fundiv_r_squared_quad), 
+               names_to = "model", 
+               values_to = "fundiv_r_squared")
 
 ```
 
+```{r}
+# Define custom colors for the points
+custom_colors <- c(fundiv_r_squared_linear = "red", fundiv_r_squared_quad = "blue")
+
+# Define custom legend labels
+custom_labels <- c(fundiv_r_squared_quad = "Quadratic Model", fundiv_r_squared_linear = "Linear Model")
+
+(fundiv_r_squared_plot <- ggplot(fundiv_r_squared_long,aes(x = resolution, y = fundiv_r_squared, color = model)) +
+  geom_line() +
+  geom_point(size = 3) +
+  scale_color_manual(values = custom_colors, labels = custom_labels) +
+  scale_x_continuous(breaks = fundiv_r_squared_compare$resolution) + 
+  labs(title = "Comparison of FDis R-squared Values by Resolution",
+       x = "Resolution (km)",
+       y = "R-squared Value",
+       color = "Model Type") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.ticks = element_line(color = "black"),
+        axis.text = element_text(color = "black"),
+        legend.position = "inside",
+        legend.position.inside = c(.9, .2),
+        legend.box.margin = margin(10, 10, 10, 10)))
+
+# Calculate R-squared values for linear model
+fundiv_lm_linear <- lm(fundiv_r_squared_linear ~ resolution, data = fundiv_r_squared_compare)
+fundiv_r_squared_linear <- summary(fundiv_lm_linear)$r.squared
+
+# Calculate R-squared values for quadratic model
+fundiv_lm_quad <- lm(fundiv_r_squared_quad ~ resolution, data = fundiv_r_squared_compare)
+fundiv_r_squared_quad <- summary(fundiv_lm_quad)$r.squared
+
+
+(fundiv_r_squared_plot_trendlines <- ggplot() +
+  geom_smooth(aes(x = fundiv_r_squared_compare$resolution, y = fundiv_r_squared_compare$fundiv_r_squared_linear), 
+              method = "lm", se = FALSE, color = "red", linetype = "solid") +
+  geom_smooth(aes(x = fundiv_r_squared_compare$resolution, y = fundiv_r_squared_compare$fundiv_r_squared_quad), 
+              method = "lm", se = FALSE, color = "blue", linetype = "solid") +
+  geom_point(aes(x = fundiv_r_squared_long$resolution, y = fundiv_r_squared_long$fundiv_r_squared, color = fundiv_r_squared_long$model),
+             size = 3) +
+  scale_color_manual(values = custom_colors, labels = custom_labels) +
+  scale_x_continuous(breaks = fundiv_r_squared_compare$resolution) + 
+  labs(title = "Comparison of FDis R-squared Values by Resolution",
+       x = "Resolution (km)",
+       y = "R-squared Value",
+       color = "Model Type") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.ticks = element_line(color = "black"),
+        axis.text = element_text(color = "black"),
+        legend.position = "inside",
+        legend.position.inside = c(.9, .2),
+        legend.box.margin = margin(10, 10, 10, 10)) +
+  annotate("text", x = 70, y = 0.2, label = paste("R² =", round(fundiv_r_squared_linear, 2)), color = "red", size = 4) +
+  annotate("text", x = 70, y = 0.6, label = paste("R² =", round(fundiv_r_squared_quad, 2)), color = "blue", size = 4))
+```
+
+# Compare slope coefficents by resolution
+## Taxonomic diversity
+```{r}
+# Create a tibble
+taxdiv_slopecoefficent_compare <- tibble(
+  resolution = c(5, 10, 25, 50, 75, 100),
+  taxdiv_slopecoefficent_linear = c(
+    as.numeric(compare_Richness_slopecoefficent_5km_linear$a), 
+    as.numeric(compare_Richness_slopecoefficent_10km_linear$a), 
+    as.numeric(compare_Richness_slopecoefficent_25km_linear$a), 
+    as.numeric(compare_Richness_slopecoefficent_50km_linear$a), 
+    as.numeric(compare_Richness_slopecoefficent_75km_linear$a), 
+    as.numeric(compare_Richness_slopecoefficent_100km_linear$a)
+  ),
+  taxdiv_slopecoefficent_exp = c(
+    as.numeric(compare_Richness_slopecoefficent_5km_exp$b), 
+    as.numeric(compare_Richness_slopecoefficent_10km_exp$b), 
+    as.numeric(compare_Richness_slopecoefficent_25km_exp$b), 
+    as.numeric(compare_Richness_slopecoefficent_50km_exp$b), 
+    as.numeric(compare_Richness_slopecoefficent_75km_exp$b), 
+    as.numeric(compare_Richness_slopecoefficent_100km_exp$b)
+  )
+)
+
+# reshape to long format for ease of plotting
+taxdiv_slopecoefficent_long <- taxdiv_slopecoefficent_compare %>%
+  pivot_longer(cols = c(taxdiv_slopecoefficent_linear, taxdiv_slopecoefficent_exp), 
+               names_to = "model", 
+               values_to = "slope_coefficent")
+```
+
+```{r}
+# Define custom colors for the points
+custom_colors <- c(taxdiv_slopecoefficent_linear = "red", taxdiv_slopecoefficent_exp = "purple")
+
+# Define custom legend labels
+custom_labels <- c(taxdiv_slopecoefficent_linear = "Linear Model", taxdiv_slopecoefficent_exp = "Exponential Model")
+
+(taxdiv_slopecoefficent_plot <- ggplot(taxdiv_slopecoefficent_long,aes(x = resolution, y = slope_coefficent, color = model)) +
+  geom_line() +
+  geom_point(size = 3) +
+  scale_color_manual(values = custom_colors, labels = custom_labels) +
+  scale_x_continuous(breaks = taxdiv_slopecoefficent_compare$resolution) + 
+  labs(title = "Comparison of Richness Slope Coefficents by Resolution",
+       x = "Resolution (km)",
+       y = "Slope Coefficent",
+       color = "Model Type") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.ticks = element_line(color = "black"),
+        axis.text = element_text(color = "black"),
+        legend.position = "inside",
+        legend.position.inside = c(.85, .3),
+        legend.box.margin = margin(10, 10, 10, 10)))
+```
+
+## Functional diversity
+```{r}
+# Create a tibble
+fundiv_slopecoefficent_compare <- tibble(
+  resolution = c(5, 10, 25, 50, 75, 100),
+  fundiv_slopecoefficent_linear = c(
+    as.numeric(compare_FDis_slopecoefficent_5km_linear$a), 
+    as.numeric(compare_FDis_slopecoefficent_10km_linear$a), 
+    as.numeric(compare_FDis_slopecoefficent_25km_linear$a), 
+    as.numeric(compare_FDis_slopecoefficent_50km_linear$a), 
+    as.numeric(compare_FDis_slopecoefficent_75km_linear$a), 
+    as.numeric(compare_FDis_slopecoefficent_100km_linear$a)
+  ),
+  fundiv_slopecoefficent_quad = c(
+    as.numeric(compare_FDis_slopecoefficent_5km_quad$b), 
+    as.numeric(compare_FDis_slopecoefficent_10km_quad$b), 
+    as.numeric(compare_FDis_slopecoefficent_25km_quad$b), 
+    as.numeric(compare_FDis_slopecoefficent_50km_quad$b), 
+    as.numeric(compare_FDis_slopecoefficent_75km_quad$b), 
+    as.numeric(compare_FDis_slopecoefficent_100km_quad$b)
+  )
+)
+
+# reshape to long format for ease of plotting
+fundiv_slopecoefficent_long <- fundiv_slopecoefficent_compare %>%
+  pivot_longer(cols = c(fundiv_slopecoefficent_linear, fundiv_slopecoefficent_quad), 
+               names_to = "model", 
+               values_to = "slope_coefficent")
+```
+
+```{r}
+# Define custom colors for the points
+custom_colors <- c(fundiv_slopecoefficent_linear = "red", fundiv_slopecoefficent_quad = "blue")
+
+# Define custom legend labels
+custom_labels <- c(fundiv_slopecoefficent_linear = "Linear Model", fundiv_slopecoefficent_quad = "Quadratic Model")
+
+(fundiv_slopecoefficent_plot <- ggplot(fundiv_slopecoefficent_long,aes(x = resolution, y = slope_coefficent, color = model)) +
+  geom_line() +
+  geom_point(size = 3) +
+  scale_color_manual(values = custom_colors, labels = custom_labels) +
+  scale_x_continuous(breaks = fundiv_slopecoefficent_compare$resolution) + 
+  labs(title = "Comparison of FDis Slope Coefficents by Resolution",
+       x = "Resolution (km)",
+       y = "Slope Coefficent",
+       color = "Model Type") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.ticks = element_line(color = "black"),
+        axis.text = element_text(color = "black"),
+        legend.position = "inside",
+        legend.position.inside = c(.85, .2),
+        legend.box.margin = margin(10, 10, 10, 10)))
+```
+
+## Compare the linear model slope coefficents for taxonomic and functional diversity
+```{r}
+# Create a tibble
+bothdiv_slopecoefficent_compare <- tibble(
+  resolution = c(5, 10, 25, 50, 75, 100),
+  taxdiv_slopecoefficent_linear = c(
+    as.numeric(compare_Richness_slopecoefficent_5km_linear$a), 
+    as.numeric(compare_Richness_slopecoefficent_10km_linear$a), 
+    as.numeric(compare_Richness_slopecoefficent_25km_linear$a), 
+    as.numeric(compare_Richness_slopecoefficent_50km_linear$a), 
+    as.numeric(compare_Richness_slopecoefficent_75km_linear$a), 
+    as.numeric(compare_Richness_slopecoefficent_100km_linear$a)
+  ),
+  fundiv_slopecoefficent_linear = c(
+    as.numeric(compare_FDis_slopecoefficent_5km_linear$a), 
+    as.numeric(compare_FDis_slopecoefficent_10km_linear$a), 
+    as.numeric(compare_FDis_slopecoefficent_25km_linear$a), 
+    as.numeric(compare_FDis_slopecoefficent_50km_linear$a), 
+    as.numeric(compare_FDis_slopecoefficent_75km_linear$a), 
+    as.numeric(compare_FDis_slopecoefficent_100km_linear$a)
+  )
+)
+
+# reshape to long format for ease of plotting
+bothdiv_slopecoefficent_long <- bothdiv_slopecoefficent_compare %>%
+  pivot_longer(cols = c(taxdiv_slopecoefficent_linear, fundiv_slopecoefficent_linear), 
+               names_to = "type", 
+               values_to = "slope_coefficent")
+```
+
+```{r}
+# Define custom colors for the points
+custom_colors <- c(taxdiv_slopecoefficent_linear = "goldenrod", fundiv_slopecoefficent_linear = "forestgreen")
+
+# Define custom legend labels
+custom_labels <- c(taxdiv_slopecoefficent_linear = "Taxonomic Diversity", fundiv_slopecoefficent_linear = "Functional Diversity")
+
+(bothdiv_slopecoefficent_plot <- ggplot(bothdiv_slopecoefficent_long,aes(x = resolution, y = slope_coefficent, color = type)) +
+  geom_line() +
+  geom_point(size = 3) +
+  scale_color_manual(values = custom_colors, labels = custom_labels) +
+  scale_x_continuous(breaks = bothdiv_slopecoefficent_compare$resolution) + 
+  labs(x = "Resolution (km)",
+       y = "Slope Coefficent",
+       color = "Diversity Measure") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.ticks = element_line(color = "black"),
+        axis.text = element_text(color = "black"),
+        legend.position = "inside",
+        legend.position.inside = c(.85, .2),
+        legend.box.margin = margin(10, 10, 10, 10)))
+```
+
+
+# Save plots to file
+```{r}
+ggsave("compare_Richness_all_plots.png", compare_Richness_all_plots, path = figure_path, width = 10, height = 8, units = "in")
+ggsave("compare_FDis_all_plots.png", compare_FDis_all_plots, path = figure_path, width = 10, height = 8, units = "in")
+```
+
+```{r}
+ggsave("taxdiv_r_squared_plot.png", taxdiv_r_squared_plot, path = figure_path)
+ggsave("taxdiv_r_squared_plot_trendlines.png", taxdiv_r_squared_plot_trendlines, path = figure_path)
+ggsave("fundiv_r_squared_plot.png", fundiv_r_squared_plot, path = figure_path)
+ggsave("fundiv_r_squared_plot_trendlines.png", fundiv_r_squared_plot_trendlines, path = figure_path)
+```
+
+```{r}
+ggsave("taxdiv_slopecoefficent_plot.png", taxdiv_slopecoefficent_plot, path = figure_path)
+ggsave("fundiv_slopecoefficent_plot.png", fundiv_slopecoefficent_plot, path = figure_path)
+ggsave("bothdiv_slopecoefficent_plot.png", bothdiv_slopecoefficent_plot, path = figure_path)
+```
+
+
+# Compare same tax taxanomic and functional diversity
+```{r}
+same_taxa_diversity <- function(richness_grid, fdis_grid, resolution_meters, z){
+  # Extract cell values
+  comparison_diversity <- data.frame(Richness = richness_grid$num_species,
+                                    FDis = fdis_grid$fdis_value)
+  
+  # Filter out rows where either richness or FDis is zero
+  comparison_diversity_filtered <- comparison_diversity %>%
+                                filter(Richness > 0 & FDis > 0)
+  
+  ## Create scatter plots
+  (compare_diversity_plot_line2P <- ggtrendline(comparison_diversity_filtered$Richness,
+               comparison_diversity_filtered$FDis, model = z, linewidth = 1, CI.level = NA, eSize = 4) +
+      geom_point(aes(x = comparison_diversity_filtered$Richness,
+                                           y = comparison_diversity_filtered$FDis)) +
+      labs(title = paste("Richness vs FDis [", resolution_meters/1000, " km]", sep = ""),
+       x = "Richness by cell", y = "FDis by cell"))
+  
+}
+```
+
+```{r}
+same_taxa_diversity(plant_cellRichness_100km, plant_cellFDis_100km, 100000, "line2P")
+same_taxa_diversity(plant_cellRichness_100km, plant_cellFDis_100km, 100000, "line3P")
+same_taxa_diversity(plant_cellRichness_100km, plant_cellFDis_100km, 100000, "log2P")
+same_taxa_diversity(plant_cellRichness_100km, plant_cellFDis_100km, 100000, "exp2P")
+same_taxa_diversity(plant_cellRichness_100km, plant_cellFDis_100km, 100000, "exp3P")
+same_taxa_diversity(plant_cellRichness_100km, plant_cellFDis_100km, 100000, "power2P")
+same_taxa_diversity(plant_cellRichness_100km, plant_cellFDis_100km, 100000, "power3P")
+```
+
+```{r}
+same_taxa_diversity(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "line2P")
+same_taxa_diversity(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "line3P")
+same_taxa_diversity(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "log2P")
+same_taxa_diversity(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "exp2P")
+same_taxa_diversity(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "exp3P")
+same_taxa_diversity(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "power2P")
+same_taxa_diversity(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "power3P")
+```
