@@ -4,8 +4,6 @@ author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "Calculating and mapping taxonomic diversity as species richness using occurrence data for plants and frugivores in the Tropical Andes Moist Lowland and Montane forests. Note: some code is adapted from https://luisdva.github.io/rstats/richness/."
-#data input: "TropicalAndes_plant_occ.csv, TropicalAndes_frugivore_occ.csv"
-#data output: "TropicalAndes_frugivore_richness.csv, TropicalAndes_GBIF_plant_richness.csv"
 date: "2023-08-01"
 output: 
   html_document:
@@ -295,12 +293,12 @@ save_plots(plot_list, figure_path)
 ## Plants
 ```{r}
 # Add labels and remove axis labels from all plots
-plantgridRichTA_5km_labeled <- plantgridRichTA_5km + ggtitle("5 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
-plantgridRichTA_10km_labeled <- plantgridRichTA_10km + ggtitle("10 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
-plantgridRichTA_25km_labeled <- plantgridRichTA_25km + ggtitle("25 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
-plantgridRichTA_50km_labeled <- plantgridRichTA_50km + ggtitle("50 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
-plantgridRichTA_75km_labeled <- plantgridRichTA_75km + ggtitle("75 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
-plantgridRichTA_100km_labeled <- plantgridRichTA_100km + ggtitle("100 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+plantgridRichTA_5km_labeled <- plantgridRichTA_5km + ggtitle("5 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1), legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10))
+plantgridRichTA_10km_labeled <- plantgridRichTA_10km + ggtitle("10 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1), legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10))
+plantgridRichTA_25km_labeled <- plantgridRichTA_25km + ggtitle("25 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1), legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10))
+plantgridRichTA_50km_labeled <- plantgridRichTA_50km + ggtitle("50 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1), legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10))
+plantgridRichTA_75km_labeled <- plantgridRichTA_75km + ggtitle("75 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1), legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10))
+plantgridRichTA_100km_labeled <- plantgridRichTA_100km + ggtitle("100 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1), legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10))
 plantgridRichTA_100km_labeled
 ```
 
@@ -318,21 +316,21 @@ all_plant_richness_plots
 
 ```{r}
 all_plant_richness_plots_labeled <- ggpubr::annotate_figure(all_plant_richness_plots,
-                                                            left = ggpubr::text_grob("Plants", face = "bold", size = 14, 
+                                                            left = ggpubr::text_grob("Plants", face = "bold", size = 20, 
                                                                                      rot = 90))
 all_plant_richness_plots_labeled
-ggsave("plant_richness_plots.png", all_plant_richness_plots_labeled, path = figure_path, width = 20, height = 5, units = "in")
+ggsave("plant_richness_plots.png", all_plant_richness_plots_labeled, path = figure_path, width = 16, height = 5, units = "in")
 ```
 
 ## Frugivores
 ```{r}
 # Add labels and remove axis labels from all plots
-frugivoregridRichTA_5km_labeled <- frugivoregridRichTA_5km + ggtitle("5 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
-frugivoregridRichTA_10km_labeled <- frugivoregridRichTA_10km + ggtitle("10 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
-frugivoregridRichTA_25km_labeled <- frugivoregridRichTA_25km + ggtitle("25 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
-frugivoregridRichTA_50km_labeled <- frugivoregridRichTA_50km + ggtitle("50 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
-frugivoregridRichTA_75km_labeled <- frugivoregridRichTA_75km + ggtitle("75 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
-frugivoregridRichTA_100km_labeled <- frugivoregridRichTA_100km + ggtitle("100 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank())
+frugivoregridRichTA_5km_labeled <- frugivoregridRichTA_5km + ggtitle("5 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1), legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10))
+frugivoregridRichTA_10km_labeled <- frugivoregridRichTA_10km + ggtitle("10 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1), legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10))
+frugivoregridRichTA_25km_labeled <- frugivoregridRichTA_25km + ggtitle("25 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1), legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10))
+frugivoregridRichTA_50km_labeled <- frugivoregridRichTA_50km + ggtitle("50 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1), legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10))
+frugivoregridRichTA_75km_labeled <- frugivoregridRichTA_75km + ggtitle("75 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1), legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10))
+frugivoregridRichTA_100km_labeled <- frugivoregridRichTA_100km + ggtitle("100 km") + theme(plot.title = element_text(hjust = 0.5)) + theme(axis.title = element_blank(), axis.text.x = element_text(angle = 45, hjust = 1), legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10))
 frugivoregridRichTA_100km_labeled
 ```
 
@@ -347,10 +345,10 @@ all_frugivore_richness_plots
 
 ```{r}
 all_frugivore_richness_plots_labeled <- ggpubr::annotate_figure(all_frugivore_richness_plots,
-                                                            left = ggpubr::text_grob("Frugivores", face = "bold", size = 14,
+                                                            left = ggpubr::text_grob("Frugivores", face = "bold", size = 20,
                                                                                      rot = 90))
 all_frugivore_richness_plots_labeled
-ggsave("frugivore_richness_plots.png", all_frugivore_richness_plots_labeled, path = figure_path, width = 20, height = 4, units = "in")
+ggsave("frugivore_richness_plots.png", all_frugivore_richness_plots_labeled, path = figure_path, width = 16, height = 5, units = "in")
 ```
 
 ## Combine plants & frugivores
@@ -362,36 +360,70 @@ all_richness_plots <- ggpubr::ggarrange(all_plant_richness_plots_labeled,
 all_richness_plots <- all_richness_plots + theme(plot.background = element_rect(fill = "white", color = NA))
 all_richness_plots
 
-ggsave("all_richness_plots.png", all_richness_plots, path = figure_path, width = 20, height = 8, units = "in")
+ggsave("all_richness_plots.png", all_richness_plots, path = figure_path, width = 16, height = 10, units = "in")
 ```
 
 # Write data to csv
+Have to remove geometry before saving to csv
 ```{r}
-write.csv(plant_cellRichness_5km, file.path(output_path,"TropicalAndes_plantRichness_5km.csv"))
-write.csv(frugivore_cellRichness_5km, file.path(output_path,"TropicalAndes_frugivoreRichness_5km.csv"))
+plant_cellRichness_5km_df <- data.frame(cellid = plant_cellRichness_5km$cellid,
+                                        num_species = plant_cellRichness_5km$num_species)
+frugivore_cellRichness_5km_df <- data.frame(cellid = frugivore_cellRichness_5km$cellid,
+                                            num_species = frugivore_cellRichness_5km$num_species)
+
+plant_cellRichness_10km_df <- data.frame(cellid = plant_cellRichness_10km$cellid,
+                                        num_species = plant_cellRichness_10km$num_species)
+frugivore_cellRichness_10km_df <- data.frame(cellid = frugivore_cellRichness_10km$cellid,
+                                            num_species = frugivore_cellRichness_10km$num_species)
+
+plant_cellRichness_25km_df <- data.frame(cellid = plant_cellRichness_25km$cellid,
+                                        num_species = plant_cellRichness_25km$num_species)
+frugivore_cellRichness_25km_df <- data.frame(cellid = frugivore_cellRichness_25km$cellid,
+                                            num_species = frugivore_cellRichness_25km$num_species)
+
+plant_cellRichness_50km_df <- data.frame(cellid = plant_cellRichness_50km$cellid,
+                                        num_species = plant_cellRichness_50km$num_species)
+frugivore_cellRichness_50km_df <- data.frame(cellid = frugivore_cellRichness_50km$cellid,
+                                            num_species = frugivore_cellRichness_50km$num_species)
+
+plant_cellRichness_75km_df <- data.frame(cellid = plant_cellRichness_75km$cellid,
+                                        num_species = plant_cellRichness_75km$num_species)
+frugivore_cellRichness_75km_df <- data.frame(cellid = frugivore_cellRichness_75km$cellid,
+                                            num_species = frugivore_cellRichness_75km$num_species)
+
+plant_cellRichness_100km_df <- data.frame(cellid = plant_cellRichness_100km$cellid,
+                                        num_species = plant_cellRichness_100km$num_species)
+frugivore_cellRichness_100km_df <- data.frame(cellid = frugivore_cellRichness_100km$cellid,
+                                            num_species = frugivore_cellRichness_100km$num_species)
+```
+
+
+```{r}
+write.csv(plant_cellRichness_5km_df, file.path(output_path,"TropicalAndes_plantRichness_5km.csv"), row.names = FALSE)
+write.csv(frugivore_cellRichness_5km_df, file.path(output_path,"TropicalAndes_frugivoreRichness_5km.csv"), row.names = FALSE)
 ```
 
 ```{r}
-write.csv(plant_cellRichness_10km, file.path(output_path,"TropicalAndes_plantRichness_10km.csv"))
-write.csv(frugivore_cellRichness_10km, file.path(output_path,"TropicalAndes_frugivoreRichness_10km.csv"))
+write.csv(plant_cellRichness_10km_df, file.path(output_path,"TropicalAndes_plantRichness_10km.csv"), row.names = FALSE)
+write.csv(frugivore_cellRichness_10km_df, file.path(output_path,"TropicalAndes_frugivoreRichness_10km.csv"), row.names = FALSE)
 ```
 
 ```{r}
-write.csv(plant_cellRichness_25km, file.path(output_path,"TropicalAndes_plantRichness_25km.csv"))
-write.csv(frugivore_cellRichness_25km, file.path(output_path,"TropicalAndes_frugivoreRichness_25km.csv"))
+write.csv(plant_cellRichness_25km_df, file.path(output_path,"TropicalAndes_plantRichness_25km.csv"), row.names = FALSE)
+write.csv(frugivore_cellRichness_25km_df, file.path(output_path,"TropicalAndes_frugivoreRichness_25km.csv"), row.names = FALSE)
 ```
 
 ```{r}
-write.csv(plant_cellRichness_50km, file.path(output_path,"TropicalAndes_plantRichness_50km.csv"))
-write.csv(frugivore_cellRichness_50km, file.path(output_path,"TropicalAndes_frugivoreRichness_50km.csv"))
+write.csv(plant_cellRichness_50km_df, file.path(output_path,"TropicalAndes_plantRichness_50km.csv"), row.names = FALSE)
+write.csv(frugivore_cellRichness_50km_df, file.path(output_path,"TropicalAndes_frugivoreRichness_50km.csv"), row.names = FALSE)
 ```
 
 ```{r}
-write.csv(plant_cellRichness_75km, file.path(output_path,"TropicalAndes_plantRichness_75km.csv"))
-write.csv(frugivore_cellRichness_75km, file.path(output_path,"TropicalAndes_frugivoreRichness_75km.csv"))
+write.csv(plant_cellRichness_75km_df, file.path(output_path,"TropicalAndes_plantRichness_75km.csv"), row.names = FALSE)
+write.csv(frugivore_cellRichness_75km_df, file.path(output_path,"TropicalAndes_frugivoreRichness_75km.csv"), row.names = FALSE)
 ```
 
 ```{r}
-write.csv(plant_cellRichness_100km, file.path(output_path,"TropicalAndes_plantRichness_100km.csv"))
-write.csv(frugivore_cellRichness_100km, file.path(output_path,"TropicalAndes_frugivoreRichness_100km.csv"))
+write.csv(plant_cellRichness_100km_df, file.path(output_path,"TropicalAndes_plantRichness_100km.csv"), row.names = FALSE)
+write.csv(frugivore_cellRichness_100km_df, file.path(output_path,"TropicalAndes_frugivoreRichness_100km.csv"), row.names = FALSE)
 ```
