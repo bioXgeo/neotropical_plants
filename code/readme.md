@@ -1,15 +1,5 @@
 # Neotropical Plants
 
-
-## Funding
-NSF GRFP
-
-## Collaborators
-- Hazel J. Anderson: M.S. Student, Michigan State University (MSU), [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
-- Beth E. Gerstner: Ph.D. Candidate, Michigan State University (MSU), [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
-- Pat Bills: Data Scientist & Data Engineer, Michigan State University (MSU), [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
-- Phoebe L. Zarnetske: PI, Michigan State University (MSU), [MSU Spatial & Community Ecology Lab (SpaCE Lab)](http://www.communityecologylab.com)
-
 ## Workflow
 
 All directories are named for the data level, per guidelines from the [Environmental Data Initiative](https://edirepository.org/resources/thematic-standardization).
