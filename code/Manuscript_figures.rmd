@@ -69,19 +69,24 @@ category_order <- c("Records", "Species", "Genera", "Families")
 # Convert Category to factor with defined order
 frug_summary_long$Category <- factor(frug_summary_long$Category, levels = category_order)
 
+# Define custom colors
+frug_colors <- c("Records" = "darkgoldenrod", "Species" = "darkgoldenrod3", "Genera" = "darkgoldenrod2", "Families" = "darkgoldenrod1")
+
 ```
 
 ```{r}
 (frugivore_summary_plot <- ggplot(frug_summary_long, aes(y = Step, x = Value, fill = Category)) +
   geom_bar(stat = "identity", position = "stack") +
-  facet_wrap(. ~ Category, scales = "free_x") +
-  labs(title = "Frugivore Data Summary",
+  facet_wrap(. ~ Category, scales = "free_x", nrow = 1) +
+  scale_fill_manual(values = frug_colors) +
+  labs(title = "Frugivore",
        x = "Value",
        y = NULL) +
   theme_minimal() +
   theme(strip.background = element_blank(),  # Remove background from facet labels
         strip.text = element_text(size = 12, face = "bold"),
-        legend.position = "none"))
+        legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1)))
 ggsave("frugivore_summary_plot.png", frugivore_summary_plot, path = figure_path)
 ```
 
@@ -90,10 +95,10 @@ ggsave("frugivore_summary_plot.png", frugivore_summary_plot, path = figure_path)
 
 ```{r}
 Step <- c("Raw", "After cleaning", "Full trait coverage")
-plant_records <- c(4519792, 1886120, 1700044)
-plant_species <- c(40288, 39972, 33746)
-plant_genera <- c(4083, 3793, 3400)
-plant_families <- c(307, 293, 275)
+plant_records <- c(4519792, 1886120, 658609)
+plant_species <- c(40288, 39972, 3128)
+plant_genera <- c(4083, 3793, 1359)
+plant_families <- c(307, 293, 213)
 
 plant_summary_df <- data.frame(Step, plant_records, plant_species, plant_genera, plant_families)
 
@@ -110,7 +115,7 @@ step_order <- c("Full trait coverage", "After cleaning", "Raw")
 plant_summary_long$Step <- factor(plant_summary_long$Step, levels = step_order)
 
 # Replace Category labels with more descriptive names
-plant_summary_long <- frug_summary_long %>%
+plant_summary_long <- plant_summary_long %>%
   mutate(Category = case_when(
     Category == "plant_records"   ~ "Records",
     Category == "plant_species"   ~ "Species",
@@ -125,21 +130,344 @@ category_order <- c("Records", "Species", "Genera", "Families")
 # Convert Category to factor with defined order
 plant_summary_long$Category <- factor(plant_summary_long$Category, levels = category_order)
 
+# Define custom colors
+plant_colors <- c("Records" = "palegreen4", "Species" = "palegreen3", "Genera" = "palegreen2", "Families" = "palegreen1")
+
 ```
 
 ```{r}
 (plant_summary_plot <- ggplot(plant_summary_long, aes(y = Step, x = Value, fill = Category)) +
   geom_bar(stat = "identity", position = "stack") +
-  facet_wrap(. ~ Category, scales = "free_x") +
-  labs(title = "Plant Data Summary",
+  facet_wrap(. ~ Category, scales = "free_x", nrow = 1) +
+  scale_fill_manual(values = plant_colors) +
+  labs(title = "Plant",
        x = "Value",
        y = NULL) +
   theme_minimal() +
   theme(strip.background = element_blank(),  # Remove background from facet labels
         strip.text = element_text(size = 12, face = "bold"),
-        legend.position = "none"))
+        legend.position = "none",
+        axis.text.x = element_text(angle = 45, hjust = 1)))
 ggsave("plant_summary_plot.png", plant_summary_plot, path = figure_path)
 ```
+
+## Combine data summary figures
+```{r}
+(both_summary_plots <- ggarrange(plant_summary_plot, frugivore_summary_plot,
+                                        ncol = 1, nrow = 2))
+ggsave("both_summary_plots.png", plot = both_summary_plots, path = figure_path, height = 4, width = 10, units = "in")
+```
+
+# Create spatial grain maps
+```{r}
+library(rnaturalearth)
+library(sf)
+```
+
+```{r}
+data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
+```
+
+```{r}
+worldMap <- ne_countries(scale = "medium", type = "countries", returnclass = "sf")
+Americas <- ne_countries(continent = c("North America", "South America"), returnclass = "sf")
+#polygon of Tropical Andes
+TApoly <- worldMap %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
+Ecuador <- worldMap %>% filter(sovereignt == "Ecuador")
+```
+
+```{r}
+# Check and set CRS
+# Assuming your data is initially in WGS 84 (EPSG:4326), reproject to a suitable projected CRS
+TApoly <- st_transform(TApoly, crs = 32718) # UTM Zone 18S for the Andes region
+TropicalAndes_IUCNHabitat_Forest <- st_transform(TropicalAndes_IUCNHabitat_Forest, crs = 32718)
+Ecuador <- st_transform(Ecuador, crs = 32718)
+Americas <- st_transform(Americas, crs = 32718)
+```
+
+
+Make & map grid for TA
+```{r}
+TAGrid_5km <- TApoly %>%
+    st_make_grid(cellsize = c(5000, 5000)) %>%
+    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+```
+
+```{r}
+(TAGrid_5km_plot <- ggplot(data = TAGrid_5km) +
+    geom_sf(data = Americas) +
+    geom_sf(data = TAGrid_5km) +
+    coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+    theme_minimal() +
+    labs(title = "5 km") +
+    theme(plot.title = element_text(hjust = 0.5)))
+```
+
+```{r}
+TAGrid_10km <- TApoly %>%
+    st_make_grid(cellsize = c(10000, 10000)) %>%
+    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+```
+
+```{r}
+(TAGrid_10km_plot <- ggplot(data = TAGrid_10km) +
+    geom_sf(data = Americas) +
+    geom_sf(data = TAGrid_10km) +
+    coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+    theme_minimal() +
+    labs(title = "10 km") +
+    theme(plot.title = element_text(hjust = 0.5)))
+```
+
+```{r}
+TAGrid_25km <- TApoly %>%
+    st_make_grid(cellsize = c(25000, 25000)) %>%
+    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+```
+
+```{r}
+(TAGrid_25km_plot <- ggplot(data = TAGrid_25km) +
+    geom_sf(data = Americas) +
+    geom_sf(data = TAGrid_25km) +
+    coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+    theme_minimal() +
+    labs(title = "25 km") +
+    theme(plot.title = element_text(hjust = 0.5)))
+```
+
+```{r}
+TAGrid_50km <- TApoly %>%
+    st_make_grid(cellsize = c(50000, 50000)) %>%
+    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+```
+
+```{r}
+(TAGrid_50km_plot <- ggplot(data = TAGrid_50km) +
+    geom_sf(data = Americas) +
+    geom_sf(data = TAGrid_50km) +
+    coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+    theme_minimal() +
+    labs(title = "50 km") +
+    theme(plot.title = element_text(hjust = 0.5)))
+```
+
+```{r}
+TAGrid_75km <- TApoly %>%
+    st_make_grid(cellsize = c(75000, 75000)) %>%
+    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+```
+
+```{r}
+(TAGrid_75km_plot <- ggplot(data = TAGrid_75km) +
+    geom_sf(data = Americas) +
+    geom_sf(data = TAGrid_75km) +
+    coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+    theme_minimal() +
+    labs(title = "75 km") +
+    theme(plot.title = element_text(hjust = 0.5)))
+```
+
+```{r}
+TAGrid_100km <- TApoly %>%
+    st_make_grid(cellsize = c(100000, 100000)) %>%
+    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+```
+
+```{r}
+(TAGrid_100km_plot <- ggplot(data = TAGrid_100km) +
+    geom_sf(data = Americas) +
+    geom_sf(data = TAGrid_100km) +
+    coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+    theme_minimal() +
+    labs(title = "100 km") +
+    theme(plot.title = element_text(hjust = 0.5)))
+```
+
+Combine grid plots into one figure
+```{r}
+library(ggpubr)
+(TAGrid_all_plots <- ggpubr::ggarrange(TAGrid_5km_plot, TAGrid_10km_plot, TAGrid_25km_plot,
+                  TAGrid_50km_plot, TAGrid_75km_plot, TAGrid_100km_plot,
+                  ncol = 6, nrow = 1))
+ggsave("TAGrid_all_plots.png", TAGrid_all_plots, path = figure_path, width = 16, height = 10, units = "in")
+```
+
+
+```{r}
+resolution <- c(5, 10, 25, 50, 75, 100)
+num_cells <- c(length(TAGrid_5km$cellid), length(TAGrid_10km$cellid),length(TAGrid_25km$cellid),
+               length(TAGrid_50km$cellid), length(TAGrid_75km$cellid),length(TAGrid_100km$cellid))
+plot(resolution, num_cells)
+
+```
+
+Make & map grid for just Ecuador
+```{r}
+EcGrid_5km <- TApoly %>%
+    st_make_grid(cellsize = c(5000, 5000)) %>%
+    st_intersection(Ecuador) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+```
+
+```{r}
+(EcGrid_5km_plot <- ggplot(data = EcGrid_5km) +
+    geom_sf() +
+    theme_minimal() +
+    labs(title = "5 km") +
+    coord_sf(xlim = c(-81.5, -75), ylim = c(-5.5, 2), expand = FALSE, crs = 4326))
+(Grid_5km_plot <- ggplot(data = EcGrid_5km) +
+    geom_sf() +
+    theme_minimal() +
+    labs(title = "5 km") +
+    theme(axis.text = element_blank())+
+    coord_sf(xlim = c(-79.5, -77.3), ylim = c(-2.5, -0.5), expand = FALSE, crs = 4326))
+```
+
+```{r}
+EcGrid_10km <- TApoly %>%
+    st_make_grid(cellsize = c(10000, 10000)) %>%
+    st_intersection(Ecuador) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+```
+
+```{r}
+(EcGrid_10km_plot <- ggplot(data = EcGrid_10km) +
+    geom_sf() +
+    theme_minimal() +
+    labs(title = "10 km") +
+    coord_sf(xlim = c(-81.5, -75), ylim = c(-5.5, 2), expand = FALSE, crs = 4326))
+(Grid_10km_plot <- ggplot(data = EcGrid_10km) +
+    geom_sf() +
+    theme_minimal() +
+    labs(title = "10 km") +
+    theme(axis.text = element_blank())+
+    coord_sf(xlim = c(-79.5, -77.3), ylim = c(-2.5, -0.5), expand = FALSE, crs = 4326))
+```
+
+```{r}
+EcGrid_25km <- TApoly %>%
+    st_make_grid(cellsize = c(25000, 25000)) %>%
+    st_intersection(Ecuador) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+```
+
+```{r}
+(EcGrid_25km_plot <- ggplot(data = EcGrid_25km) +
+    geom_sf() +
+    theme_minimal() +
+    labs(title = "25 km") +
+    coord_sf(xlim = c(-81.5, -75), ylim = c(-5.5, 2), expand = FALSE, crs = 4326))
+(Grid_25km_plot <- ggplot(data = EcGrid_25km) +
+    geom_sf() +
+    theme_minimal() +
+    labs(title = "25 km") +
+    theme(axis.text = element_blank())+
+    coord_sf(xlim = c(-79.5, -77.3), ylim = c(-2.5, -0.5), expand = FALSE, crs = 4326))
+```
+
+```{r}
+EcGrid_50km <- TApoly %>%
+    st_make_grid(cellsize = c(50000, 50000)) %>%
+    st_intersection(Ecuador) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+```
+
+```{r}
+(EcGrid_50km_plot <- ggplot(data = EcGrid_50km) +
+    geom_sf() +
+    theme_minimal() +
+    labs(title = "50 km") +
+    coord_sf(xlim = c(-81.5, -75), ylim = c(-5.5, 2), expand = FALSE, crs = 4326))
+(Grid_50km_plot <- ggplot(data = EcGrid_50km) +
+    geom_sf() +
+    theme_minimal() +
+    labs(title = "50 km") +
+    theme(axis.text = element_blank())+ 
+    coord_sf(xlim = c(-79.5, -77.3), ylim = c(-2.5, -0.5), expand = FALSE, crs = 4326))
+```
+
+```{r}
+EcGrid_75km <- TApoly %>%
+    st_make_grid(cellsize = c(75000, 75000)) %>%
+    st_intersection(Ecuador) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+```
+
+```{r}
+(EcGrid_75km_plot <- ggplot(data = EcGrid_75km) +
+    geom_sf() +
+    theme_minimal() +
+    labs(title = "75 km") +
+    coord_sf(xlim = c(-81.5, -75), ylim = c(-5.5, 2), expand = FALSE, crs = 4326))
+(Grid_75km_plot <- ggplot(data = EcGrid_75km) +
+    geom_sf() +
+    theme_minimal() +
+    labs(title = "75 km") +
+    theme(axis.text = element_blank())+
+    coord_sf(xlim = c(-79.5, -77.3), ylim = c(-2.5, -0.5), expand = FALSE, crs = 4326))
+```
+
+```{r}
+EcGrid_100km <- TApoly %>%
+    st_make_grid(cellsize = c(100000, 100000)) %>%
+    st_intersection(Ecuador) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+```
+
+```{r}
+(EcGrid_100km_plot <- ggplot(data = EcGrid_100km) +
+    geom_sf() +
+    theme_minimal() +
+    labs(title = "100 km") +
+    coord_sf(xlim = c(-81.5, -75), ylim = c(-5.5, 2), expand = FALSE, crs = 4326))
+(Grid_100km_plot <- ggplot(data = EcGrid_100km) +
+    geom_sf() +
+    theme_minimal() +
+    labs(title = "100 km") +
+    theme(axis.text = element_blank())+
+    coord_sf(xlim = c(-79.5, -77.3), ylim = c(-2.5, -0.5), expand = FALSE, crs = 4326))
+```
+
+Combine Ecuador grid plots into one figure
+```{r}
+library(ggpubr)
+(Grid_all_plots <- ggpubr::ggarrange(Grid_5km_plot, Grid_10km_plot, Grid_25km_plot,
+                  Grid_50km_plot, Grid_75km_plot, Grid_100km_plot,
+                  ncol = 6, nrow = 1))
+ggsave("Grid_all_plots.png", Grid_all_plots, path = figure_path, width = 16, height = 10, units = "in")
+```
+
 
 # Create Sankey diagram for taxonomic harmonization
 Inspiration figures: https://conbio-onlinelibrary-wiley-com.proxy2.cl.msu.edu/doi/10.1111/csp2.311#csp2311-fig-0003 and https://bsapubs-onlinelibrary-wiley-com.proxy2.cl.msu.edu/doi/full/10.1002/aps3.11575#aps311575-fig-0003
