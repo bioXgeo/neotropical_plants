@@ -958,17 +958,22 @@ ggsave("plant_trait_visual_missing.png", plot = last_plot(), path = figure_path)
 trait_counts <- unaveraged_traits %>%
   count(DatabaseSource, TraitName)
 
-# Create the faceted bar plot with free y-axis scales
+# Customize fill color of database
+custom_colors <- c("BIEN" = "#a6cf3c" , "GIFT" = "#009900", "TRY" = "#40a353")
+
+# Create the faceted bar plot
 ggplot(trait_counts, aes(x = DatabaseSource, y = n, fill = DatabaseSource)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(title = "Trait Counts per Database",
        x = "Trait Name",
        y = "Trait Count",
        fill = "Database Source") +
+  scale_fill_manual(values = custom_colors) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_wrap(~ TraitName, scales = "free_y")
-ggsave("plant_trait_counts_per_database.png", plot = last_plot(), path = figure_path)
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), 
+        legend.position = "none") +
+  facet_wrap(~ TraitName, scales = "free_y", nrow = 2)
+ggsave("plant_trait_counts_per_database.png", plot = last_plot(), path = figure_path, width = 12, height = 5)
 ```
 
 
