@@ -287,9 +287,9 @@ TAGrid_100km <- TApoly %>%
 spatial_fdis_frugivore$cellid <- st_intersects(spatial_fdis_frugivore, TAGrid_100km)$nn
 
 spatial_fdis_frugivore_grid <- TAGrid_100km %>%
-   st_join(spatial_fdis_frugivore) %>%
+   st_join(spatial_fdis_frugivore, join = st_contains) %>%
    group_by(cellid) %>%
-   summarize(fdis_value = sum(fdis_frugivore, na.rm = TRUE)) %>%
+   summarize(fdis_value = mean(fdis_frugivore, na.rm = TRUE)) %>%
    ungroup()
 ```
 
@@ -306,7 +306,7 @@ frugivoregridFDisTA_100km <-
     geom_sf(data = spatial_fdis_frugivore_grid, aes(fill = fdis_value), color = NA) +
     labs(fill = "FDis") +
     ggtitle("100 km") +
-    scale_fill_distiller(palette = "YlOrBr", direction = 1) +
+    scale_fill_distiller(palette = "YlOrBr", direction = 1, limits = c(0,0.8)) +
     coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
     theme(panel.background = element_rect(fill = "lightblue"),
         text = element_text(size = 12), plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 45, hjust = 1))
@@ -314,7 +314,7 @@ frugivoregridFDisTA_100km
 ```
 
 ```{r}
-ggsave("frugivoregridFDisTA_100km.png", frugivoregridFDisTA_100km, path = figure_path)
+#ggsave("frugivoregridFDisTA_100km.png", frugivoregridFDisTA_100km, path = figure_path)
 # Extract cell values
 frugivore_cellFDis_100km <- spatial_fdis_frugivore_grid
 hist(frugivore_cellFDis_100km$fdis_value)
@@ -470,16 +470,16 @@ mapping_fd_as_fdis_frugivores <- function(PAM_frugivore_site, site_loc_key_frugi
   spatial_fdis_frugivore_grid <- TAGrid %>%
    st_join(spatial_fdis_frugivore) %>%
    group_by(cellid) %>%
-   summarize(fdis_value = sum(fdis_frugivore, na.rm = TRUE)) %>%
+   summarize(fdis_value = mean(fdis_frugivore, na.rm = TRUE)) %>%
    ungroup()
   
   frugivoregridFDisTA <-
     ggplot() +
     geom_sf(data = Americas, fill = "white")+
-    geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
+    geom_sf(data = TApoly, fill = "lightgrey") +
     geom_sf(data = spatial_fdis_frugivore_grid, aes(fill = fdis_value), color = NA) +
     labs(fill = "FDis") +
-    scale_fill_distiller(palette = "YlOrBr", direction = 1) +
+    scale_fill_distiller(palette = "YlOrBr", direction = 1, limits = c(0,0.8)) +
     coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
     theme(panel.background = element_rect(fill = "lightblue"),
         text = element_text(size = 12), plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 45, hjust = 1))
@@ -501,7 +501,7 @@ frugivore_cellFDis_75km <- mapping_75km$spatial_fdis_frugivore_grid
 (frugivoregridFDisTA_75km <- frugivoregridFDisTA_75km +
     ggtitle("75 km")
 )
-ggsave("frugivoregridFDisTA_75km.png", frugivoregridFDisTA_75km, path = figure_path)
+#ggsave("frugivoregridFDisTA_75km.png", frugivoregridFDisTA_75km, path = figure_path)
 ```
 
 ```{r}
@@ -515,7 +515,7 @@ frugivore_cellFDis_50km <- mapping_50km$spatial_fdis_frugivore_grid
 (frugivoregridFDisTA_50km <- frugivoregridFDisTA_50km +
     ggtitle("50 km")
 )
-ggsave("frugivoregridFDisTA_50km.png", frugivoregridFDisTA_50km, path = figure_path)
+#ggsave("frugivoregridFDisTA_50km.png", frugivoregridFDisTA_50km, path = figure_path)
 ```
 
 ```{r}
@@ -529,7 +529,7 @@ frugivore_cellFDis_25km <- mapping_25km$spatial_fdis_frugivore_grid
 (frugivoregridFDisTA_25km <- frugivoregridFDisTA_25km +
     ggtitle("25 km")
 )
-ggsave("frugivoregridFDisTA_25km.png", frugivoregridFDisTA_25km, path = figure_path)
+#ggsave("frugivoregridFDisTA_25km.png", frugivoregridFDisTA_25km, path = figure_path)
 ```
 
 ```{r}
@@ -543,9 +543,17 @@ frugivore_cellFDis_10km <- mapping_10km$spatial_fdis_frugivore_grid
 (frugivoregridFDisTA_10km <- frugivoregridFDisTA_10km +
     ggtitle("10 km")
 )
-ggsave("frugivoregridFDisTA_10km.png", frugivoregridFDisTA_10km, path = figure_path)
+#ggsave("frugivoregridFDisTA_10km.png", frugivoregridFDisTA_10km, path = figure_path)
 ```
 
+```{r}
+hist(frugivore_cellFDis_75km$fdis_value)
+hist(frugivore_cellFDis_50km$fdis_value)
+hist(frugivore_cellFDis_25km$fdis_value)
+hist(frugivore_cellFDis_10km$fdis_value)
+```
+
+## 5 km
 ```{r}
 # Generate coordinates
 subset_coords_frugivore_5km <-site_loc_key_frugivore_5km[rowSums(PAM_frugivore_site_final_5km) >= 4, ]
@@ -610,7 +618,7 @@ results_list <- foreach(indices = chunk_indices, .combine = 'c', .packages = c("
   # Group by cellid and summarize fdis values
   summarized <- joined %>%
     group_by(cellid) %>%
-    summarize(fdis_value = sum(fdis, na.rm = TRUE)) %>%
+    summarize(fdis_value = mean(fdis, na.rm = TRUE)) %>%
     ungroup()
   
   # Ensure that summarized is a data frame and add debugging information
@@ -645,14 +653,14 @@ str(spatial_fdis_frugivore_grid)
 frugivoregridFDisTA_5km <-
     ggplot() +
     geom_sf(data = Americas, fill = "white")+
-    geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
+    geom_sf(data = TApoly, fill = "lightgrey") +
     geom_sf(data = spatial_fdis_frugivore_grid, aes(fill = fdis_value), color = NA) +
     labs(fill = "FDis") +
-    scale_fill_distiller(palette = "YlOrBr", direction = 1) +
+    scale_fill_distiller(palette = "YlOrBr", direction = 1, limits = c(0,0.8)) +
     coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
     theme(panel.background = element_rect(fill = "lightblue"),
-        text = element_text(size = 12), plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 45, hjust = 1))
-  frugivoregridFDisTA_5km
+        text = element_text(size = 12), plot.title = element_text(hjust = 0.5),
+        axis.text.x = element_text(angle = 45, hjust = 1))
 frugivore_cellFDis_5km <- spatial_fdis_frugivore_grid
 ```
 
@@ -661,7 +669,8 @@ frugivore_cellFDis_5km <- spatial_fdis_frugivore_grid
 (frugivoregridFDisTA_5km <- frugivoregridFDisTA_5km +
     ggtitle("5 km")
 )
-ggsave("frugivoregridFDisTA_5km.png", frugivoregridFDisTA_5km, path = figure_path)
+#ggsave("frugivoregridFDisTA_5km.png", frugivoregridFDisTA_5km, path = figure_path)
+hist(frugivore_cellFDis_5km$fdis_value)
 ```
 
 # Plants
@@ -842,7 +851,7 @@ spatial_fdis_plant$cellid <- st_intersects(spatial_fdis_plant, TAGrid_100km)$nn
 spatial_fdis_plant_grid <- TAGrid_100km %>%
    st_join(spatial_fdis_plant) %>%
    group_by(cellid) %>%
-   summarize(fdis_value = sum(fdis_plant, na.rm = TRUE)) %>%
+   summarize(fdis_value = mean(fdis_plant, na.rm = TRUE)) %>%
    ungroup()
 ```
 
@@ -859,7 +868,7 @@ plantgridFDisTA_100km <-
     geom_sf(data = spatial_fdis_plant_grid, aes(fill = fdis_value), color = NA) +
     labs(fill = "FDis") +
     ggtitle("100 km") +
-    scale_fill_distiller(palette = "Greens", direction = 1, limits = c(0,7.5)) +
+    scale_fill_distiller(palette = "Greens", direction = 1, limits = c(0,0.8)) +
     coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
     theme(panel.background = element_rect(fill = "lightblue"),
         text = element_text(size = 12), plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 45, hjust = 1))
@@ -867,7 +876,7 @@ plantgridFDisTA_100km
 ```
 
 ```{r}
-ggsave("plantgridFDisTA_100km.png", plantgridFDisTA_100km, path = figure_path)
+#ggsave("plantgridFDisTA_100km.png", plantgridFDisTA_100km, path = figure_path)
 # Extract cell values
 plant_cellFDis_100km <- spatial_fdis_plant_grid
 hist(plant_cellFDis_100km$fdis_value)
@@ -981,71 +990,29 @@ mapping_fd_as_fdis_plants <- function(PAM_plant_site, site_loc_key_plant, fdis_p
   spatial_fdis_plant <- spatial_fdis_plant %>%
     mutate(x = spatial_fdis_plant_coords[, 1], y = spatial_fdis_plant_coords[, 2])
   
-  # Use three fewer cores than available
-  num_cores <- detectCores() - 3
-  cl <- makeCluster(num_cores)
-  registerDoParallel(cl)
+  # Generate the grid
+  TAGrid <- TApoly %>%
+    st_make_grid(cellsize = resolution_meters) %>%
+    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
   
-  on.exit(stopCluster(cl)) # Ensure the cluster is stopped when the function exits
-  
-  tryCatch({
-    # Generate the grid
-    TAGrid <- TApoly %>%
-      st_make_grid(cellsize = resolution_meters) %>%
-      st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
-      st_cast("MULTIPOLYGON") %>%
-      st_sf() %>%
-      mutate(cellid = row_number())
+  spatial_fdis_plant$cellid <- st_intersects(spatial_fdis_plant, TAGrid)$nn
     
-    # Check if TAGrid is empty
-    if (nrow(TAGrid) == 0) {
-      stop("Error: No valid grid cells after intersection.")
-    }
-    
-    # Divide the indices of the grid into chunks for parallel processing
-    chunk_indices <- split(seq_len(nrow(TAGrid)), rep(1:num_cores, each = ceiling(nrow(TAGrid) / num_cores), length.out = nrow(TAGrid)))
-    
-    # Process chunks in parallel
-    results_list <- foreach(indices = chunk_indices, .combine = rbind, .packages = c("sf", "dplyr")) %dopar% {
-      chunk <- TAGrid[indices, ]
-      
-      # Perform the intersection
-      intersected <- st_intersection(spatial_fdis_plant, chunk)
-      
-      # Calculate cellid for intersected
-      intersected$cellid <- st_intersects(intersected, chunk)$nn
-      
-      # Ensure that intersected is a data frame
-      as.data.frame(intersected)
-    }
-    
-    # Combine all chunk results into a single data frame
-    spatial_fdis_plant <- do.call(rbind, results_list)
-    
-    # Ensure the combined result is a data frame
-    spatial_fdis_plant <- as.data.frame(spatial_fdis_plant)
-    
-    # Debugging: Check if 'cellid' column exists
-    if (!"cellid" %in% colnames(spatial_fdis_plant)) {
-      stop("Error: 'cellid' column not found in spatial_fdis_plant.")
-    }
-    
-    # Summarize fdis values per grid cell
-    spatial_fdis_plant_grid <- spatial_fdis_plant %>%
-      group_by(cellid) %>%
-      summarize(fdis_value = sum(fdis_plant, na.rm = TRUE)) %>%
-      right_join(as.data.frame(TAGrid), by = "cellid")
-    
-    # Convert the grid to sf
-    spatial_fdis_plant_grid <- st_as_sf(spatial_fdis_plant_grid)
+  spatial_fdis_plant_grid <- TAGrid %>%
+   st_join(spatial_fdis_plant) %>%
+   group_by(cellid) %>%
+   summarize(fdis_value = mean(fdis_plant, na.rm = TRUE)) %>%
+   ungroup()
     
     # Create the plot
     plantgridFDisTA <- ggplot() +
       geom_sf(data = Americas, fill = "white") +
-      geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
+      geom_sf(data = TApoly, fill = "lightgrey") +
       geom_sf(data = spatial_fdis_plant_grid, aes(fill = fdis_value), color = NA) +
       labs(fill = "FDis") +
-      scale_fill_distiller(palette = "Greens", direction = 1, limits = c(0, 7.5)) +
+      scale_fill_distiller(palette = "Greens", direction = 1, limits = c(0,0.8)) +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
       theme(panel.background = element_rect(fill = "lightblue"),
             text = element_text(size = 12),
@@ -1053,11 +1020,7 @@ mapping_fd_as_fdis_plants <- function(PAM_plant_site, site_loc_key_plant, fdis_p
             axis.text.x = element_text(angle = 45, hjust = 1))
     
     list(plantgridFDisTA = plantgridFDisTA, spatial_fdis_plant_grid = spatial_fdis_plant_grid)
-  }, error = function(e) {
-    message("Error in parallel processing: ", conditionMessage(e))
-    NULL
-  })
-}
+  }
 ```
 
 ```{r}
@@ -1071,7 +1034,7 @@ plant_cellFDis_75km <- mapping_75km$spatial_fdis_plant_grid
 (plantgridFDisTA_75km <- plantgridFDisTA_75km +
     ggtitle("75 km")
 )
-ggsave("plantgridFDisTA_75km.png", plantgridFDisTA_75km, path = figure_path)
+#ggsave("plantgridFDisTA_75km.png", plantgridFDisTA_75km, path = figure_path)
 ```
 
 ```{r}
@@ -1085,7 +1048,7 @@ plant_cellFDis_50km <- mapping_50km$spatial_fdis_plant_grid
 (plantgridFDisTA_50km <- plantgridFDisTA_50km +
     ggtitle("50 km")
 )
-ggsave("plantgridFDisTA_50km.png", plantgridFDisTA_50km, path = figure_path)
+#ggsave("plantgridFDisTA_50km.png", plantgridFDisTA_50km, path = figure_path)
 ```
 
 ```{r}
@@ -1099,7 +1062,7 @@ plant_cellFDis_25km <- mapping_25km$spatial_fdis_plant_grid
 (plantgridFDisTA_25km <- plantgridFDisTA_25km +
     ggtitle("25 km")
 )
-ggsave("plantgridFDisTA_25km.png", plantgridFDisTA_25km, path = figure_path)
+#ggsave("plantgridFDisTA_25km.png", plantgridFDisTA_25km, path = figure_path)
 ```
 
 ```{r}
@@ -1113,9 +1076,18 @@ plant_cellFDis_10km <- mapping_10km$spatial_fdis_plant_grid
 (plantgridFDisTA_10km <- plantgridFDisTA_10km +
     ggtitle("10 km")
 )
-ggsave("plantgridFDisTA_10km.png", plantgridFDisTA_10km, path = figure_path)
+#ggsave("plantgridFDisTA_10km.png", plantgridFDisTA_10km, path = figure_path)
 ```
 
+```{r}
+hist(plant_cellFDis_75km$fdis_value)
+hist(plant_cellFDis_50km$fdis_value)
+hist(plant_cellFDis_25km$fdis_value)
+hist(plant_cellFDis_10km$fdis_value)
+```
+
+
+## 5 km 
 ```{r}
 # Generate coordinates
 subset_coords_plant_5km <-site_loc_key_plant_5km[rowSums(PAM_plant_site_final_5km) >= 4, ]
@@ -1161,7 +1133,7 @@ spatial_fdis_plant_5km$cellid <- st_intersects(spatial_fdis_plant_5km, TAGrid_5k
 
 ```{r}
 # Determine number of cores to use
-num_cores <- detectCores() - 2
+num_cores <- detectCores() - 3
 
 # Register parallel backend
 cl <- makeCluster(num_cores)
@@ -1178,22 +1150,19 @@ results_list <- foreach(indices = chunk_indices, .combine = 'c', .packages = c("
   grid_chunk <- TAGrid_5km[indices, ]
   
   # Perform spatial join
-  joined <- st_join(grid_chunk, spatial_fdis_plant)
+  joined <- st_join(grid_chunk, spatial_fdis_plant_5km)
   
   # Group by cellid and summarize fdis values
   summarized <- joined %>%
     group_by(cellid) %>%
-    summarize(fdis_value = sum(fdis_plant, na.rm = TRUE)) %>%
+    summarize(fdis_value = mean(fdis, na.rm = TRUE)) %>%
     ungroup()
   
   # Ensure that summarized is a data frame and add debugging information
   summarized_df <- as.data.frame(summarized)
   
-  # Debugging: Check the structure of the summarized data frame
-  message("Processed chunk: ", indices[1], " to ", indices[length(indices)])
-  str(summarized_df)
   
-  list(summarized_df)  # Return as list to avoid unintended simplification
+  list(as.data.frame(summarized_df))
 }
 
 # Flatten the results_list and ensure each element is a data frame
@@ -1204,13 +1173,13 @@ str(flattened_results)
 
 # Convert to sf object if applicable
 if ("geometry" %in% colnames(flattened_results)) {
-  spatial_fdis_plant_grid <- st_as_sf(flattened_results)
+  spatial_fdis_plant_grid_5km <- st_as_sf(flattened_results)
 } else {
-  spatial_fdis_plant_grid <- flattened_results
+  spatial_fdis_plant_grid_5km <- flattened_results
 }
 
 # Check the structure of the final output
-str(spatial_fdis_plant_grid)
+str(spatial_fdis_plant_grid_5km)
 
 ```
 
@@ -1218,19 +1187,15 @@ str(spatial_fdis_plant_grid)
 plantgridFDisTA_5km <-
     ggplot() +
     geom_sf(data = Americas, fill = "white")+
-    geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
-    geom_sf(data = spatial_fdis_plant_grid, aes(fill = fdis_value), color = NA) +
+    geom_sf(data = TApoly, fill = "lightgrey") +
+    geom_sf(data = spatial_fdis_plant_grid_5km, aes(fill = fdis_value), color = NA) +
     labs(fill = "FDis") +
-    ggtitle("5 km") +
-    scale_fill_distiller(palette = "Greens", direction = 1, limits = c(0,6.5)) +
+    scale_fill_distiller(palette = "Greens", direction = 1, limits = c(0,0.8)) +
     coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
     theme(panel.background = element_rect(fill = "lightblue"),
         text = element_text(size = 12), plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 45, hjust = 1))
-plantgridFDisTA_5km
-```
 
-```{r}
-plant_cellFDis_5km <- spatial_fdis_plant_grid
+plant_cellFDis_5km <- spatial_fdis_plant_grid_5km
 ```
 
 ```{r}
@@ -1238,21 +1203,26 @@ plant_cellFDis_5km <- spatial_fdis_plant_grid
 (plantgridFDisTA_5km <- plantgridFDisTA_5km +
     ggtitle("5 km")
 )
-ggsave("plantgridFDisTA_5km.png", plantgridFDisTA_5km, path = figure_path)
+#ggsave("plantgridFDisTA_5km.png", plantgridFDisTA_5km, path = figure_path)
 ```
+
+```{r}
+hist(plant_cellFDis_5km$fdis_value)
+```
+
 
 # Multi panel plots of FD maps
 ## Make sure all plots for the same taxa have the same legend scale
 ```{r}
 plant_plot_legend <- function(plot){
-  plot + scale_fill_distiller(palette = "Greens", direction = 1,limits = c(0, 6.5),
-                              oob = scales::squish, breaks = seq(0, 6.5, by = 1)) +
+  plot + scale_fill_distiller(palette = "Greens", direction = 1, limits = c(0,0.8),
+                              oob = scales::squish, breaks = seq(0, 0.8, by = 0.2)) +
     theme(legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10)) +
       annotation_scale(location = "bl", width_hint = 0.5)
 }
 frugivore_plot_legend <- function(plot){
-  plot + scale_fill_distiller(palette = "YlOrBr", direction = 1,limits = c(0, 8.5),
-                              oob = scales::squish, breaks = seq(0, 8.5, by = 1)) +
+  plot + scale_fill_distiller(palette = "YlOrBr", direction = 1, limits = c(0,0.8),
+                              oob = scales::squish, breaks = seq(0, 0.8, by = 0.2)) +
     theme(legend.key.height = unit(0.5, "in"), legend.text = element_text(size = 10)) +
       annotation_scale(location = "bl", width_hint = 0.5)
 }
