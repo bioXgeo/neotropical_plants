@@ -95,16 +95,16 @@ basePlot <-
 ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
-  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "forestgreen") +
-  labs(title = "Tropical Andes", x = "Latitude", y = "Longitude") +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "#D9F7D9") +
+  labs(title = "Tropical Andes Forest", x = "Latitude", y = "Longitude") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_scale(location = "bl", width_hint = 0.3, style = "ticks") +
   annotation_north_arrow(location = "bl", which_north = "true", 
     pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
   theme(panel.background = element_rect(fill = "lightblue"))
 
 basePlot
-ggsave("tropical_andes_forest_map.png", plot = last_plot(), path = figure_path)
+#ggsave("tropical_andes_forest_map.png", plot = last_plot(), path = figure_path)
 ```
 
 # Plot points
@@ -113,11 +113,11 @@ plantsPointsPlot <-
 ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
-  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "forestgreen") + 
-  geom_sf(data = plants_sf_species, pch = 16, alpha = 0.1, size = 0.01) +
-  labs(title = "Tropical Andes Plant Occurrences", x = "Latitude", y = "Longitude") +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "#D9F7D9") + 
+  geom_sf(data = plants_sf_species, pch = 16, size = 0.05) +
+  labs(title = "Fruiting Plant Occurrences", x = "Latitude", y = "Longitude") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_scale(location = "bl",width_hint = 0.3, style = "ticks") +
   annotation_north_arrow(location = "tr", which_north = "true",
                          height = unit(0.5, "in"), width = unit(0.5, "in"),
                          pad_x = unit(0.1, "in"), pad_y = unit(0.1, "in"),
@@ -133,11 +133,11 @@ frugivoresPointsPlot <-
 ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
-  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "forestgreen") +
-  geom_sf(data = frugivores_sf_species, pch = 16, alpha = 0.1, size = 0.01) +
-  labs(title = "Tropical Andes Frugivore Occurrences", x = "Latitude", y = "Longitude") +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "#D9F7D9") +
+  geom_sf(data = frugivores_sf_species, pch = 16, size = 0.01) +
+  labs(title = "Frugivore Occurrences", x = "Latitude", y = "Longitude") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-  annotation_scale(location = "bl", width_hint = 0.5) +
+  annotation_scale(location = "bl",width_hint = 0.3, style = "ticks") +
   annotation_north_arrow(location = "tr", which_north = "true",
                          height = unit(0.5, "in"), width = unit(0.5, "in"),
                          pad_x = unit(0.1, "in"), pad_y = unit(0.1, "in"),
