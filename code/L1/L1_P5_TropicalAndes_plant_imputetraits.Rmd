@@ -29,6 +29,7 @@ library(funbiogeo)
 library(visdat)
 library(ggplot2)
 library(forcats)
+library(viridis)
 ```
 
 # Read in data
@@ -1160,46 +1161,66 @@ fb_table_trait_summary(imputed_data)
 ```
 
 ```{r}
-# Reassign NA values in TraitLevel as "Imputed"
-all_traits_with_NAs$TraitLevel[is.na(all_traits_with_NAs$TraitLevel)] <- "Imputed"
+# Reassign NA values in TraitLevel as "imputed"
+all_traits_with_NAs$TraitLevel[is.na(all_traits_with_NAs$TraitLevel)] <- "imputed"
 
 # Count the number of traits per TraitLevel and TraitName
 trait_counts <- all_traits_with_NAs %>%
   count(TraitLevel, TraitName) %>%
-  mutate(TraitLevel = fct_relevel(TraitLevel, "species", "genus", "family", "Imputed"))
+  mutate(TraitLevel = fct_relevel(TraitLevel, "species", "genus", "family", "imputed"))
 
 # Create the faceted bar plot with free y-axis scales
-ggplot(trait_counts, aes(x = TraitLevel, y = n, fill = TraitLevel)) +
+(trait_count_level_plot <- ggplot(trait_counts, aes(x = TraitLevel, y = n, fill = TraitLevel)) +
   geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Trait Counts per Level",
-       x = "Trait Level",
+  scale_fill_viridis(discrete = TRUE) +
+  labs(x = "Trait Level",
        y = "Trait Count",
        fill = "Level") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "none") +  # Remove legend
-  facet_wrap(~ TraitName, scales = "free_y") +
-  guides(fill = "none")  # Remove legend
-ggsave("plant_trait_counts_per_level.png", plot = last_plot(), path = figure_path)
+  facet_wrap(~ TraitName, scales = "free_y", nrow = 2) +
+  guides(fill = "none"))  # Remove legend
+ggsave("plant_trait_counts_per_level.png", plot = trait_count_level_plot, path = figure_path, height = 6, width = 8, units = "in")
 ```
 
 ```{r}
 # Count the number of traits per TraitLevel
 trait_counts_overall <- all_traits_with_NAs %>%
   count(TraitLevel) %>%
-  mutate(TraitLevel = fct_relevel(TraitLevel, "species", "genus", "family", "Imputed"))
+  mutate(TraitLevel = fct_relevel(TraitLevel, "species", "genus", "family", "imputed"))
 
 # Create the faceted bar plot with free y-axis scales
-ggplot(trait_counts_overall, aes(x = TraitLevel, y = n, fill = TraitLevel)) +
+(all_trait_count_plot <- ggplot(trait_counts_overall, aes(x = TraitLevel, y = n, fill = TraitLevel)) +
   geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Trait Counts per Level",
+  scale_fill_viridis(discrete = TRUE) +
+  labs(title = "All traits",
        x = "Trait Level",
        y = "Trait Count",
        fill = "Level") +
   theme_minimal() +
-  guides(fill = "none")  # Remove legend
-ggsave("plant_trait_counts_per_level_overall.png", plot = last_plot(), path = figure_path)
+  theme(plot.title = element_text(hjust = 0.5)) +
+  guides(fill = "none"))  # Remove legend
+ggsave("plant_trait_counts_per_level_overall.png", plot = all_trait_count_plot, path = figure_path)
 ```
+
+```{r}
+(both_trait_counts <- ggarrange(trait_count_level_plot, all_trait_count_plot,
+                                        ncol = 2, nrow = 1, widths = c(2,1)))
+ggsave("plant_trait_counts_both.png", plot = both_trait_counts, path = figure_path, height = 6, width = 12, units = "in")
+```
+
+```{r}
+# Calculate the total sum of the values
+total_sum <- sum(trait_counts_overall$n)
+
+# Calculate the percentage of each value
+trait_counts_overall$percentage <- (trait_counts_overall$n / total_sum) * 100
+
+# Print the dataframe with the percentages
+print(trait_counts_overall)
+```
+
 
 # Save imputed data
 ```{r}
