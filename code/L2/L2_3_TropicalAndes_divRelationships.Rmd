@@ -106,14 +106,198 @@ plot(frugivore_cellRichness_75km$num_species, frugivore_cellFDis_75km$fdis_value
 plot(frugivore_cellRichness_100km$num_species, frugivore_cellFDis_100km$fdis_value)
 ```
 
+```{r}
+plot(plant_cellRichness_5km$num_species, frugivore_cellFDis_5km$fdis_value)
+plot(plant_cellRichness_10km$num_species, frugivore_cellFDis_10km$fdis_value)
+plot(plant_cellRichness_25km$num_species, frugivore_cellFDis_25km$fdis_value)
+plot(plant_cellRichness_50km$num_species, frugivore_cellFDis_50km$fdis_value)
+plot(plant_cellRichness_75km$num_species, frugivore_cellFDis_75km$fdis_value)
+plot(plant_cellRichness_100km$num_species,frugivore_cellFDis_100km$fdis_value)
+```
+
+```{r}
+plot(frugivore_cellRichness_5km$num_species, plant_cellFDis_5km$fdis_value)
+plot(frugivore_cellRichness_10km$num_species, plant_cellFDis_10km$fdis_value)
+plot(frugivore_cellRichness_25km$num_species, plant_cellFDis_25km$fdis_value)
+plot(frugivore_cellRichness_50km$num_species, plant_cellFDis_50km$fdis_value)
+plot(frugivore_cellRichness_75km$num_species, plant_cellFDis_75km$fdis_value)
+plot(frugivore_cellRichness_100km$num_species, plant_cellFDis_100km$fdis_value)
+```
+
 # Compare diversity relationships between plants and frugivores
-## Function for comparing diversity relationships
+## Determine model types
+### Richness
+```{r}
+diff_taxa_richness <- function(plant_Richness_grid, frugivore_Richness_grid, resolution_meters, z){
+  # Extract cell values
+  comparison_Richness <- data.frame(Plant_Richness = plant_Richness_grid$num_species,
+                               Frugivore_Richness = frugivore_Richness_grid$num_species)
+  
+  # Filter out rows where either plant or frugivore richness is zero
+  comparison_Richness_filtered <- comparison_Richness %>%
+                                filter(Plant_Richness > 0 & Frugivore_Richness > 0)
+  
+  ## Create scatter plots
+  (compare_Richness_plot <- ggtrendline(comparison_Richness_filtered$Plant_Richness,
+               comparison_Richness_filtered$Frugivore_Richness, model = z, linewidth = 1, CI.level = NA, eSize = 4) +
+      geom_point(aes(x = comparison_Richness_filtered$Plant_Richness,
+                                           y = comparison_Richness_filtered$Frugivore_Richness)) +
+      labs(title = paste("Plant Richness vs Frugivore Richness [", resolution_meters/1000, " km]", sep = ""),
+       x = "Plant Richness by cell", y = "Frugivore Richness by cell"))
+  
+}
+
+```
+
+```{r}
+diff_taxa_richness(plant_cellRichness_100km, frugivore_cellRichness_100km, 100000, "line2P")
+diff_taxa_richness(plant_cellRichness_100km, frugivore_cellRichness_100km, 100000, "line3P")
+diff_taxa_richness(plant_cellRichness_100km, frugivore_cellRichness_100km, 100000, "log2P")
+diff_taxa_richness(plant_cellRichness_100km, frugivore_cellRichness_100km, 100000, "exp2P")
+diff_taxa_richness(plant_cellRichness_100km, frugivore_cellRichness_100km, 100000, "exp3P")
+diff_taxa_richness(plant_cellRichness_100km, frugivore_cellRichness_100km, 100000, "power2P")
+diff_taxa_richness(plant_cellRichness_100km, frugivore_cellRichness_100km, 100000, "power3P")
+```
+
+```{r}
+diff_taxa_richness(plant_cellRichness_75km, frugivore_cellRichness_75km, 75000, "line2P")
+diff_taxa_richness(plant_cellRichness_75km, frugivore_cellRichness_75km, 75000, "line3P")
+diff_taxa_richness(plant_cellRichness_75km, frugivore_cellRichness_75km, 75000, "log2P")
+diff_taxa_richness(plant_cellRichness_75km, frugivore_cellRichness_75km, 75000, "exp2P")
+diff_taxa_richness(plant_cellRichness_75km, frugivore_cellRichness_75km, 75000, "exp3P")
+diff_taxa_richness(plant_cellRichness_75km, frugivore_cellRichness_75km, 75000, "power2P")
+diff_taxa_richness(plant_cellRichness_75km, frugivore_cellRichness_75km, 75000, "power3P")
+```
+
+```{r}
+diff_taxa_richness(plant_cellRichness_50km, frugivore_cellRichness_50km, 50000, "line2P")
+diff_taxa_richness(plant_cellRichness_50km, frugivore_cellRichness_50km, 50000, "line3P")
+diff_taxa_richness(plant_cellRichness_50km, frugivore_cellRichness_50km, 50000, "log2P")
+diff_taxa_richness(plant_cellRichness_50km, frugivore_cellRichness_50km, 50000, "exp2P")
+diff_taxa_richness(plant_cellRichness_50km, frugivore_cellRichness_50km, 50000, "exp3P")
+diff_taxa_richness(plant_cellRichness_50km, frugivore_cellRichness_50km, 50000, "power2P")
+diff_taxa_richness(plant_cellRichness_50km, frugivore_cellRichness_50km, 50000, "power3P")
+```
+
+```{r}
+diff_taxa_richness(plant_cellRichness_25km, frugivore_cellRichness_25km, 25000, "line2P")
+diff_taxa_richness(plant_cellRichness_25km, frugivore_cellRichness_25km, 25000, "line3P")
+diff_taxa_richness(plant_cellRichness_25km, frugivore_cellRichness_25km, 25000, "log2P")
+diff_taxa_richness(plant_cellRichness_25km, frugivore_cellRichness_25km, 25000, "exp2P")
+diff_taxa_richness(plant_cellRichness_25km, frugivore_cellRichness_25km, 25000, "exp3P")
+diff_taxa_richness(plant_cellRichness_25km, frugivore_cellRichness_25km, 25000, "power2P")
+diff_taxa_richness(plant_cellRichness_25km, frugivore_cellRichness_25km, 25000, "power3P")
+```
+
+```{r}
+diff_taxa_richness(plant_cellRichness_10km, frugivore_cellRichness_10km, 10000, "line2P")
+diff_taxa_richness(plant_cellRichness_10km, frugivore_cellRichness_10km, 10000, "line3P")
+diff_taxa_richness(plant_cellRichness_10km, frugivore_cellRichness_10km, 10000, "log2P")
+diff_taxa_richness(plant_cellRichness_10km, frugivore_cellRichness_10km, 10000, "exp2P")
+diff_taxa_richness(plant_cellRichness_10km, frugivore_cellRichness_10km, 10000, "exp3P")
+diff_taxa_richness(plant_cellRichness_10km, frugivore_cellRichness_10km, 10000, "power2P")
+diff_taxa_richness(plant_cellRichness_10km, frugivore_cellRichness_10km, 10000, "power3P")
+```
+
+```{r}
+diff_taxa_richness(plant_cellRichness_5km, frugivore_cellRichness_5km, 5000, "line2P")
+diff_taxa_richness(plant_cellRichness_5km, frugivore_cellRichness_5km, 5000, "line3P")
+diff_taxa_richness(plant_cellRichness_5km, frugivore_cellRichness_5km, 5000, "log2P")
+diff_taxa_richness(plant_cellRichness_5km, frugivore_cellRichness_5km, 5000, "exp2P")
+diff_taxa_richness(plant_cellRichness_5km, frugivore_cellRichness_5km, 5000, "exp3P")
+diff_taxa_richness(plant_cellRichness_5km, frugivore_cellRichness_5km, 5000, "power2P")
+diff_taxa_richness(plant_cellRichness_5km, frugivore_cellRichness_5km, 5000, "power3P")
+```
+
+### FDis
+```{r}
+diff_taxa_FDis <- function(plant_FDis_grid, frugivore_FDis_grid, resolution_meters, z){
+  # Extract cell values
+  comparison_FDis <- data.frame(Plant_FDis = plant_FDis_grid$fdis_value,
+                               Frugivore_FDis = frugivore_FDis_grid$fdis_value)
+  
+  # Filter out rows where either plant or frugivore FDis is zero
+  comparison_FDis_filtered <- comparison_FDis %>%
+                                filter(Plant_FDis > 0 & Frugivore_FDis > 0)
+  
+  ## Create scatter plots
+  (compare_diversity_plot <- ggtrendline(comparison_FDis_filtered$Plant_FDis,
+               comparison_FDis_filtered$Frugivore_FDis, model = z, linewidth = 1, CI.level = NA, eSize = 4) +
+      geom_point(aes(x = comparison_FDis_filtered$Plant_FDis,
+                                           y = comparison_FDis_filtered$Frugivore_FDis)) +
+      labs(title = paste("Plant_FDis vs Frugivore_FDis [", resolution_meters/1000, " km]", sep = ""),
+       x = "Plant_FDis by cell", y = "Frugivore_FDis by cell"))
+  
+}
+```
+
+```{r}
+diff_taxa_FDis(plant_cellFDis_100km, frugivore_cellFDis_100km, 100000, "line2P")
+diff_taxa_FDis(plant_cellFDis_100km, frugivore_cellFDis_100km, 100000, "line3P")
+diff_taxa_FDis(plant_cellFDis_100km, frugivore_cellFDis_100km, 100000, "log2P")
+diff_taxa_FDis(plant_cellFDis_100km, frugivore_cellFDis_100km, 100000, "exp2P")
+#diff_taxa_FDis(plant_cellFDis_100km, frugivore_cellFDis_100km, 100000, "exp3P")
+diff_taxa_FDis(plant_cellFDis_100km, frugivore_cellFDis_100km, 100000, "power2P")
+#diff_taxa_FDis(plant_cellFDis_100km, frugivore_cellFDis_100km, 100000, "power3P")
+```
+
+```{r}
+diff_taxa_FDis(plant_cellFDis_75km, frugivore_cellFDis_75km, 75000, "line2P")
+diff_taxa_FDis(plant_cellFDis_75km, frugivore_cellFDis_75km, 75000, "line3P")
+diff_taxa_FDis(plant_cellFDis_75km, frugivore_cellFDis_75km, 75000, "log2P")
+diff_taxa_FDis(plant_cellFDis_75km, frugivore_cellFDis_75km, 75000, "exp2P")
+#diff_taxa_FDis(plant_cellFDis_75km, frugivore_cellFDis_75km, 75000, "exp3P")
+diff_taxa_FDis(plant_cellFDis_75km, frugivore_cellFDis_75km, 75000, "power2P")
+diff_taxa_FDis(plant_cellFDis_75km, frugivore_cellFDis_75km, 75000, "power3P")
+```
+
+```{r}
+diff_taxa_FDis(plant_cellFDis_50km, frugivore_cellFDis_50km, 50000, "line2P")
+diff_taxa_FDis(plant_cellFDis_50km, frugivore_cellFDis_50km, 50000, "line3P")
+diff_taxa_FDis(plant_cellFDis_50km, frugivore_cellFDis_50km, 50000, "log2P")
+diff_taxa_FDis(plant_cellFDis_50km, frugivore_cellFDis_50km, 50000, "exp2P")
+diff_taxa_FDis(plant_cellFDis_50km, frugivore_cellFDis_50km, 50000, "exp3P")
+diff_taxa_FDis(plant_cellFDis_50km, frugivore_cellFDis_50km, 50000, "power2P")
+diff_taxa_FDis(plant_cellFDis_50km, frugivore_cellFDis_50km, 50000, "power3P")
+```
+
+```{r}
+diff_taxa_FDis(plant_cellFDis_25km, frugivore_cellFDis_25km, 25000, "line2P")
+diff_taxa_FDis(plant_cellFDis_25km, frugivore_cellFDis_25km, 25000, "line3P")
+diff_taxa_FDis(plant_cellFDis_25km, frugivore_cellFDis_25km, 25000, "log2P")
+diff_taxa_FDis(plant_cellFDis_25km, frugivore_cellFDis_25km, 25000, "exp2P")
+diff_taxa_FDis(plant_cellFDis_25km, frugivore_cellFDis_25km, 25000, "exp3P")
+diff_taxa_FDis(plant_cellFDis_25km, frugivore_cellFDis_25km, 25000, "power2P")
+diff_taxa_FDis(plant_cellFDis_25km, frugivore_cellFDis_25km, 25000, "power3P")
+```
+
+```{r}
+diff_taxa_FDis(plant_cellFDis_10km, frugivore_cellFDis_10km, 10000, "line2P")
+diff_taxa_FDis(plant_cellFDis_10km, frugivore_cellFDis_10km, 10000, "line3P")
+diff_taxa_FDis(plant_cellFDis_10km, frugivore_cellFDis_10km, 10000, "log2P")
+diff_taxa_FDis(plant_cellFDis_10km, frugivore_cellFDis_10km, 10000, "exp2P")
+#diff_taxa_FDis(plant_cellFDis_10km, frugivore_cellFDis_10km, 10000, "exp3P")
+diff_taxa_FDis(plant_cellFDis_10km, frugivore_cellFDis_10km, 10000, "power2P")
+diff_taxa_FDis(plant_cellFDis_10km, frugivore_cellFDis_10km, 10000, "power3P")
+```
+
+```{r}
+diff_taxa_FDis(plant_cellFDis_5km, frugivore_cellFDis_5km, 5000, "line2P")
+diff_taxa_FDis(plant_cellFDis_5km, frugivore_cellFDis_5km, 5000, "line3P")
+diff_taxa_FDis(plant_cellFDis_5km, frugivore_cellFDis_5km, 5000, "log2P")
+diff_taxa_FDis(plant_cellFDis_5km, frugivore_cellFDis_5km, 5000, "exp2P")
+diff_taxa_FDis(plant_cellFDis_5km, frugivore_cellFDis_5km, 5000, "exp3P")
+diff_taxa_FDis(plant_cellFDis_5km, frugivore_cellFDis_5km, 5000, "power2P")
+diff_taxa_FDis(plant_cellFDis_5km, frugivore_cellFDis_5km, 5000, "power3P")
+```
+
+## Function for comparing diversity relationships plots
 For comparing richness, use exp3P and line2P for line types
 For comparing FDis, use line3P and line2P for line types
 
 line colors: line2P is "red", line3P is "blue", exp3P is "purple"
 ```{r}
-compare_Richness <- function(plant_Richness_grid, frugivore_Richness_grid, resolution_meters){
+compare_Richness <- function(plant_Richness_grid, frugivore_Richness_grid, resolution_meters, custom_y1, custom_y2){
   # Extract cell values
   comparison_Richness <- data.frame(Plant_Richness = plant_Richness_grid$num_species,
                                Frugivore_Richness = frugivore_Richness_grid$num_species)
@@ -133,7 +317,7 @@ compare_Richness <- function(plant_Richness_grid, frugivore_Richness_grid, resol
                text.col = "red", eSize = 4) +
       geom_point(aes(x = comparison_Richness_filtered$Plant_Richness,
                                            y = comparison_Richness_filtered$Frugivore_Richness), alpha = 0.25, size = 1) +
-      labs(title = paste("Comparing Richness [", resolution_meters/1000, " km]", sep = ""),
+      labs(title = paste("[", resolution_meters/1000, " km]", sep = ""),
            subtitle = "Fitted with a linear model",
        x = "Plant Richness by cell", y = "Frugivore Richness by cell") +
       scale_x_continuous(expand = c(0, 0)) + 
@@ -151,7 +335,7 @@ compare_Richness <- function(plant_Richness_grid, frugivore_Richness_grid, resol
                text.col = "purple", eSize = 4) +
       geom_point(aes(x = comparison_Richness_filtered$Plant_Richness,
                                            y = comparison_Richness_filtered$Frugivore_Richness), alpha = 0.25, size = 1) +
-      labs(title = paste("Comparing Richness [", resolution_meters/1000, " km]", sep = ""),
+      labs(title = paste("[", resolution_meters/1000, " km]", sep = ""),
            subtitle = "Fitted with an exponential model",
        x = "Plant Richness by cell", y = "Frugivore Richness by cell") +
       scale_x_continuous(expand = c(0, 0)) + 
@@ -177,7 +361,7 @@ compare_Richness <- function(plant_Richness_grid, frugivore_Richness_grid, resol
               method = "lm", se = FALSE, color = "red", linetype = "solid") +
       geom_point(aes(x = comparison_Richness_filtered$Plant_Richness,
                                            y = comparison_Richness_filtered$Frugivore_Richness), alpha = 0.25, size = 1) +
-      labs(title = paste("Comparing Richness [", resolution_meters/1000, " km]", sep = ""),
+      labs(title = paste("[", resolution_meters/1000, " km]", sep = ""),
        x = "Plant Richness by cell", y = "Frugivore Richness by cell") +
       scale_x_continuous(expand = c(0, 0)) + 
       scale_y_continuous(expand = c(0, 0)) + 
@@ -186,11 +370,12 @@ compare_Richness <- function(plant_Richness_grid, frugivore_Richness_grid, resol
             panel.grid.minor = element_blank(),
             axis.line = element_line(color = "black"),
             axis.ticks = element_line(color = "black"),
-            axis.text = element_text(color = "black")) +
-      annotate("text", x = mean_x, y = annot_y-10, label = paste("Linear R² =", round(line2P_summary$R.squared, 3)),
-               color = "red", size = 4) +
-      annotate("text", x = mean_x, y = annot_y-30, label = paste("Exponential R² =", round(exp3P_summary$R.squared, 3)),
-               color = "purple", size = 4)
+            axis.text = element_text(color = "black"),
+            text = element_text(size = 18)) +
+      annotate("text", x = mean_x, y = custom_y1, label = paste("Linear R² =", round(line2P_summary$R.squared, 5)),
+               color = "red", size = 6) +
+      annotate("text", x = mean_x, y = custom_y2, label = paste("Exponential R² =", round(exp3P_summary$R.squared, 5)),
+               color = "purple", size = 6)
   
   list(compare_Richness_plot_line2P = compare_Richness_plot_line2P,
        compare_Richness_plot_exp3P = compare_Richness_plot_exp3P,
@@ -201,7 +386,7 @@ compare_Richness <- function(plant_Richness_grid, frugivore_Richness_grid, resol
 ```
 
 ```{r}
-compare_FDis <- function(plant_FDis_grid, frugivore_FDis_grid, resolution_meters){
+compare_FDis <- function(plant_FDis_grid, frugivore_FDis_grid, resolution_meters, custom_y1, custom_y2, custom_x){
   # Extract cell values
   comparison_FDis <- data.frame(Plant_FDis = plant_FDis_grid$fdis_value,
                                Frugivore_FDis = frugivore_FDis_grid$fdis_value)
@@ -209,14 +394,10 @@ compare_FDis <- function(plant_FDis_grid, frugivore_FDis_grid, resolution_meters
   # Filter out rows where either plant or frugivore FDis is zero
   comparison_FDis_filtered <- comparison_FDis %>%
                                 filter(Plant_FDis > 0 & Frugivore_FDis > 0)
-  # Calculate Annotation position
-  mean_x <- max(comparison_FDis_filtered$Plant_FDis) / 2
-  annot_y <- max(comparison_FDis_filtered$Frugivore_FDis) + 0.25
-  
   ## Create scatter plots
   compare_FDis_plot_line2P <- ggtrendline(comparison_FDis_filtered$Plant_FDis,
                comparison_FDis_filtered$Frugivore_FDis, model = "line2P", linecolor = "red", linewidth = 1,
-               CI.level = NA, summary = FALSE, show.eq = FALSE, show.pvalue = FALSE, rrp.x = mean_x, rrp.y = annot_y, 
+               CI.level = NA, summary = FALSE, show.eq = FALSE, show.pvalue = FALSE, 
                text.col = "red", eSize = 4) +
       geom_point(aes(x = comparison_FDis_filtered$Plant_FDis,
                                            y = comparison_FDis_filtered$Frugivore_FDis), alpha = 0.25, size = 1) +
@@ -234,7 +415,7 @@ compare_FDis <- function(plant_FDis_grid, frugivore_FDis_grid, resolution_meters
   
   compare_FDis_plot_line3P <- ggtrendline(comparison_FDis_filtered$Plant_FDis,
                comparison_FDis_filtered$Frugivore_FDis, model = "line3P", linecolor = "blue", linewidth = 1,
-               CI.level = NA, summary = FALSE, show.eq = FALSE, show.pvalue = FALSE, rrp.x = mean_x, rrp.y = annot_y, 
+               CI.level = NA, summary = FALSE, show.eq = FALSE, show.pvalue = FALSE, 
                text.col = "blue", eSize = 4) +
       geom_point(aes(x = comparison_FDis_filtered$Plant_FDis,
                                            y = comparison_FDis_filtered$Frugivore_FDis), alpha = 0.25, size = 1) +
@@ -264,7 +445,7 @@ compare_FDis <- function(plant_FDis_grid, frugivore_FDis_grid, resolution_meters
               method = "lm", se = FALSE, color = "red", linetype = "solid") +
       geom_point(aes(x = comparison_FDis_filtered$Plant_FDis,
                                            y = comparison_FDis_filtered$Frugivore_FDis), alpha = 0.25, size = 1) +
-      labs(title = paste("Comparing FDis [", resolution_meters/1000, " km]", sep = ""),
+      labs(title = paste("[", resolution_meters/1000, " km]", sep = ""),
        x = "Plant FDis by cell", y = "Frugivore FDis by cell") +
       scale_x_continuous(expand = c(0, 0)) + 
       scale_y_continuous(expand = c(0, 0)) + 
@@ -273,11 +454,12 @@ compare_FDis <- function(plant_FDis_grid, frugivore_FDis_grid, resolution_meters
             panel.grid.minor = element_blank(),
             axis.line = element_line(color = "black"),
             axis.ticks = element_line(color = "black"),
-            axis.text = element_text(color = "black")) +
-      annotate("text", x = mean_x, y = annot_y, label = paste("Linear R² =", round(line2P_summary$R.squared, 3)),
-               color = "red", size = 4) +
-      annotate("text", x = mean_x, y = annot_y-0.5, label = paste("Quadratic R² =", round(line3P_summary$R.squared, 3)),
-               color = "blue", size = 4)
+            axis.text = element_text(color = "black"),
+            text = element_text(size = 18)) +
+      annotate("text", x = custom_x, y = custom_y1, label = paste("Linear R² =", round(line2P_summary$R.squared, 5)),
+               color = "red", size = 6) +
+      annotate("text", x = custom_x, y = custom_y2, label = paste("Quadratic R² =", round(line3P_summary$R.squared, 5)),
+               color = "blue", size = 6)
   
   list(compare_FDis_plot_line2P = compare_FDis_plot_line2P,
        compare_FDis_plot_line3P = compare_FDis_plot_line3P,
@@ -289,7 +471,7 @@ compare_FDis <- function(plant_FDis_grid, frugivore_FDis_grid, resolution_meters
 
 ## 5 km
 ```{r}
-compare_Richness_5km <- compare_Richness(plant_cellRichness_5km, frugivore_cellRichness_5km, 5000)
+compare_Richness_5km <- compare_Richness(plant_cellRichness_5km, frugivore_cellRichness_5km, 5000, 275, 255)
 (compare_Richness_5km_linear <- compare_Richness_5km$compare_Richness_plot_line2P)
 (compare_Richness_5km_exp <- compare_Richness_5km$compare_Richness_plot_exp3P)
 (compare_Richness_5km_plots <- compare_Richness_5km$compare_Richness_plot_both)
@@ -300,7 +482,7 @@ compare_Richness_slopecoefficent_5km_exp <- compare_Richness_5km$exp3P_summary$p
 ```
 
 ```{r}
-compare_FDis_5km <- compare_FDis(plant_cellFDis_5km, frugivore_cellFDis_5km, 5000)
+compare_FDis_5km <- compare_FDis(plant_cellFDis_5km, frugivore_cellFDis_5km, 5000, 0.8, 0.75, 0.15)
 (compare_FDis_5km_linear <- compare_FDis_5km$compare_FDis_plot_line2P)
 (compare_FDis_5km_quad <- compare_FDis_5km$compare_FDis_plot_line3P)
 (compare_FDis_5km_plots <- compare_FDis_5km$compare_FDis_plot_both)
@@ -312,7 +494,7 @@ compare_FDis_slopecoefficent_5km_quad <- compare_FDis_5km$line3P_summary$paramet
 
 ## 10 km
 ```{r}
-compare_Richness_10km <- compare_Richness(plant_cellRichness_10km, frugivore_cellRichness_10km, 10000)
+compare_Richness_10km <- compare_Richness(plant_cellRichness_10km, frugivore_cellRichness_10km, 10000, 400, 370)
 (compare_Richness_10km_linear <- compare_Richness_10km$compare_Richness_plot_line2P)
 (compare_Richness_10km_exp <- compare_Richness_10km$compare_Richness_plot_exp3P)
 (compare_Richness_10km_plots <- compare_Richness_10km$compare_Richness_plot_both)
@@ -323,7 +505,7 @@ compare_Richness_slopecoefficent_10km_exp <- compare_Richness_10km$exp3P_summary
 ```
 
 ```{r}
-compare_FDis_10km <- compare_FDis(plant_cellFDis_10km, frugivore_cellFDis_10km, 10000)
+compare_FDis_10km <- compare_FDis(plant_cellFDis_10km, frugivore_cellFDis_10km, 10000, 0.8, 0.75, 0.15)
 (compare_FDis_10km_linear <- compare_FDis_10km$compare_FDis_plot_line2P)
 (compare_FDis_10km_quad <- compare_FDis_10km$compare_FDis_plot_line3P)
 (compare_FDis_10km_plots <- compare_FDis_10km$compare_FDis_plot_both)
@@ -335,7 +517,7 @@ compare_FDis_slopecoefficent_10km_quad <- compare_FDis_10km$line3P_summary$param
 
 ## 25 km
 ```{r}
-compare_Richness_25km <- compare_Richness(plant_cellRichness_25km, frugivore_cellRichness_25km, 25000)
+compare_Richness_25km <- compare_Richness(plant_cellRichness_25km, frugivore_cellRichness_25km, 25000, 475, 440)
 (compare_Richness_25km_linear <- compare_Richness_25km$compare_Richness_plot_line2P)
 (compare_Richness_25km_exp <- compare_Richness_25km$compare_Richness_plot_exp3P)
 (compare_Richness_25km_plots <- compare_Richness_25km$compare_Richness_plot_both)
@@ -346,7 +528,7 @@ compare_Richness_slopecoefficent_25km_exp <- compare_Richness_25km$exp3P_summary
 ```
 
 ```{r}
-compare_FDis_25km <- compare_FDis(plant_cellFDis_25km, frugivore_cellFDis_25km, 25000)
+compare_FDis_25km <- compare_FDis(plant_cellFDis_25km, frugivore_cellFDis_25km, 25000, 0.7, 0.65, 0.18)
 (compare_FDis_25km_linear <- compare_FDis_25km$compare_FDis_plot_line2P)
 (compare_FDis_25km_quad <- compare_FDis_25km$compare_FDis_plot_line3P)
 (compare_FDis_25km_plots <- compare_FDis_25km$compare_FDis_plot_both)
@@ -358,7 +540,7 @@ compare_FDis_slopecoefficent_25km_quad <- compare_FDis_25km$line3P_summary$param
 
 ## 50 km
 ```{r}
-compare_Richness_50km <- compare_Richness(plant_cellRichness_50km, frugivore_cellRichness_50km, 50000)
+compare_Richness_50km <- compare_Richness(plant_cellRichness_50km, frugivore_cellRichness_50km, 50000, 500, 465)
 (compare_Richness_50km_linear <- compare_Richness_50km$compare_Richness_plot_line2P)
 (compare_Richness_50km_exp <- compare_Richness_50km$compare_Richness_plot_exp3P)
 (compare_Richness_50km_plots <- compare_Richness_50km$compare_Richness_plot_both)
@@ -369,7 +551,7 @@ compare_Richness_slopecoefficent_50km_exp <- compare_Richness_50km$exp3P_summary
 ```
 
 ```{r}
-compare_FDis_50km <- compare_FDis(plant_cellFDis_50km, frugivore_cellFDis_50km, 50000)
+compare_FDis_50km <- compare_FDis(plant_cellFDis_50km, frugivore_cellFDis_50km, 50000, 0.7, 0.65, 0.34)
 (compare_FDis_50km_linear <- compare_FDis_50km$compare_FDis_plot_line2P)
 (compare_FDis_50km_quad <- compare_FDis_50km$compare_FDis_plot_line3P)
 (compare_FDis_50km_plots <- compare_FDis_50km$compare_FDis_plot_both)
@@ -381,7 +563,7 @@ compare_FDis_slopecoefficent_50km_quad <- compare_FDis_50km$line3P_summary$param
 
 ## 75 km
 ```{r}
-compare_Richness_75km <- compare_Richness(plant_cellRichness_75km, frugivore_cellRichness_75km, 75000)
+compare_Richness_75km <- compare_Richness(plant_cellRichness_75km, frugivore_cellRichness_75km, 75000, 500, 465)
 (compare_Richness_75km_linear <- compare_Richness_75km$compare_Richness_plot_line2P)
 (compare_Richness_75km_exp <- compare_Richness_75km$compare_Richness_plot_exp3P)
 (compare_Richness_75km_plots <- compare_Richness_75km$compare_Richness_plot_both)
@@ -392,7 +574,7 @@ compare_Richness_slopecoefficent_75km_exp <- compare_Richness_75km$exp3P_summary
 ```
 
 ```{r}
-compare_FDis_75km <- compare_FDis(plant_cellFDis_75km, frugivore_cellFDis_75km, 75000)
+compare_FDis_75km <- compare_FDis(plant_cellFDis_75km, frugivore_cellFDis_75km, 75000, 0.59, 0.56, 0.25)
 (compare_FDis_75km_linear <- compare_FDis_75km$compare_FDis_plot_line2P)
 (compare_FDis_75km_quad <- compare_FDis_75km$compare_FDis_plot_line3P)
 (compare_FDis_75km_plots <- compare_FDis_75km$compare_FDis_plot_both)
@@ -404,7 +586,7 @@ compare_FDis_slopecoefficent_75km_quad <- compare_FDis_75km$line3P_summary$param
 
 ## 100 km
 ```{r}
-compare_Richness_100km <- compare_Richness(plant_cellRichness_100km, frugivore_cellRichness_100km, 100000)
+compare_Richness_100km <- compare_Richness(plant_cellRichness_100km, frugivore_cellRichness_100km, 100000, 525, 480)
 (compare_Richness_100km_linear <- compare_Richness_100km$compare_Richness_plot_line2P)
 (compare_Richness_100km_exp <- compare_Richness_100km$compare_Richness_plot_exp3P)
 (compare_Richness_100km_plots <- compare_Richness_100km$compare_Richness_plot_both)
@@ -415,7 +597,7 @@ compare_Richness_slopecoefficent_100km_exp <- compare_Richness_100km$exp3P_summa
 ```
 
 ```{r}
-compare_FDis_100km <- compare_FDis(plant_cellFDis_100km, frugivore_cellFDis_100km, 100000)
+compare_FDis_100km <- compare_FDis(plant_cellFDis_100km, frugivore_cellFDis_100km, 100000, 0.48, 0.45, 0.37)
 (compare_FDis_100km_linear <- compare_FDis_100km$compare_FDis_plot_line2P)
 (compare_FDis_100km_quad <- compare_FDis_100km$compare_FDis_plot_line3P)
 (compare_FDis_100km_plots <- compare_FDis_100km$compare_FDis_plot_both)
@@ -426,12 +608,18 @@ compare_FDis_slopecoefficent_100km_quad <- compare_FDis_100km$line3P_summary$par
 ```
 
 ## Combine plots using for richness and fdis into one figure
-
 ```{r}
 (compare_Richness_all_plots <- ggarrange(compare_Richness_5km_plots, compare_Richness_10km_plots,
                                      compare_Richness_25km_plots, compare_Richness_50km_plots,
                                      compare_Richness_75km_plots, compare_Richness_100km_plots,
                                         ncol = 3, nrow = 2))
+```
+
+```{r}
+(compare_Richness_all_plots_long <- ggarrange(compare_Richness_5km_plots, compare_Richness_10km_plots,
+                                     compare_Richness_25km_plots, compare_Richness_50km_plots,
+                                     compare_Richness_75km_plots, compare_Richness_100km_plots,
+                                        ncol = 6, nrow = 1))
 ```
 
 ```{r}
@@ -441,11 +629,17 @@ compare_FDis_slopecoefficent_100km_quad <- compare_FDis_100km$line3P_summary$par
                                         ncol = 3, nrow = 2))
 ```
 
+```{r}
+(compare_FDis_all_plots_long <- ggarrange(compare_FDis_5km_plots, compare_FDis_10km_plots,
+                                     compare_FDis_25km_plots, compare_FDis_50km_plots,
+                                     compare_FDis_75km_plots, compare_FDis_100km_plots,
+                                        ncol = 6, nrow = 1))
+```
 
-# Compare r-squared by resolution
+# Compare R² by resolution
 ## Taxonomic diversity
 ```{r}
-# create dataframe of resolutions and r-squared values 
+# create dataframe of resolutions and R² values 
 resolution <- c(5, 10, 25, 50, 75, 100)
 taxdiv_r_squared_linear <- c(compare_Richness_r2_5km_linear, compare_Richness_r2_10km_linear, compare_Richness_r2_25km_linear, compare_Richness_r2_50km_linear, compare_Richness_r2_75km_linear, compare_Richness_r2_100km_linear)
 taxdiv_r_squared_exp <- c(compare_Richness_r2_5km_exp, compare_Richness_r2_10km_exp, compare_Richness_r2_25km_exp, compare_Richness_r2_50km_exp, compare_Richness_r2_75km_exp, compare_Richness_r2_100km_exp)
@@ -471,9 +665,9 @@ custom_labels <- c(taxdiv_r_squared_linear = "Linear Model", taxdiv_r_squared_ex
   geom_point(size = 3) +
   scale_color_manual(values = custom_colors, labels = custom_labels) +
   scale_x_continuous(breaks = taxdiv_r_squared_compare$resolution) + 
-  labs(title = "Comparison of Richness R-squared Values by Resolution",
-       x = "Resolution (km)",
-       y = "R-squared Value",
+  labs(title = "Comparison of Richness R² Values by Resolution",
+       x = "Grain (km)",
+       y = "R² Value",
        color = "Model Type") +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), 
@@ -483,14 +677,15 @@ custom_labels <- c(taxdiv_r_squared_linear = "Linear Model", taxdiv_r_squared_ex
         axis.text = element_text(color = "black"),
         legend.position = "inside",
         legend.position.inside = c(.85, .3),
-        legend.box.margin = margin(10, 10, 10, 10)))
+        legend.box.margin = margin(10, 10, 10, 10),
+        text = element_text(size = 18)))
 
-# Calculate R-squared values for linear model
+# Calculate R² values for linear model
 taxdiv_lm_linear <- lm(taxdiv_r_squared_linear ~ resolution, data = taxdiv_r_squared_compare)
 taxdiv_r_squared_linear <- summary(taxdiv_lm_linear)$r.squared
 taxdiv_slopecoefficent_linear <- coef(taxdiv_lm_linear)["resolution"]
 
-# Calculate R-squared values for exponential model
+# Calculate R² values for exponential model
 taxdiv_lm_exp <- lm(taxdiv_r_squared_exp ~ resolution, data = taxdiv_r_squared_compare)
 taxdiv_r_squared_exp <- summary(taxdiv_lm_exp)$r.squared
 taxdiv_slopecoefficent_exp <- coef(taxdiv_lm_exp)["resolution"]
@@ -505,9 +700,9 @@ taxdiv_slopecoefficent_exp <- coef(taxdiv_lm_exp)["resolution"]
              size = 3) +
   scale_color_manual(values = custom_colors, labels = custom_labels) +
   scale_x_continuous(breaks = taxdiv_r_squared_compare$resolution) + 
-  labs(title = "Comparison of Richness R-squared Values by Resolution",
-       x = "Resolution (km)",
-       y = "R-squared Value",
+  labs(title = "Comparison of Richness R² Values by Resolution",
+       x = "Grain (km)",
+       y = "R² Value",
        color = "Model Type") +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), 
@@ -516,11 +711,42 @@ taxdiv_slopecoefficent_exp <- coef(taxdiv_lm_exp)["resolution"]
         axis.ticks = element_line(color = "black"),
         axis.text = element_text(color = "black"),
         legend.position = "inside",
-        legend.position.inside = c(.85, .3),
-        legend.box.margin = margin(10, 10, 10, 10)) +
-  annotate("text", x = 55, y = 0.4, label = paste("R² =", round(taxdiv_r_squared_linear, 2)), color = "red", size = 4) +
-  annotate("text", x = 60, y = 0.7, label = paste("R² =", round(taxdiv_r_squared_exp, 2)), color = "purple", size = 4))
+        legend.position.inside = c(0.2, 0.85),
+        legend.box.margin = margin(10, 10, 10, 10),
+        text = element_text(size = 18)) +
+  annotate("text", x = 55, y = 0.4, label = paste("R² =", round(taxdiv_r_squared_linear, 2)), color = "red", size = 6) +
+  annotate("text", x = 60, y = 0.7, label = paste("R² =", round(taxdiv_r_squared_exp, 2)), color = "purple", size = 6))
 ```
+
+```{r}
+(taxdiv_r_squared_plot_both <- ggplot(taxdiv_r_squared_long, aes(x = resolution, y = taxdiv_r_squared, color = model, group = model)) +
+  geom_line(alpha = 0.25) +
+  geom_point(size = 3) +
+  geom_smooth(data = taxdiv_r_squared_compare, aes(x = resolution, y = taxdiv_r_squared_linear), 
+              method = "lm", se = FALSE, color = "red", linetype = "dashed", inherit.aes = FALSE) +
+  geom_smooth(data = taxdiv_r_squared_compare, aes(x = resolution, y = taxdiv_r_squared_exp), 
+              method = "lm", se = FALSE, color = "purple", linetype = "dashed", inherit.aes = FALSE) +
+  scale_color_manual(values = custom_colors, labels = custom_labels) +
+  scale_x_continuous(breaks = taxdiv_r_squared_compare$resolution) + 
+  labs(title = "Comparison of Richness R² Values by Resolution",
+       x = "Grain (km)",
+       y = "R² Value",
+       color = "Model Type") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.ticks = element_line(color = "black"),
+        axis.text = element_text(color = "black"),
+        legend.position = "inside",
+        legend.position.inside = c(0.2, 0.85),
+        legend.box.margin = margin(10, 10, 10, 10),
+        text = element_text(size = 18)) +
+  annotate("text", x = 55, y = 0.4, label = paste("R² =", round(taxdiv_r_squared_linear, 2)), color = "red", size = 6) +
+  annotate("text", x = 60, y = 0.7, label = paste("R² =", round(taxdiv_r_squared_exp, 2)), color = "purple", size = 6))
+
+```
+
 
 ```{r}
 ggtrendline(taxdiv_r_squared_compare$resolution, taxdiv_r_squared_compare$taxdiv_r_squared_linear, model = "line2P", summary = FALSE, linecolor = "red", linewidth = 1, CI.level = NA, show.eq = FALSE, show.pvalue = FALSE, text.col = "red", eSize = 4)
@@ -533,7 +759,7 @@ ggtrendline(taxdiv_r_squared_compare$resolution, taxdiv_r_squared_compare$taxdiv
 
 ## Functional Diversity
 ```{r}
-# create dataframe of resolutions and r-squared values 
+# create dataframe of resolutions and R² values 
 resolution <- c(5, 10, 25, 50, 75, 100)
 fundiv_r_squared_linear <- c(compare_FDis_r2_5km_linear, compare_FDis_r2_10km_linear, compare_FDis_r2_25km_linear, compare_FDis_r2_50km_linear, compare_FDis_r2_75km_linear, compare_FDis_r2_100km_linear)
 fundiv_r_squared_quad <- c(compare_FDis_r2_5km_quad, compare_FDis_r2_10km_quad, compare_FDis_r2_25km_quad, compare_FDis_r2_50km_quad, compare_FDis_r2_75km_quad, compare_FDis_r2_100km_quad)
@@ -559,9 +785,9 @@ custom_labels <- c(fundiv_r_squared_quad = "Quadratic Model", fundiv_r_squared_l
   geom_point(size = 3) +
   scale_color_manual(values = custom_colors, labels = custom_labels) +
   scale_x_continuous(breaks = fundiv_r_squared_compare$resolution) + 
-  labs(title = "Comparison of FDis R-squared Values by Resolution",
-       x = "Resolution (km)",
-       y = "R-squared Value",
+  labs(title = "Comparison of FDis R² Values by Resolution",
+       x = "Grain (km)",
+       y = "R² Value",
        color = "Model Type") +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), 
@@ -569,15 +795,15 @@ custom_labels <- c(fundiv_r_squared_quad = "Quadratic Model", fundiv_r_squared_l
         axis.line = element_line(color = "black"),
         axis.ticks = element_line(color = "black"),
         axis.text = element_text(color = "black"),
-        legend.position = "inside",
-        legend.position.inside = c(.9, .2),
-        legend.box.margin = margin(10, 10, 10, 10)))
+        legend.position = c(0.2, 0.85),
+        legend.box.margin = margin(10, 10, 10, 10),
+        text = element_text(size = 18)))
 
-# Calculate R-squared values for linear model
+# Calculate R² values for linear model
 fundiv_lm_linear <- lm(fundiv_r_squared_linear ~ resolution, data = fundiv_r_squared_compare)
 fundiv_r_squared_linear <- summary(fundiv_lm_linear)$r.squared
 
-# Calculate R-squared values for quadratic model
+# Calculate R² values for quadratic model
 fundiv_lm_quad <- lm(fundiv_r_squared_quad ~ resolution, data = fundiv_r_squared_compare)
 fundiv_r_squared_quad <- summary(fundiv_lm_quad)$r.squared
 
@@ -591,9 +817,9 @@ fundiv_r_squared_quad <- summary(fundiv_lm_quad)$r.squared
              size = 3) +
   scale_color_manual(values = custom_colors, labels = custom_labels) +
   scale_x_continuous(breaks = fundiv_r_squared_compare$resolution) + 
-  labs(title = "Comparison of FDis R-squared Values by Resolution",
-       x = "Resolution (km)",
-       y = "R-squared Value",
+  labs(title = "Comparison of FDis R² Values by Resolution",
+       x = "Grain (km)",
+       y = "R² Value",
        color = "Model Type") +
   theme_minimal() +
   theme(panel.grid.major = element_blank(), 
@@ -601,11 +827,97 @@ fundiv_r_squared_quad <- summary(fundiv_lm_quad)$r.squared
         axis.line = element_line(color = "black"),
         axis.ticks = element_line(color = "black"),
         axis.text = element_text(color = "black"),
+        legend.position = c(0.2, 0.85),
+        legend.box.margin = margin(10, 10, 10, 10),
+        text = element_text(size = 18)) +
+  annotate("text", x = 60, y = 0.02, label = paste("R² =", round(fundiv_r_squared_linear, 2)), color = "red", size = 6) +
+  annotate("text", x = 25, y = 0.05, label = paste("R² =", round(fundiv_r_squared_quad, 2)), color = "blue", size = 6))
+```
+
+```{r}
+(fundiv_r_squared_plot_both <- ggplot(fundiv_r_squared_long, aes(x = resolution, y = fundiv_r_squared, color = model, group = model)) +
+  geom_line(alpha = 0.25) +
+  geom_point(size = 3) +
+  geom_smooth(data = fundiv_r_squared_compare, aes(x = resolution, y = fundiv_r_squared_linear), 
+              method = "lm", se = FALSE, color = "red", linetype = "dashed", inherit.aes = FALSE) +
+  geom_smooth(data = fundiv_r_squared_compare, aes(x = resolution, y = fundiv_r_squared_quad), 
+              method = "lm", se = FALSE, color = "blue", linetype = "dashed", inherit.aes = FALSE) +
+  scale_color_manual(values = custom_colors, labels = custom_labels) +
+  scale_x_continuous(breaks = fundiv_r_squared_compare$resolution) + 
+  labs(title = "Comparison of FDis R² Values by Resolution",
+       x = "Grain (km)",
+       y = "R² Value",
+       color = "Model Type") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.ticks = element_line(color = "black"),
+        axis.text = element_text(color = "black"),
+        legend.position = c(0.2, 0.85),
+        legend.box.margin = margin(10, 10, 10, 10),
+        text = element_text(size = 18)) +
+  annotate("text", x = 40, y = 0.02, label = paste("R² =", round(fundiv_r_squared_linear, 2)), color = "red", size = 6) +
+  annotate("text", x = 25, y = 0.05, label = paste("R² =", round(fundiv_r_squared_quad, 2)), color = "blue", size = 6))
+
+```
+
+
+## Compare the linear model slope coefficents for taxonomic and functional diversity
+```{r}
+# Create a tibble
+bothdiv_r2_compare <- tibble(
+  resolution = c(5, 10, 25, 50, 75, 100),
+  taxdiv_r2_linear = c(
+    as.numeric(compare_Richness_r2_5km_linear), 
+    as.numeric(compare_Richness_r2_10km_linear), 
+    as.numeric(compare_Richness_r2_25km_linear), 
+    as.numeric(compare_Richness_r2_50km_linear), 
+    as.numeric(compare_Richness_r2_75km_linear), 
+    as.numeric(compare_Richness_r2_100km_linear)
+  ),
+  fundiv_r2_linear = c(
+    as.numeric(compare_FDis_r2_5km_linear), 
+    as.numeric(compare_FDis_r2_10km_linear), 
+    as.numeric(compare_FDis_r2_25km_linear), 
+    as.numeric(compare_FDis_r2_50km_linear), 
+    as.numeric(compare_FDis_r2_75km_linear), 
+    as.numeric(compare_FDis_r2_100km_linear)
+  )
+)
+
+# reshape to long format for ease of plotting
+bothdiv_r2_long <- bothdiv_r2_compare %>%
+  pivot_longer(cols = c(taxdiv_r2_linear, fundiv_r2_linear), 
+               names_to = "type", 
+               values_to = "r_squared")
+```
+
+```{r}
+# Define custom colors for the points
+custom_colors <- c(taxdiv_r2_linear = "goldenrod", fundiv_r2_linear = "forestgreen")
+
+# Define custom legend labels
+custom_labels <- c(taxdiv_r2_linear = "Taxonomic Diversity", fundiv_r2_linear = "Functional Diversity")
+
+(bothdiv_r2_plot <- ggplot(bothdiv_r2_long,aes(x = resolution, y = r_squared, color = type)) +
+  geom_line() +
+  geom_point(size = 3) +
+  scale_color_manual(values = custom_colors, labels = custom_labels) +
+  scale_x_continuous(breaks = bothdiv_r2_compare$resolution) + 
+  labs(x = "Grain (km)",
+       y = "R² value",
+       color = "Diversity Measure") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.ticks = element_line(color = "black"),
+        axis.text = element_text(color = "black"),
         legend.position = "inside",
-        legend.position.inside = c(.9, .2),
-        legend.box.margin = margin(10, 10, 10, 10)) +
-  annotate("text", x = 70, y = 0.2, label = paste("R² =", round(fundiv_r_squared_linear, 2)), color = "red", size = 4) +
-  annotate("text", x = 70, y = 0.6, label = paste("R² =", round(fundiv_r_squared_quad, 2)), color = "blue", size = 4))
+        legend.position.inside = c(.2, .8),
+        legend.box.margin = margin(10, 10, 10, 10),
+        text = element_text(size = 18)))
 ```
 
 # Compare slope coefficents by resolution
@@ -652,7 +964,7 @@ custom_labels <- c(taxdiv_slopecoefficent_linear = "Linear Model", taxdiv_slopec
   scale_color_manual(values = custom_colors, labels = custom_labels) +
   scale_x_continuous(breaks = taxdiv_slopecoefficent_compare$resolution) + 
   labs(title = "Comparison of Richness Slope Coefficents by Resolution",
-       x = "Resolution (km)",
+       x = "Grain (km)",
        y = "Slope Coefficent",
        color = "Model Type") +
   theme_minimal() +
@@ -662,8 +974,9 @@ custom_labels <- c(taxdiv_slopecoefficent_linear = "Linear Model", taxdiv_slopec
         axis.ticks = element_line(color = "black"),
         axis.text = element_text(color = "black"),
         legend.position = "inside",
-        legend.position.inside = c(.85, .3),
-        legend.box.margin = margin(10, 10, 10, 10)))
+        legend.position.inside = c(.85, .9),
+        legend.box.margin = margin(10, 10, 10, 10),
+        text = element_text(size = 18)))
 ```
 
 ## Functional diversity
@@ -709,7 +1022,7 @@ custom_labels <- c(fundiv_slopecoefficent_linear = "Linear Model", fundiv_slopec
   scale_color_manual(values = custom_colors, labels = custom_labels) +
   scale_x_continuous(breaks = fundiv_slopecoefficent_compare$resolution) + 
   labs(title = "Comparison of FDis Slope Coefficents by Resolution",
-       x = "Resolution (km)",
+       x = "Grain (km)",
        y = "Slope Coefficent",
        color = "Model Type") +
   theme_minimal() +
@@ -720,7 +1033,8 @@ custom_labels <- c(fundiv_slopecoefficent_linear = "Linear Model", fundiv_slopec
         axis.text = element_text(color = "black"),
         legend.position = "inside",
         legend.position.inside = c(.85, .2),
-        legend.box.margin = margin(10, 10, 10, 10)))
+        legend.box.margin = margin(10, 10, 10, 10),
+        text = element_text(size = 18)))
 ```
 
 ## Compare the linear model slope coefficents for taxonomic and functional diversity
@@ -765,7 +1079,7 @@ custom_labels <- c(taxdiv_slopecoefficent_linear = "Taxonomic Diversity", fundiv
   geom_point(size = 3) +
   scale_color_manual(values = custom_colors, labels = custom_labels) +
   scale_x_continuous(breaks = bothdiv_slopecoefficent_compare$resolution) + 
-  labs(x = "Resolution (km)",
+  labs(x = "Grain (km)",
        y = "Slope Coefficent",
        color = "Diversity Measure") +
   theme_minimal() +
@@ -775,32 +1089,43 @@ custom_labels <- c(taxdiv_slopecoefficent_linear = "Taxonomic Diversity", fundiv
         axis.ticks = element_line(color = "black"),
         axis.text = element_text(color = "black"),
         legend.position = "inside",
-        legend.position.inside = c(.85, .2),
-        legend.box.margin = margin(10, 10, 10, 10)))
+        legend.position.inside = c(.85, .9),
+        legend.box.margin = margin(10, 10, 10, 10),
+        text = element_text(size = 18)))
 ```
 
 
 # Save plots to file
 ```{r}
-ggsave("compare_Richness_all_plots.png", compare_Richness_all_plots, path = figure_path, width = 10, height = 8, units = "in")
-ggsave("compare_FDis_all_plots.png", compare_FDis_all_plots, path = figure_path, width = 10, height = 8, units = "in")
+ggsave("compare_Richness_all_plots.png", compare_Richness_all_plots, path = figure_path, width = 21, height = 10, units = "in")
+ggsave("compare_FDis_all_plots.png", compare_FDis_all_plots, path = figure_path, width = 21, height = 10, units = "in")
 ```
 
 ```{r}
-ggsave("taxdiv_r_squared_plot.png", taxdiv_r_squared_plot, path = figure_path)
-ggsave("taxdiv_r_squared_plot_trendlines.png", taxdiv_r_squared_plot_trendlines, path = figure_path)
-ggsave("fundiv_r_squared_plot.png", fundiv_r_squared_plot, path = figure_path)
-ggsave("fundiv_r_squared_plot_trendlines.png", fundiv_r_squared_plot_trendlines, path = figure_path)
+ggsave("compare_Richness_all_plots_long.png", compare_Richness_all_plots_long, path = figure_path, width = 20, height = 5, units = "in")
+ggsave("compare_FDis_all_plots_long.png", compare_FDis_all_plots_long, path = figure_path, width = 20, height = 5, units = "in")
 ```
 
 ```{r}
-ggsave("taxdiv_slopecoefficent_plot.png", taxdiv_slopecoefficent_plot, path = figure_path)
-ggsave("fundiv_slopecoefficent_plot.png", fundiv_slopecoefficent_plot, path = figure_path)
-ggsave("bothdiv_slopecoefficent_plot.png", bothdiv_slopecoefficent_plot, path = figure_path)
+ggsave("taxdiv_r_squared_plot_large.png", taxdiv_r_squared_plot, path = figure_path)
+ggsave("taxdiv_r_squared_plot_trendlines_large.png", taxdiv_r_squared_plot_trendlines, path = figure_path)
+ggsave("taxdiv_r_squared_plot_both_large.png", taxdiv_r_squared_plot_both, path = figure_path)
+ggsave("fundiv_r_squared_plot_large.png", fundiv_r_squared_plot, path = figure_path)
+ggsave("fundiv_r_squared_plot_trendlines_large.png", fundiv_r_squared_plot_trendlines, path = figure_path)
+ggsave("fundiv_r_squared_plot_both_large.png", fundiv_r_squared_plot_both, path = figure_path)
+ggsave("bothdiv_r2_plot_large.png", bothdiv_r2_plot, path = figure_path)
+
+```
+
+```{r}
+ggsave("taxdiv_slopecoefficent_plot_large.png", taxdiv_slopecoefficent_plot, path = figure_path)
+ggsave("fundiv_slopecoefficent_plot_large.png", fundiv_slopecoefficent_plot, path = figure_path)
+ggsave("bothdiv_slopecoefficent_plot_large.png", bothdiv_slopecoefficent_plot, path = figure_path)
 ```
 
 
 # Compare same tax taxanomic and functional diversity
+## Function for same taxa diversity comparisons
 ```{r}
 same_taxa_diversity <- function(richness_grid, fdis_grid, resolution_meters, z){
   # Extract cell values
@@ -822,6 +1147,7 @@ same_taxa_diversity <- function(richness_grid, fdis_grid, resolution_meters, z){
 }
 ```
 
+## Plants
 ```{r}
 same_taxa_diversity(plant_cellRichness_100km, plant_cellFDis_100km, 100000, "line2P")
 same_taxa_diversity(plant_cellRichness_100km, plant_cellFDis_100km, 100000, "line3P")
@@ -839,5 +1165,543 @@ same_taxa_diversity(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "log2P"
 same_taxa_diversity(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "exp2P")
 same_taxa_diversity(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "exp3P")
 same_taxa_diversity(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "power2P")
-same_taxa_diversity(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "power3P")
+#same_taxa_diversity(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "power3P")
 ```
+
+```{r}
+same_taxa_diversity(plant_cellRichness_50km, plant_cellFDis_50km, 50000, "line2P")
+same_taxa_diversity(plant_cellRichness_50km, plant_cellFDis_50km, 50000, "line3P")
+same_taxa_diversity(plant_cellRichness_50km, plant_cellFDis_50km, 50000, "log2P")
+same_taxa_diversity(plant_cellRichness_50km, plant_cellFDis_50km, 50000, "exp2P")
+same_taxa_diversity(plant_cellRichness_50km, plant_cellFDis_50km, 50000, "exp3P")
+same_taxa_diversity(plant_cellRichness_50km, plant_cellFDis_50km, 50000, "power2P")
+same_taxa_diversity(plant_cellRichness_50km, plant_cellFDis_50km, 50000, "power3P")
+```
+
+```{r}
+same_taxa_diversity(plant_cellRichness_25km, plant_cellFDis_25km, 25000, "line2P")
+same_taxa_diversity(plant_cellRichness_25km, plant_cellFDis_25km, 25000, "line3P")
+same_taxa_diversity(plant_cellRichness_25km, plant_cellFDis_25km, 25000, "log2P")
+same_taxa_diversity(plant_cellRichness_25km, plant_cellFDis_25km, 25000, "exp2P")
+same_taxa_diversity(plant_cellRichness_25km, plant_cellFDis_25km, 25000, "exp3P")
+same_taxa_diversity(plant_cellRichness_25km, plant_cellFDis_25km, 25000, "power2P")
+#same_taxa_diversity(plant_cellRichness_25km, plant_cellFDis_25km, 25000, "power3P")
+```
+
+```{r}
+same_taxa_diversity(plant_cellRichness_10km, plant_cellFDis_10km, 10000, "line2P")
+same_taxa_diversity(plant_cellRichness_10km, plant_cellFDis_10km, 10000, "line3P")
+same_taxa_diversity(plant_cellRichness_10km, plant_cellFDis_10km, 10000, "log2P")
+same_taxa_diversity(plant_cellRichness_10km, plant_cellFDis_10km, 10000, "exp2P")
+same_taxa_diversity(plant_cellRichness_10km, plant_cellFDis_10km, 10000, "exp3P")
+same_taxa_diversity(plant_cellRichness_10km, plant_cellFDis_10km, 10000, "power2P")
+#same_taxa_diversity(plant_cellRichness_10km, plant_cellFDis_10km, 10000, "power3P")
+```
+
+
+```{r}
+same_taxa_diversity(plant_cellRichness_5km, plant_cellFDis_5km, 5000, "line2P")
+same_taxa_diversity(plant_cellRichness_5km, plant_cellFDis_5km, 5000, "line3P")
+same_taxa_diversity(plant_cellRichness_5km, plant_cellFDis_5km, 5000, "log2P")
+same_taxa_diversity(plant_cellRichness_5km, plant_cellFDis_5km, 5000, "exp2P")
+same_taxa_diversity(plant_cellRichness_5km, plant_cellFDis_5km, 5000, "exp3P")
+same_taxa_diversity(plant_cellRichness_5km, plant_cellFDis_5km, 5000, "power2P")
+#same_taxa_diversity(plant_cellRichness_5km, plant_cellFDis_5km, 5000, "power3P")
+```
+
+## Frugivores
+```{r}
+same_taxa_diversity(frugivore_cellRichness_100km, frugivore_cellFDis_100km, 100000, "line2P")
+same_taxa_diversity(frugivore_cellRichness_100km, frugivore_cellFDis_100km, 100000, "line3P")
+same_taxa_diversity(frugivore_cellRichness_100km, frugivore_cellFDis_100km, 100000, "log2P")
+same_taxa_diversity(frugivore_cellRichness_100km, frugivore_cellFDis_100km, 100000, "exp2P")
+same_taxa_diversity(frugivore_cellRichness_100km, frugivore_cellFDis_100km, 100000, "exp3P")
+same_taxa_diversity(frugivore_cellRichness_100km, frugivore_cellFDis_100km, 100000, "power2P")
+same_taxa_diversity(frugivore_cellRichness_100km, frugivore_cellFDis_100km, 100000, "power3P")
+```
+
+```{r}
+same_taxa_diversity(frugivore_cellRichness_75km, frugivore_cellFDis_75km, 75000, "line2P")
+same_taxa_diversity(frugivore_cellRichness_75km, frugivore_cellFDis_75km, 75000, "line3P")
+same_taxa_diversity(frugivore_cellRichness_75km, frugivore_cellFDis_75km, 75000, "log2P")
+same_taxa_diversity(frugivore_cellRichness_75km, frugivore_cellFDis_75km, 75000, "exp2P")
+same_taxa_diversity(frugivore_cellRichness_75km, frugivore_cellFDis_75km, 75000, "exp3P")
+same_taxa_diversity(frugivore_cellRichness_75km, frugivore_cellFDis_75km, 75000, "power2P")
+#same_taxa_diversity(frugivore_cellRichness_75km, frugivore_cellFDis_75km, 75000, "power3P")
+```
+
+```{r}
+same_taxa_diversity(frugivore_cellRichness_50km, frugivore_cellFDis_50km, 50000, "line2P")
+same_taxa_diversity(frugivore_cellRichness_50km, frugivore_cellFDis_50km, 50000, "line3P")
+same_taxa_diversity(frugivore_cellRichness_50km, frugivore_cellFDis_50km, 50000, "log2P")
+same_taxa_diversity(frugivore_cellRichness_50km, frugivore_cellFDis_50km, 50000, "exp2P")
+same_taxa_diversity(frugivore_cellRichness_50km, frugivore_cellFDis_50km, 50000, "exp3P")
+same_taxa_diversity(frugivore_cellRichness_50km, frugivore_cellFDis_50km, 50000, "power2P")
+same_taxa_diversity(frugivore_cellRichness_50km, frugivore_cellFDis_50km, 50000, "power3P")
+```
+
+```{r}
+same_taxa_diversity(frugivore_cellRichness_25km, frugivore_cellFDis_25km, 25000, "line2P")
+same_taxa_diversity(frugivore_cellRichness_25km, frugivore_cellFDis_25km, 25000, "line3P")
+same_taxa_diversity(frugivore_cellRichness_25km, frugivore_cellFDis_25km, 25000, "log2P")
+same_taxa_diversity(frugivore_cellRichness_25km, frugivore_cellFDis_25km, 25000, "exp2P")
+#same_taxa_diversity(frugivore_cellRichness_25km, frugivore_cellFDis_25km, 25000, "exp3P")
+same_taxa_diversity(frugivore_cellRichness_25km, frugivore_cellFDis_25km, 25000, "power2P")
+#same_taxa_diversity(frugivore_cellRichness_25km, frugivore_cellFDis_25km, 25000, "power3P")
+```
+
+```{r}
+same_taxa_diversity(frugivore_cellRichness_10km, frugivore_cellFDis_10km, 10000, "line2P")
+same_taxa_diversity(frugivore_cellRichness_10km, frugivore_cellFDis_10km, 10000, "line3P")
+same_taxa_diversity(frugivore_cellRichness_10km, frugivore_cellFDis_10km, 10000, "log2P")
+same_taxa_diversity(frugivore_cellRichness_10km, frugivore_cellFDis_10km, 10000, "exp2P")
+same_taxa_diversity(frugivore_cellRichness_10km, frugivore_cellFDis_10km, 10000, "exp3P")
+same_taxa_diversity(frugivore_cellRichness_10km, frugivore_cellFDis_10km, 10000, "power2P")
+#same_taxa_diversity(frugivore_cellRichness_10km, frugivore_cellFDis_10km, 10000, "power3P")
+```
+
+```{r}
+same_taxa_diversity(frugivore_cellRichness_5km, frugivore_cellFDis_5km, 5000, "line2P")
+same_taxa_diversity(frugivore_cellRichness_5km, frugivore_cellFDis_5km, 5000, "line3P")
+same_taxa_diversity(frugivore_cellRichness_5km, frugivore_cellFDis_5km, 5000, "log2P")
+same_taxa_diversity(frugivore_cellRichness_5km, frugivore_cellFDis_5km, 5000, "exp2P")
+same_taxa_diversity(frugivore_cellRichness_5km, frugivore_cellFDis_5km, 5000, "exp3P")
+same_taxa_diversity(frugivore_cellRichness_5km, frugivore_cellFDis_5km, 5000, "power2P")
+#same_taxa_diversity(frugivore_cellRichness_5km, frugivore_cellFDis_5km, 5000, "power3P")
+```
+
+## Create plots for manuscript
+```{r}
+compare_TD.FD <- function(Richness_grid, FDis_grid, resolution_meters, x.label, y.label){
+  
+  # Scatter plot
+  compare_TD.FD_plot <- ggtrendline(Richness_grid$num_species, FDis_grid$fdis_value, model = "line2P",
+                                    linecolor = "black", linewidth = 1, CI.level = NA, summary = FALSE,
+                                    show.eq = FALSE, show.pvalue = FALSE, text.col = "black", eSize = 4) +
+      geom_point(aes(x = Richness_grid$num_species, y = FDis_grid$fdis_value), alpha = 0.25, size = 1) +
+      labs(title = paste("[", resolution_meters/1000, " km]", sep = ""),
+       x = paste(" ",x.label," Richness by cell", sep = ""), y = paste(" ",y.label," FDis by cell", sep = "")) +
+      scale_x_continuous(expand = c(0, 0)) + 
+      scale_y_continuous(expand = c(0, 0)) + 
+      theme_minimal() +
+      theme(panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            axis.line = element_line(color = "black"),
+            axis.ticks = element_line(color = "black"),
+            axis.text = element_text(color = "black"))
+  
+  # Model summary
+  line2P_summary <- trendline_sum(Richness_grid$num_species, FDis_grid$fdis_value, model = "line2P")
+  
+  list(compare_TD.FD_plot = compare_TD.FD_plot,
+       line2P_summary = line2P_summary)
+}
+```
+
+## Plant TD - Plant FD
+```{r}
+compare_plantTD.FD_5km <- compare_TD.FD(plant_cellRichness_5km, plant_cellFDis_5km, 5000, "Plant", "Plant")
+(compare_plantTD.FD_5km_plot <- compare_plantTD.FD_5km$compare_TD.FD_plot)
+
+compare_plantTD.FD_r2_5km_linear <- compare_plantTD.FD_5km$line2P_summary$R.squared
+compare_plantTD.FD_slopecoefficent_5km_linear <- compare_plantTD.FD_5km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_plantTD.FD_10km <- compare_TD.FD(plant_cellRichness_10km, plant_cellFDis_10km, 10000, "Plant", "Plant")
+(compare_plantTD.FD_10km_plot <- compare_plantTD.FD_10km$compare_TD.FD_plot)
+
+compare_plantTD.FD_r2_10km_linear <- compare_plantTD.FD_10km$line2P_summary$R.squared
+compare_plantTD.FD_slopecoefficent_10km_linear <- compare_plantTD.FD_10km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_plantTD.FD_25km <- compare_TD.FD(plant_cellRichness_25km, plant_cellFDis_25km, 25000, "Plant", "Plant")
+(compare_plantTD.FD_25km_plot <- compare_plantTD.FD_25km$compare_TD.FD_plot)
+
+compare_plantTD.FD_r2_25km_linear <- compare_plantTD.FD_25km$line2P_summary$R.squared
+compare_plantTD.FD_slopecoefficent_25km_linear <- compare_plantTD.FD_25km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_plantTD.FD_50km <- compare_TD.FD(plant_cellRichness_50km, plant_cellFDis_50km, 50000, "Plant", "Plant")
+(compare_plantTD.FD_50km_plot <- compare_plantTD.FD_50km$compare_TD.FD_plot)
+
+compare_plantTD.FD_r2_50km_linear <- compare_plantTD.FD_50km$line2P_summary$R.squared
+compare_plantTD.FD_slopecoefficent_50km_linear <- compare_plantTD.FD_50km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_plantTD.FD_75km <- compare_TD.FD(plant_cellRichness_75km, plant_cellFDis_75km, 75000, "Plant", "Plant")
+(compare_plantTD.FD_75km_plot <- compare_plantTD.FD_75km$compare_TD.FD_plot)
+
+compare_plantTD.FD_r2_75km_linear <- compare_plantTD.FD_75km$line2P_summary$R.squared
+compare_plantTD.FD_slopecoefficent_75km_linear <- compare_plantTD.FD_75km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_plantTD.FD_100km <- compare_TD.FD(plant_cellRichness_100km, plant_cellFDis_100km, 100000, "Plant", "Plant")
+(compare_plantTD.FD_100km_plot <- compare_plantTD.FD_100km$compare_TD.FD_plot)
+
+compare_plantTD.FD_r2_100km_linear <- compare_plantTD.FD_100km$line2P_summary$R.squared
+compare_plantTD.FD_slopecoefficent_100km_linear <- compare_plantTD.FD_100km$line2P_summary$parameter["a"]
+```
+
+## Frugivore TD - Frugivore FD
+```{r}
+compare_frugivoreTD.FD_5km <- compare_TD.FD(frugivore_cellRichness_5km, frugivore_cellFDis_5km, 5000, "Frugivore", "Frugivore")
+(compare_frugivoreTD.FD_5km_plot <- compare_frugivoreTD.FD_5km$compare_TD.FD_plot)
+
+compare_frugivoreTD.FD_r2_5km_linear <- compare_frugivoreTD.FD_5km$line2P_summary$R.squared
+compare_frugivoreTD.FD_slopecoefficent_5km_linear <- compare_frugivoreTD.FD_5km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_frugivoreTD.FD_10km <- compare_TD.FD(frugivore_cellRichness_10km, frugivore_cellFDis_10km, 10000, "Frugivore", "Frugivore")
+(compare_frugivoreTD.FD_10km_plot <- compare_frugivoreTD.FD_10km$compare_TD.FD_plot)
+
+compare_frugivoreTD.FD_r2_10km_linear <- compare_frugivoreTD.FD_10km$line2P_summary$R.squared
+compare_frugivoreTD.FD_slopecoefficent_10km_linear <- compare_frugivoreTD.FD_10km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_frugivoreTD.FD_25km <- compare_TD.FD(frugivore_cellRichness_25km, frugivore_cellFDis_25km, 25000, "Frugivore", "Frugivore")
+(compare_frugivoreTD.FD_25km_plot <- compare_frugivoreTD.FD_25km$compare_TD.FD_plot)
+
+compare_frugivoreTD.FD_r2_25km_linear <- compare_frugivoreTD.FD_25km$line2P_summary$R.squared
+compare_frugivoreTD.FD_slopecoefficent_25km_linear <- compare_frugivoreTD.FD_25km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_frugivoreTD.FD_50km <- compare_TD.FD(frugivore_cellRichness_50km, frugivore_cellFDis_50km, 50000, "Frugivore", "Frugivore")
+(compare_frugivoreTD.FD_50km_plot <- compare_frugivoreTD.FD_50km$compare_TD.FD_plot)
+
+compare_frugivoreTD.FD_r2_50km_linear <- compare_frugivoreTD.FD_50km$line2P_summary$R.squared
+compare_frugivoreTD.FD_slopecoefficent_50km_linear <- compare_frugivoreTD.FD_50km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_frugivoreTD.FD_75km <- compare_TD.FD(frugivore_cellRichness_75km, frugivore_cellFDis_75km, 75000, "Frugivore", "Frugivore")
+(compare_frugivoreTD.FD_75km_plot <- compare_frugivoreTD.FD_75km$compare_TD.FD_plot)
+
+compare_frugivoreTD.FD_r2_75km_linear <- compare_frugivoreTD.FD_75km$line2P_summary$R.squared
+compare_frugivoreTD.FD_slopecoefficent_75km_linear <- compare_frugivoreTD.FD_75km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_frugivoreTD.FD_100km <- compare_TD.FD(frugivore_cellRichness_100km, frugivore_cellFDis_100km, 100000, "Frugivore", "Frugivore")
+(compare_frugivoreTD.FD_100km_plot <- compare_frugivoreTD.FD_100km$compare_TD.FD_plot)
+
+compare_frugivoreTD.FD_r2_100km_linear <- compare_frugivoreTD.FD_100km$line2P_summary$R.squared
+compare_frugivoreTD.FD_slopecoefficent_100km_linear <- compare_frugivoreTD.FD_100km$line2P_summary$parameter["a"]
+```
+
+## Plant TD - Frugivore FD
+```{r}
+compare_plantTD.frugivoreFD_5km <- compare_TD.FD(plant_cellRichness_5km, frugivore_cellFDis_5km, 5000, "Plant", "Frugivore")
+(compare_plantTD.frugivoreFD_5km_plot <- compare_plantTD.frugivoreFD_5km$compare_TD.FD_plot)
+
+compare_plantTD.frugivoreFD_r2_5km_linear <- compare_plantTD.frugivoreFD_5km$line2P_summary$R.squared
+compare_plantTD.frugivoreFD_slopecoefficent_5km_linear <- compare_plantTD.frugivoreFD_5km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_plantTD.frugivoreFD_10km <- compare_TD.FD(plant_cellRichness_10km, frugivore_cellFDis_10km, 10000, "Plant", "Frugivore")
+(compare_plantTD.frugivoreFD_10km_plot <- compare_plantTD.frugivoreFD_10km$compare_TD.FD_plot)
+
+compare_plantTD.frugivoreFD_r2_10km_linear <- compare_plantTD.frugivoreFD_10km$line2P_summary$R.squared
+compare_plantTD.frugivoreFD_slopecoefficent_10km_linear <- compare_plantTD.frugivoreFD_10km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_plantTD.frugivoreFD_25km <- compare_TD.FD(plant_cellRichness_25km, frugivore_cellFDis_25km, 25000, "Plant", "Frugivore")
+(compare_plantTD.frugivoreFD_25km_plot <- compare_plantTD.frugivoreFD_25km$compare_TD.FD_plot)
+
+compare_plantTD.frugivoreFD_r2_25km_linear <- compare_plantTD.frugivoreFD_25km$line2P_summary$R.squared
+compare_plantTD.frugivoreFD_slopecoefficent_25km_linear <- compare_plantTD.frugivoreFD_25km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_plantTD.frugivoreFD_50km <- compare_TD.FD(plant_cellRichness_50km, frugivore_cellFDis_50km, 50000, "Plant", "Frugivore")
+(compare_plantTD.frugivoreFD_50km_plot <- compare_plantTD.frugivoreFD_50km$compare_TD.FD_plot)
+
+compare_plantTD.frugivoreFD_r2_50km_linear <- compare_plantTD.frugivoreFD_50km$line2P_summary$R.squared
+compare_plantTD.frugivoreFD_slopecoefficent_50km_linear <- compare_plantTD.frugivoreFD_50km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_plantTD.frugivoreFD_75km <- compare_TD.FD(plant_cellRichness_75km, frugivore_cellFDis_75km, 75000, "Plant", "Frugivore")
+(compare_plantTD.frugivoreFD_75km_plot <- compare_plantTD.frugivoreFD_75km$compare_TD.FD_plot)
+
+compare_plantTD.frugivoreFD_r2_75km_linear <- compare_plantTD.frugivoreFD_75km$line2P_summary$R.squared
+compare_plantTD.frugivoreFD_slopecoefficent_75km_linear <- compare_plantTD.frugivoreFD_75km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_plantTD.frugivoreFD_100km <- compare_TD.FD(plant_cellRichness_100km, frugivore_cellFDis_100km, 100000, "Plant", "Frugivore")
+(compare_plantTD.frugivoreFD_100km_plot <- compare_plantTD.frugivoreFD_100km$compare_TD.FD_plot)
+
+compare_plantTD.frugivoreFD_r2_100km_linear <- compare_plantTD.frugivoreFD_100km$line2P_summary$R.squared
+compare_plantTD.frugivoreFD_slopecoefficent_100km_linear <- compare_plantTD.frugivoreFD_100km$line2P_summary$parameter["a"]
+```
+
+## Frugivore TD - Plant FD
+```{r}
+compare_frugivoreTD.plantFD_5km <- compare_TD.FD(frugivore_cellRichness_5km, plant_cellFDis_5km, 5000, "Frugivore", "Plant")
+(compare_frugivoreTD.plantFD_5km_plot <- compare_frugivoreTD.plantFD_5km$compare_TD.FD_plot)
+
+compare_frugivoreTD.plantFD_r2_5km_linear <- compare_frugivoreTD.plantFD_5km$line2P_summary$R.squared
+compare_frugivoreTD.plantFD_slopecoefficent_5km_linear <- compare_frugivoreTD.plantFD_5km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_frugivoreTD.plantFD_10km <- compare_TD.FD(frugivore_cellRichness_10km, plant_cellFDis_10km, 10000, "Frugivore", "Plant")
+(compare_frugivoreTD.plantFD_10km_plot <- compare_frugivoreTD.plantFD_10km$compare_TD.FD_plot)
+
+compare_frugivoreTD.plantFD_r2_10km_linear <- compare_frugivoreTD.plantFD_10km$line2P_summary$R.squared
+compare_frugivoreTD.plantFD_slopecoefficent_10km_linear <- compare_frugivoreTD.plantFD_10km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_frugivoreTD.plantFD_25km <- compare_TD.FD(frugivore_cellRichness_25km, plant_cellFDis_25km, 25000, "Frugivore", "Plant")
+(compare_frugivoreTD.plantFD_25km_plot <- compare_frugivoreTD.plantFD_25km$compare_TD.FD_plot)
+
+compare_frugivoreTD.plantFD_r2_25km_linear <- compare_frugivoreTD.plantFD_25km$line2P_summary$R.squared
+compare_frugivoreTD.plantFD_slopecoefficent_25km_linear <- compare_frugivoreTD.plantFD_25km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_frugivoreTD.plantFD_50km <- compare_TD.FD(frugivore_cellRichness_50km, plant_cellFDis_50km, 50000, "Frugivore", "Plant")
+(compare_frugivoreTD.plantFD_50km_plot <- compare_frugivoreTD.plantFD_50km$compare_TD.FD_plot)
+
+compare_frugivoreTD.plantFD_r2_50km_linear <- compare_frugivoreTD.plantFD_50km$line2P_summary$R.squared
+compare_frugivoreTD.plantFD_slopecoefficent_50km_linear <- compare_frugivoreTD.plantFD_50km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_frugivoreTD.plantFD_75km <- compare_TD.FD(frugivore_cellRichness_75km, plant_cellFDis_75km, 75000, "Frugivore", "Plant")
+(compare_frugivoreTD.plantFD_75km_plot <- compare_frugivoreTD.plantFD_75km$compare_TD.FD_plot)
+
+compare_frugivoreTD.plantFD_r2_75km_linear <- compare_frugivoreTD.plantFD_75km$line2P_summary$R.squared
+compare_frugivoreTD.plantFD_slopecoefficent_75km_linear <- compare_frugivoreTD.plantFD_75km$line2P_summary$parameter["a"]
+```
+
+```{r}
+compare_frugivoreTD.plantFD_100km <- compare_TD.FD(frugivore_cellRichness_100km, plant_cellFDis_100km, 100000, "Frugivore", "Plant")
+(compare_frugivoreTD.plantFD_100km_plot <- compare_frugivoreTD.plantFD_100km$compare_TD.FD_plot)
+
+compare_frugivoreTD.plantFD_r2_100km_linear <- compare_frugivoreTD.plantFD_100km$line2P_summary$R.squared
+compare_frugivoreTD.plantFD_slopecoefficent_100km_linear <- compare_frugivoreTD.plantFD_100km$line2P_summary$parameter["a"]
+```
+
+## Multi-panel plots
+```{r}
+(compare_plantTD.FD_all_plots <- ggarrange(compare_plantTD.FD_5km_plot, compare_plantTD.FD_10km_plot,
+                                     compare_plantTD.FD_25km_plot, compare_plantTD.FD_50km_plot,
+                                     compare_plantTD.FD_75km_plot, compare_plantTD.FD_100km_plot,
+                                        ncol = 2, nrow = 3))
+```
+
+```{r}
+(compare_frugivoreTD.FD_all_plots <- ggarrange(compare_frugivoreTD.FD_5km_plot, compare_frugivoreTD.FD_10km_plot,
+                                     compare_frugivoreTD.FD_25km_plot, compare_frugivoreTD.FD_50km_plot,
+                                     compare_frugivoreTD.FD_75km_plot, compare_frugivoreTD.FD_100km_plot,
+                                        ncol = 2, nrow = 3))
+```
+
+```{r}
+(compare_plantTD.frugivoreFD_all_plots <- ggarrange(compare_plantTD.frugivoreFD_5km_plot,
+                                                    compare_plantTD.frugivoreFD_10km_plot,
+                                                    compare_plantTD.frugivoreFD_25km_plot,
+                                                    compare_plantTD.frugivoreFD_50km_plot,
+                                                    compare_plantTD.frugivoreFD_75km_plot,
+                                                    compare_plantTD.frugivoreFD_100km_plot,
+                                                      ncol = 2, nrow = 3))
+```
+
+```{r}
+(compare_frugivoreTD.plantFD_all_plots <- ggarrange(compare_frugivoreTD.plantFD_5km_plot,
+                                                    compare_frugivoreTD.plantFD_10km_plot,
+                                                    compare_frugivoreTD.plantFD_25km_plot,
+                                                    compare_frugivoreTD.plantFD_50km_plot,
+                                                    compare_frugivoreTD.plantFD_75km_plot,
+                                                    compare_frugivoreTD.plantFD_100km_plot,
+                                                      ncol = 2, nrow = 3))
+```
+
+```{r}
+# save plots
+ggsave("compare_plantTD.FD_all_plots.png", compare_plantTD.FD_all_plots, path = figure_path,
+       width = 10, height = 12, units = "in")
+ggsave("compare_frugivoreTD.FD_all_plots.png", compare_frugivoreTD.FD_all_plots, path = figure_path,
+       width = 10, height = 12, units = "in")
+ggsave("compare_plantTD.frugivoreFD_all_plots.png", compare_plantTD.frugivoreFD_all_plots, path = figure_path,
+       width = 10, height = 12, units = "in")
+ggsave("compare_frugivoreTD.plantFD_all_plots.png", compare_frugivoreTD.plantFD_all_plots, path = figure_path,
+       width = 10, height = 12, units = "in")
+```
+
+## Compare TD-FD r-squared and correlation coefficent
+```{r}
+
+# Create a tibble
+TD.FD_r2_compare <- tibble(
+  resolution = c(5, 10, 25, 50, 75, 100),
+  plantTD.FD_r2_linear = c(
+    as.numeric(compare_plantTD.FD_r2_5km_linear), 
+    as.numeric(compare_plantTD.FD_r2_10km_linear), 
+    as.numeric(compare_plantTD.FD_r2_25km_linear), 
+    as.numeric(compare_plantTD.FD_r2_50km_linear), 
+    as.numeric(compare_plantTD.FD_r2_75km_linear), 
+    as.numeric(compare_plantTD.FD_r2_100km_linear)
+  ),
+  frugivoreTD.FD_r2_linear = c(
+    as.numeric(compare_frugivoreTD.FD_r2_5km_linear), 
+    as.numeric(compare_frugivoreTD.FD_r2_10km_linear), 
+    as.numeric(compare_frugivoreTD.FD_r2_25km_linear), 
+    as.numeric(compare_frugivoreTD.FD_r2_50km_linear), 
+    as.numeric(compare_frugivoreTD.FD_r2_75km_linear), 
+    as.numeric(compare_frugivoreTD.FD_r2_100km_linear)
+  ),
+  plantTD.frugivoreFD_r2_linear = c(
+    as.numeric(compare_plantTD.frugivoreFD_r2_5km_linear), 
+    as.numeric(compare_plantTD.frugivoreFD_r2_10km_linear), 
+    as.numeric(compare_plantTD.frugivoreFD_r2_25km_linear), 
+    as.numeric(compare_plantTD.frugivoreFD_r2_50km_linear), 
+    as.numeric(compare_plantTD.frugivoreFD_r2_75km_linear), 
+    as.numeric(compare_plantTD.frugivoreFD_r2_100km_linear)
+  ),
+  frugivoreTD.plantFD_r2_linear = c(
+    as.numeric(compare_frugivoreTD.plantFD_r2_5km_linear), 
+    as.numeric(compare_frugivoreTD.plantFD_r2_10km_linear), 
+    as.numeric(compare_frugivoreTD.plantFD_r2_25km_linear), 
+    as.numeric(compare_frugivoreTD.plantFD_r2_50km_linear), 
+    as.numeric(compare_frugivoreTD.plantFD_r2_75km_linear), 
+    as.numeric(compare_frugivoreTD.plantFD_r2_100km_linear)
+  )
+)
+
+# reshape to long format for ease of plotting
+TD.FD_r2_long <- TD.FD_r2_compare %>%
+  pivot_longer(cols = c(plantTD.FD_r2_linear, frugivoreTD.FD_r2_linear,
+                        plantTD.frugivoreFD_r2_linear, frugivoreTD.plantFD_r2_linear), 
+               names_to = "Relationship", 
+               values_to = "r_squared")
+```
+
+```{r}
+# Define custom colors for the points
+custom_colors <- c(plantTD.FD_r2_linear = "brown", frugivoreTD.FD_r2_linear = "orange",
+                   plantTD.frugivoreFD_r2_linear = "tan", frugivoreTD.plantFD_r2_linear = "darkorange")
+
+# Define custom legend labels
+custom_labels <- c(plantTD.FD_r2_linear = "Plant TD - Plant FD",
+                   frugivoreTD.FD_r2_linear = "Frugivore TD - Frugivore FD",
+                   plantTD.frugivoreFD_r2_linear = "Plant TD - Frugivore FD",
+                   frugivoreTD.plantFD_r2_linear = "Frugivore TD - Plant FD")
+
+(TD.FD_r2_plot <- ggplot(TD.FD_r2_long,aes(x = resolution, y = r_squared, color = Relationship)) +
+  geom_line() +
+  geom_point(size = 3) +
+  scale_color_manual(values = custom_colors, labels = custom_labels) +
+  scale_x_continuous(breaks = TD.FD_r2_compare$resolution) + 
+  labs(x = "Grain (km)",
+       y = "R² value",
+       color = "Relationship") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.ticks = element_line(color = "black"),
+        axis.text = element_text(color = "black"),
+        legend.position = "inside",
+        legend.position.inside = c(.25, .75),
+        legend.box.margin = margin(10, 10, 10, 10),
+        text = element_text(size = 18)))
+```
+
+```{r}
+TD.FD_slopecoefficent_compare <- tibble(
+  resolution = c(5, 10, 25, 50, 75, 100),
+  plantTD.FD_slopecoefficent_linear = c(
+    as.numeric(compare_plantTD.FD_slopecoefficent_5km_linear), 
+    as.numeric(compare_plantTD.FD_slopecoefficent_10km_linear), 
+    as.numeric(compare_plantTD.FD_slopecoefficent_25km_linear), 
+    as.numeric(compare_plantTD.FD_slopecoefficent_50km_linear), 
+    as.numeric(compare_plantTD.FD_slopecoefficent_75km_linear), 
+    as.numeric(compare_plantTD.FD_slopecoefficent_100km_linear)
+  ),
+  frugivoreTD.FD_slopecoefficent_linear = c(
+    as.numeric(compare_frugivoreTD.FD_slopecoefficent_5km_linear), 
+    as.numeric(compare_frugivoreTD.FD_slopecoefficent_10km_linear), 
+    as.numeric(compare_frugivoreTD.FD_slopecoefficent_25km_linear), 
+    as.numeric(compare_frugivoreTD.FD_slopecoefficent_50km_linear), 
+    as.numeric(compare_frugivoreTD.FD_slopecoefficent_75km_linear), 
+    as.numeric(compare_frugivoreTD.FD_slopecoefficent_100km_linear)
+  ),
+  plantTD.frugivoreFD_slopecoefficent_linear = c(
+    as.numeric(compare_plantTD.frugivoreFD_slopecoefficent_5km_linear), 
+    as.numeric(compare_plantTD.frugivoreFD_slopecoefficent_10km_linear), 
+    as.numeric(compare_plantTD.frugivoreFD_slopecoefficent_25km_linear), 
+    as.numeric(compare_plantTD.frugivoreFD_slopecoefficent_50km_linear), 
+    as.numeric(compare_plantTD.frugivoreFD_slopecoefficent_75km_linear), 
+    as.numeric(compare_plantTD.frugivoreFD_slopecoefficent_100km_linear)
+  ),
+  frugivoreTD.plantFD_slopecoefficent_linear = c(
+    as.numeric(compare_frugivoreTD.plantFD_slopecoefficent_5km_linear), 
+    as.numeric(compare_frugivoreTD.plantFD_slopecoefficent_10km_linear), 
+    as.numeric(compare_frugivoreTD.plantFD_slopecoefficent_25km_linear), 
+    as.numeric(compare_frugivoreTD.plantFD_slopecoefficent_50km_linear), 
+    as.numeric(compare_frugivoreTD.plantFD_slopecoefficent_75km_linear), 
+    as.numeric(compare_frugivoreTD.plantFD_slopecoefficent_100km_linear)
+  )
+)
+
+# reshape to long format for ease of plotting
+TD.FD_slopecoefficent_long <- TD.FD_slopecoefficent_compare %>%
+  pivot_longer(cols = c(plantTD.FD_slopecoefficent_linear, frugivoreTD.FD_slopecoefficent_linear,
+                        plantTD.frugivoreFD_slopecoefficent_linear, frugivoreTD.plantFD_slopecoefficent_linear), 
+               names_to = "Relationship", 
+               values_to = "slope_coefficent")
+```
+
+```{r}
+# Define custom colors for the points
+custom_colors <- c(plantTD.FD_slopecoefficent_linear = "brown", frugivoreTD.FD_slopecoefficent_linear = "orange",
+                   plantTD.frugivoreFD_slopecoefficent_linear = "tan", frugivoreTD.plantFD_slopecoefficent_linear = "darkorange")
+
+# Define custom legend labels
+custom_labels <- c(plantTD.FD_slopecoefficent_linear = "Plant TD - Plant FD",
+                   frugivoreTD.FD_slopecoefficent_linear = "Frugivore TD - Frugivore FD",
+                   plantTD.frugivoreFD_slopecoefficent_linear = "Plant TD - Frugivore FD",
+                   frugivoreTD.plantFD_slopecoefficent_linear = "Frugivore TD - Plant FD")
+
+(TD.FD_slopecoefficent_plot <- ggplot(TD.FD_slopecoefficent_long,aes(x = resolution, y = slope_coefficent, color = Relationship)) +
+  geom_line() +
+  geom_point(size = 3, shape = 15) +
+  scale_color_manual(values = custom_colors, labels = custom_labels) +
+  scale_x_continuous(breaks = TD.FD_slopecoefficent_compare$resolution) + 
+  labs(x = "Grain (km)",
+       y = "Slope Coefficent",
+       color = "Relationship") +
+  theme_minimal() +
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.ticks = element_line(color = "black"),
+        axis.text = element_text(color = "black"),
+        legend.position = "inside",
+        legend.position.inside = c(.75, .75),
+        legend.box.margin = margin(10, 10, 10, 10),
+        text = element_text(size = 18)))
+```
+
+```{r}
+(compare_TD.FD_all_plots <- ggarrange(TD.FD_r2_plot, TD.FD_slopecoefficent_plot, ncol = 2, nrow = 1))
+```
+
+```{r}
+ggsave("compare_TD.FD_all_plots.png", compare_TD.FD_all_plots, path = figure_path,
+       width = 14, height = 8, units = "in")
+```
+
