@@ -111,7 +111,6 @@ GIFT_checklist_summary <- checklist_tax %>%
   )
 ```
 
-
 ```{r}
 # Combine the summaries into one dataframe
 combined_summary <- bind_rows(
@@ -124,20 +123,38 @@ combined_summary_long <- combined_summary %>%
   pivot_longer(cols = c(num_species, num_families, num_genera), 
                names_to = "category", 
                values_to = "count")
+
+# Reorder and rename the categories
+combined_summary_long <- combined_summary_long %>%
+  mutate(
+    source = factor(source, levels = c("Data", "Checklist")),
+    category = fct_recode(category,
+                          "Species" = "num_species",
+                          "Genera" = "num_genera",
+                          "Families" = "num_families")
+  )
+
+# Reorder the category variable
+combined_summary_long <- combined_summary_long %>%
+  mutate(
+    category = factor(category, levels = c("Species", "Genera", "Families"))
+  )
+
+# Custom colors for source
+custom_colors <- c("Data" = "seagreen", "Checklist" = "darkgrey")
 ```
 
 ```{r}
 ggplot(combined_summary_long, aes(x = source, y = count, fill = source)) +
   geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Comparison of Species, Genera, and Families",
-       x = "Source",
+  labs(x = "Source",
        y = "Count",
        fill = "Source") +
+  scale_fill_manual(values = custom_colors) + 
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),  # Angled x-axis labels
-    plot.title = element_text(hjust = 0.5),             # Center the plot title
-    plot.margin = margin(t = 10, r = 10, b = 10, l = 10)
+    plot.margin = margin(t = 10, r = 10, b = 10, l = 10),
+    legend.position = "none"
   ) +
   facet_wrap(~ category, scales = "free_y") +
   theme(strip.text.x = element_text(size = 12, face = "bold"))
