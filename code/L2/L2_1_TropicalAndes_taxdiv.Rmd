@@ -94,7 +94,7 @@ create_rich_plots <- function(resolution_meters) {
   generate_plant_plot <- function(data) {
     ggplot(data) +
       geom_sf(data = Americas, fill = "white") +
-      geom_sf(data = TApoly, fill = "grey", size = 0.1) +
+      geom_sf(data = TApoly, fill = "grey") +
       geom_sf(aes(fill = num_species), color = NA) +
       scale_fill_distiller(palette = "Greens", direction = 1, limits = c(0,1200)) +
       labs(x = "Longitude", y = "Latitude", fill = "S") +
@@ -106,7 +106,7 @@ create_rich_plots <- function(resolution_meters) {
   generate_frugivore_plot <- function(data) {
     ggplot(data) +
       geom_sf(data = Americas, fill = "white") +
-      geom_sf(data = TApoly, fill = "grey", size = 0.1) +
+      geom_sf(data = TApoly, fill = "grey") +
       geom_sf(aes(fill = num_species), color = NA) +
       scale_fill_distiller(palette = "YlOrBr", direction = 1, limits = c(0,500)) +
       labs(x = "Longitude", y = "Latitude", fill = "S") +
