@@ -2,7 +2,7 @@
 title: "Tropical Andes IUCN Montane and Lowland forest"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
-collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas"
 overview: "Create raster of IUCN habitat classification Forest-Subtropical moist montane and Forest - Subtropical moist lowland for Tropical Andes."
 data input: "iucn_habitatclassification_composite_lvl2_ver004.tif"
 data output: "TropicalAndes_IUCNHabitat_Forest.GTiff"
