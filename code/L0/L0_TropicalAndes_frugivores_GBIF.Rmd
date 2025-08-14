@@ -1,6 +1,6 @@
 ---
 title: "Tropical Andes montane and lowland forest bird and mammal species GBIF"
-author: "Hazel J. Anderson"
+author: "Hazel J. Anderson, Jenna B. Baljunas"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "This script retrives plant occurrence data from GBIF using the species list from Frugivoria."
@@ -55,7 +55,7 @@ if (!file.exists(file.path(output_path_L0, file_name))) {
     cat("File already exists:", file_name, "\n")
     d <- occ_download_get("0009771-231002084531237",
                         path = output_path_L0, overwrite = TRUE) %>%
-                        curveocc_download_import()
+                        occ_download_import()
   }
 ```
 
@@ -63,7 +63,7 @@ if (!file.exists(file.path(output_path_L0, file_name))) {
 # Subset occurrence to Tropical Andes IUCN Montane and Lowland forest
 ## Read in Forest shape
 ```{r}
-TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path, "Forest_sf.shp"), layer = "Forest_sf")
+TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
 ```
 
 ## Convert data frame to sf object
