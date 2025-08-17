@@ -1,6 +1,6 @@
 ---
 title: "Tropical Andes frugivore trait data Frugivoria"
-author: "Hazel J. Anderson"
+author: "Hazel J. Anderson, Jenna B. Baljunas"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "This script retrived the Frugivoria database from EDI."
@@ -110,6 +110,42 @@ if (is.na(file.size(infile3))) download.file(inUrl3,infile3,method="auto")
 unlink(infile3)
 		    
 # Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+
+col_class <- function(x){
+  
+ # extract cols and categorize them into what they should be
+ cols <- colnames(x)
+ numeric_cols <- c("diet_breadth", "body_mass_e", "body_size_mm", "longevity", "home_range_size", "generation_time", "habitat_breadth", "mean_CHELSA_bio1_1981.2010_V.2.1", "mean_CHELSA_bio12_1981.2010_V.2.1", "mean_human_fp_range_2010", "percent_change_hf_2010_2020","inferred_range_sqkm")
+ factor_cols <- setdiff(cols, numeric_cols)
+ 
+ # convert to numeric
+  for (col in numeric_cols) {
+    if (col %in% names(x)) {
+      if (is.factor(x[[col]])) {
+        x[[col]] <- as.numeric(levels(x[[col]]))[as.integer(x[[col]])]
+      } else if (is.character(x[[col]])) {
+        x[[col]] <- as.numeric(x[[col]])
+      }
+    }
+  } 
+ 
+ # convert to factor
+ for (col in factor_cols) {
+    if (col %in% names(x) && !is.factor(x[[col]])) {
+      x[[col]] <- as.factor(x[[col]])
+    }
+  }
+ 
+ return(x)
+}
+
+d <- col_class(Frug_mammal)
+
+# also, replacing NA strings might not be necessary since there are none:
+d == "NA"
+which(d == "NA", arr.ind = TRUE)  
+
+# need to double-check but function could replace what's below (and could adjust accordingly)
                 
 if (class(Frug_mammal$IUCN_species_name)!="factor") Frug_mammal$IUCN_species_name<- as.factor(Frug_mammal$IUCN_species_name)
 if (class(Frug_mammal$common_name)!="factor") Frug_mammal$common_name<- as.factor(Frug_mammal$common_name)
@@ -120,20 +156,30 @@ if (class(Frug_mammal$subspecies)!="factor") Frug_mammal$subspecies<- as.factor(
 if (class(Frug_mammal$elton_species_name)!="factor") Frug_mammal$elton_species_name<- as.factor(Frug_mammal$elton_species_name)
 if (class(Frug_mammal$diet_cat)!="factor") Frug_mammal$diet_cat<- as.factor(Frug_mammal$diet_cat)
 if (class(Frug_mammal$diet_source_e)!="factor") Frug_mammal$diet_source_e<- as.factor(Frug_mammal$diet_source_e)
-if (class(Frug_mammal$diet_breadth)=="factor") Frug_mammal$diet_breadth <-as.numeric(levels(Frug_mammal$diet_breadth))[as.integer(Frug_mammal$diet_breadth) ]               
+
+if (class(Frug_mammal$diet_breadth)=="factor") Frug_mammal$diet_breadth <-as.numeric(levels(Frug_mammal$diet_breadth))[as.integer(Frug_mammal$diet_breadth) ]       
 if (class(Frug_mammal$diet_breadth)=="character") Frug_mammal$diet_breadth <-as.numeric(Frug_mammal$diet_breadth)
+
+
 if (class(Frug_mammal$diet_level)!="factor") Frug_mammal$diet_level<- as.factor(Frug_mammal$diet_level)
 if (class(Frug_mammal$activity_nocturnal_e)!="factor") Frug_mammal$activity_nocturnal_e<- as.factor(Frug_mammal$activity_nocturnal_e)
 if (class(Frug_mammal$activity_source_e)!="factor") Frug_mammal$activity_source_e<- as.factor(Frug_mammal$activity_source_e)
 if (class(Frug_mammal$activity_level)!="factor") Frug_mammal$activity_level<- as.factor(Frug_mammal$activity_level)
 if (class(Frug_mammal$for_strat_value_e)!="factor") Frug_mammal$for_strat_value_e<- as.factor(Frug_mammal$for_strat_value_e)
 if (class(Frug_mammal$for_strat_certainty_e)!="factor") Frug_mammal$for_strat_certainty_e<- as.factor(Frug_mammal$for_strat_certainty_e)
-if (class(Frug_mammal$body_mass_e)=="factor") Frug_mammal$body_mass_e <-as.numeric(levels(Frug_mammal$body_mass_e))[as.integer(Frug_mammal$body_mass_e) ]               
+
+if (class(Frug_mammal$body_mass_e)=="factor") Frug_mammal$body_mass_e <-as.numeric(levels(Frug_mammal$body_mass_e))[as.integer(Frug_mammal$body_mass_e) ]         
 if (class(Frug_mammal$body_mass_e)=="character") Frug_mammal$body_mass_e <-as.numeric(Frug_mammal$body_mass_e)
+
+
 if (class(Frug_mammal$body_mass_level_e)!="factor") Frug_mammal$body_mass_level_e<- as.factor(Frug_mammal$body_mass_level_e)
 if (class(Frug_mammal$body_mass_source_e)!="factor") Frug_mammal$body_mass_source_e<- as.factor(Frug_mammal$body_mass_source_e)
-if (class(Frug_mammal$body_size_mm)=="factor") Frug_mammal$body_size_mm <-as.numeric(levels(Frug_mammal$body_size_mm))[as.integer(Frug_mammal$body_size_mm) ]               
+
+
+if (class(Frug_mammal$body_size_mm)=="factor") Frug_mammal$body_size_mm <-as.numeric(levels(Frug_mammal$body_size_mm))[as.integer(Frug_mammal$body_size_mm) ]       
 if (class(Frug_mammal$body_size_mm)=="character") Frug_mammal$body_size_mm <-as.numeric(Frug_mammal$body_size_mm)
+
+
 if (class(Frug_mammal$body_size_notes)!="factor") Frug_mammal$body_size_notes<- as.factor(Frug_mammal$body_size_notes)
 if (class(Frug_mammal$body_size_level)!="factor") Frug_mammal$body_size_level<- as.factor(Frug_mammal$body_size_level)
 if (class(Frug_mammal$body_size_source)!="factor") Frug_mammal$body_size_source<- as.factor(Frug_mammal$body_size_source)
@@ -141,46 +187,78 @@ if (class(Frug_mammal$sexual_dimorphism)!="factor") Frug_mammal$sexual_dimorphis
 if (class(Frug_mammal$sexual_dimorphism_notes)!="factor") Frug_mammal$sexual_dimorphism_notes<- as.factor(Frug_mammal$sexual_dimorphism_notes)
 if (class(Frug_mammal$sexual_dimorphism_level)!="factor") Frug_mammal$sexual_dimorphism_level<- as.factor(Frug_mammal$sexual_dimorphism_level)
 if (class(Frug_mammal$sexual_dimorphism_source)!="factor") Frug_mammal$sexual_dimorphism_source<- as.factor(Frug_mammal$sexual_dimorphism_source)
-if (class(Frug_mammal$longevity)=="factor") Frug_mammal$longevity <-as.numeric(levels(Frug_mammal$longevity))[as.integer(Frug_mammal$longevity) ]               
+
+
+if (class(Frug_mammal$longevity)=="factor") Frug_mammal$longevity <-as.numeric(levels(Frug_mammal$longevity))[as.integer(Frug_mammal$longevity) ]             
 if (class(Frug_mammal$longevity)=="character") Frug_mammal$longevity <-as.numeric(Frug_mammal$longevity)
+
+
 if (class(Frug_mammal$longevity_notes)!="factor") Frug_mammal$longevity_notes<- as.factor(Frug_mammal$longevity_notes)
 if (class(Frug_mammal$longevity_level)!="factor") Frug_mammal$longevity_level<- as.factor(Frug_mammal$longevity_level)
 if (class(Frug_mammal$longevity_source)!="factor") Frug_mammal$longevity_source<- as.factor(Frug_mammal$longevity_source)
-if (class(Frug_mammal$home_range_size)=="factor") Frug_mammal$home_range_size <-as.numeric(levels(Frug_mammal$home_range_size))[as.integer(Frug_mammal$home_range_size) ]               
+
+
+if (class(Frug_mammal$home_range_size)=="factor") Frug_mammal$home_range_size <-as.numeric(levels(Frug_mammal$home_range_size))[as.integer(Frug_mammal$home_range_size) ]
 if (class(Frug_mammal$home_range_size)=="character") Frug_mammal$home_range_size <-as.numeric(Frug_mammal$home_range_size)
+
+
 if (class(Frug_mammal$home_range_notes)!="factor") Frug_mammal$home_range_notes<- as.factor(Frug_mammal$home_range_notes)
 if (class(Frug_mammal$home_range_level)!="factor") Frug_mammal$home_range_level<- as.factor(Frug_mammal$home_range_level)
 if (class(Frug_mammal$home_range_source)!="factor") Frug_mammal$home_range_source<- as.factor(Frug_mammal$home_range_source)
 if (class(Frug_mammal$habitat_specialization)!="factor") Frug_mammal$habitat_specialization<- as.factor(Frug_mammal$habitat_specialization)
 if (class(Frug_mammal$habitat_specialization_source)!="factor") Frug_mammal$habitat_specialization_source<- as.factor(Frug_mammal$habitat_specialization_source)
-if (class(Frug_mammal$generation_time)=="factor") Frug_mammal$generation_time <-as.numeric(levels(Frug_mammal$generation_time))[as.integer(Frug_mammal$generation_time) ]               
+
+
+if (class(Frug_mammal$generation_time)=="factor") Frug_mammal$generation_time <-as.numeric(levels(Frug_mammal$generation_time))[as.integer(Frug_mammal$generation_time) ] 
 if (class(Frug_mammal$generation_time)=="character") Frug_mammal$generation_time <-as.numeric(Frug_mammal$generation_time)
+
+
 if (class(Frug_mammal$generation_time_notes)!="factor") Frug_mammal$generation_time_notes<- as.factor(Frug_mammal$generation_time_notes)
 if (class(Frug_mammal$generation_time_level)!="factor") Frug_mammal$generation_time_level<- as.factor(Frug_mammal$generation_time_level)
 if (class(Frug_mammal$generation_time_source)!="factor") Frug_mammal$generation_time_source<- as.factor(Frug_mammal$generation_time_source)
 if (class(Frug_mammal$IUCN_category)!="factor") Frug_mammal$IUCN_category<- as.factor(Frug_mammal$IUCN_category)
 if (class(Frug_mammal$habitat)!="factor") Frug_mammal$habitat<- as.factor(Frug_mammal$habitat)
-if (class(Frug_mammal$habitat_breadth)=="factor") Frug_mammal$habitat_breadth <-as.numeric(levels(Frug_mammal$habitat_breadth))[as.integer(Frug_mammal$habitat_breadth) ]               
+
+
+if (class(Frug_mammal$habitat_breadth)=="factor") Frug_mammal$habitat_breadth <-as.numeric(levels(Frug_mammal$habitat_breadth))[as.integer(Frug_mammal$habitat_breadth) ] 
 if (class(Frug_mammal$habitat_breadth)=="character") Frug_mammal$habitat_breadth <-as.numeric(Frug_mammal$habitat_breadth)
+
+
 if (class(Frug_mammal$habitat_breadth_source)!="factor") Frug_mammal$habitat_breadth_source<- as.factor(Frug_mammal$habitat_breadth_source)
 if (class(Frug_mammal$habitat_level)!="factor") Frug_mammal$habitat_level<- as.factor(Frug_mammal$habitat_level)
-if (class(Frug_mammal$mean_CHELSA_bio1_1981.2010_V.2.1)=="factor") Frug_mammal$mean_CHELSA_bio1_1981.2010_V.2.1 <-as.numeric(levels(Frug_mammal$mean_CHELSA_bio1_1981.2010_V.2.1))[as.integer(Frug_mammal$mean_CHELSA_bio1_1981.2010_V.2.1) ]               
+
+
+if (class(Frug_mammal$mean_CHELSA_bio1_1981.2010_V.2.1)=="factor") Frug_mammal$mean_CHELSA_bio1_1981.2010_V.2.1 <-as.numeric(levels(Frug_mammal$mean_CHELSA_bio1_1981.2010_V.2.1))[as.integer(Frug_mammal$mean_CHELSA_bio1_1981.2010_V.2.1) ] 
 if (class(Frug_mammal$mean_CHELSA_bio1_1981.2010_V.2.1)=="character") Frug_mammal$mean_CHELSA_bio1_1981.2010_V.2.1 <-as.numeric(Frug_mammal$mean_CHELSA_bio1_1981.2010_V.2.1)
-if (class(Frug_mammal$mean_CHELSA_bio12_1981.2010_V.2.1)=="factor") Frug_mammal$mean_CHELSA_bio12_1981.2010_V.2.1 <-as.numeric(levels(Frug_mammal$mean_CHELSA_bio12_1981.2010_V.2.1))[as.integer(Frug_mammal$mean_CHELSA_bio12_1981.2010_V.2.1) ]               
+
+
+if (class(Frug_mammal$mean_CHELSA_bio12_1981.2010_V.2.1)=="factor") Frug_mammal$mean_CHELSA_bio12_1981.2010_V.2.1 <-as.numeric(levels(Frug_mammal$mean_CHELSA_bio12_1981.2010_V.2.1))[as.integer(Frug_mammal$mean_CHELSA_bio12_1981.2010_V.2.1) ]       
 if (class(Frug_mammal$mean_CHELSA_bio12_1981.2010_V.2.1)=="character") Frug_mammal$mean_CHELSA_bio12_1981.2010_V.2.1 <-as.numeric(Frug_mammal$mean_CHELSA_bio12_1981.2010_V.2.1)
-if (class(Frug_mammal$mean_human_fp_range_2010)=="factor") Frug_mammal$mean_human_fp_range_2010 <-as.numeric(levels(Frug_mammal$mean_human_fp_range_2010))[as.integer(Frug_mammal$mean_human_fp_range_2010) ]               
+
+
+if (class(Frug_mammal$mean_human_fp_range_2010)=="factor") Frug_mammal$mean_human_fp_range_2010 <-as.numeric(levels(Frug_mammal$mean_human_fp_range_2010))[as.integer(Frug_mammal$mean_human_fp_range_2010) ]          
 if (class(Frug_mammal$mean_human_fp_range_2010)=="character") Frug_mammal$mean_human_fp_range_2010 <-as.numeric(Frug_mammal$mean_human_fp_range_2010)
-if (class(Frug_mammal$mean_human_fp_range_2020)=="factor") Frug_mammal$mean_human_fp_range_2020 <-as.numeric(levels(Frug_mammal$mean_human_fp_range_2020))[as.integer(Frug_mammal$mean_human_fp_range_2020) ]               
+
+
+if (class(Frug_mammal$mean_human_fp_range_2020)=="factor") Frug_mammal$mean_human_fp_range_2020 <-as.numeric(levels(Frug_mammal$mean_human_fp_range_2020))[as.integer(Frug_mammal$mean_human_fp_range_2020) ]    
 if (class(Frug_mammal$mean_human_fp_range_2020)=="character") Frug_mammal$mean_human_fp_range_2020 <-as.numeric(Frug_mammal$mean_human_fp_range_2020)
-if (class(Frug_mammal$percent_change_hf_2010_2020)=="factor") Frug_mammal$percent_change_hf_2010_2020 <-as.numeric(levels(Frug_mammal$percent_change_hf_2010_2020))[as.integer(Frug_mammal$percent_change_hf_2010_2020) ]               
+
+
+if (class(Frug_mammal$percent_change_hf_2010_2020)=="factor") Frug_mammal$percent_change_hf_2010_2020 <-as.numeric(levels(Frug_mammal$percent_change_hf_2010_2020))[as.integer(Frug_mammal$percent_change_hf_2010_2020) ] 
 if (class(Frug_mammal$percent_change_hf_2010_2020)=="character") Frug_mammal$percent_change_hf_2010_2020 <-as.numeric(Frug_mammal$percent_change_hf_2010_2020)
-if (class(Frug_mammal$inferred_range_sqkm)=="factor") Frug_mammal$inferred_range_sqkm <-as.numeric(levels(Frug_mammal$inferred_range_sqkm))[as.integer(Frug_mammal$inferred_range_sqkm) ]               
+
+
+if (class(Frug_mammal$inferred_range_sqkm)=="factor") Frug_mammal$inferred_range_sqkm <-as.numeric(levels(Frug_mammal$inferred_range_sqkm))[as.integer(Frug_mammal$inferred_range_sqkm) ]       
 if (class(Frug_mammal$inferred_range_sqkm)=="character") Frug_mammal$inferred_range_sqkm <-as.numeric(Frug_mammal$inferred_range_sqkm)
+
+
 if (class(Frug_mammal$date_data_obtained)!="factor") Frug_mammal$date_data_obtained<- as.factor(Frug_mammal$date_data_obtained)
 if (class(Frug_mammal$filled_by)!="factor") Frug_mammal$filled_by<- as.factor(Frug_mammal$filled_by)
+
+
                 
 # Convert Missing Values to NA for non-dates
-                
+              
 Frug_mammal$common_name <- as.factor(ifelse((trimws(as.character(Frug_mammal$common_name))==trimws("NA")),NA,as.character(Frug_mammal$common_name)))
 Frug_mammal$subspecies <- as.factor(ifelse((trimws(as.character(Frug_mammal$subspecies))==trimws("NA")),NA,as.character(Frug_mammal$subspecies)))
 Frug_mammal$diet_level <- as.factor(ifelse((trimws(as.character(Frug_mammal$diet_level))==trimws("NA")),NA,as.character(Frug_mammal$diet_level)))
