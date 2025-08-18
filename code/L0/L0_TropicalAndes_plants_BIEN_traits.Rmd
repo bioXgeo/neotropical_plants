@@ -2,7 +2,7 @@
 title: "Tropical Andes plant trait data BIEN"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
-collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, and Jenna B. Baljunas"
 overview: "This script retrieves plant trait data from the BIEN database for Tropical Andean countries."
 data input: "none"
 data output: "TropicalAndes_BIEN_traits.csv, AllDesired_BIEN_plant_traits.csv"
