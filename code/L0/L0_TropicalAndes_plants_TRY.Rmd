@@ -2,7 +2,7 @@
 title: "Tropical Andes plant trait data TRY"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
-collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, and Jenna B. Baljunas"
 overview: "This script retrieves plant trait data from the TRY database for plant species list."
 data input: "none"
 data output: "TropicalAndes_TRY_traits.csv"
