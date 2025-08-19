@@ -2,7 +2,7 @@
 title: "Cleaning Tropical Andes frugivore GBIF occurrence records"
 author: "Hazel J. Anderson"
 project: "Plant-Frugivore Diversity"
-collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, and Jenna B. Baljunas"
 overview: "Uses CoordinateCleaner to flag and remove problematic records from GBIF frugivore occurrence records."
 data input: "TropicalAndes_GBIF_frugivore_occ.csv"
 data output: "TropicalAndes_GBIF_frugivore_occ_cleaned.csv, TropicalAndes_GBIF_frugivore_occ_flagged.csv"
