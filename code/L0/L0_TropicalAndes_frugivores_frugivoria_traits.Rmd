@@ -877,7 +877,7 @@ glimpse(Frugivoria)
 ```
 
 ```{r}
-source("~/GitHub/neotropical_plants/code/data_summary.R")
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/data_summary.R")
 ```
 
 ```{r}
@@ -892,9 +892,9 @@ length(Frugivoria_SpeciesList)
 
 # Write data to csv
 ```{r}
-write.csv(Frugivoria, file = file.path(output_path_L0,"TropicalAndes_Frugivoria_frugivore_traits.csv"))
-write.csv(Frugivoria_SpeciesList, file = file.path(output_path_L0,"TropicalAndes_Frugivoria_frugivore_traits_species.csv"))
-write.csv(Frugivore_LookupTable, file = file.path(output_path_L1,"TropicalAndes_frugivore_LookupTable.csv"))
+write.csv(Frugivoria, file = file.path(output_path_L0,"TropicalAndes_Frugivoria_frugivore_traits_21Aug2025.csv"))
+write.csv(Frugivoria_SpeciesList, file = file.path(output_path_L0,"TropicalAndes_Frugivoria_frugivore_traits_species_21Aug2025.csv"))
+write.csv(Frugivore_LookupTable, file = file.path(output_path_L1,"TropicalAndes_frugivore_LookupTable_21Aug2025.csv"))
 ```
 
 # Package citations and session info
