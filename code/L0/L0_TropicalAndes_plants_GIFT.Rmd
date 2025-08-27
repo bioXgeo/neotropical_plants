@@ -1,6 +1,6 @@
 ---
 title: "Tropical Andes plant trait data GIFT"
-author: "Hazel J. Anderson"
+author: "Hazel J. Anderson, Jenna B. Baljunas"
 project: "Plant-Frugivore Diversity"
 collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 overview: "This script retrieves plant trait data from the GIFT database for plant species list."
@@ -32,7 +32,7 @@ GIFT_traits_meta()
 Traits of interest: plant height (ID = 1.6.3), lifespan (ID = 2.2.1), dispersal syndrome (ID = 3.3), Plant_height_min (1.6.1), Plant_height_max (1.6.2), Fruit_type_1 (3.16.1), fruit_dryness_1 (3.18.1), Fruit_length_min (3.13.1), Fruit_length_max (3.13.2), Fruit_length_mean (3.13.3), Seed_mass_min (3.2.1), Seed_mass_max (3.2.2), Seed_mass_mean (3.2.3), Seed_length_min (3.10.1), Seed_length_max (3.10.2), Seed_length_mean (3.10.3), Seed_width_min (3.11.1), Seed_width_max (3.11.2), Seed_width_mean (3.11.3), Growth_form (1.2.1)
 
 ```{r}
-# 
+# maybe make into function later?
 height_mean <- GIFT_traits(trait_IDs = c("1.6.3"))
 height_min <- GIFT_traits(trait_IDs = c("1.6.1"))
 height_max <- GIFT_traits(trait_IDs = c("1.6.2"))
