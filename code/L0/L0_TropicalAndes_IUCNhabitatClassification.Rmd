@@ -35,11 +35,11 @@ Citation: Martin Jung, Prabhat Raj Dahal, Stuart H. M. Butchart, Paul F. Donald,
 
 ```{r}
 iucn_moist_montane_forest <- raster(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004/lvl2_frac_1km_ver004/iucn_habitatclassification_fraction_lvl2__109_Forest – Subtropical-tropical moist montane__ver004.tif"))
-iucn_moist_lowland_forest <- raster(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004/lvl2_frac_1km_ver004/iucn_habitatclassification_fraction_lvl2__106_Forest – Subtropical-tropical moist lowland__ver004.tif"))
+plot(iucn_moist_montane_forest)
 ```
 
 ```{r}
-plot(iucn_moist_montane_forest)
+iucn_moist_lowland_forest <- raster(file.path(data_path, "iucn_habitatclassification_composite_lvl2_ver004/lvl2_frac_1km_ver004/iucn_habitatclassification_fraction_lvl2__106_Forest – Subtropical-tropical moist lowland__ver004.tif"))
 plot(iucn_moist_lowland_forest)
 ```
 
