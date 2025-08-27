@@ -14,7 +14,7 @@ output: html_document
 ```{r}
 data_path<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path<- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-source("~/GitHub/neotropical_plants/functions/data_summary.R")
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/data_summary.R")
 ```
 
 # Load required packages
