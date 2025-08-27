@@ -58,7 +58,7 @@ glimpse(AllDesired_BIEN_plant_traits)
 ```
 
 ```{r}
-source("~/GitHub/neotropical_plants/code/data_summary.R")
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/data_summary.R")
 
 data_summary(AllDesired_BIEN_plant_traits, AllDesired_BIEN_plant_traits$scrubbed_species_binomial, AllDesired_BIEN_plant_traits$scrubbed_genus, AllDesired_BIEN_plant_traits$scrubbed_family)
 ```
@@ -73,7 +73,7 @@ glimpse(TropicalAndes_BIEN_plant_traits)
 ```
 
 ```{r}
-source("~/GitHub/neotropical_plants/code/data_summary.R")
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/data_summary.R")
 
 data_summary(AllDesired_BIEN_plant_traits, TropicalAndes_BIEN_plant_traits$scrubbed_species_binomial, TropicalAndes_BIEN_plant_traits$scrubbed_genus, TropicalAndes_BIEN_plant_traits$scrubbed_family)
 ```
@@ -84,6 +84,6 @@ TropicalAndes_BIEN_plant_traits %>% count(trait_name)
 
 # Write data to csv
 ```{r}
-write.csv(AllDesired_BIEN_plant_traits, file.path(output_path,"AllDesired_BIEN_plant_traits.csv"))
-write.csv(TropicalAndes_BIEN_plant_traits, file.path(output_path,"TropicalAndes_BIEN_plant_traits.csv"))
+write.csv(AllDesired_BIEN_plant_traits, file.path(output_path_L0,"AllDesired_BIEN_plant_traits.csv"))
+write.csv(TropicalAndes_BIEN_plant_traits, file.path(output_path_L0,"TropicalAndes_BIEN_plant_traits.csv"))
 ```
