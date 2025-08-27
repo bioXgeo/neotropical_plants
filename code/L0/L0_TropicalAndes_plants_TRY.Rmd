@@ -27,7 +27,7 @@ library(tidyr)
 # Load TRY data
 Data was obtained from https://www.try-db.org/TryWeb/Prop0.php on 2023-10-24
 ```{r}
-try_data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/29548_24102023041242/29548.txt")
+try_data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY_2023/29548_24102023041242/29548.txt")
 ```
 
 # Summary
