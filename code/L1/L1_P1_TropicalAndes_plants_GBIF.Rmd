@@ -14,7 +14,7 @@ output: html_document
 ```{r}
 data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
-source("~/GitHub/neotropical_plants/functions/data_summary.R")
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/data_summary.R")
 ```
 
 # Load required packages
@@ -68,7 +68,19 @@ data_summary(TropicalAndes_GBIF_plant_occ_cleaned, TropicalAndes_GBIF_plant_occ_
 
 # Write data to csv
 ```{r}
+TropicalAndes_GBIF_plant_occ_cleaned <- rbind(TropicalAndes_GBIF_plant_occ_cleaned1,TropicalAndes_GBIF_plant_occ_cleaned2)
+
+flags3 <- clean_coordinates(x = TropicalAndes_GBIF_plant_occ_cleaned,
+                           lon= "decimalLongitude",
+                           lat = "decimalLatitude",
+                           countries = "countryCode",
+                           species = "species",
+                           tests = c("capitals", "centroids",
+                                     "duplicates", "equal", "gbif",
+                                     "institutions", "seas","zeros"))
+
 write.csv(TropicalAndes_GBIF_plant_occ_cleaned, file = file.path(output_path,"TropicalAndes_GBIF_plant_occ_cleaned.csv"))
 
+TropicalAndes_GBIF_plant_occ_flagged <- rbind(TropicalAndes_GBIF_plant_occ_flagged1,TropicalAndes_GBIF_plant_occ_flagged2)
 write.csv(TropicalAndes_GBIF_plant_occ_flagged, file = file.path(output_path,"TropicalAndes_GBIF_plant_occ_flagged.csv"))
 ```
