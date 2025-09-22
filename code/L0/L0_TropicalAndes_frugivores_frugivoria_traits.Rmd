@@ -46,7 +46,6 @@ infile3 <- tempfile()
 try(download.file(inUrl3,infile3,method="curl"))
 if (is.na(file.size(infile3))) download.file(inUrl3,infile3,method="auto")
 
-                   
  Frug_mammal <-read.csv(infile3,header=F 
           ,skip=1
             ,sep=","  
@@ -109,16 +108,22 @@ if (is.na(file.size(infile3))) download.file(inUrl3,infile3,method="auto")
                
 unlink(infile3)
 		    
+Frug_mammal2 <- Frug_mammal
+
 # Fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+
 
 col_class <- function(x){
   
- # extract cols and categorize them into what they should be
- cols <- colnames(x)
- numeric_cols <- c("diet_breadth", "body_mass_e", "body_size_mm", "longevity", "home_range_size", "generation_time", "habitat_breadth", "mean_CHELSA_bio1_1981.2010_V.2.1", "mean_CHELSA_bio12_1981.2010_V.2.1", "mean_human_fp_range_2010", "percent_change_hf_2010_2020","inferred_range_sqkm")
- factor_cols <- setdiff(cols, numeric_cols)
- 
- # convert to numeric
+  x[x=="NA" | x=="NA "] <- NA
+  
+  # extract cols and categorize them into what they should be
+  cols <- colnames(x)
+  
+   numeric_cols <- c("diet_breadth", "body_mass_e", "body_size_mm", "longevity", "home_range_size", "generation_time", "habitat_breadth", "mean_CHELSA_bio1_1981.2010_V.2.1", "mean_CHELSA_bio12_1981.2010_V.2.1", "mean_human_fp_range_2010", "mean_human_fp_range_2020", "percent_change_hf_2010_2020","inferred_range_sqkm", "for_strat_ground_e","for_strat_understory_e", "for_strat_midhigh_e", "for_strat_canopy_e", "for_strat_aerial_e")
+  factor_cols <- setdiff(cols, numeric_cols)
+  
+  # convert to numeric
   for (col in numeric_cols) {
     if (col %in% names(x)) {
       if (is.factor(x[[col]])) {
@@ -128,22 +133,19 @@ col_class <- function(x){
       }
     }
   } 
- 
- # convert to factor
- for (col in factor_cols) {
+  
+  # convert to factor
+  for (col in factor_cols) {
     if (col %in% names(x) && !is.factor(x[[col]])) {
       x[[col]] <- as.factor(x[[col]])
     }
+    
   }
- 
- return(x)
+  
+  return(x)
 }
 
-d <- col_class(Frug_mammal)
-
-# also, replacing NA strings might not be necessary since there are none:
-d == "NA"
-which(d == "NA", arr.ind = TRUE)  
+Frug_mammal2 <- col_class(Frug_mammal2)
 
 # need to double-check but function could replace what's below (and could adjust accordingly)
                 
@@ -309,7 +311,8 @@ Frug_mammal$date_data_obtained <- as.factor(ifelse((trimws(as.character(Frug_mam
 
 
 # Here is the structure of the input data frame:
-str(Frug_mammal)                            
+str(Frug_mammal)
+all.equal(Frug_mammal, Frug_mammal2, check.attributes = FALSE)
 attach(Frug_mammal)                            
 # The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
 
@@ -623,7 +626,9 @@ Frug_bird$date_data_obtained <- as.factor(ifelse((trimws(as.character(Frug_bird$
 
 
 # Here is the structure of the input data frame:
-str(Frug_bird)                            
+str(Frug_bird)  
+Frug_bird2 <- col_class(Frug_bird)
+all.equal(Frug_bird, Frug_bird2, check.attributes = FALSE)
 attach(Frug_bird)                            
 # The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
 
@@ -768,7 +773,9 @@ Frug_mammal_LookupTable$spelling_differences <- as.factor(ifelse((trimws(as.char
 
 
 # Here is the structure of the input data frame:
-str(Frug_mammal_LookupTable)                            
+str(Frug_mammal_LookupTable) 
+Frug_mammal_LookupTable2 <- col_class(Frug_mammal_LookupTable)
+all.equal(Frug_mammal_LookupTable, Frug_mammal_LookupTable2, check.attributes = FALSE)
 attach(Frug_mammal_LookupTable)                            
 # The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
 
@@ -830,7 +837,9 @@ Frug_bird_LookupTable$spelling_difference <- as.factor(ifelse((trimws(as.charact
 
 
 # Here is the structure of the input data frame:
-str(Frug_bird_LookupTable)                            
+str(Frug_bird_LookupTable)
+Frug_bird_LookupTable2 <- col_class(Frug_bird_LookupTable)
+all.equal(Frug_bird_LookupTable, Frug_bird_LookupTable2, check.attributes = FALSE)
 attach(Frug_bird_LookupTable)                            
 # The analyses below are basic descriptions of the variables. After testing, they should be replaced.                 
 
