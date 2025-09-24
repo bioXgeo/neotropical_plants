@@ -12,6 +12,10 @@
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 
+# PLZ filepaths
+data_path_L0 <- file.path('~/Google Drive/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path_L0 <- file.path('~/Google Drive/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+
 
 # load required packages
 library(BIEN); library(tidyr); library(dplyr)
