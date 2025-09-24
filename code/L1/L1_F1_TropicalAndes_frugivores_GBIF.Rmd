@@ -12,8 +12,8 @@ output: html_document
 
 # Set file paths
 ```{r}
-data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 ```
 
 # Load required packages
@@ -25,7 +25,7 @@ library(dplyr)
 
 # Read in data
 ```{r}
-TropicalAndes_GBIF_frugivore_occ <- read.csv(file.path(data_path,"TropicalAndes_GBIF_frugivore_occ.csv"))
+TropicalAndes_GBIF_frugivore_occ <- read.csv(file.path(data_path_L0,"TropicalAndes_GBIF_frugivore_occ.csv"))
 ```
 
 # Clean data
@@ -69,7 +69,7 @@ data_summary(TropicalAndes_GBIF_frugivore_occ_cleaned, TropicalAndes_GBIF_frugiv
 
 # Write data to csv
 ```{r}
-write.csv(TropicalAndes_GBIF_frugivore_occ_cleaned, file = file.path(output_path,"TropicalAndes_GBIF_frugivore_occ_cleaned.csv"))
+write.csv(TropicalAndes_GBIF_frugivore_occ_cleaned, file = file.path(output_path_L1,"TropicalAndes_GBIF_frugivore_occ_cleaned.csv"))
 
-write.csv(TropicalAndes_GBIF_frugivore_occ_flagged, file = file.path(output_path,"TropicalAndes_GBIF_frugivore_occ_flagged.csv"))
+write.csv(TropicalAndes_GBIF_frugivore_occ_flagged, file = file.path(output_path_L1,"TropicalAndes_GBIF_frugivore_occ_flagged.csv"))
 ```
