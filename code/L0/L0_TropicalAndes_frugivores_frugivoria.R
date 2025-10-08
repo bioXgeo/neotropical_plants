@@ -4,7 +4,7 @@
 # collaborators: Beth E. Gerstner, Phoebe L. Zarnetske
 # overview: This script retrived the Frugivoria database from EDI.
 # data input: None
-# data output: TropicalAndes_Frugivoria_frugivore_traits.csv, TropicalAndes_Frugivoria_frugivore_traits_species.csv, TropicalAndes_frugivore_LookupTable.csv
+# data output: TropicalAndes_Frugivoria_frugivore_traits.csv, TropicalAndes_Frugivoria_frugivore_traits_species.csv, TropicalAndes_frugivore_LookupTable.csv, TropicalAndes_Frugivoria_mammal_traits.csv, TropicalAndes_Frugivoria_bird_traits.csv, TropicalAndes_mammal_LookupTable.csv, TropicalAndes_bird_LookupTable.csv
 # date: 2025-09-22
 # df_print: tibble
 
@@ -22,7 +22,7 @@ library(dplyr); library(stringr)
 
 #Using r code provided at https://portal.edirepository.org/nis/codeGeneration?packageId=edi.1220.6&statisticalFileType=r
 # Package ID: edi.1220.6 Cataloging System:https://pasta.edirepository.org.
-# Data set title: Frugivoria: A trait database for birds and mammals exhibiting frugivory across contiguous Neotropical moist forests .
+# Data set title: Frugivoria: A trait database for birds and mammals exhibiting frugivory across contiguous Neotropical moist forests.
 # Data set creator:  Beth Gerstner - Michigan State University 
 # Data set creator:  Phoebe Zarnetske - Michigan State University 
 # Data set creator:  Patrick Bills - Michigan State University 
@@ -291,6 +291,11 @@ write.csv(Frugivoria, file = file.path(output_path_L0,"TropicalAndes_Frugivoria_
 write.csv(Frugivoria_SpeciesList, file = file.path(output_path_L0,"TropicalAndes_Frugivoria_frugivore_traits_species.csv"))
 write.csv(Frugivore_LookupTable, file = file.path(output_path_L1,"TropicalAndes_frugivore_LookupTable.csv"))
 
+# also save mammal and bird data separately
+write.csv(Frug_mammal2, file = file.path(output_path_L0,"TropicalAndes_Frugivoria_mammal_traits.csv"))
+write.csv(Frug_bird2, file = file.path(output_path_L0,"TropicalAndes_Frugivoria_bird_traits.csv"))
+write.csv(Frug_mammal_LookupTable2, file = file.path(output_path_L1,"TropicalAndes_mammal_LookupTable.csv"))
+write.csv(Frug_bird_LookupTable2, file = file.path(output_path_L1,"TropicalAndes_bird_LookupTable.csv"))
 
 # package citations and session info
 library(report)
