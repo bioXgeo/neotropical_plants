@@ -278,7 +278,17 @@ Frug_mammal_LookupTable2 <- Frug_mammal_LookupTable2[,1:3]
 Frugivore_LookupTable <- merge(Frug_bird_LookupTable2, Frug_mammal_LookupTable2, all = TRUE)
 
 
-source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/data_summary.R")
+# summary
+#source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/data_summary.R")
+
+data_summary <- function(records, species, genera, families){
+  num_records <- nrow(records)
+  num_species <- length(unique(species))
+  num_genera <- length(unique(genera))
+  num_families <- length(unique(families))
+  return(cat("The number of records is", num_records, "\n", "The number of species is", num_species, "\n","The number of genera is", num_genera, "\n", "The number of families is", num_families))
+}
+
 data_summary(Frugivoria, Frugivoria$IUCN_species_name, Frugivoria$genus, Frugivoria$family)
 
 
