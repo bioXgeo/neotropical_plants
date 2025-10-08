@@ -13,6 +13,10 @@
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 
+##HPCC
+#data_path <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
+#output_path <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
+
 
 # load required packages
 library(countrycode); library(CoordinateCleaner); library(dplyr)
@@ -50,7 +54,15 @@ TropicalAndes_GBIF_frugivore_occ_flagged <- TropicalAndes_GBIF_frugivore_occ[!fl
 # summary
 glimpse(TropicalAndes_GBIF_frugivore_occ_cleaned)
 
-source("~/GitHub/neotropical_plants/code/data_summary.R")
+#source("~/GitHub/neotropical_plants/code/data_summary.R")
+
+data_summary <- function(records, species, genera, families){
+  num_records <- nrow(records)
+  num_species <- length(unique(species))
+  num_genera <- length(unique(genera))
+  num_families <- length(unique(families))
+  return(cat("The number of records is", num_records, "\n", "The number of species is", num_species, "\n","The number of genera is", num_genera, "\n", "The number of families is", num_families))
+}
 
 data_summary(TropicalAndes_GBIF_frugivore_occ_cleaned, TropicalAndes_GBIF_frugivore_occ_cleaned$species, TropicalAndes_GBIF_frugivore_occ_cleaned$genus, TropicalAndes_GBIF_frugivore_occ_cleaned$family)
 
