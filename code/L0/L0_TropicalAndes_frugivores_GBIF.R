@@ -6,11 +6,16 @@
 # data input: "TropicalAndes_Frugivoria_frugivore_traits_species.csv"
 # data output: "TropicalAndes_GBIF_frugivore_occ.csv and TropicalAndes_GBIF_frugivore_occ_species.csv"
 # date: "2025-09-22"
+# notes: JB used HPCC
 
 
 # set file paths
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+
+## HPCC
+#data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
+#output_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
 
 
 # load required packages
