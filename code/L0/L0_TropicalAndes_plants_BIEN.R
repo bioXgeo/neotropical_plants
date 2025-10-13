@@ -6,6 +6,7 @@
 # data input: "none"
 # data output: "TropicalAndes_BIEN_traits.csv, AllDesired_BIEN_plant_traits.csv"
 # date: "2025-09-22"
+# notes: PLZ ran, JB couldn't on laptop and HPCC
 
 
 # set file paths
