@@ -12,7 +12,10 @@
 # Set file paths
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/data_summary.R")
+
+# # HPCC
+# data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
+# output_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
 
 
 # Load required packages
@@ -62,6 +65,14 @@ TropicalAndes_plant_occ_forest$geometry <- NULL
 # summary 
 glimpse(TropicalAndes_plant_occ_forest)
 
+data_summary <- function(records, species, genera, families){
+  num_records <- nrow(records)
+  num_species <- length(unique(species))
+  num_genera <- length(unique(genera))
+  num_families <- length(unique(families))
+  return(cat("The number of records is", num_records, "\n", "The number of species is", num_species, "\n","The number of genera is", num_genera, "\n", "The number of families is", num_families))
+}
+
 data_summary(TropicalAndes_plant_occ_forest, TropicalAndes_plant_occ_forest$species, TropicalAndes_plant_occ_forest$genus, TropicalAndes_plant_occ_forest$family)
 
 
@@ -70,5 +81,5 @@ GBIF_SpeciesList <- unique(TropicalAndes_plant_occ_forest$species)
 
 
 # write data to csv
-write.csv(TropicalAndes_plant_occ_forest, file.path(output_path,"TropicalAndes_GBIF_plant_occ.csv"))
-write.csv(GBIF_SpeciesList, file.path(output_path,"TropicalAndes_GBIF_plant_species.csv"))
+write.csv(TropicalAndes_plant_occ_forest, file.path(output_path_L0,"TropicalAndes_GBIF_plant_occ.csv"))
+write.csv(GBIF_SpeciesList, file.path(output_path_L0,"TropicalAndes_GBIF_plant_species.csv"))
