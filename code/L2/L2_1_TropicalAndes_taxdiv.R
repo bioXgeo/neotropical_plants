@@ -1,7 +1,7 @@
 #title: "Tropical Andes Taxonomic Diversity of Plants and Frugivores"
-#author: "Hazel J. Anderson"
+#author: "Hazel J. Anderson, Jenna B. Baljunas"
 #project: "Plant-Frugivore Diversity"
-#collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas"
+#collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 #overview: "Calculating and mapping taxonomic diversity as species richness using occurrence data for plants and frugivores in the Tropical Andes Moist Lowland and Montane forests. Note: some code is adapted from https://luisdva.github.io/rstats/richness/."
 #date: "2025-10-27"
 #output: 
