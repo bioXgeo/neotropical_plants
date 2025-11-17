@@ -1310,4 +1310,4 @@ print(trait_counts_overall)
 
 
 # Save imputed data
-write.csv(imputed_data2, file.path(output_path_L1,"TropicalAndes_imputed_plant_traits.csv"))
+write.csv(imputed_data2, file.path(output_path_L1,"TropicalAndes_imputed_plant_traits2.csv"))
