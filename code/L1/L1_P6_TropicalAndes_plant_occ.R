@@ -21,7 +21,7 @@ library(GIFT); library(dplyr); library(sf); library(tidyr); library(ggplot2)
 
 
 # read in data
-plant_traits <- read.csv(file.path(data_path_L1, file = "TropicalAndes_imputed_plant_traits.csv"))
+plant_traits <- read.csv(file.path(data_path_L1, file = "TropicalAndes_imputed_plant_traits2.csv"))
 plant_occ <- read.csv(file.path(data_path_L1, file = "TropicalAndes_GBIF_plant_occ_harmonized_subset.csv"))
 TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
 
