@@ -1,5 +1,5 @@
 # title: "Creating Diversity Input Objects"
-# author: "Hazel J. Anderson, Jenna B. Baljunas"
+# author: "Hazel J. Anderson"
 # project: "Plant-Frugivore Diversity"
 # collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 # overview: "Projecting occurrence data and creating presence-absence matrix for plants and frugivores. "
@@ -163,6 +163,7 @@ mammalsPointsPlot <-
                          style = north_arrow_fancy_orienteering) +
   theme(panel.background = element_rect(fill = "lightblue"))
 mammalsPointsPlot
+ggsave("mammal_occurrence_points_map.png", plot = last_plot(), path = figure_path)
 
 
 birdsPointsPlot <-
@@ -180,6 +181,7 @@ birdsPointsPlot <-
                          style = north_arrow_fancy_orienteering) +
   theme(panel.background = element_rect(fill = "lightblue"))
 birdsPointsPlot
+ggsave("bird_occurrence_points_map.png", plot = last_plot(), path = figure_path)
 
 
 all_points_maps <- ggpubr::ggarrange(plantsPointsPlot,
@@ -188,7 +190,7 @@ all_points_maps <- ggpubr::ggarrange(plantsPointsPlot,
                                      birdsPointsPlot,
                                      ncol = 2, nrow = 2)
 all_points_maps
-ggsave("all_points_maps.png", both_points_maps, path = figure_path, height =  7, width = 8, units = "in")
+ggsave("all_points_maps.png", all_points_maps, path = figure_path, height =  7, width = 8, units = "in")
 
 
 # create presence-absence matrix
