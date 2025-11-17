@@ -22,7 +22,6 @@ library(tidyr); library(BIEN); library(GIFT); library(purrr); library(mice); lib
 # read in data
 plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_all_plant_traits_standardized.csv"))
 
-
 # use BIEN and GIFT to fill in gaps by genus or family.
 # 1. need a list of families and genus for each trait that needs requesting
 # 2. add genus and family information to dataframe
@@ -86,7 +85,7 @@ identical(species_no_family, species_no_genus)
 
 length(species_no_family)
 
-# use taxize for species with no family and genus info
+#### use taxize for species with no family and genus info ####
 library(taxize)
 
 # function to retrieve taxonomic information for a chunk of species names
@@ -173,7 +172,10 @@ length(species_no_family_2)
 
 # get powo id
 # when prompted to choose one out of a list, selected the one that matched the species exactly and has TRUE under accepted
-species_no_family_2_powo <- get_pow(species_no_family_2, messages = TRUE)
+species_no_family_2_powo <- lapply(species_no_family_2, function(sp) {
+  Sys.sleep(1)  # wait 1 second between requests
+  tryCatch(get_pow(sp, messages = TRUE), error = function(e) NULL)
+})
 
 # function to retrieve taxonomic information for a chunk of taxon IDs
 get_taxonomic_info_chunk <- function(chunk_taxon_id) {
@@ -298,7 +300,7 @@ FruitLength_mm <- trait_dfs$FruitLength_mm
 SeedMass_g <- trait_dfs$SeedMass_g
 
 
-# retrieve trait records for species using BIEN & GIFT
+#### retrieve trait records for species using BIEN & GIFT ####
 
 # for GIFT data: make sure Lvl3 IDs are correct
 traits_meta <- GIFT_traits_meta()
@@ -317,10 +319,10 @@ all_bien_traits <- BIEN_trait_list()
 #### fruit dryness ####
 
 # create a list of unique genus and families for trait
-FruitDryness_families <- unique(FruitDryness$family)
-FruitDryness_genus <- unique(FruitDryness$genus)
-length(FruitDryness_families)
-length(FruitDryness_genus)
+# FruitDryness_families <- unique(FruitDryness$family)
+# FruitDryness_genus <- unique(FruitDryness$genus)
+# length(FruitDryness_families)
+# length(FruitDryness_genus)
 
 # GIFT only
 #FruitDryness_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Fruit dryness'))
@@ -336,13 +338,10 @@ length(DispersalSyndrome_families)
 length(DispersalSyndrome_genus)
 
 # both BIEN and GIFT
+# BIEN
 DispersalSyndrome_families_BIEN <- BIEN_trait_traitbyfamily(family = DispersalSyndrome_families, trait = "whole plant dispersal syndrome")
 
 DispersalSyndrome_genus_BIEN <- BIEN_trait_traitbygenus(genus = DispersalSyndrome_genus, trait = "whole plant dispersal syndrome")
-
-DispersalSyndrome_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Dispersal syndrome'))
-
-DispersalSyndrome_families_GIFT <- DispersalSyndrome_families_GIFT[DispersalSyndrome_families_GIFT$taxon_name %in% DispersalSyndrome_families, ]
 
 nrow(DispersalSyndrome_families_BIEN)
 length(unique(DispersalSyndrome_families_BIEN$scrubbed_family))
@@ -352,10 +351,12 @@ nrow(DispersalSyndrome_genus_BIEN)
 length(unique(DispersalSyndrome_genus_BIEN$scrubbed_genus))
 unique(DispersalSyndrome_genus_BIEN$trait_value)
 
-nrow(DispersalSyndrome_families_GIFT)
-length(unique(DispersalSyndrome_families_GIFT$taxon_name))
-unique(DispersalSyndrome_families_GIFT$taxon_name)
+# GIFT
+DispersalSyndrome_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Dispersal syndrome'))
 
+DispersalSyndrome_families_GIFT <- DispersalSyndrome_families_GIFT[DispersalSyndrome_families_GIFT$taxon_name %in% DispersalSyndrome_families, ]
+
+# harmonize trait values
 DispersalSyndrome_families_GIFT$trait_value <- ifelse(is.na(DispersalSyndrome_families_GIFT$`3.3.2`), DispersalSyndrome_families_GIFT$`3.3.1`, DispersalSyndrome_families_GIFT$`3.3.1`)
 
 DispersalSyndrome_families_GIFT$trait_value <- ifelse(is.na(DispersalSyndrome_families_GIFT$trait_value), DispersalSyndrome_families_GIFT$`3.3.2`, DispersalSyndrome_families_GIFT$trait_value)
@@ -372,6 +373,10 @@ DispersalSyndrome_families_GIFT <- DispersalSyndrome_families_GIFT %>%
 
 unique(DispersalSyndrome_families_GIFT$trait_value)
 
+nrow(DispersalSyndrome_families_GIFT)
+length(unique(DispersalSyndrome_families_GIFT$taxon_name))
+unique(DispersalSyndrome_families_GIFT$taxon_name)
+
 
 #### plant lifespan ####
 
@@ -382,12 +387,10 @@ length(PlantLifespan_years_families)
 length(PlantLifespan_years_genus)
 
 # both BIEN and GIFT
+# BIEN
 PlantLifespan_years_families_BIEN <- BIEN_trait_traitbyfamily(family = PlantLifespan_years_families, trait = c("maximum whole plant longevity","longest whole plant longevity"))
 
 PlantLifespan_years_genus_BIEN <- BIEN_trait_traitbygenus(genus = PlantLifespan_years_genus, trait = c("maximum whole plant longevity","longest whole plant longevity"))
-
-#Lifespan_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Lifespan'))
-# no records
 
 nrow(PlantLifespan_years_families_BIEN)
 length(unique(PlantLifespan_years_families_BIEN$scrubbed_family))
@@ -396,6 +399,10 @@ unique(PlantLifespan_years_families_BIEN$trait_value)
 nrow(PlantLifespan_years_genus_BIEN)
 length(unique(PlantLifespan_years_genus_BIEN$scrubbed_genus))
 unique(PlantLifespan_years_genus_BIEN$trait_value)
+
+# GIFT
+#Lifespan_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Lifespan'))
+# no records
 
 # remove non-numeric trait values and check units
 PlantLifespan_years_families_BIEN <- PlantLifespan_years_families_BIEN %>%
@@ -422,12 +429,10 @@ length(FruitType_families)
 length(FruitType_genus)
 
 # both BIEN and GIFT
+# BIEN
 FruitType_families_BIEN <- BIEN_trait_traitbyfamily(family = FruitType_families, trait = "fruit type")
 
 FruitType_genus_BIEN <- BIEN_trait_traitbygenus(genus = FruitType_genus, trait = "fruit type")
-
-#FruitType_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Fruit type'))
-# no records
 
 nrow(FruitType_families_BIEN)
 length(unique(FruitType_families_BIEN$scrubbed_family))
@@ -436,6 +441,10 @@ unique(FruitType_families_BIEN$trait_value)
 nrow(FruitType_genus_BIEN)
 length(unique(FruitType_genus_BIEN$scrubbed_genus))
 unique(FruitType_genus_BIEN$trait_value)
+
+# GIFT
+#FruitType_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Fruit type'))
+# no records
 
 # haromonize trait values
 unique(FruitType_families_BIEN$trait_value)
@@ -472,10 +481,10 @@ unique(FruitType_genus_BIEN$trait_value)
 #### fruit color ####
 
 # create a list of unique genus and families for trait
-FruitColor_families <- unique(FruitColor$family)
-FruitColor_genus <- unique(FruitColor$genus)
-length(FruitColor_families)
-length(FruitColor_genus)
+# FruitColor_families <- unique(FruitColor$family)
+# FruitColor_genus <- unique(FruitColor$genus)
+# length(FruitColor_families)
+# length(FruitColor_genus)
 
 # GIFT only
 #FruitColor_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Fruit colour'))
@@ -491,13 +500,10 @@ length(SeedLength_mm_families)
 length(SeedLength_mm_genus)
 
 # both BIEN and GIFT
+# BIEN
 SeedLength_mm_families_BIEN <- BIEN_trait_traitbyfamily(family = SeedLength_mm_families, trait = "seed length")
 
 SeedLength_mm_genus_BIEN <- BIEN_trait_traitbygenus(genus = SeedLength_mm_genus, trait = "seed length")
-
-SeedLength_mm_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Seed length'))
-
-SeedLength_mm_families_GIFT <- SeedLength_mm_families_GIFT[SeedLength_mm_families_GIFT$taxon_name %in% SeedLength_mm_families, ]
 
 nrow(SeedLength_mm_families_BIEN)
 length(unique(SeedLength_mm_families_BIEN$scrubbed_family))
@@ -506,6 +512,11 @@ unique(SeedLength_mm_families_BIEN$trait_value)
 nrow(SeedLength_mm_genus_BIEN)
 length(unique(SeedLength_mm_genus_BIEN$scrubbed_genus))
 unique(SeedLength_mm_genus_BIEN$trait_value)
+
+# GIFT
+SeedLength_mm_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Seed length'))
+
+SeedLength_mm_families_GIFT <- SeedLength_mm_families_GIFT[SeedLength_mm_families_GIFT$taxon_name %in% SeedLength_mm_families, ]
 
 nrow(SeedLength_mm_families_GIFT)
 
@@ -531,10 +542,10 @@ SeedLength_mm_families_GIFT$unit <- 'mm'
 #### seed width ####
 
 # create a list of unique genus and families for trait
-SeedWidth_mm_families <- unique(SeedWidth_mm$family)
-SeedWidth_mm_genus <- unique(SeedWidth_mm$genus)
-length(SeedWidth_mm_families)
-length(SeedWidth_mm_genus)
+# SeedWidth_mm_families <- unique(SeedWidth_mm$family)
+# SeedWidth_mm_genus <- unique(SeedWidth_mm$genus)
+# length(SeedWidth_mm_families)
+# length(SeedWidth_mm_genus)
 
 # GIFT only
 #SeedWidth_mm_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Seed width'))
@@ -550,12 +561,10 @@ length(PlantHeight_m_families)
 length(PlantHeight_m_genus)
 
 # both BIEN and GIFT
+# BIEN
 PlantHeight_m_families_BIEN <- BIEN_trait_traitbyfamily(family = PlantHeight_m_families, trait = c("whole plant height","minimum whole plant height","maximum whole plant height"))
 
 PlantHeight_m_genus_BIEN <- BIEN_trait_traitbygenus(genus = PlantHeight_m_genus, trait = c("whole plant height","minimum whole plant height","maximum whole plant height"))
-
-#PlantHeight_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Plant height'))
-# no records
 
 nrow(PlantHeight_m_families_BIEN)
 length(unique(PlantHeight_m_families_BIEN$scrubbed_family))
@@ -564,6 +573,10 @@ unique(PlantHeight_m_families_BIEN$trait_value)
 nrow(PlantHeight_m_genus_BIEN)
 length(unique(PlantHeight_m_genus_BIEN$scrubbed_genus))
 unique(PlantHeight_m_genus_BIEN$trait_value)
+
+# GIFT
+#PlantHeight_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Plant height'))
+# no records
 
 # remove non-numeric trait values and check units
 PlantHeight_m_families_BIEN <- PlantHeight_m_families_BIEN %>%
@@ -590,12 +603,10 @@ length(GrowthForm_families)
 length(GrowthForm_genus)
 
 # both BIEN and GIFT
+# BIEN
 GrowthForm_families_BIEN <- BIEN_trait_traitbyfamily(family = GrowthForm_families, trait = "whole plant growth form")
 
 GrowthForm_genus_BIEN <- BIEN_trait_traitbygenus(genus = GrowthForm_genus, trait = "whole plant growth form")
-
-#Growth.Form_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Growth form'))
-# no records
 
 nrow(GrowthForm_families_BIEN)
 length(unique(GrowthForm_families_BIEN$scrubbed_family))
@@ -604,6 +615,10 @@ unique(GrowthForm_families_BIEN$trait_value)
 nrow(GrowthForm_genus_BIEN)
 length(unique(GrowthForm_genus_BIEN$scrubbed_genus))
 unique(GrowthForm_genus_BIEN$trait_value)
+
+# GIFT
+#Growth.Form_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Growth form'))
+# no records
 
 # harmonize trait values and remove numeric values
 
@@ -648,12 +663,10 @@ length(FruitLength_mm_families)
 length(FruitLength_mm_genus)
 
 # both BIEN and GIFT
+# BIEN
 FruitLength_mm_families_BIEN <- BIEN_trait_traitbyfamily(family = FruitLength_mm_families, trait = c("maximum fruit length", "minimum fruit length"))
 
 FruitLength_mm_genus_BIEN <- BIEN_trait_traitbygenus(genus = FruitLength_mm_genus, trait = c("maximum fruit length", "minimum fruit length"))
-
-#FruitLength_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Fruit length'))
-# no records
 
 nrow(FruitLength_mm_families_BIEN)
 length(unique(FruitLength_mm_families_BIEN$scrubbed_family))
@@ -662,6 +675,10 @@ unique(FruitLength_mm_families_BIEN$trait_value)
 nrow(FruitLength_mm_genus_BIEN)
 length(unique(FruitLength_mm_genus_BIEN$scrubbed_genus))
 unique(FruitLength_mm_genus_BIEN$trait_value)
+
+# GIFT
+#FruitLength_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('Fruit length'))
+# no records
 
 # remove non-numeric trait values and check units
 FruitLength_mm_families_BIEN <- FruitLength_mm_families_BIEN %>%
@@ -688,12 +705,10 @@ length(SeedMass_g_families)
 length(SeedMass_g_genus)
 
 # both in BIEN and GIFT
+# BIEN
 SeedMass_g_families_BIEN <- BIEN_trait_traitbyfamily(family = SeedMass_g_families, trait = "seed mass")
 
 SeedMass_g_genus_BIEN <- BIEN_trait_traitbygenus(genus = SeedMass_g_genus, trait = "seed mass")
-
-#SeedMass_g_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('seed mass'))
-# no records
 
 nrow(SeedMass_g_families_BIEN)
 length(unique(SeedMass_g_families_BIEN$scrubbed_family))
@@ -702,6 +717,10 @@ unique(SeedMass_g_families_BIEN$trait_value)
 nrow(SeedMass_g_genus_BIEN)
 length(unique(SeedMass_g_genus_BIEN$scrubbed_genus))
 unique(SeedMass_g_genus_BIEN$trait_value)
+
+# GIFT
+#SeedMass_g_families_GIFT <- GIFT_traits_tax(trait_IDs = GIFT_trait('seed mass'))
+# no records
 
 # remove non-numeric trait values and check units
 SeedMass_g_families_BIEN <- SeedMass_g_families_BIEN %>%
@@ -721,7 +740,7 @@ unique(SeedMass_g_genus_BIEN$unit)
 
 # combine new info with existing trait table
 
-# To fill in gaps of missing traits, use genus level data first then family level. Add column to trait dataframe of the level of trait measurement: species, genus, family.
+#### To fill in gaps of missing traits, use genus level data first then family level. Add column to trait dataframe of the level of trait measurement: species, genus, family. ####
 
 # subset dataframe to only keep required columns
 
@@ -731,6 +750,7 @@ BIEN_family <- function(df){
   return(newdf)
 }
 
+DispersalSyndrome_families_BIEN_df <- BIEN_family(DispersalSyndrome_families_BIEN)
 PlantLifespan_years_families_BIEN_df <- BIEN_family(PlantLifespan_years_families_BIEN)
 FruitType_families_BIEN_df <- BIEN_family(FruitType_families_BIEN)
 SeedLength_mm_families_BIEN_df <- BIEN_family(SeedLength_mm_families_BIEN)
@@ -755,6 +775,7 @@ BIEN_genus <- function(df){
   return(newdf)
 }
 
+DispersalSyndrome_genus_BIEN_df <- BIEN_genus(DispersalSyndrome_genus_BIEN)
 PlantLifespan_years_genus_BIEN_df <- BIEN_genus(PlantLifespan_years_genus_BIEN)
 FruitType_genus_BIEN_df <- BIEN_genus(FruitType_genus_BIEN)
 SeedLength_mm_genus_BIEN_df <- BIEN_genus(SeedLength_mm_genus_BIEN)
@@ -848,8 +869,16 @@ cat_traits_combined <- function(df, level, traitname){
 
 # dispersal syndrome
 dim(DispersalSyndrome_families_GIFT_df)
-DispersalSyndrome_families_GIFT_df_average <- cat_traits_combined(DispersalSyndrome_families_GIFT_df, "family", "DispersalSyndrome")
-dim(DispersalSyndrome_families_GIFT_df_average)
+dim(DispersalSyndrome_families_BIEN_df)
+
+DispersalSyndrome_families_df <- rbind(DispersalSyndrome_families_BIEN_df,DispersalSyndrome_families_GIFT_df)
+
+DispersalSyndrome_families_df_average <- cat_traits_combined(DispersalSyndrome_families_df, "family", "DispersalSyndrome")
+dim(DispersalSyndrome_families_df_average)
+
+dim(DispersalSyndrome_genus_BIEN_df)
+DispersalSyndrome_genus_BIEN_df_average <- cat_traits_combined(DispersalSyndrome_genus_BIEN_df, "genus", "DispersalSyndrome")
+dim(DispersalSyndrome_genus_BIEN_df_average)
 
 # lifespan
 dim(PlantLifespan_years_families_BIEN_df)
@@ -928,7 +957,7 @@ long_plant_traits_tax <- merge(long_plant_traits, na_species_df, by = "species",
 
 
 # combine all family level trait data
-family_level_trait_data <- list(DispersalSyndrome_families_GIFT_df_average,
+family_level_trait_data <- list(DispersalSyndrome_families_df_average,
                                 PlantLifespan_years_families_BIEN_df_average,
                                 FruitType_families_BIEN_df_average, 
                                 SeedLength_mm_families_df_average,
@@ -954,7 +983,8 @@ all_family_traits$TraitLevel <- "family"
 
 
 # combine all genus level trait data
-genus_level_trait_data <- list(PlantLifespan_years_genus_BIEN_df_average, 
+genus_level_trait_data <- list(DispersalSyndrome_genus_BIEN_df_average, 
+                               PlantLifespan_years_genus_BIEN_df_average,
                                FruitType_genus_BIEN_df_average,
                                SeedLength_mm_genus_BIEN_df_average,
                                PlantHeight_m_genus_BIEN_df_average,
@@ -995,10 +1025,14 @@ filled_na_traits_family_genus <- na_traits_family_genus %>%
 
 na_traits_after_genus <- filled_na_traits_family_genus %>%
   filter(is.na(TraitValue))
+
 nrow(na_traits_after_genus)
+
 filled_traits_with_genus <- filled_na_traits_family_genus %>%
   filter(!is.na(TraitValue))
+
 nrow(filled_traits_with_genus)
+unique(filled_traits_with_genus$TraitName)
 
 
 # join the dataframes based on family and TraitName
@@ -1018,6 +1052,7 @@ filled_traits_with_family <- filled_na_traits_family %>%
   filter(!is.na(TraitValue))
 
 nrow(filled_traits_with_family)
+unique(filled_traits_with_family$TraitName)
 
 na_traits_after_family <- filled_na_traits_family %>%
   filter(is.na(TraitValue))
@@ -1078,7 +1113,6 @@ wide_traits <- pivot_wider(all_traits_with_NAs_long, names_from = TraitName, val
 
 glimpse(wide_traits)
 
-
 # convert column types from character to factor & numeric
 names(wide_traits)
 
@@ -1096,11 +1130,18 @@ wide_traits$SeedLength_mm <- as.numeric(wide_traits$SeedLength_mm)
 wide_traits$DispersalSyndrome <- as.factor(wide_traits$DispersalSyndrome)
 wide_traits$FruitConspicuousness <- as.factor(wide_traits$FruitConspicuousness)
 
+# summary
+fb_table_trait_summary(wide_traits)
+
+fb_plot_species_traits_completeness(wide_traits)
+ggsave("plant_trait_completeness_familygenus.png", plot = last_plot(), path = figure_path)
+
+fb_plot_number_species_by_trait(wide_traits)
+ggsave("plant_number_species_trait_familygenus.png", plot = last_plot(), path = figure_path)
 
 # impute Traits
 # set the seed for reproducibility
 set.seed(123)
-
 
 # perform the imputation
 imp_model <- mice(wide_traits, method = "cart", maxit = 20)
@@ -1109,33 +1150,115 @@ imputed_data <- complete(imp_model)
 
 glimpse(imputed_data)
 
-
-# summary
-
-# wide traits
-fb_plot_species_traits_completeness(wide_traits)
-ggsave("plant_trait_completeness_familygenus.png", plot = last_plot(), path = figure_path)
-
-fb_plot_number_species_by_trait(wide_traits)
-ggsave("plant_number_species_trait_familygenus.png", plot = last_plot(), path = figure_path)
-
-fb_table_trait_summary(wide_traits)
-
-# imputed data
-fb_plot_species_traits_completeness(imputed_data)
-ggsave("plant_trait_completeness_imputed.png", plot = last_plot(), path = figure_path)
-
-fb_plot_number_species_by_trait(imputed_data)
-ggsave("plant_number_species_trait_imputed.png", plot = last_plot(), path = figure_path)
-
 fb_table_trait_summary(imputed_data)
 
+# Save imputed data
+write.csv(imputed_data, file.path(output_path_L1,"TropicalAndes_imputed_plant_traits.csv"))
+
+
+#### remove traits that no GIFT or BIEN data can be collected from ####
+
+# exploratory analyses
+# some traits cover a small % of plants: look for correlation
+
+hist(log(wide_traits$SeedLength_mm))
+hist(log(wide_traits$FruitMass_mg))
+hist(log(wide_traits$FruitLength_mm))
+hist(log(wide_traits$SeedWidth_mm))
+hist(log(wide_traits$SeedMass_g))
+
+# comparing fruit measurements
+measurements <- subset(wide_traits, select=c('SeedLength_mm','FruitMass_mg','FruitLength_mm','SeedWidth_mm', 'SeedMass_g'))
+
+measurements$SeedLength_mm <- log(measurements$SeedLength_mm+1)
+measurements$FruitMass_mg <- log(measurements$FruitMass_mg)
+measurements$FruitLength_mm <- log(measurements$FruitLength_mm+1)
+measurements$SeedWidth_mm <- log(measurements$SeedWidth_mm+1)
+measurements$SeedMass_g <- log(measurements$SeedMass_g+1)
+
+mG <- lm(data=measurements, SeedLength_mm~.)
+step(mG, direction='backward')
+
+mL <- lm(data=measurements, SeedLength_mm~1)
+step(mG, direction='forward')
+
+m <- lm(formula = SeedLength_mm ~ FruitMass_mg + SeedWidth_mm + FruitLength_mm + SeedMass_g, data = measurements)
+summary(m)
+
+ggplot(measurements, aes(x=FruitMass_mg, y=SeedLength_mm))+
+  geom_point()+
+  theme_classic()
+
+ggplot(measurements, aes(x=SeedWidth_mm, y=SeedLength_mm))+
+  geom_point()+
+  theme_classic()
+
+ggplot(measurements, aes(x=FruitLength_mm, y=SeedLength_mm))+
+  geom_point()+
+  theme_classic()
+
+ggplot(measurements, aes(x=SeedMass_g, y=SeedLength_mm))+
+  geom_point()+
+  theme_classic()
+
+library(car)
+dryness <- filter(wide_traits, !is.na(FruitDryness))
+m2 <- lm(data=dryness, log(SeedMass_g+1)~FruitDryness)
+summary(m2)
+Anova(m2)
+
+ggplot(dryness, aes(x=FruitDryness, y=log(SeedMass_g+1)))+
+  geom_boxplot()+
+  theme_classic()
+
+conspicuousness <- filter(wide_traits, !is.na(FruitConspicuousness))
+m2 <- lm(data=conspicuousness, log(SeedLength_mm+1)~FruitConspicuousness)
+summary(m2)
+Anova(m2)
+
+ggplot(conspicuousness, aes(x=FruitConspicuousness, y=log(SeedLength_mm+1)))+
+  geom_boxplot()+
+  theme_classic()
+
+# subset data
+traits_kept <- c('PlantHeight_m','FruitType','PlantLifespan_years','SeedMass_g','FruitLength_mm','GrowthForm','SeedLength_mm','DispersalSyndrome')
+all_traits_with_NAs2 <- filter(all_traits_with_NAs, TraitName==traits_kept)
+unique(all_traits_with_NAs2$TraitName)
+
+wide_traits2 <- subset(wide_traits, select=c('species','PlantHeight_m','FruitType','PlantLifespan_years','SeedMass_g','FruitLength_mm','GrowthForm','SeedLength_mm','DispersalSyndrome'))
+
+# plot completeness
+fb_plot_species_traits_completeness(wide_traits2)
+ggsave("plant_trait_completeness_familygenus2.png", plot = last_plot(), path = figure_path)
+
+fb_plot_number_species_by_trait(wide_traits2)
+ggsave("plant_number_species_trait_familygenus2.png", plot = last_plot(), path = figure_path)
+
+# impute Traits
+# set the seed for reproducibility
+set.seed(123)
+
+# perform the imputation
+imp_model2 <- mice(wide_traits2, method = "cart", maxit = 20)
+
+imputed_data2 <- complete(imp_model2)
+
+glimpse(imputed_data2)
+
+# imputed data
+fb_plot_species_traits_completeness(imputed_data2)
+ggsave("plant_trait_completeness_imputed2.png", plot = last_plot(), path = figure_path)
+
+fb_plot_number_species_by_trait(imputed_data2)
+ggsave("plant_number_species_trait_imputed2.png", plot = last_plot(), path = figure_path)
+
+fb_table_trait_summary(imputed_data2)
 
 # reassign NA values in TraitLevel as "imputed"
-all_traits_with_NAs$TraitLevel[is.na(all_traits_with_NAs$TraitLevel)] <- "imputed"
+all_traits_with_NAs2$TraitLevel[is.na(all_traits_with_NAs2$TraitLevel)] <- "imputed"
 
 # count the number of traits per TraitLevel and TraitName
-trait_counts <- all_traits_with_NAs %>%
+trait_counts <- all_traits_with_NAs2 %>%
   count(TraitLevel, TraitName) %>%
   mutate(TraitLevel = fct_relevel(TraitLevel, "species", "genus", "family", "imputed"))
 
@@ -1152,11 +1275,10 @@ trait_counts <- all_traits_with_NAs %>%
           legend.position = "none") +  # Remove legend
     facet_wrap(~ TraitName, scales = "free_y", nrow = 2) +
     guides(fill = "none"))  # Remove legend
-ggsave("plant_trait_counts_per_level.png", plot = trait_count_level_plot, path = figure_path, height = 6, width = 8, units = "in")
-
+ggsave("plant_trait_counts_per_level2.png", plot = trait_count_level_plot, path = figure_path, height = 6, width = 8, units = "in")
 
 # count the number of traits per TraitLevel
-trait_counts_overall <- all_traits_with_NAs %>%
+trait_counts_overall <- all_traits_with_NAs2 %>%
   count(TraitLevel) %>%
   mutate(TraitLevel = fct_relevel(TraitLevel, "species", "genus", "family", "imputed"))
 
@@ -1172,9 +1294,7 @@ trait_counts_overall <- all_traits_with_NAs %>%
     theme_minimal() +
     theme(plot.title = element_text(hjust = 0.5)) +
     guides(fill = "none"))  # Remove legend
-ggsave("plant_trait_counts_per_level_overall.png", plot = all_trait_count_plot, path = figure_path)
-
-ggsave("plant_trait_counts_both.png", plot = both_trait_counts, path = figure_path, height = 6, width = 12, units = "in")
+ggsave("plant_trait_counts_per_level_overall2.png", plot = all_trait_count_plot, path = figure_path)
 
 
 # calculate the total sum of the values
@@ -1190,5 +1310,4 @@ print(trait_counts_overall)
 
 
 # Save imputed data
-write.csv(imputed_data, file.path(output_path_L1,"TropicalAndes_imputed_plant_traits.csv"))
-
+write.csv(imputed_data2, file.path(output_path_L1,"TropicalAndes_imputed_plant_traits.csv"))
