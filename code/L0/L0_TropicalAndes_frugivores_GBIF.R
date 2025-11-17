@@ -2,7 +2,7 @@
 # author: "Hazel J. Anderson, Jenna B. Baljunas"
 # project: "Plant-Frugivore Diversity"
 # collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
-# overview: "This script retrives plant occurrence data from GBIF using the species list from Frugivoria."
+# overview: "This script retrieves plant occurrence data from GBIF using the species list from Frugivoria."
 # data input: "TropicalAndes_Frugivoria_frugivore_traits_species.csv"
 # data output: "TropicalAndes_GBIF_frugivore_occ.csv and TropicalAndes_GBIF_frugivore_occ_species.csv"
 # date: "2025-09-22"
@@ -73,8 +73,6 @@ TropicalAndes_frugivore_occ_forest$geometry <- NULL
 # summary
 glimpse(TropicalAndes_frugivore_occ_forest)
 
-#source("~/GitHub/neotropical_plants/code/data_summary.R")
-
 data_summary <- function(records, species, genera, families){
   num_records <- nrow(records)
   num_species <- length(unique(species))
@@ -84,7 +82,6 @@ data_summary <- function(records, species, genera, families){
 }
 
 data_summary(TropicalAndes_frugivore_occ_forest, TropicalAndes_frugivore_occ_forest$species, TropicalAndes_frugivore_occ_forest$genus, TropicalAndes_frugivore_occ_forest$family)
-
 
 # extract species list
 GBIF_occ_SpeciesList <- unique(TropicalAndes_frugivore_occ_forest$species)
