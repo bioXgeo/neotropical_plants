@@ -32,38 +32,71 @@ Americas <- readRDS(file = file.path(data_path_L1, "Americas.rds"))
 TApoly <- readRDS(file = file.path(data_path_L1,"TApoly.rds"))
 TropicalAndes_IUCNHabitat_Forest <- readRDS(file = file.path(data_path_L1,"TropicalAndes_IUCNHabitat_Forest.rds"))
 
+# trait data
 plant_traits_df_final <- readRDS(file = file.path(data_path_L1,"plant_traits_df_final.rds"))
 frugivore_traits_df_final <- readRDS(file = file.path(data_path_L1,"frugivore_traits_df_final.rds"))
+mammal_traits_df_final <- readRDS(file=file.path(data_path_L1, 'mammal_traits_df_final.rds'))
+bird_traits_df_final <- readRDS(file=file.path(data_path_L1, 'bird_traits_df_final.rds'))
 
+# 100km
 site_loc_key_plant_100km <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant_100km.rds"))
 site_loc_key_frugivore_100km <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore_100km.rds"))
+site_loc_key_mammal_100km <- readRDS(file = file.path(data_path_L1,"site_loc_key_mammal_100km.rds"))
+site_loc_key_bird_100km <- readRDS(file = file.path(data_path_L1,"site_loc_key_bird_100km.rds"))
 PAM_plant_site_final_100km <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final_100km.rds"))
 PAM_frugivore_site_final_100km <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final_100km.rds"))
+PAM_mammal_site_final_100km <- readRDS(file = file.path(data_path_L1,"PAM_mammal_site_final_100km.rds"))
+PAM_bird_site_final_100km <- readRDS(file = file.path(data_path_L1,"PAM_bird_site_final_100km.rds"))
 
+# 75km
 site_loc_key_plant_75km <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant_75km.rds"))
 site_loc_key_frugivore_75km <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore_75km.rds"))
+site_loc_key_mammal_75km <- readRDS(file = file.path(data_path_L1,"site_loc_key_mammal_75km.rds"))
+site_loc_key_bird_75km <- readRDS(file = file.path(data_path_L1,"site_loc_key_bird_75km.rds"))
 PAM_plant_site_final_75km <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final_75km.rds"))
 PAM_frugivore_site_final_75km <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final_75km.rds"))
+PAM_mammal_site_final_75km <- readRDS(file = file.path(data_path_L1,"PAM_mammal_site_final_75km.rds"))
+PAM_bird_site_final_75km <- readRDS(file = file.path(data_path_L1,"PAM_bird_site_final_75km.rds"))
 
+# 50km
 site_loc_key_plant_50km <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant_50km.rds"))
+site_loc_key_mammal_50km <- readRDS(file = file.path(data_path_L1,"site_loc_key_mammal_50km.rds"))
+site_loc_key_bird_50km <- readRDS(file = file.path(data_path_L1,"site_loc_key_bird_50km.rds"))
 site_loc_key_frugivore_50km <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore_50km.rds"))
 PAM_plant_site_final_50km <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final_50km.rds"))
 PAM_frugivore_site_final_50km <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final_50km.rds"))
+PAM_mammal_site_final_50km <- readRDS(file = file.path(data_path_L1,"PAM_mammal_site_final_50km.rds"))
+PAM_bird_site_final_50km <- readRDS(file = file.path(data_path_L1,"PAM_bird_site_final_50km.rds"))
 
+# 25km
 site_loc_key_plant_25km <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant_25km.rds"))
 site_loc_key_frugivore_25km <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore_25km.rds"))
+site_loc_key_mammal_25km <- readRDS(file = file.path(data_path_L1,"site_loc_key_mammal_25km.rds"))
+site_loc_key_bird_25km <- readRDS(file = file.path(data_path_L1,"site_loc_key_bird_25km.rds"))
 PAM_plant_site_final_25km <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final_25km.rds"))
 PAM_frugivore_site_final_25km <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final_25km.rds"))
+PAM_mammal_site_final_25km <- readRDS(file = file.path(data_path_L1,"PAM_mammal_site_final_25km.rds"))
+PAM_bird_site_final_25km <- readRDS(file = file.path(data_path_L1,"PAM_bird_site_final_25km.rds"))
 
+# 10km
 site_loc_key_plant_10km <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant_10km.rds"))
 site_loc_key_frugivore_10km <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore_10km.rds"))
+site_loc_key_mammal_10km <- readRDS(file = file.path(data_path_L1,"site_loc_key_mammal_10km.rds"))
+site_loc_key_bird_10km <- readRDS(file = file.path(data_path_L1,"site_loc_key_bird_10km.rds"))
 PAM_plant_site_final_10km <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final_10km.rds"))
 PAM_frugivore_site_final_10km <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final_10km.rds"))
+PAM_mammal_site_final_10km <- readRDS(file = file.path(data_path_L1,"PAM_mammal_site_final_10km.rds"))
+PAM_bird_site_final_10km <- readRDS(file = file.path(data_path_L1,"PAM_bird_site_final_10km.rds"))
 
+# 5km
 site_loc_key_plant_5km <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant_5km.rds"))
 site_loc_key_frugivore_5km <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore_5km.rds"))
+site_loc_key_mammal_5km <- readRDS(file = file.path(data_path_L1,"site_loc_key_mammal_5km.rds"))
+site_loc_key_bird_5km <- readRDS(file = file.path(data_path_L1,"site_loc_key_bird_5km.rds"))
 PAM_plant_site_final_5km <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final_5km.rds"))
 PAM_frugivore_site_final_5km <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final_5km.rds"))
+PAM_mammal_site_final_5km <- readRDS(file = file.path(data_path_L1,"PAM_mammal_site_final_5km.rds"))
+PAM_bird_site_final_5km <- readRDS(file = file.path(data_path_L1,"PAM_bird_site_final_5km.rds"))
 
 
 # create trait type tables
@@ -77,89 +110,108 @@ plant_trait_cat <- as.data.frame(cbind(trait_name, trait_type))
 
 # fix Nominal traits as factor
 frugivore_traits_df_final$diet_cat <- as.factor(frugivore_traits_df_final$diet_cat)
+mammal_traits_df_final$diet_cat <- as.factor(mammal_traits_df_final$diet_cat)
+bird_traits_df_final$diet_cat <- as.factor(bird_traits_df_final$diet_cat)
 
-#plant_traits_df_final$GrowthForm <- as.factor(plant_traits_df_final$GrowthForm)
+plant_traits_df_final$GrowthForm <- as.factor(plant_traits_df_final$GrowthForm)
 plant_traits_df_final$FruitType <- as.factor(plant_traits_df_final$FruitType)
 plant_traits_df_final$DispersalSyndrome <- as.factor(plant_traits_df_final$DispersalSyndrome)
 
+
 # frugivores
 
-# 100 km
+FDis <- function(PAM, traits, matrix_name, df_name){
+  # summary of the assemblages * species dataframe
+  asb_sp_frugivore_summ <- asb.sp.summary(asb_sp_w = PAM)
+  
+  # species traits summary
+  frugivore_traits_summ <- sp.tr.summary(tr_cat = frug_trait_cat, sp_tr = traits)
+  
+  # estimate functional trait-based distances between species
+  sp_dist_frugivore <- funct.dist( sp_tr = traits, tr_cat = frug_trait_cat, metric = "gower", scale_euclid = "scale_center", ordinal_var = "classic", weight_type = "equal", stop_if_NA = TRUE)
+  
+  # generate a multidimensional space
+  fspaces_quality_frugivore <- quality.fspaces(sp_dist = sp_dist_frugivore, maxdim_pcoa = 10, deviation_weighting = "absolute", fdist_scaling = FALSE, fdendro = "average")
+  
+  # look at the quality spaces only (MAD index looks at the mean absolute deviation from the dissimilarity matrix; want the deviation to be low meaning that the true distances have been retained in the PCA)
+  MAD <- as.data.frame(round(fspaces_quality_frugivore$quality_fspaces, 3))
+  
+  low_MAD <- MAD |>
+    slice_min(mad, n = 3)
+  
+  # generate a multidimensional space
+  fspaces <- quality.fspaces.plot(fspaces_quality = fspaces_quality_frugivore, quality_metric = "mad",
+                                  fspaces_plot = rownames(low_MAD))
+  
+  # testing correlation between functional axes and traits
+  # maybe just make function that creates this and utilize the one down below for everything???
+  sp_faxes_coord_frugivore <- fspaces_quality_frugivore$"details_fspaces"$"sp_pc_coord"
+  
+  # computes linear model for continuous traits and Kruskall-Wallis tests for other types. 
+  frugivore_tr_faxes <- mFD::traits.faxes.cor(sp_tr = traits, sp_faxes_coord = sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")],plot = TRUE)
+  
+  # print traits with significant effect:
+  sig_traits <- as.data.frame(frugivore_tr_faxes$"tr_faxes_stat"[which(frugivore_tr_faxes$"tr_faxes_stat"$"p.value" < 0.05), ])
+  
+  trait_PCs <- frugivore_tr_faxes$"tr_faxes_plot"
+  
+  # plotting functional space
+  sp_faxes_coord_frugivore <- fspaces_quality_frugivore$"details_fspaces"$"sp_pc_coord"
+  
+  big_plot_frugivore <- mFD::funct.space.plot(sp_faxes_coord = sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")], faxes = c("PC1", "PC2", "PC3", "PC4"), alpha_ch = 0.5, shape_vert= 6)
+  
+  # need to remove parts of the PAM that have values less than or equal to the number of dimensions (3)
+  
+  # calculate row sums
+  row_sums_frugivore <- rowSums(PAM)
+  subset_matrix_frugivore <- PAM[row_sums_frugivore >= 3, ]
+  
+  # match frugivore names
+  sp_faxes_coord_frugivore_sub <- as.data.frame(sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")])
+  
+  assign(x=paste(matrix_name), value=subset_matrix_frugivore, envir=.GlobalEnv)
+  assign(x=paste(df_name), value=sp_faxes_coord_frugivore_sub, envir=.GlobalEnv)
+  print(c(fspaces, trait_PCs, big_plot_frugivore))
+  return(list(MAD,sig_traits))
+}
 
-# summary of the assemblages * species dataframe
-asb_sp_frugivore_summ <- asb.sp.summary(asb_sp_w = PAM_frugivore_site_final_100km)
+# 100km
+FDis(PAM_frugivore_site_final_100km, frugivore_traits_df_final,'subset_matrix_frugivore','sp_faxes_coord_frugivore_sub')
+FDis(PAM_mammal_site_final_100km, mammal_traits_df_final, 'subset_matrix_mammal', 'sp_faxes_coord_mammal_sub')
+FDis(PAM_bird_site_final_100km, bird_traits_df_final, 'subset_matrix_bird', 'sp_faxes_coord_bird_sub')
 
-# species traits summary
-frugivore_traits_summ <- sp.tr.summary(tr_cat = frug_trait_cat, sp_tr = frugivore_traits_df_final)
-
-# estimate functional trait-based distances between species
-sp_dist_frugivore <- funct.dist( sp_tr = frugivore_traits_df_final, tr_cat = frug_trait_cat, metric = "gower",
-                                 scale_euclid = "scale_center", ordinal_var = "classic", weight_type = "equal", stop_if_NA = TRUE)
-
-# generate a multidimensional space
-fspaces_quality_frugivore <- quality.fspaces(sp_dist = sp_dist_frugivore, maxdim_pcoa = 10, deviation_weighting = "absolute",
-                                             fdist_scaling = FALSE, fdendro = "average")
-
-# look at the quality spaces only (MAD index looks at the mean absolute deviation from the dissimilarity matrix; want the deviation to be low meaning that the true distances have been retained in the PCA)
-round(fspaces_quality_frugivore$"quality_fspaces", 3)
-
-# plot the quality spaces (chose to look at 3D, 4D, and 5D since they had the lowest MAD). Will go with 3 dimensions
-quality.fspaces.plot(fspaces_quality = fspaces_quality_frugivore, quality_metric = "mad",
-                     fspaces_plot = c("pcoa_3d", "pcoa_4d", "pcoa_5d"))
-
-# testing correlation between functional axes and traits
-sp_faxes_coord_frugivore <- fspaces_quality_frugivore$"details_fspaces"$"sp_pc_coord"
-
-# computes linear model for continuous traits and Kruskall-Wallis tests for other types. 
-frugivore_tr_faxes <- mFD::traits.faxes.cor(sp_tr = frugivore_traits_df_final, 
-                                            sp_faxes_coord = sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")],
-                                            plot = TRUE)
-
-# print traits with significant effect:
-frugivore_tr_faxes$"tr_faxes_stat"[which(frugivore_tr_faxes$"tr_faxes_stat"$"p.value" < 0.05), ]
-
-# return plots:
-frugivore_tr_faxes$"tr_faxes_plot"
-
-# plotting functional space
-sp_faxes_coord_frugivore <- fspaces_quality_frugivore$"details_fspaces"$"sp_pc_coord"
-
-big_plot_frugivore <- mFD::funct.space.plot(sp_faxes_coord = sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")],
-                                            faxes = c("PC1", "PC2", "PC3", "PC4"), alpha_ch = 0.5, shape_vert = 6)
-big_plot_frugivore
-
-# need to remove parts of the PAM that have values less than or equal to the number of dimensions (3)
-
-# calculate row sums
-row_sums_frugivore <- rowSums(PAM_frugivore_site_final_100km)
-subset_matrix_frugivore <- PAM_frugivore_site_final_100km[row_sums_frugivore >= 3, ]
-
-# match frugivore names
-sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore[ , c("PC1", "PC2", "PC3", "PC4")]
 summary(sp_faxes_coord_frugivore_sub)
+summary(sp_faxes_coord_mammal_sub)
+summary(sp_faxes_coord_bird_sub)
 
 # check number of species names
 nrow(sp_faxes_coord_frugivore_sub)
 ncol(subset_matrix_frugivore) 
 
+nrow(sp_faxes_coord_mammal_sub)
+ncol(subset_matrix_mammal) 
+
+nrow(sp_faxes_coord_bird_sub)
+ncol(subset_matrix_bird) 
+
 sp_faxes_coord_frugivore_sub_names <- row.names(sp_faxes_coord_frugivore_sub)
+sp_faxes_coord_mammal_sub_names <- row.names(sp_faxes_coord_mammal_sub)
+sp_faxes_coord_bird_sub_names <- row.names(sp_faxes_coord_bird_sub)
+
 subset_matrix_frugivore_names <- colnames(subset_matrix_frugivore)
+subset_matrix_mammal_names <- colnames(subset_matrix_mammal)
+subset_matrix_bird_names <- colnames(subset_matrix_bird)
 
-sp_faxes_coord_frugivore_sub <- as.data.frame(sp_faxes_coord_frugivore_sub)
-row.names(sp_faxes_coord_frugivore_sub) <- sp_faxes_coord_frugivore_sub_names
-
-sp_faxes_coord_frugivore_sub_names <- row.names(sp_faxes_coord_frugivore_sub)
-subset_matrix_frugivore_names <- colnames(subset_matrix_frugivore)
-
+# name cleaning
+# frugivores
 frugivore_names <- intersect(sp_faxes_coord_frugivore_sub_names, subset_matrix_frugivore_names)
 frugivore_names <- na.omit(frugivore_names)
 
-sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore_sub[ which((row.names(sp_faxes_coord_frugivore_sub) %in% frugivore_names)==TRUE), ]
+sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore_sub[which((row.names(sp_faxes_coord_frugivore_sub) %in% frugivore_names)==TRUE), ]
 
 subset_matrix_frugivore  <- as.data.frame(subset_matrix_frugivore)
 subset_matrix_frugivore <- subset_matrix_frugivore[ ,which((colnames(subset_matrix_frugivore) %in% frugivore_names)==TRUE)]
 
-# remove NAs
 sp_faxes_coord_frugivore_sub <- na.omit(sp_faxes_coord_frugivore_sub)
 subset_matrix_frugivore <- na.omit(subset_matrix_frugivore)
 
@@ -168,6 +220,42 @@ ncol(subset_matrix_frugivore)
 
 sp_faxes_coord_frugivore_sub <- as.matrix(sp_faxes_coord_frugivore_sub)
 subset_matrix_frugivore <- as.matrix(subset_matrix_frugivore)
+
+# mammals
+mammal_names <- intersect(sp_faxes_coord_mammal_sub_names, subset_matrix_mammal_names)
+mammal_names <- na.omit(mammal_names)
+
+sp_faxes_coord_mammal_sub <- sp_faxes_coord_mammal_sub[which((row.names(sp_faxes_coord_mammal_sub) %in% mammal_names)==TRUE), ]
+
+subset_matrix_mammal  <- as.data.frame(subset_matrix_mammal)
+subset_matrix_mammal <- subset_matrix_mammal[ ,which((colnames(subset_matrix_mammal) %in% mammal_names)==TRUE)]
+
+sp_faxes_coord_mammal_sub <- na.omit(sp_faxes_coord_mammal_sub)
+subset_matrix_mammal <- na.omit(subset_matrix_mammal)
+
+nrow(sp_faxes_coord_mammal_sub)
+ncol(subset_matrix_mammal)
+
+sp_faxes_coord_mammal_sub <- as.matrix(sp_faxes_coord_mammal_sub)
+subset_matrix_mammal <- as.matrix(subset_matrix_mammal)
+
+# birds
+bird_names <- intersect(sp_faxes_coord_bird_sub_names, subset_matrix_bird_names)
+bird_names <- na.omit(bird_names)
+
+sp_faxes_coord_bird_sub <- sp_faxes_coord_bird_sub[which((row.names(sp_faxes_coord_bird_sub) %in% bird_names)==TRUE), ]
+
+subset_matrix_bird <- as.data.frame(subset_matrix_bird)
+subset_matrix_bird <- subset_matrix_bird[ ,which((colnames(subset_matrix_bird) %in% bird_names)==TRUE)]
+
+sp_faxes_coord_bird_sub <- na.omit(sp_faxes_coord_bird_sub)
+subset_matrix_bird <- na.omit(subset_matrix_bird)
+
+nrow(sp_faxes_coord_bird_sub)
+ncol(subset_matrix_bird)
+
+sp_faxes_coord_bird_sub <- as.matrix(sp_faxes_coord_bird_sub)
+subset_matrix_bird <- as.matrix(subset_matrix_bird)
 
 
 # computing FD
@@ -253,12 +341,11 @@ calculate_fd_as_fdis_frugivores <- function(PAM_site_final) {
   subset_matrix_frugivore <- PAM_site_final[row_sums_frugivore >= 4, ]
   
   # Select the necessary columns from sp_faxes_coord_frugivore
-  sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore[, c("PC1", "PC2", "PC3", "PC4")]
+  sp_faxes_coord_frugivore_sub <- sp_faxes_coord_frugivore_sub[, c("PC1", "PC2", "PC3", "PC4")]
   
   ## check number of species names
   print(nrow(sp_faxes_coord_frugivore_sub))
   print(ncol(subset_matrix_frugivore)) 
-  
   
   sp_faxes_coord_frugivore_sub_names <- row.names(sp_faxes_coord_frugivore_sub)
   subset_matrix_frugivore_names <- colnames(subset_matrix_frugivore)
@@ -560,25 +647,25 @@ hist(frugivore_cellFDis_5km$fdis_value)
 # 100 km
 
 # summary of the assemblages * species dataframe
-asb_sp_plant_summ <- mFD::asb.sp.summary(asb_sp_w = PAM_plant_site_final_100km)
+asb_sp_plant_summ <- asb.sp.summary(asb_sp_w = PAM_plant_site_final_100km)
 
 # species traits summary
-plant_traits_summ <- mFD::sp.tr.summary(tr_cat = plant_trait_cat, sp_tr = plant_traits_df_final)
+plant_traits_summ <- sp.tr.summary(tr_cat = plant_trait_cat, sp_tr = plant_traits_df_final)
 
 # estimate functional trait-based distances between species
-sp_dist_plant <- mFD::funct.dist( sp_tr = plant_traits_df_final, tr_cat = plant_trait_cat, metric = "gower",
-                                  scale_euclid = "scale_center", ordinal_var = "classic", weight_type = "equal", stop_if_NA = TRUE)
+sp_dist_plant <- funct.dist( sp_tr = plant_traits_df_final, tr_cat = plant_trait_cat, metric = "gower",
+                             scale_euclid = "scale_center", ordinal_var = "classic", weight_type = "equal", stop_if_NA = TRUE)
 
 # generate a multidimensional space
-fspaces_quality_plant <- mFD::quality.fspaces(sp_dist = sp_dist_plant, maxdim_pcoa = 10, deviation_weighting = "absolute",
-                                              fdist_scaling = FALSE, fdendro = "average")
+fspaces_quality_plant <- quality.fspaces(sp_dist = sp_dist_plant, maxdim_pcoa = 10, deviation_weighting = "absolute",
+                                         fdist_scaling = FALSE, fdendro = "average")
 
 # look at the quality spaces only (MAD index looks at the mean absolute deviation from the dissimilarity matrix; want the deviation to be low meaning that the true distances have been retained in the PCA)
 round(fspaces_quality_plant$"quality_fspaces", 3)
 
 # plot the quality spaces (chose to look at )
-mFD::quality.fspaces.plot(fspaces_quality = fspaces_quality_plant, quality_metric = "mad",
-                          fspaces_plot = c("pcoa_6d", "pcoa_7d", "pcoa_8d"))
+quality.fspaces.plot(fspaces_quality = fspaces_quality_plant, quality_metric = "mad",
+                     fspaces_plot = c("pcoa_6d", "pcoa_7d", "pcoa_8d"))
 
 # testing correlation between functional axes and traits
 sp_faxes_coord_plant <- fspaces_quality_plant$"details_fspaces"$"sp_pc_coord"
