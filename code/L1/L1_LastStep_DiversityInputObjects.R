@@ -38,7 +38,7 @@ TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.s
 frugivore_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_Frugivoria_traits_subset.csv"))
 bird_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_bird_traits_subset.csv"))
 mammal_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_mammal_traits_subset.csv"))
-plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_imputed_plant_traits.csv"))
+plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_imputed_plant_traits2.csv"))
 
 
 # convert data to spatial data
