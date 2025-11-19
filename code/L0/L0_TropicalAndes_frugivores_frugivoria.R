@@ -34,7 +34,8 @@ library(dplyr); library(stringr)
 #file 3  
 inUrl3  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/3c655f2ab1d525d1b1f05ee78153e875" 
 infile3 <- tempfile()
-try(download.file(inUrl3,infile3,method="curl"))
+download.file(inUrl3, infile3, method = "libcurl")
+#try(download.file(inUrl3,infile3,method="curl"))
 if (is.na(file.size(infile3))) download.file(inUrl3,infile3,method="auto")
 
 Frug_mammal <-read.csv(infile3,header=F 
@@ -142,7 +143,8 @@ Frug_mammal2 <- col_class(Frug_mammal)
 #file 4
 inUrl4  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/5a86fde71322a1ff64d94ace0ed1982c" 
 infile4 <- tempfile()
-try(download.file(inUrl4,infile4,method="curl"))
+download.file(inUrl4, infile4, method = "libcurl")
+#try(download.file(inUrl4,infile4,method="curl"))
 if (is.na(file.size(infile4))) download.file(inUrl4,infile4,method="auto")
 
 Frug_bird <-read.csv(infile4,header=F 
@@ -215,7 +217,8 @@ Frug_bird2 <- col_class(Frug_bird)
 # retrieve file Lookup table: Mammals exhibiting frugivory
 inUrl10  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/f73cd1b16a4ed908dac4cf532690a12b" 
 infile10 <- tempfile()
-try(download.file(inUrl10,infile10,method="curl"))
+download.file(inUrl10, infile10, method = "libcurl")
+#try(download.file(inUrl10,infile10,method="curl"))
 if (is.na(file.size(infile10))) download.file(inUrl10,infile10,method="auto")
 
 
@@ -241,7 +244,8 @@ Frug_mammal_LookupTable2 <- col_class(Frug_mammal_LookupTable)
 # retrieve file Lookup table: Birds exhibiting frugivory
 inUrl11  <- "https://pasta.lternet.edu/package/data/eml/edi/1220/6/d1f32cc55b692cfb3d614cb400797299" 
 infile11 <- tempfile()
-try(download.file(inUrl11,infile11,method="curl"))
+download.file(inUrl11, infile11, method = "libcurl")
+#try(download.file(inUrl11,infile11,method="curl"))
 if (is.na(file.size(infile11))) download.file(inUrl11,infile11,method="auto")
 
 
@@ -290,7 +294,8 @@ data_summary <- function(records, species, genera, families){
 }
 
 data_summary(Frugivoria, Frugivoria$IUCN_species_name, Frugivoria$genus, Frugivoria$family)
-
+data_summary(Frug_mammal2, Frug_mammal2$IUCN_species_name, Frug_mammal2$genus, Frug_mammal2$family)
+data_summary(Frug_bird2, Frug_bird2$IUCN_species_name, Frug_bird2$genus, Frug_bird2$family)
 
 Frugivoria_SpeciesList <- unique(Frugivoria$IUCN_species_name)
 length(Frugivoria_SpeciesList)
