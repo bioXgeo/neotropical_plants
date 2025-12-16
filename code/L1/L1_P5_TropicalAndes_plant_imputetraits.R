@@ -1139,23 +1139,6 @@ ggsave("plant_trait_completeness_familygenus.png", plot = last_plot(), path = fi
 fb_plot_number_species_by_trait(wide_traits)
 ggsave("plant_number_species_trait_familygenus.png", plot = last_plot(), path = figure_path)
 
-# impute Traits
-# set the seed for reproducibility
-set.seed(123)
-
-# perform the imputation
-imp_model <- mice(wide_traits, method = "cart", maxit = 20)
-
-imputed_data <- complete(imp_model)
-
-glimpse(imputed_data)
-
-fb_table_trait_summary(imputed_data)
-
-# Save imputed data
-write.csv(imputed_data, file.path(output_path_L1,"TropicalAndes_imputed_plant_traits.csv"))
-
-
 #### remove traits that no GIFT or BIEN data can be collected from ####
 
 # exploratory analyses
@@ -1239,26 +1222,26 @@ ggsave("plant_number_species_trait_familygenus2.png", plot = last_plot(), path =
 set.seed(123)
 
 # perform the imputation
-imp_model2 <- mice(wide_traits2, method = "cart", maxit = 20)
+imp_model <- mice(wide_traits2, method = "cart", maxit = 20)
 
-imputed_data2 <- complete(imp_model2)
+imputed_data <- complete(imp_model)
 
-glimpse(imputed_data2)
+glimpse(imputed_data)
 
 # imputed data
-fb_plot_species_traits_completeness(imputed_data2)
-ggsave("plant_trait_completeness_imputed2.png", plot = last_plot(), path = figure_path)
+fb_plot_species_traits_completeness(imputed_data)
+ggsave("plant_trait_completeness_imputed.png", plot = last_plot(), path = figure_path)
 
-fb_plot_number_species_by_trait(imputed_data2)
-ggsave("plant_number_species_trait_imputed2.png", plot = last_plot(), path = figure_path)
+fb_plot_number_species_by_trait(imputed_data)
+ggsave("plant_number_species_trait_imputed.png", plot = last_plot(), path = figure_path)
 
-fb_table_trait_summary(imputed_data2)
+fb_table_trait_summary(imputed_data)
 
 # reassign NA values in TraitLevel as "imputed"
-all_traits_with_NAs2$TraitLevel[is.na(all_traits_with_NAs2$TraitLevel)] <- "imputed"
+all_traits_with_NAs$TraitLevel[is.na(all_traits_with_NAs$TraitLevel)] <- "imputed"
 
 # count the number of traits per TraitLevel and TraitName
-trait_counts <- all_traits_with_NAs2 %>%
+trait_counts <- all_traits_with_NAs %>%
   count(TraitLevel, TraitName) %>%
   mutate(TraitLevel = fct_relevel(TraitLevel, "species", "genus", "family", "imputed"))
 
@@ -1275,10 +1258,10 @@ trait_counts <- all_traits_with_NAs2 %>%
           legend.position = "none") +  # Remove legend
     facet_wrap(~ TraitName, scales = "free_y", nrow = 2) +
     guides(fill = "none"))  # Remove legend
-ggsave("plant_trait_counts_per_level2.png", plot = trait_count_level_plot, path = figure_path, height = 6, width = 8, units = "in")
+ggsave("plant_trait_counts_per_level.png", plot = trait_count_level_plot, path = figure_path, height = 6, width = 8, units = "in")
 
 # count the number of traits per TraitLevel
-trait_counts_overall <- all_traits_with_NAs2 %>%
+trait_counts_overall <- all_traits_with_NAs %>%
   count(TraitLevel) %>%
   mutate(TraitLevel = fct_relevel(TraitLevel, "species", "genus", "family", "imputed"))
 
@@ -1310,4 +1293,4 @@ print(trait_counts_overall)
 
 
 # Save imputed data
-write.csv(imputed_data2, file.path(output_path_L1,"TropicalAndes_imputed_plant_traits2.csv"))
+write.csv(imputed_data, file.path(output_path_L1,"TropicalAndes_imputed_plant_traits2.csv"))
