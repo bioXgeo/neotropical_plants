@@ -34,7 +34,7 @@ plant_traits <- plant_traits[, !colnames(plant_traits) %in% "X", drop = FALSE]
 
 # convert the wide dataframe to long format
 long_plant_traits <- plant_traits %>%
-  gather(TraitName, TraitValue, -species)
+  gather(TraitName, TraitValue, -species) 
 
 # filter rows with NA values
 na_traits <- long_plant_traits %>%
@@ -1227,6 +1227,9 @@ traits_with_na_count2 <- all_traits_with_NAs2 %>%
 cat("Number of NA records:", na_records_count2, "\n")
 cat("Number of species with NA records:", species_with_na_count2, "\n")
 cat("Number of traits with NA records:", traits_with_na_count2, "\n")
+
+# percent NA
+100 * na_records_count2/nrow(all_traits_with_NAs2)
 
 wide_traits2 <- subset(wide_traits, select=c('species','PlantHeight_m','FruitType','PlantLifespan_years','SeedMass_g','FruitLength_mm','GrowthForm','SeedLength_mm','DispersalSyndrome'))
 
