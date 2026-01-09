@@ -22,8 +22,7 @@ output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L
 library(dplyr); library(rgbif); library(sf)
 
 # load functions
-setwd("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code")
-source("Functions.R")
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
 
 
 # read in Frugivoria species list
