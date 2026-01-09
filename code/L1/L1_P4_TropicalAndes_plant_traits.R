@@ -879,9 +879,9 @@ custom_colors <- c("BIEN" = "#a6cf3c" , "GIFT" = "#009900", "TRY" = "#40a353")
 # create the faceted bar plot
 ggplot(trait_counts, aes(x = DatabaseSource, y = n, fill = DatabaseSource)) +
   geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Trait Counts per Database",
-       x = "Trait Name",
-       y = "Trait Count",
+  labs(title = "Trait counts per database",
+       x = "Trait name",
+       y = "Trait count",
        fill = "Database Source") +
   scale_fill_manual(values = custom_colors) +
   theme_minimal() +
