@@ -19,9 +19,12 @@ figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figu
 # load required packages
 library(GIFT); library(dplyr); library(sf); library(tidyr); library(ggplot2)
 
+# load functions
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
+
 
 # read in data
-plant_traits <- read.csv(file.path(data_path_L1, file = "TropicalAndes_imputed_plant_traits2.csv"))
+plant_traits <- read.csv(file.path(data_path_L1, file = "TropicalAndes_imputed_plant_traits.csv"))
 plant_occ <- read.csv(file.path(data_path_L1, file = "TropicalAndes_GBIF_plant_occ_harmonized_subset.csv"))
 TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
 
@@ -60,14 +63,6 @@ checklist_ref %>%
 
 # summary
 glimpse(plant_occ_subset)
-
-data_summary <- function(records, species, genera, families){
-  num_records <- nrow(records)
-  num_species <- length(unique(species))
-  num_genera <- length(unique(genera))
-  num_families <- length(unique(families))
-  return(cat("The number of records is", num_records, "\n", "The number of species is", num_species, "\n","The number of genera is", num_genera, "\n", "The number of families is", num_families))
-}
 
 data_summary(plant_occ_subset, plant_occ_subset$Accepted_species, plant_occ_subset$genus, plant_occ_subset$family)
 
