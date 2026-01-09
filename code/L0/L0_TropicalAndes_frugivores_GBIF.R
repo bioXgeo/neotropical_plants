@@ -21,6 +21,10 @@ output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L
 # load required packages
 library(dplyr); library(rgbif); library(sf)
 
+# load functions
+setwd("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code")
+source("Functions.R")
+
 
 # read in Frugivoria species list
 frugivore_species <- read.csv(file.path(data_path_L0,"TropicalAndes_Frugivoria_frugivore_traits_species.csv"))
@@ -72,14 +76,6 @@ TropicalAndes_frugivore_occ_forest$geometry <- NULL
 
 # summary
 glimpse(TropicalAndes_frugivore_occ_forest)
-
-data_summary <- function(records, species, genera, families){
-  num_records <- nrow(records)
-  num_species <- length(unique(species))
-  num_genera <- length(unique(genera))
-  num_families <- length(unique(families))
-  return(cat("The number of records is", num_records, "\n", "The number of species is", num_species, "\n","The number of genera is", num_genera, "\n", "The number of families is", num_families))
-}
 
 data_summary(TropicalAndes_frugivore_occ_forest, TropicalAndes_frugivore_occ_forest$species, TropicalAndes_frugivore_occ_forest$genus, TropicalAndes_frugivore_occ_forest$family)
 
