@@ -17,6 +17,9 @@ output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L
 # load required packages
 library(dplyr); library(stringr)
 
+# load functions
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
+
 
 # retrieve Frugivoria data
 
@@ -283,16 +286,6 @@ Frugivore_LookupTable <- merge(Frug_bird_LookupTable2, Frug_mammal_LookupTable2,
 
 
 # summary
-#source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/data_summary.R")
-
-data_summary <- function(records, species, genera, families){
-  num_records <- nrow(records)
-  num_species <- length(unique(species))
-  num_genera <- length(unique(genera))
-  num_families <- length(unique(families))
-  return(cat("The number of records is", num_records, "\n", "The number of species is", num_species, "\n","The number of genera is", num_genera, "\n", "The number of families is", num_families))
-}
-
 data_summary(Frugivoria, Frugivoria$IUCN_species_name, Frugivoria$genus, Frugivoria$family)
 data_summary(Frug_mammal2, Frug_mammal2$IUCN_species_name, Frug_mammal2$genus, Frug_mammal2$family)
 data_summary(Frug_bird2, Frug_bird2$IUCN_species_name, Frug_bird2$genus, Frug_bird2$family)
