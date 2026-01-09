@@ -12,7 +12,11 @@
 
 
 # Load required packages
-library(dplyr); library(funbiogeo); library(visdat); library(mice)
+library(tidyr); library(dplyr); library(funbiogeo); library(visdat); library(mice)
+
+# load functions
+setwd("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code")
+source("Functions.R")
 
 
 # Set file paths
@@ -53,14 +57,63 @@ bird_filtered <- Frugivoria_b %>%
 # keep columns with traits of diet category, body size, body mass, generation time
 Frugivoria_subset <- Frugivoria_filtered[ , c("IUCN_species_name", "family", "genus", "species", "body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
 
-mammal_subset <- mammal_filtered[ , c("IUCN_species_name", "family", "genus", "species", "body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
+mammal_subset <- mammal_filtered[ , c("IUCN_species_name", "family", "genus","species", "body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
+
+mammal_subset2 <- mammal_filtered[ , c("species", "body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
+
+long_mammal_subset <- mammal_subset2 %>%
+  gather(TraitName, TraitValue, -species)
+
+na_records_count_mammals <- sum(is.na(long_mammal_subset$TraitValue))
+
+mammal_species_with_NAs <- long_mammal_subset %>%
+  filter(is.na(TraitValue)) %>%
+  distinct(species) %>%
+  nrow()
+
+mammal_traits_with_NAs <- long_mammal_subset %>%
+  filter(is.na(TraitValue)) %>%
+  distinct(TraitName) %>%
+  nrow()
+
+# Print results
+cat("Number of NA records:", na_records_count_mammals, "\n")
+cat("Number of species with NA records:", mammal_species_with_NAs, "\n")
+cat("Number of traits with NA records:", mammal_traits_with_NAs, "\n")
+
+# percentage of trait data
+100*na_records_count_mammals/nrow(long_mammal_subset)
+
 
 bird_subset <- bird_filtered[ , c("IUCN_species_name", "family", "genus", "species", "body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
 
+bird_subset2 <- bird_filtered[ , c("species", "body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
+
+long_bird_subset <- bird_subset2 %>%
+  gather(TraitName, TraitValue, -species)
+
+na_records_count_birds <- sum(is.na(long_bird_subset$TraitValue))
+
+bird_species_with_NAs <- long_bird_subset %>%
+  filter(is.na(TraitValue)) %>%
+  distinct(species) %>%
+  nrow()
+
+bird_traits_with_NAs <- long_bird_subset %>%
+  filter(is.na(TraitValue)) %>%
+  distinct(TraitName) %>%
+  nrow()
+
+# Print results
+cat("Number of NA records:", na_records_count_birds, "\n")
+cat("Number of species with NA records:", bird_species_with_NAs, "\n")
+cat("Number of traits with NA records:", bird_traits_with_NAs, "\n")
+
+# percentage of trait data
+100*na_records_count_birds/nrow(long_bird_subset)
+
 
 # Summary
-
-source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
 data_summary(Frugivoria_subset, Frugivoria_subset$species, Frugivoria_subset$genus, Frugivoria_subset$family)
 data_summary(mammal_subset, mammal_subset$species, mammal_subset$genus, mammal_subset$family)
 data_summary(bird_subset, bird_subset$species, bird_subset$genus, bird_subset$family)
@@ -73,6 +126,7 @@ vis_dat(Frugivoria_subset)
 vis_miss(Frugivoria_subset)
 
 Frugivoria_subset_old <- Frugivoria_subset
+
 
 # imputation
 # all frugivores
