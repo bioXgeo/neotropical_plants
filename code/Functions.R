@@ -1,4 +1,4 @@
-#### Data Summary ####
+# Data summary
 data_summary <- function(records, species, genera, families){
   num_records <- nrow(records)
   num_species <- length(unique(species))
@@ -16,7 +16,8 @@ calculate_richness <- function(data_sf, species_sf) {
     mutate(overlap = ifelse(!is.na(species), 1, 0)) %>%
     group_by(cellid) %>%
     summarize(num_species = sum(overlap)) %>%
-    ungroup()
+    ungroup()%>%
+    mutate(num_species = na_if(num_species, 0))
   return(result)
 }
 
@@ -34,7 +35,7 @@ create_rich_plots <- function(resolution_meters) {
   chunk_size <- 1000
   
   # Split the TAGrid into chunks
-  TAGrid_chunks <- split(TAGrid, ceiling(seq_along(TAGrid$cellid) / chunk_size))
+  TAGrid_chunks <<- split(TAGrid, ceiling(seq_along(TAGrid$cellid) / chunk_size))
   
   # Set up parallel processing
   # no_cores <- detectCores() - 1
@@ -52,26 +53,22 @@ create_rich_plots <- function(resolution_meters) {
   plant_richness_grid <- foreach(chunk = TAGrid_chunks, .combine = bind_rows, .packages = c("dplyr", "sf")) %dopar% {
     calculate_richness(chunk, plants_sf_species)
   }
-  Pmpt=1000
-  Plims=c(0,2000)
+  Plims=c(1,2000)
   
   frugivore_richness_grid <- foreach(chunk = TAGrid_chunks, .combine = bind_rows, .packages = c("dplyr", "sf")) %dopar% {
     calculate_richness(chunk, frugivores_sf_species)
   }
-  Fmpt=250
-  Flims=c(0,500)
+  Flims=c(1,500)
   
   mammal_richness_grid <- foreach(chunk = TAGrid_chunks, .combine = bind_rows, .packages = c("dplyr", "sf")) %dopar% {
     calculate_richness(chunk, mammals_sf_species)
   }
-  Mmpt=60
-  Mlims=c(0,120)
+  Mlims=c(1,120)
   
   bird_richness_grid <- foreach(chunk = TAGrid_chunks, .combine = bind_rows, .packages = c("dplyr", "sf")) %dopar% {
     calculate_richness(chunk, birds_sf_species)
   }
-  Bmpt=200
-  Blims=c(0,400)
+  Blims=c(1,400)
   
   # Stop the parallel cluster
   stopCluster(cl)
@@ -166,6 +163,7 @@ create_rich_plots <- function(resolution_meters) {
 
 
 #### Functional Diversity Calculation & Mapping ####
+
 # Quality of Functional Spaces
 fspaces_quality <- function(PAM, traits, guild){
   
@@ -203,7 +201,6 @@ fspaces_quality <- function(PAM, traits, guild){
   assign(x=paste0('fspaces_quality_',guild), value=fspaces_quality, envir=.GlobalEnv)
 }
 
-
 fspace_quality_plot <- function(fspaces_quality){
   
   # look at the quality spaces only (MAD index looks at the mean absolute deviation from the dissimilarity matrix; want the deviation to be low meaning that the true distances have been retained in the PCA)
@@ -218,6 +215,7 @@ fspace_quality_plot <- function(fspaces_quality){
   print(c(fspaces))
   return(MAD)
 }
+
 
 pc_coords <- function(fspaces_quality, traits, guild){
   
@@ -345,20 +343,57 @@ FDis <- function(PAM, sp_faxes_coord){
   
 }
 
+# FDis cleaning (fixing cells and including 0s)
+clean_fdis <- function(df, resolution){
+  colnames(df) <- c('cellid','fdis')
+  df$cellid <- substring(df$cellid,6)
+  df$cellid <- as.numeric(df$cellid)
+  
+  if(resolution==100){
+    total=181
+  }else{
+    if (resolution==75){
+      total=283
+    }else{
+      if(resolution==50){
+        total=559
+      }else{
+        if(resolution==25){
+          total=1830
+        }else{
+          if(resolution==10){
+            total=9591
+          }else{
+            total=35036
+          }
+        }
+      }
+    }
+  }
+  df_full <- df %>%
+    complete(cellid=1:total, fill=list(fdis=0))
+  return(df_full)
+}
+
 
 # Mapping FDis
 FD_map <- function(loc_key, PAM, resolution_meters, fdis, guild){
   
   if(guild=='plant'){
     mpt=0.4
-    lims=c(0.2,0.8)
+    lims=c(0.2,0.7)
   } else {
     if (guild=='mammal'){
       mpt=0.3
-      lims=c(0,0.8)
-    } else {
-      mpt=0.4
-      lims=c(0.3,0.5)
+      lims=c(0,0.85)
+    } else {if (guild=='bird'){
+      mpt=0.3
+      lims=c(0,0.55)
+    } else {if (guild=='frugivore'){
+      mpt=0.3
+      lims=c(0,0.75)
+    } 
+    }
     }
   }
   
@@ -444,3 +479,71 @@ FD_map <- function(loc_key, PAM, resolution_meters, fdis, guild){
   list(gridFDisTA = gridFDisTA, spatial_fdis_grid = spatial_fdis_grid)
 }
 
+# Comparisons of diversity measurements
+div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
+  
+  if('num_species' %in% colnames(plant_div)){
+    
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, plant_div = plant_div$num_species, frug_div=mammal_div$num_species, taxa=c(rep('Mammal', nrow(mammal_div))))
+    
+    bird_plant <- data.frame(cell_id=plant_div$cellid, plant_div = plant_div$num_species, frug_div=bird_div$num_species, taxa=c(rep('Bird', nrow(bird_div))))
+    
+    all_div <- rbind(mammal_plant, bird_plant)
+    
+    # Filter out rows where either plant or frugivore richness is zero
+    div_filtered <- all_div %>%
+      filter(plant_div > 0 & frug_div > 0)
+    
+    plot <- ggplot(data=div_filtered, aes(x=plant_div, y=frug_div, color=taxa))+
+      geom_point(size=2)+
+      labs(x='Plant richness by cell', y='Frugivore richness by cell', color='Taxa', title=paste0('[',resolution,'km]'))+
+      geom_smooth(method='lm', se=FALSE)+
+      scale_color_manual(values=c('lightsteelblue2','burlywood3'))+
+      scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
+      scale_y_continuous(expand=c(0,0), limits=c(0,400))+
+      theme_classic()+
+      theme(axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12))
+    
+    mammal_plant_sum <- div_filtered[div_filtered$taxa=='Mammal',]
+    mammal_plant_sum_trend <- trendline_sum(mammal_plant_sum$plant_div, mammal_plant_sum$frug_div, model="line2P")
+    
+    bird_plant_sum <- div_filtered[div_filtered$taxa=='Bird',]
+    bird_plant_sum_trend <- trendline_sum(bird_plant_sum$plant_div, bird_plant_sum$frug_div, model="line2P")
+    
+  } else {
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, plant_div = plant_div$fdis, frug_div=mammal_div$fdis, taxa=c(rep('Mammal', nrow(mammal_div))))
+    
+    bird_plant <- data.frame(cell_id=plant_div$cellid, plant_div = plant_div$fdis, frug_div=bird_div$fdis, taxa=c(rep('Bird', nrow(bird_div)))) 
+    
+    all_div <- rbind(mammal_plant, bird_plant)
+    
+    # Filter out rows where either plant or frugivore richness is zero
+    div_filtered <- all_div %>%
+      filter(plant_div > 0 & frug_div > 0)
+    
+    plot <- ggplot(data=div_filtered, aes(x=plant_div, y=frug_div, color=taxa))+
+      geom_point(size=2)+
+      labs(x='Plant FDis by cell', y='Frugivore FDis by cell', color='Taxa', title=paste0('[',resolution,'km]'))+
+      geom_smooth(method='lm', se=FALSE)+
+      scale_color_manual(values=c('lightsteelblue2','burlywood3'))+
+      scale_x_continuous(expand=c(0,0), limits=c(0,.8))+
+      scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
+      theme_classic()+
+      theme(axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12))
+    mammal_plant_sum <- div_filtered[div_filtered$taxa=='Mammal',]
+    mammal_plant_sum_trend <- trendline_sum(mammal_plant_sum$plant_div, mammal_plant_sum$frug_div, model="line2P")
+    
+    
+    bird_plant_sum <- div_filtered[div_filtered$taxa=='Bird',]
+    bird_plant_sum_trend <- trendline_sum(bird_plant_sum$plant_div, bird_plant_sum$frug_div, model="line2P")
+    
+  }
+  
+  result <- list(
+    plot   = plot,
+    mammal = mammal_plant_sum_trend,
+    bird   = bird_plant_sum_trend
+  )
+  
+  return(result)
+}
