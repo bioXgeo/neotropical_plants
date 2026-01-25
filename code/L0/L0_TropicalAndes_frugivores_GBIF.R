@@ -3,8 +3,8 @@
 # project: "Plant-Frugivore Diversity"
 # collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 # overview: "This script retrieves plant occurrence data from GBIF using the species list from Frugivoria."
-# data input: "TropicalAndes_Frugivoria_frugivore_traits_species.csv"
-# data output: "TropicalAndes_GBIF_frugivore_occ.csv and TropicalAndes_GBIF_frugivore_occ_species.csv"
+# data input: "TropicalAndes_Frugivoria_frugivore_traits_species.csv, Forest_sf.shp"
+# data output: "TropicalAndes_GBIF_frugivore_occ.csv, TropicalAndes_GBIF_frugivore_occ_species.csv"
 # date: "2023-07-25; 2025-09-22"
 # notes: "JB used HPCC"
 
