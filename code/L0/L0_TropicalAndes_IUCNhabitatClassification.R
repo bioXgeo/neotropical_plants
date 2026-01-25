@@ -3,9 +3,9 @@
 # project: Plant-Frugivore Diversity
 # collaborators: Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas
 # overview: Create raster of IUCN habitat classification Forest-Subtropical moist montane and Forest-Subtropical moist lowland for Tropical Andes
-# data input: "iucn_habitatclassification_composite_lvl2_ver004.tif"
-# data output: "TropicalAndes_IUCNHabitat_Forest.GTiff"
-# date: 2025-09-22
+# data input: "iucn_habitatclassification_composite_lvl2_ver004/lvl2_frac_1km_ver004/iucn_habitatclassification_fraction_lvl2__109_Forest – Subtropical-tropical moist montane__ver004.tif, iucn_habitatclassification_composite_lvl2_ver004/lvl2_frac_1km_ver004/iucn_habitatclassification_fraction_lvl2__106_Forest – Subtropical-tropical moist lowland__ver004.tif"
+# data output: "TropicalAndes_IUCNHabitat_Forest.GTiff, TropicalAndes_IUCNHabitat_Forest_Montane.GTiff, TropicalAndes_IUCNHabitat_Forest_Lowland.GTiff"
+# date: "2023-07-18; 2025-09-22"
 
 
 # Set file paths
