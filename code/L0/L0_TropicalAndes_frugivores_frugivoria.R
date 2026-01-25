@@ -1,11 +1,11 @@
-# title: Tropical Andes frugivore trait data Frugivoria
-# authors: Hazel J. Anderson, Jenna B. Baljunas
-# project: Plant-Frugivore Diversity
-# collaborators: Beth E. Gerstner, Phoebe L. Zarnetske
-# overview: This script retrived the Frugivoria database from EDI.
-# data input: None
-# data output: TropicalAndes_Frugivoria_frugivore_traits.csv, TropicalAndes_Frugivoria_frugivore_traits_species.csv, TropicalAndes_frugivore_LookupTable.csv, TropicalAndes_Frugivoria_mammal_traits.csv, TropicalAndes_Frugivoria_bird_traits.csv, TropicalAndes_mammal_LookupTable.csv, TropicalAndes_bird_LookupTable.csv
-# date: 2023-07-18; 2025-09-22
+# title: "Tropical Andes frugivore trait data Frugivoria"
+# authors: "Hazel J. Anderson, Jenna B. Baljunas"
+# project: "Plant-Frugivore Diversity"
+# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+# overview: "This script retrived the Frugivoria database from EDI."
+# data input: "None"
+# data output: "TropicalAndes_Frugivoria_frugivore_traits.csv, TropicalAndes_Frugivoria_frugivore_traits_species.csv, TropicalAndes_frugivore_LookupTable.csv, TropicalAndes_Frugivoria_mammal_traits.csv, TropicalAndes_Frugivoria_bird_traits.csv, TropicalAndes_mammal_LookupTable.csv, TropicalAndes_bird_LookupTable.csv"
+# date: "2023-07-18; 2025-09-22"
 
 
 # set file paths
