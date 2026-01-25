@@ -5,8 +5,8 @@
 # overview: This script retrived the Frugivoria database from EDI.
 # data input: None
 # data output: TropicalAndes_Frugivoria_frugivore_traits.csv, TropicalAndes_Frugivoria_frugivore_traits_species.csv, TropicalAndes_frugivore_LookupTable.csv, TropicalAndes_Frugivoria_mammal_traits.csv, TropicalAndes_Frugivoria_bird_traits.csv, TropicalAndes_mammal_LookupTable.csv, TropicalAndes_bird_LookupTable.csv
-# date: 2025-09-22
-# df_print: tibble
+# date: 2023-07-18; 2025-09-22
+
 
 # set file paths
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
@@ -102,42 +102,6 @@ Frug_mammal <-read.csv(infile3,header=F
                          "filled_by"), check.names=TRUE)
 
 unlink(infile3)
-
-# fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
-
-col_class <- function(x){
-  
-  # convert NA strings
-  x[x=="NA" | x=="NA "] <- NA
-  
-  # extract cols and categorize them into what they should be
-  cols <- colnames(x)
-  
-  numeric_cols <- c("diet_breadth", "body_mass_e", "body_size_mm", "longevity", "home_range_size", "generation_time", "habitat_breadth", "mean_CHELSA_bio1_1981.2010_V.2.1", "mean_CHELSA_bio12_1981.2010_V.2.1", "mean_human_fp_range_2010", "mean_human_fp_range_2020", "percent_change_hf_2010_2020","inferred_range_sqkm", "for_strat_ground_e","for_strat_understory_e", "for_strat_midhigh_e", "for_strat_canopy_e", "for_strat_aerial_e")
-  
-  factor_cols <- setdiff(cols, numeric_cols)
-  
-  # convert to numeric
-  for (col in numeric_cols) {
-    if (col %in% names(x)) {
-      if (is.factor(x[[col]])) {
-        x[[col]] <- as.numeric(levels(x[[col]]))[as.integer(x[[col]])]
-      } else if (is.character(x[[col]])) {
-        x[[col]] <- as.numeric(x[[col]])
-      }
-    }
-  } 
-  
-  # convert to factor
-  for (col in factor_cols) {
-    if (col %in% names(x) && !is.factor(x[[col]])) {
-      x[[col]] <- as.factor(x[[col]])
-    }
-    
-  }
-  
-  return(x)
-}
 
 Frug_mammal2 <- col_class(Frug_mammal)
 
@@ -301,8 +265,9 @@ write.csv(Frugivore_LookupTable, file = file.path(output_path_L1,"TropicalAndes_
 
 # also save mammal and bird data separately
 write.csv(Frug_mammal2, file = file.path(output_path_L0,"TropicalAndes_Frugivoria_mammal_traits.csv"))
-write.csv(Frug_bird2, file = file.path(output_path_L0,"TropicalAndes_Frugivoria_bird_traits.csv"))
 write.csv(Frug_mammal_LookupTable2, file = file.path(output_path_L1,"TropicalAndes_mammal_LookupTable.csv"))
+
+write.csv(Frug_bird2, file = file.path(output_path_L0,"TropicalAndes_Frugivoria_bird_traits.csv"))
 write.csv(Frug_bird_LookupTable2, file = file.path(output_path_L1,"TropicalAndes_bird_LookupTable.csv"))
 
 # package citations and session info
