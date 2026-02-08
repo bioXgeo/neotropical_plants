@@ -5,7 +5,7 @@
 # overview: "This script retrives plant occurrence data from GBIF using a subset of species with IUCN habitat designations ‘Forest-Subtropical/Tropical Moist Montane’ and/or ‘Forest-Subtropical/Tropical Moist Lowland’. Data is also retrived without the subset for species in the countries that make up the Tropical Andes to be spatially subset later, as not many plant species are assessed on the IUCN RedList. "
 # data input: "IUCN/Tropical Andes Plants - Search Results/habitats.csv"
 # data output: "TropAndes_GBIF_plant_occ.csv"
-# date: "2025-09-22"
+# date: "2023-07-18; 2025-09-22"
 # notes: JB used HPCC
 
 
