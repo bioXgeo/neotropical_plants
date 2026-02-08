@@ -5,18 +5,15 @@
 # overview: "Subsetting Frugivoria to the species and traits of interest."
 # data input: "TropicalAndes_Frugivoria_frugivore_traits.csv, TropicalAndes_GBIF_frugivore_occ_cleaned.csv, TropicalAndes_Frugivoria_mammal_traits.csv, TropicalAndes_Frugivoria_bird_traits.csv"
 # data output: "TropicalAndes_Frugivoria_traits_subset.csv, TropicalAndes_mammal_traits_subset.csv, TropicalAndes_bird_traits_subset.csv"
-# date: "2025-03-10"
-# output: 
-#   html_document:
-#   code-link: true
+# date: "2023-10-31; 2025-03-10"
+# notes: JB used HPCC
 
 
 # Load required packages
 library(tidyr); library(dplyr); library(funbiogeo); library(visdat); library(mice)
 
 # load functions
-setwd("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code")
-source("Functions.R")
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
 
 
 # Set file paths
@@ -24,10 +21,10 @@ data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0'
 data_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 
-#HPCC
-data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
-data_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
-output_path <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
+# #HPCC
+# data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
+# data_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
+# output_path <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
 
 
 # Read in data
@@ -64,6 +61,7 @@ mammal_subset2 <- mammal_filtered[ , c("species", "body_mass_e",  "diet_cat", "d
 long_mammal_subset <- mammal_subset2 %>%
   gather(TraitName, TraitValue, -species)
 
+
 na_records_count_mammals <- sum(is.na(long_mammal_subset$TraitValue))
 
 mammal_species_with_NAs <- long_mammal_subset %>%
@@ -76,7 +74,8 @@ mammal_traits_with_NAs <- long_mammal_subset %>%
   distinct(TraitName) %>%
   nrow()
 
-# Print results
+
+# print results
 cat("Number of NA records:", na_records_count_mammals, "\n")
 cat("Number of species with NA records:", mammal_species_with_NAs, "\n")
 cat("Number of traits with NA records:", mammal_traits_with_NAs, "\n")
@@ -92,6 +91,7 @@ bird_subset2 <- bird_filtered[ , c("species", "body_mass_e",  "diet_cat", "diet_
 long_bird_subset <- bird_subset2 %>%
   gather(TraitName, TraitValue, -species)
 
+
 na_records_count_birds <- sum(is.na(long_bird_subset$TraitValue))
 
 bird_species_with_NAs <- long_bird_subset %>%
@@ -104,7 +104,8 @@ bird_traits_with_NAs <- long_bird_subset %>%
   distinct(TraitName) %>%
   nrow()
 
-# Print results
+
+# print results
 cat("Number of NA records:", na_records_count_birds, "\n")
 cat("Number of species with NA records:", bird_species_with_NAs, "\n")
 cat("Number of traits with NA records:", bird_traits_with_NAs, "\n")
@@ -113,7 +114,7 @@ cat("Number of traits with NA records:", bird_traits_with_NAs, "\n")
 100*na_records_count_birds/nrow(long_bird_subset)
 
 
-# Summary
+# summary
 data_summary(Frugivoria_subset, Frugivoria_subset$species, Frugivoria_subset$genus, Frugivoria_subset$family)
 data_summary(mammal_subset, mammal_subset$species, mammal_subset$genus, mammal_subset$family)
 data_summary(bird_subset, bird_subset$species, bird_subset$genus, bird_subset$family)
@@ -138,6 +139,7 @@ Frugivoria_subset$body_mass_e <- imputed_data$body_mass_e
 vis_dat(Frugivoria_subset)
 vis_miss(Frugivoria_subset)
 
+
 # mammals
 vis_dat(mammal_subset)
 vis_miss(mammal_subset)
@@ -151,6 +153,7 @@ mammal_subset$body_mass_e <- imputed_data$body_mass_e
 
 vis_dat(mammal_subset)
 vis_miss(mammal_subset)
+
 
 # birds
 vis_dat(bird_subset)
@@ -167,12 +170,13 @@ vis_dat(bird_subset)
 vis_miss(bird_subset)
 
 
-# Write data to csv
+# write data to csv
 write.csv(Frugivoria_subset, file.path(output_path_L1,"TropicalAndes_Frugivoria_traits_subset.csv"))
 write.csv(mammal_subset, file.path(output_path_L1,"TropicalAndes_mammal_traits_subset.csv"))
 write.csv(bird_subset, file.path(output_path_L1,"TropicalAndes_bird_traits_subset.csv"))
 
-# Package citations and session info
+
+# package citations and session info
 library(report)
 report::cite_packages()
 
