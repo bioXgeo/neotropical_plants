@@ -4,9 +4,8 @@
 #collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 #overview: "This script fill plant trait gaps with imputation."
 #data input: "TropicalAndes_all_plant_traits_standardized.csv"
-#data output: "TropicalAndes_imputed_plant_traits.csv"
-#date: "2025-10-15"
-#output: html_document
+#data output: "TropicalAndes_imputed_plant_traits2.csv"
+#date: "2023-10-04; 2025-10-15"
 
   
 # set file paths
@@ -22,12 +21,6 @@ library(tidyr); library(BIEN); library(GIFT); library(purrr); library(mice); lib
 # read in data
 plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_all_plant_traits_standardized.csv"))
 
-# use BIEN and GIFT to fill in gaps by genus or family.
-# 1. need a list of families and genus for each trait that needs requesting
-# 2. add genus and family information to dataframe
-# 3. list by trait of species and genus
-
-# create a dataframe of species and TraitNames with TraitValue = NA
 
 # remove X column
 plant_traits <- plant_traits[, !colnames(plant_traits) %in% "X", drop = FALSE]
@@ -41,6 +34,7 @@ na_traits <- long_plant_traits %>%
   filter(is.na(TraitValue))
 
 dim(na_traits)
+
 
 # get a list of species
 na_species_list <- unique(plant_traits$species)
@@ -68,6 +62,7 @@ names(na_species_df) <- "species"
 
 na_species_df <- merge(na_species_df, na_species_taxonomy, by = "species", all.x = TRUE)
 
+
 # retrieve list of species without family & genus information
 species_no_family <- na_species_df %>%
   filter(is.na(family) | family == "") %>%
@@ -79,43 +74,13 @@ species_no_genus <- na_species_df %>%
   select(species) %>%
   pull()
 
-
 # check if all the species in no_family & no_genus lists are the same
 identical(species_no_family, species_no_genus)
 
 length(species_no_family)
 
-#### use taxize for species with no family and genus info ####
-library(taxize)
 
-# function to retrieve taxonomic information for a chunk of species names
-# use .Reviron to add NCBI ENTREZ API info
-get_taxonomic_info_chunk <- function(chunk_species_names) {
-  # Initialize an empty list to store taxonomic information for each chunk
-  chunk_taxonomic_info <- list()
-  
-  # Loop through each species name in the chunk and retrieve taxonomic information
-  for (species_name in chunk_species_names) {
-    tryCatch({
-      # Add a delay between consecutive API requests
-      Sys.sleep(1)
-      
-      # Make API request to retrieve taxonomic information
-      taxon_info <- tax_name(species_name, get = c("genus", "family"), db = "ncbi")
-      
-      # Store taxonomic information for the species in the list
-      chunk_taxonomic_info[[species_name]] <- data.frame(Species = species_name, 
-                                                         Genus = taxon_info$genus, 
-                                                         Family = taxon_info$family)
-    }, error = function(e) {
-      # Print error message
-      cat("Error retrieving taxonomic information for", species_name, ":", conditionMessage(e), "\n")
-    })
-  }
-  
-  # Return the list of taxonomic information for the chunk
-  return(chunk_taxonomic_info)
-}
+#### use taxize for species with no family and genus info ####
 
 # define the chunk size
 chunk_size <- 300 # Adjust the chunk size as needed
@@ -156,6 +121,7 @@ taxonomic_df <- taxonomic_df %>%
          genus = Genus,
          species = Species)
 
+
 # add to species dataframe
 na_species_df$family <- ifelse(is.na(na_species_df$family), taxonomic_df$family[match(na_species_df$species, taxonomic_df$species)], na_species_df$family)
 
@@ -177,55 +143,18 @@ species_no_family_2_powo <- lapply(species_no_family_2, function(sp) {
   tryCatch(get_pow(sp, messages = TRUE), error = function(e) NULL)
 })
 
-# function to retrieve taxonomic information for a chunk of taxon IDs
-get_taxonomic_info_chunk <- function(chunk_taxon_id) {
-  # Initialize an empty list to store taxonomic information for each chunk
-  chunk_taxonomic_info <- list()
-  
-  # Loop through each taxon ID in the chunk and retrieve taxonomic information
-  for (taxon_id in chunk_taxon_id) {
-    tryCatch({
-      # Print taxon ID for debugging
-      print(paste("Processing taxon ID:", taxon_id))
-      
-      # Add a delay between consecutive API requests
-      Sys.sleep(1)
-      
-      # Query POWO database for taxonomic information
-      taxon_info <- pow_lookup(id = taxon_id)
-      
-      # Check if taxon_info is NULL
-      if (is.null(taxon_info)) {
-        # If taxon_info is NULL, return NA values for species, family, and genus
-        chunk_taxonomic_info[[taxon_id]] <- data.frame(taxon_id = taxon_id, species = NA, family = NA, genus = NA)
-      } else {
-        # Store taxonomic information for the taxon ID in the list
-        chunk_taxonomic_info[[taxon_id]] <- data.frame(taxon_id = taxon_id,
-                                                       species = taxon_info$meta$name,
-                                                       genus = taxon_info$meta$genus, 
-                                                       family = taxon_info$meta$family)
-      }
-    }, error = function(e) {
-      # Print error message for debugging
-      print(paste("Error processing taxon ID:", taxon_id))
-      print(e)
-    })
-  }
-  
-  # Return the list of taxonomic information for the chunk
-  return(chunk_taxonomic_info)
-}
 
-# Define the chunk size
+# retrieve taxonomic information for a chunk of taxon IDs
+# define the chunk size
 chunk_size <- 300 # Adjust the chunk size as needed
 
-# Split the vector of taxon IDs into chunks based on the chunk size
+# split the vector of taxon IDs into chunks based on the chunk size
 chunks <- split(species_no_family_2_powo, ceiling(seq_along(species_no_family_2_powo) / chunk_size))
 
-# Initialize an empty list to store taxonomic information for all chunks
+# initialize an empty list to store taxonomic information for all chunks
 all_taxonomic_info <- list()
 
-# Iterate over each chunk and retrieve taxonomic information
+# iterate over each chunk and retrieve taxonomic information
 for (chunk_index in seq_along(chunks)) {
   # Get the taxon IDs in the current chunk
   chunk_taxon_id <- chunks[[chunk_index]]
@@ -786,87 +715,6 @@ SeedMass_g_genus_BIEN_df <- BIEN_genus(SeedMass_g_genus_BIEN)
 
 
 # get a single trait value for each family/genus
-
-# numeric traits
-numeric_traits_combined <- function(df, level, traitname) {
-  df$trait_value <- as.numeric(df$trait_value)
-  if (level == "genus") {
-    summary_data <- df %>%
-      group_by(scrubbed_genus) %>%
-      summarise(
-        trait_value_mean = exp(mean(log(trait_value))),
-        records_used = n(),
-        variance = var(trait_value, na.rm = TRUE)
-      )
-    # Add trait name column
-    summary_data$TraitName <- traitname
-    
-    # Rename the mean column to TraitValue
-    summary_data <- summary_data %>%
-      rename(TraitValue = trait_value_mean)
-    
-    return(summary_data)
-  } else if (level == "family") {
-    summary_data <- df %>%
-      group_by(scrubbed_family) %>%
-      summarise(
-        trait_value_mean = exp(mean(log(trait_value))),
-        records_used = n(),
-        variance = var(trait_value, na.rm = TRUE)
-      )
-    # Add trait name column
-    summary_data$TraitName <- traitname
-    
-    # Rename the mean column to TraitValue
-    summary_data <- summary_data %>%
-      rename(TraitValue = trait_value_mean)
-    
-    return(summary_data)
-  }
-}
-
-# non-numeric traits
-cat_traits_combined <- function(df, level, traitname){
-  if (level == "genus") {
-    summary_data <- df %>%
-      group_by(scrubbed_genus) %>%
-      summarise(
-        ModeValue = names(sort(table(trait_value), decreasing = TRUE))[1],
-        records_used = n(),
-        mode_freq = max(table(trait_value)),
-        variance = 1 - (max(table(trait_value)) / n())
-      )
-    
-    # Add trait name column
-    summary_data$TraitName <- traitname
-    
-    # Rename the mean column to TraitValue
-    summary_data <- summary_data %>%
-      rename(TraitValue = ModeValue)
-    
-    return(summary_data)
-  } else if (level == "family") {
-    summary_data <- df %>%
-      group_by(scrubbed_family) %>%
-      summarise(
-        ModeValue = names(sort(table(trait_value), decreasing = TRUE))[1],
-        records_used = n(),
-        mode_freq = max(table(trait_value)),
-        variance = 1 - (max(table(trait_value)) / n())
-      )
-    
-    # Add trait name column
-    summary_data$TraitName <- traitname
-    
-    # Rename the mean column to TraitValue
-    summary_data <- summary_data %>%
-      rename(TraitValue = ModeValue)
-    
-    return(summary_data)
-  }
-}
-
-
 # dispersal syndrome
 dim(DispersalSyndrome_families_GIFT_df)
 dim(DispersalSyndrome_families_BIEN_df)
@@ -1139,6 +987,7 @@ ggsave("plant_trait_completeness_familygenus.png", plot = last_plot(), path = fi
 fb_plot_number_species_by_trait(wide_traits)
 ggsave("plant_number_species_trait_familygenus.png", plot = last_plot(), path = figure_path)
 
+
 #### remove traits that no GIFT or BIEN data can be collected from ####
 
 # exploratory analyses
@@ -1253,6 +1102,7 @@ glimpse(imputed_data)
 
 write.csv(imputed_data, file.path(output_path_L1,"TropicalAndes_imputed_plant_traits.csv"))
 
+
 # imputed data
 fb_plot_species_traits_completeness(imputed_data)
 ggsave("plant_trait_completeness_imputed.png", plot = last_plot(), path = figure_path)
@@ -1317,3 +1167,6 @@ trait_counts_overall$percentage <- (trait_counts_overall$n / total_sum) * 100
 # print the dataframe with the percentages
 print(trait_counts_overall)
 
+
+# Save imputed data
+write.csv(imputed_data2, file.path(output_path_L1,"TropicalAndes_imputed_plant_traits2.csv"))
