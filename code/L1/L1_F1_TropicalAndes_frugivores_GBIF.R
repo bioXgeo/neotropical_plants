@@ -1,11 +1,11 @@
 # title: "Cleaning Tropical Andes frugivore GBIF occurrence records"
 # author: "Hazel J. Anderson"
 # project: "Plant-Frugivore Diversity"
-# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, and Jenna B. Baljunas"
+# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas"
 # overview: "Uses CoordinateCleaner to flag and remove problematic records from GBIF frugivore occurrence records."
 # data input: "TropicalAndes_GBIF_frugivore_occ.csv"
-# data output: "TropicalAndes_GBIF_frugivore_occ_cleaned.csv, TropicalAndes_GBIF_frugivore_occ_flagged.csv"
-# date: "2023-09-24"
+# data output: "TropicalAndes_GBIF_frugivore_occ_cleaned.csv"
+# date: "2023-07-25; 2025-09-24"
 # notes: JB used HPCC
 
 
@@ -20,6 +20,9 @@ output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L
 
 # load required packages
 library(countrycode); library(CoordinateCleaner); library(dplyr)
+
+# load functions
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
 
 
 # read in data
@@ -53,16 +56,6 @@ TropicalAndes_GBIF_frugivore_occ_flagged <- TropicalAndes_GBIF_frugivore_occ[!fl
 
 # summary
 glimpse(TropicalAndes_GBIF_frugivore_occ_cleaned)
-
-#source("~/GitHub/neotropical_plants/code/data_summary.R")
-
-data_summary <- function(records, species, genera, families){
-  num_records <- nrow(records)
-  num_species <- length(unique(species))
-  num_genera <- length(unique(genera))
-  num_families <- length(unique(families))
-  return(cat("The number of records is", num_records, "\n", "The number of species is", num_species, "\n","The number of genera is", num_genera, "\n", "The number of families is", num_families))
-}
 
 data_summary(TropicalAndes_GBIF_frugivore_occ_cleaned, TropicalAndes_GBIF_frugivore_occ_cleaned$species, TropicalAndes_GBIF_frugivore_occ_cleaned$genus, TropicalAndes_GBIF_frugivore_occ_cleaned$family)
 
