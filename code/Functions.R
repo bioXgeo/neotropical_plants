@@ -34,6 +34,7 @@ col_class <- function(x){
   return(x)
 }
 
+
 # Data summary
 data_summary <- function(records, species, genera, families){
   num_records <- nrow(records)
@@ -42,6 +43,149 @@ data_summary <- function(records, species, genera, families){
   num_families <- length(unique(families))
   return(cat("The number of records is", num_records, "\n", "The number of species is", num_species, "\n","The number of genera is", num_genera, "\n", "The number of families is", num_families))
 }
+
+
+#### Standardize trait measurements ####
+
+numeric_data_average <- function(data, unit, traitname) {
+  # Remove rows if TraitValue is non-numeric and convert to numeric
+  data <- data %>%
+    filter(!is.na(as.numeric(TraitValue))) %>%
+    mutate(TraitValue = as.numeric(TraitValue))
+  
+  # Remove duplicate rows
+  data <- data %>%
+    distinct(.keep_all = TRUE)
+  
+  # Remove rows with missing or empty species names
+  data <- data[!is.na(data$Accepted_species) & data$Accepted_species != "", ]
+  
+  # Calculate geometic mean value, count, and variance per trait per species
+  summary_data <- data %>%
+    group_by(Accepted_species) %>%
+    summarise(
+      TraitValue_mean = exp(mean(log(TraitValue))),
+      records_used = n(),
+      variance = var(TraitValue, na.rm = TRUE)
+    )
+  
+  # Add trait name column
+  summary_data$TraitName <- traitname
+  
+  # Rename the mean column to TraitValue
+  summary_data <- summary_data %>%
+    rename(TraitValue = TraitValue_mean)
+  
+  return(summary_data)
+}
+
+
+factor_data_merge <- function(data, traitname) {
+  
+  # Remove rows with missing or empty species names
+  data <- data[!is.na(data$Accepted_species) & data$Accepted_species != "", ]
+  
+  # Subset data to just species and TraitValue
+  data <- data[, c("Accepted_species", "TraitValue")]
+  
+  # Calculate mode, count, and variance-like measure (using mode frequency)
+  summary_data <- data %>%
+    group_by(Accepted_species) %>%
+    summarise(
+      ModeValue = names(sort(table(TraitValue), decreasing = TRUE))[1],
+      records_used = n(),
+      mode_freq = max(table(TraitValue)),
+      variance = 1 - (max(table(TraitValue)) / n())
+    )
+  
+  # Add trait name column
+  summary_data$TraitName <- traitname
+  
+  # Rename the mean column to TraitValue
+  summary_data <- summary_data %>%
+    rename(TraitValue = ModeValue)
+  
+  return(summary_data)
+}
+
+
+# detect outliers and report species with multiple entries per trait
+
+detect_outliers <- function(data) {
+  outlier_results <- data %>%
+    group_by(Accepted_species) %>%
+    filter(n() >= 3) %>%
+    nest() %>%
+    mutate(outliers = map(data, ~identify_outliers(.x, variable = "TraitValue"))) %>%
+    unnest(outliers) %>%
+    select(Accepted_species, TraitName, TraitValue, is.outlier, is.extreme) %>%
+    ungroup()
+  
+  return(outlier_results)
+}
+
+# get the species with outliers
+
+species_with_outliers <- function(data) {
+  outliers_by_species <- data %>%
+    group_by(Accepted_species) %>%
+    summarize(outlier_count = sum(is.outlier, na.rm = TRUE)) %>%
+    filter(outlier_count > 0) %>%
+    ungroup()
+  
+  return(outliers_by_species)
+}
+
+summarize_species_records <- function(df) {
+  # Count the total number of species
+  total_species <- df %>% 
+    distinct(Accepted_species) %>% 
+    nrow()
+  
+  # Count the number of species with only one trait record
+  species_with_one_record <- df %>% 
+    group_by(Accepted_species) %>% 
+    summarize(record_count = n()) %>% 
+    filter(record_count == 1) %>% 
+    nrow()
+  
+  # Count the number of species with more than three records
+  species_with_more_than_three_records <- df %>% 
+    group_by(Accepted_species) %>% 
+    summarize(record_count = n()) %>% 
+    filter(record_count > 3) %>% 
+    nrow()
+  
+  # Print the results
+  cat("Total number of species:", total_species, "\n")
+  cat("Number of species with only one trait record:", species_with_one_record, "\n")
+  cat("Number of species with more than three records:", species_with_more_than_three_records, "\n")
+}
+
+# function to combine trait dataframes only matching columns
+combine_matching_columns <- function(df_list) {
+  # Only use specified columns
+  common_cols <- Reduce(intersect, lapply(df_list, colnames))
+  
+  # Ensure TraitValue column is of the same type across all data frames
+  df_list <- lapply(df_list, function(df) {
+    if ("TraitValue" %in% colnames(df)) {
+      df <- df %>% mutate(TraitValue = as.character(TraitValue))
+    }
+    return(df)
+  })
+  
+  # Filter each data frame to keep only the common columns
+  df_list_filtered <- lapply(df_list, function(df) {
+    df %>% select(all_of(common_cols))
+  })
+  
+  # Combine the data frames using reduce and full_join
+  combined_df <- reduce(df_list_filtered, full_join, by = common_cols)
+  
+  return(combined_df)
+}
+
 
 #### Taxonomic Diversity Calculation & Mapping ####
 
