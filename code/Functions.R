@@ -186,6 +186,159 @@ combine_matching_columns <- function(df_list) {
   return(combined_df)
 }
 
+# function to retrieve taxonomic information for a chunk of taxon IDs
+get_taxonomic_info_chunk <- function(chunk_taxon_id) {
+  # Initialize an empty list to store taxonomic information for each chunk
+  chunk_taxonomic_info <- list()
+  
+  # Loop through each taxon ID in the chunk and retrieve taxonomic information
+  for (taxon_id in chunk_taxon_id) {
+    tryCatch({
+      # Print taxon ID for debugging
+      print(paste("Processing taxon ID:", taxon_id))
+      
+      # Add a delay between consecutive API requests
+      Sys.sleep(1)
+      
+      # Query POWO database for taxonomic information
+      taxon_info <- pow_lookup(id = taxon_id)
+      
+      # Check if taxon_info is NULL
+      if (is.null(taxon_info)) {
+        # If taxon_info is NULL, return NA values for species, family, and genus
+        chunk_taxonomic_info[[taxon_id]] <- data.frame(taxon_id = taxon_id, species = NA, family = NA, genus = NA)
+      } else {
+        # Store taxonomic information for the taxon ID in the list
+        chunk_taxonomic_info[[taxon_id]] <- data.frame(taxon_id = taxon_id,
+                                                       species = taxon_info$meta$name,
+                                                       genus = taxon_info$meta$genus, 
+                                                       family = taxon_info$meta$family)
+      }
+    }, error = function(e) {
+      # Print error message for debugging
+      print(paste("Error processing taxon ID:", taxon_id))
+      print(e)
+    })
+  }
+  
+  # Return the list of taxonomic information for the chunk
+  return(chunk_taxonomic_info)
+}
+
+# get a single trait value for each family/genus
+
+# numeric traits
+numeric_traits_combined <- function(df, level, traitname) {
+  df$trait_value <- as.numeric(df$trait_value)
+  if (level == "genus") {
+    summary_data <- df %>%
+      group_by(scrubbed_genus) %>%
+      summarise(
+        trait_value_mean = exp(mean(log(trait_value))),
+        records_used = n(),
+        variance = var(trait_value, na.rm = TRUE)
+      )
+    # Add trait name column
+    summary_data$TraitName <- traitname
+    
+    # Rename the mean column to TraitValue
+    summary_data <- summary_data %>%
+      rename(TraitValue = trait_value_mean)
+    
+    return(summary_data)
+  } else if (level == "family") {
+    summary_data <- df %>%
+      group_by(scrubbed_family) %>%
+      summarise(
+        trait_value_mean = exp(mean(log(trait_value))),
+        records_used = n(),
+        variance = var(trait_value, na.rm = TRUE)
+      )
+    # Add trait name column
+    summary_data$TraitName <- traitname
+    
+    # Rename the mean column to TraitValue
+    summary_data <- summary_data %>%
+      rename(TraitValue = trait_value_mean)
+    
+    return(summary_data)
+  }
+}
+
+# non-numeric traits
+cat_traits_combined <- function(df, level, traitname){
+  if (level == "genus") {
+    summary_data <- df %>%
+      group_by(scrubbed_genus) %>%
+      summarise(
+        ModeValue = names(sort(table(trait_value), decreasing = TRUE))[1],
+        records_used = n(),
+        mode_freq = max(table(trait_value)),
+        variance = 1 - (max(table(trait_value)) / n())
+      )
+    
+    # Add trait name column
+    summary_data$TraitName <- traitname
+    
+    # Rename the mean column to TraitValue
+    summary_data <- summary_data %>%
+      rename(TraitValue = ModeValue)
+    
+    return(summary_data)
+  } else if (level == "family") {
+    summary_data <- df %>%
+      group_by(scrubbed_family) %>%
+      summarise(
+        ModeValue = names(sort(table(trait_value), decreasing = TRUE))[1],
+        records_used = n(),
+        mode_freq = max(table(trait_value)),
+        variance = 1 - (max(table(trait_value)) / n())
+      )
+    
+    # Add trait name column
+    summary_data$TraitName <- traitname
+    
+    # Rename the mean column to TraitValue
+    summary_data <- summary_data %>%
+      rename(TraitValue = ModeValue)
+    
+    return(summary_data)
+  }
+}
+
+
+#### use taxize for species with no family and genus info ####
+library(taxize)
+
+# function to retrieve taxonomic information for a chunk of species names
+# use .Reviron to add NCBI ENTREZ API info
+get_taxonomic_info_chunk <- function(chunk_species_names) {
+  # Initialize an empty list to store taxonomic information for each chunk
+  chunk_taxonomic_info <- list()
+  
+  # Loop through each species name in the chunk and retrieve taxonomic information
+  for (species_name in chunk_species_names) {
+    tryCatch({
+      # Add a delay between consecutive API requests
+      Sys.sleep(1)
+      
+      # Make API request to retrieve taxonomic information
+      taxon_info <- tax_name(species_name, get = c("genus", "family"), db = "ncbi")
+      
+      # Store taxonomic information for the species in the list
+      chunk_taxonomic_info[[species_name]] <- data.frame(Species = species_name, 
+                                                         Genus = taxon_info$genus, 
+                                                         Family = taxon_info$family)
+    }, error = function(e) {
+      # Print error message
+      cat("Error retrieving taxonomic information for", species_name, ":", conditionMessage(e), "\n")
+    })
+  }
+  
+  # Return the list of taxonomic information for the chunk
+  return(chunk_taxonomic_info)
+}
+
 
 #### Taxonomic Diversity Calculation & Mapping ####
 
