@@ -1,3 +1,39 @@
+# Frugivoria: fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+
+col_class <- function(x){
+  
+  # convert NA strings
+  x[x=="NA" | x=="NA "] <- NA
+  
+  # extract cols and categorize them into what they should be
+  cols <- colnames(x)
+  
+  numeric_cols <- c("diet_breadth", "body_mass_e", "body_size_mm", "longevity", "home_range_size", "generation_time", "habitat_breadth", "mean_CHELSA_bio1_1981.2010_V.2.1", "mean_CHELSA_bio12_1981.2010_V.2.1", "mean_human_fp_range_2010", "mean_human_fp_range_2020", "percent_change_hf_2010_2020","inferred_range_sqkm", "for_strat_ground_e","for_strat_understory_e", "for_strat_midhigh_e", "for_strat_canopy_e", "for_strat_aerial_e")
+  
+  factor_cols <- setdiff(cols, numeric_cols)
+  
+  # convert to numeric
+  for (col in numeric_cols) {
+    if (col %in% names(x)) {
+      if (is.factor(x[[col]])) {
+        x[[col]] <- as.numeric(levels(x[[col]]))[as.integer(x[[col]])]
+      } else if (is.character(x[[col]])) {
+        x[[col]] <- as.numeric(x[[col]])
+      }
+    }
+  } 
+  
+  # convert to factor
+  for (col in factor_cols) {
+    if (col %in% names(x) && !is.factor(x[[col]])) {
+      x[[col]] <- as.factor(x[[col]])
+    }
+    
+  }
+  
+  return(x)
+}
+
 # Data summary
 data_summary <- function(records, species, genera, families){
   num_records <- nrow(records)
