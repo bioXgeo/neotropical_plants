@@ -2,15 +2,11 @@
 # author: "Hazel J. Anderson"
 # project: "Plant-Frugivore Diversity"
 # collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas"
-# overview: ""
-# data input: ""
-# data output: ""
-# date: "2025-10-21"
-# output: 
-#   html_document: 
-#   toc: yes
-# df_print: tibble
-# Notes: takes a long time (~12 hrs on HPCC) -JB
+# overview: "Taxonomic harmonization across trait databases"
+# data input: "TropicalAndes_GBIF_plant_occ_cleaned.csv", "TropicalAndes_TRY_plant_traits.csv", "AllDesired_BIEN_plant_traits.csv", "TropicalAndes_GIFT_plant_traits.csv"
+# data output: "all_species_harmonized_results.csv", "TropicalAndes_GBIF_plant_occ_harmonized.csv", "TropicalAndes_TRY_plant_traits_harmonized.csv", "TropicalAndes_BIEN_plant_traits_harmonized.csv", "TropicalAndes_GIFT_plant_traits_harmonized.csv"
+# date: "2023-07-25; 2025-10-21"
+# Notes: JB used HPCC (takes a long time (~12 hrs))
 
   
 # load required packages
@@ -40,6 +36,7 @@ GBIF_species <- unique(GBIF_occ$species)
 TRY_species <- unique(TRY_traits$SpeciesName)
 BIEN_species <- unique(BIEN_traits$scrubbed_species_binomial)
 GIFT_species <- unique(GIFT_traits$species)
+
 
 length(GBIF_species)
 length(TRY_species)
@@ -155,6 +152,7 @@ species_col_accepted$source <- c("col")
 species_col_synonmyn <- all_species_col_synonym[ , c("original_search", "scientificName")]
 
 species_col_synonmyn$source <- c("col")
+
 
 # update col names
 colnames(species_col_accepted) <- c("Name_submitted", "Accepted_species", "Source")
