@@ -1,11 +1,11 @@
 # title: "Tropical Andes plant trait data BIEN"
 # author: "Hazel J. Anderson"
 # project: "Plant-Frugivore Diversity"
-# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, and Jenna B. Baljunas"
+# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas"
 # overview: "This script retrieves plant trait data from the BIEN database for Tropical Andean countries."
 # data input: "none"
 # data output: "TropicalAndes_BIEN_traits.csv, AllDesired_BIEN_plant_traits.csv"
-# date: "2025-09-22"
+# date: "2023-10-17; 2025-09-22"
 # notes: PLZ ran, JB couldn't on laptop and HPCC
 
 
@@ -20,6 +20,9 @@ output_path_L0 <- file.path('~/Google Drive/Shared drives/SpaCE_Lab_FRUGIVORIA/d
 
 # load required packages
 library(BIEN); library(tidyr); library(dplyr)
+
+# load functions
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
 
 
 # retrieved desired trait data from BIEN-- data downloaded on 2025-09-22
@@ -42,14 +45,6 @@ TropicalAndes_BIEN_plant_traits <- BIEN_trait_country(TA_countries, trait_list, 
 
 # data summary
 glimpse(AllDesired_BIEN_plant_traits)
-
-data_summary <- function(records, species, genera, families){
-  num_records <- nrow(records)
-  num_species <- length(unique(species))
-  num_genera <- length(unique(genera))
-  num_families <- length(unique(families))
-  return(cat("The number of records is", num_records, "\n", "The number of species is", num_species, "\n","The number of genera is", num_genera, "\n", "The number of families is", num_families))
-}
 
 data_summary(AllDesired_BIEN_plant_traits, AllDesired_BIEN_plant_traits$scrubbed_species_binomial, AllDesired_BIEN_plant_traits$scrubbed_genus, AllDesired_BIEN_plant_traits$scrubbed_family)
 
