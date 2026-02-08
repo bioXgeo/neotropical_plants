@@ -3,9 +3,9 @@
 #project: "Plant-Frugivore Diversity"
 #collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 #overview: "This script subsets plant occurrence and trait data by fruiting plant species."
-#data input: "TropicalAndes_GBIF_plant_occ_harmonized.csv, TropicalAndes_TRY_plant_traits_harmonized.csv, TropicalAndes_BIEN_plant_traits_harmonized.csv, #TropicalAndes_GIFT_plant_traits_harmonized.csv"
-#data output: "TropicalAndes_GBIF_plant_occ_harmonized_subset.csv, TropicalAndes_all_plant_traits_harmonized_subset.csv"
-#date: "2025-10-03"
+#data input: "TropicalAndes_GBIF_plant_occ_harmonized.csv", "TropicalAndes_TRY_plant_traits_harmonized.csv", "TropicalAndes_BIEN_plant_traits_harmonized.csv", "TropicalAndes_GIFT_plant_traits_harmonized.csv"
+#data output: "TropicalAndes_GBIF_plant_occ_harmonized_subset.csv", "TropicalAndes_all_plant_traits_harmonized_subset.csv"
+#date: "2023-07-25; 2025-10-03"
 #output: html_document
 #notes: JB used HPCC
 
@@ -15,32 +15,32 @@ library(dplyr); library(tidyr)
 
 
 # Set file paths
-data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
-output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 
 ##HPCC
 #data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
 #data_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
-#output_path <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
+#output_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
 #figure_path <- file.path('/mnt/research/nasabio/data_2025/plants/figures')
 
 
-# Read in harmonized data
+# read in harmonized data
 plant_occ <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_plant_occ_harmonized.csv"))
 TRY_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_TRY_plant_traits_harmonized.csv"))
 BIEN_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_BIEN_plant_traits_harmonized.csv"))
 GIFT_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_GIFT_plant_traits_harmonized.csv"))
 
 
-# Get species list from plant_occ data
+# get species list from plant_occ data
 plant_species <- unique(plant_occ$Accepted_species)
 length(plant_species)
 
 
-# Subset TRY, BIEN, and GIFT by species list
-## TRY
+# subset TRY, BIEN, and GIFT by species list
+# TRY
 nrow(TRY_traits)
 TRY_filtered <- TRY_traits %>%
   filter(Accepted_species %in% plant_species)
@@ -51,7 +51,7 @@ TRY_traits %>%
   count(TraitName)
 
 
-## BIEN
+# BIEN
 nrow(BIEN_traits)
 BIEN_filtered <- BIEN_traits %>%
   filter(Accepted_species %in% plant_species)
@@ -65,7 +65,7 @@ BIEN_traits %>%
   count(trait_name)
 
 
-## GIFT
+# GIFT
 nrow(GIFT_traits)
 GIFT_filtered <- GIFT_traits %>%
   filter(Accepted_species %in% plant_species)
@@ -79,8 +79,9 @@ GIFT_traits %>%
   count(trait_name)
 
 
-# Combine trait information from TRY, BIEN, GIFT
+# combine trait information from TRY, BIEN, GIFT
 
+# TRY
 TRYTraitTypes <- TRY_filtered %>%
   group_by(TraitName) %>%
   distinct(DataName)
@@ -94,9 +95,10 @@ colnames(TRY_filtered_subset) <- c("Accepted_species", "TraitName", "TraitValue"
 
 # save sources/references
 TRY_references <- unique(TRY_filtered[ , c("Dataset", "Reference")])
-write.csv(TRY_references, file.path(output_path,"TRY_references.csv"))
+write.csv(TRY_references, file.path(output_path_L1,"TRY_references.csv"))
 
 
+# BIEN
 unique(BIEN_filtered$trait_name)
 
 colnames(BIEN_filtered)
@@ -106,9 +108,10 @@ colnames(BIEN_filtered_subset) <- c("Accepted_species", "TraitName", "TraitValue
 
 # save sources/references
 BIEN_references <- unique(BIEN_filtered[ , c("url_source", "source_citation")])
-write.csv(BIEN_references, file.path(output_path,"BIEN_references.csv"))
+write.csv(BIEN_references, file.path(output_path_L1,"BIEN_references.csv"))
 
 
+# GIFT
 unique(GIFT_filtered$trait_name)
 
 colnames(GIFT_filtered)
@@ -165,10 +168,11 @@ traits_clean %>%
   count(TraitName)
 
 
-# Create a species list of species with fruiting traits
+# create a species list of species with fruiting traits
 fruit_traits <- c("Dispersal syndrome","Dispersal_syndrome_1","Dispersal_syndrome_2","Fruit dry mass", "Fruit length", "Fruit type", "Fruit/seed color", "Fruit/seed conspicuous", "Fruit_colour", "Fruit_dryness_1", "Fruit_length_max", "Fruit_length_mean", "Fruit_length_min", "Fruit_type_1", "Fruiting_end","Fruiting_start","fruit type","maximum fruit length", "minimum fruit length","plant fruiting duration", "whole plant dispersal syndrome")
 
-# Filter the dataframe for fruiting traits
+
+# filter the dataframe for fruiting traits
 fruiting_df <- traits_clean %>%
   filter(TraitName %in% fruit_traits)
 dim(fruiting_df)
@@ -178,12 +182,12 @@ fruiting_df %>%
   count(TraitName)
 
 
-# Extract unique species names
+# extract unique species names
 fruiting_species <- unique(fruiting_df$Accepted_species)
 length(fruiting_species)
 
-# Subset trait data and occurrence data by fruiting species list
 
+# subset trait data and occurrence data by fruiting species list
 dim(plant_occ)
 plant_occ_subset <- plant_occ %>%
   filter(Accepted_species %in% fruiting_species)
@@ -199,7 +203,7 @@ traits_subset %>%
   count(TraitName)
 
 
-# Summary
+# summary
 cat("Number of occurrence records:", nrow(plant_occ_subset), "\n")
 cat("Number of species with occurrence records:", length(unique(plant_occ_subset$Accepted_species)), "\n")
 
@@ -212,13 +216,13 @@ database_summary <- traits_subset %>%
     num_species = n_distinct(Accepted_species)
   )
 
-# Print the result
+# print the result
 print(database_summary)
 
 
-# Write data to csv
-write.csv(plant_occ_subset, file.path(output_path, "TropicalAndes_GBIF_plant_occ_harmonized_subset.csv"))
-write.csv(traits_subset, file.path(output_path, "TropicalAndes_all_plant_traits_harmonized_subset.csv"))
+# write data to csv
+write.csv(plant_occ_subset, file.path(output_path_L1, "TropicalAndes_GBIF_plant_occ_harmonized_subset.csv"))
+write.csv(traits_subset, file.path(output_path_L1, "TropicalAndes_all_plant_traits_harmonized_subset.csv"))
 
 
 
