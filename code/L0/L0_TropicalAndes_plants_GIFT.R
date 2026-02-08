@@ -5,7 +5,7 @@
 # overview: "This script retrieves plant trait data from the GIFT database for plant species list."
 # data input: "none"
 # data output: "TropicalAndes_GIFT_plant_traits.csv"
-# date: "2025-09-22"
+# date: "2023-08-03; 2025-09-22"
 
 
 # set file paths
@@ -19,7 +19,7 @@ library(GIFT); library(dplyr)
 
 # retrieve GIFT data
 
-# # data downloaded 2025-09-22, done by running this through
+# # data downloaded 2025-09-22, done by running this through:
 # all_traits <- GIFT_traits_meta()
 # 
 # # list all the traits of interest here:
@@ -51,12 +51,15 @@ library(GIFT); library(dplyr)
 # # data for all desired traits:  
 # GIFT_data <- bind_rows(traits)
 
+
 GIFT_data <- read.csv(file.path(data_path_L0, "TropicalAndes_GIFT_plant_traits.csv"))
+
 
 paste("The number of records is", nrow(GIFT_data))
 paste("The number of species is", length(unique(GIFT_data$species)))
 
 GIFT_data %>% count(trait_name)
+
 
 # write data to csv
 write.csv(GIFT_data, file = file.path(output_path_L0,"TropicalAndes_GIFT_plant_traits.csv"))
