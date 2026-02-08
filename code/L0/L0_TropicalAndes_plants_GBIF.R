@@ -21,6 +21,9 @@ output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L
 # Load required packages
 library(dplyr); library(rgbif); library(raster); library(sf)
 
+# load functions
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
+
 
 # # download data-- data downloaded on 2025-09-22
 # occ_download(
@@ -64,14 +67,6 @@ TropicalAndes_plant_occ_forest$geometry <- NULL
 
 # summary 
 glimpse(TropicalAndes_plant_occ_forest)
-
-data_summary <- function(records, species, genera, families){
-  num_records <- nrow(records)
-  num_species <- length(unique(species))
-  num_genera <- length(unique(genera))
-  num_families <- length(unique(families))
-  return(cat("The number of records is", num_records, "\n", "The number of species is", num_species, "\n","The number of genera is", num_genera, "\n", "The number of families is", num_families))
-}
 
 data_summary(TropicalAndes_plant_occ_forest, TropicalAndes_plant_occ_forest$species, TropicalAndes_plant_occ_forest$genus, TropicalAndes_plant_occ_forest$family)
 
