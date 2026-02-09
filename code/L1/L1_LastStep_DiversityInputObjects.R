@@ -1,15 +1,12 @@
 # title: "Creating Diversity Input Objects"
-# author: "Hazel J. Anderson"
+# author: "Hazel J. Anderson, Jenna B. Baljunas"
 # project: "Plant-Frugivore Diversity"
 # collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 # overview: "Projecting occurrence data and creating presence-absence matrix for plants and frugivores. "
-# #data input: ""
-# #data output: ""
-# date: "2025-10-21"
-# output: 
-#   html_document:
-#   highlight_downlit = TRUE
-# df_print: tibble
+# data input: "TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv", "TropicalAndes_GBIF_frugivore_occ_cleaned_subset.csv", "TropicalAndes_GBIF_mammal_occ_cleaned_subset.csv", "TropicalAndes_GBIF_bird_occ_cleaned_subset.csv", "Forest_sf.shp", "TropicalAndes_Frugivoria_traits_subset.csv", "TropicalAndes_bird_traits_subset.csv", "TropicalAndes_mammal_traits_subset.csv", "TropicalAndes_imputed_plant_traits2.csv"
+# data output: "all_points_maps.png", "plants_sf_species.rds", "frugivores_sf_species.rds", "mammals_sf_species.rds", "birds_sf_species.rds", "Americas.rds", "TApoly.rds", "TropicalAndes_IUCNHabitat_Forest.rds", "plant_PAM_100km.rds", "frugivore_PAM_100km.rds", "mammal_PAM_100km.rds", "bird_PAM_100km.rds", "plant_PAM_75km.rds", "frugivore_PAM_75km.rds", "mammal_PAM_75km.rds", "bird_PAM_75km.rds", "plant_PAM_50km.rds", "frugivore_PAM_50km.rds", "mammal_PAM_50km.rds", "bird_PAM_50km.rds", "plant_PAM_25km.rds", "frugivore_PAM_25km.rds", "mammal_PAM_25km.rds", "bird_PAM_25km.rds", "plant_PAM_10km.rds", "frugivore_PAM_10km.rds", "mammal_PAM_10km.rds", "bird_PAM_10km.rds", "plant_PAM_5km.rds", "frugivore_PAM_5km.rds", "mammal_PAM_5km.rds", "bird_PAM_5km.rds", "plant_traits_df_final.rds", "frugivore_traits_df_final.rds", "bird_traits_df_final.rds", "mammal_traits_df_final.rds", "site_loc_key_plant_100km.rds", "site_loc_key_frugivore_100km.rds", "site_loc_key_mammal_100km.rds", "site_loc_key_bird_100km.rds", "PAM_plant_site_final_100km.rds", "PAM_frugivore_site_final_100km.rds", "PAM_mammal_site_final_100km.rds", "PAM_bird_site_final_100km.rds", "site_loc_key_plant_75km.rds", "site_loc_key_frugivore_75km.rds", "site_loc_key_mammal_75km.rds", "site_loc_key_bird_75km.rds", "PAM_plant_site_final_75km.rds", "PAM_frugivore_site_final_75km.rds", "PAM_mammal_site_final_75km.rds", "PAM_bird_site_final_75km.rds", "site_loc_key_plant_50km.rds", "site_loc_key_frugivore_50km.rds", "site_loc_key_mammal_50km.rds", "site_loc_key_bird_50km.rds", "PAM_plant_site_final_50km.rds", "PAM_frugivore_site_final_50km.rds", "PAM_mammal_site_final_50km.rds", "PAM_bird_site_final_50km.rds", "site_loc_key_plant_25km.rds", "site_loc_key_frugivore_25km.rds", "site_loc_key_mammal_25km.rds", "site_loc_key_bird_25km.rds", "PAM_plant_site_final_25km.rds", "PAM_frugivore_site_final_25km.rds", "PAM_mammal_site_final_25km.rds", "PAM_bird_site_final_25km.rds", "site_loc_key_plant_10km.rds", "site_loc_key_frugivore_10km.rds", "site_loc_key_mammal_10km.rds", "site_loc_key_bird_10km.rds", "PAM_plant_site_final_10km.rds", "PAM_frugivore_site_final_10km.rds", "PAM_mammal_site_final_10km.rds", "PAM_bird_site_final_10km.rds", "site_loc_key_plant_5km.rds", "site_loc_key_frugivore_5km.rds", "site_loc_key_mammal_5km.rds", "site_loc_key_bird_5km.rds", "PAM_plant_site_final_5km.rds", "PAM_frugivore_site_final_5km.rds", "PAM_mammal_site_final_5km.rds", "PAM_bird_site_final_5km.rds"
+# date: "2024-05-13; 2025-10-21"
+# notes: JB used HPCC
 
 
 # load required packages
@@ -22,11 +19,11 @@ data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 
-# HPCC
-data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
-data_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
-output_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
-figure_path <- file.path('/mnt/research/nasabio/data_2025/plants/figures')
+# # HPCC
+# data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
+# data_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
+# output_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
+# figure_path <- file.path('/mnt/research/nasabio/data_2025/plants/figures')
 
 
 # read in data
@@ -39,6 +36,9 @@ frugivore_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_Frugivoria_tr
 bird_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_bird_traits_subset.csv"))
 mammal_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_mammal_traits_subset.csv"))
 plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_imputed_plant_traits2.csv"))
+
+# load functions
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
 
 
 # convert data to spatial data
@@ -97,7 +97,7 @@ basePlot <-
   ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
-  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "#D9F7D9") +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50") +
   labs(title = "Tropical Andes Forest", x = "Latitude", y = "Longitude") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
   annotation_scale(location = "bl", width_hint = 0.3, style = "ticks") +
@@ -114,14 +114,16 @@ plantsPointsPlot <-
   ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
-  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "#D9F7D9") + 
-  geom_sf(data = plants_sf_species, pch = 16, size = 0.05) +
-  labs(title = "Fruiting Plant Occurrences", x = "Latitude", y = "Longitude") +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50") + 
+  geom_sf(data = plants_sf_species, pch = 16, size = 0.05, color='darkseagreen3') +
+  labs(title = "Fruiting Plant\nOccurrences", x = "Latitude", y = "Longitude") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-  annotation_scale(location = "bl",width_hint = 0.3, style = "ticks") +
-  annotation_north_arrow(location = "tr", which_north = "true",
+  scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+  scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+  annotation_scale(location = "bl",width_hint = 0.2, style = "bar") +
+  annotation_north_arrow(location = "bl", which_north = "true",
                          height = unit(0.5, "in"), width = unit(0.5, "in"),
-                         pad_x = unit(0.1, "in"), pad_y = unit(0.1, "in"),
+                         pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
                          style = north_arrow_fancy_orienteering) +
   theme(panel.background = element_rect(fill = "lightblue"))
 
@@ -133,16 +135,20 @@ frugivoresPointsPlot <-
   ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
-  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "#D9F7D9") +
-  geom_sf(data = frugivores_sf_species, pch = 16, size = 0.01) +
-  labs(title = "Frugivore Occurrences", x = "Latitude", y = "Longitude") +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50") +
+  geom_sf(data = frugivores_sf_species, pch = 16, size = 0.01, color='salmon') +
+  labs(title = "Frugivore Occurrences") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-  annotation_scale(location = "bl",width_hint = 0.3, style = "ticks") +
-  annotation_north_arrow(location = "tr", which_north = "true",
+  scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+  scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+  annotation_scale(location = "bl",width_hint = 0.3, style = "bar") +
+  annotation_north_arrow(location = "bl", which_north = "true",
                          height = unit(0.5, "in"), width = unit(0.5, "in"),
-                         pad_x = unit(0.1, "in"), pad_y = unit(0.1, "in"),
+                         pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
                          style = north_arrow_fancy_orienteering) +
-  theme(panel.background = element_rect(fill = "lightblue"))
+  theme(panel.background = element_rect(fill = "lightblue"))+
+  xlab('Latitude')+ 
+  ylab('Longitude')
 
 frugivoresPointsPlot
 ggsave("frugivore_occurrence_points_map.png", plot = last_plot(), path = figure_path)
@@ -152,16 +158,20 @@ mammalsPointsPlot <-
   ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
-  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "#D9F7D9") +
-  geom_sf(data = mammals_sf_species, pch = 16, size = 0.01) +
-  labs(title = "Mammal Occurrences", x = "Latitude", y = "Longitude") +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50") +
+  geom_sf(data = mammals_sf_species, pch = 16, size = 0.01, color='burlywood3') +
+  labs(title = "Mammal\nOccurrences") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-  annotation_scale(location = "bl",width_hint = 0.3, style = "ticks") +
-  annotation_north_arrow(location = "tr", which_north = "true",
-                         height = unit(0.5, "in"), width = unit(0.5, "in"),
-                         pad_x = unit(0.1, "in"), pad_y = unit(0.1, "in"),
-                         style = north_arrow_fancy_orienteering) +
-  theme(panel.background = element_rect(fill = "lightblue"))
+  scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+  scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+  # annotation_scale(location = "bl",width_hint = 0.3, style = "bar") +
+  # annotation_north_arrow(location = "bl", which_north = "true",
+  #                        height = unit(0.5, "in"), width = unit(0.5, "in"),
+  #                        pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
+  #                        style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))+
+  xlab('')+ 
+  ylab('')
 mammalsPointsPlot
 ggsave("mammal_occurrence_points_map.png", plot = last_plot(), path = figure_path)
 
@@ -170,27 +180,27 @@ birdsPointsPlot <-
   ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
-  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "#D9F7D9") +
-  geom_sf(data = birds_sf_species, pch = 16, size = 0.01) +
-  labs(title = "Bird Occurrences", x = "Latitude", y = "Longitude") +
+  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50")+
+  geom_sf(data = birds_sf_species, pch = 16, size = 0.01, color='lightsteelblue2') +
+  labs(title = "Bird\nOccurrences") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-  annotation_scale(location = "bl",width_hint = 0.3, style = "ticks") +
-  annotation_north_arrow(location = "tr", which_north = "true",
-                         height = unit(0.5, "in"), width = unit(0.5, "in"),
-                         pad_x = unit(0.1, "in"), pad_y = unit(0.1, "in"),
-                         style = north_arrow_fancy_orienteering) +
-  theme(panel.background = element_rect(fill = "lightblue"))
-birdsPointsPlot
+  scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+  scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+  # annotation_scale(location = "bl",width_hint = 0.3, style = "bar") +
+  # annotation_north_arrow(location = "bl", which_north = "true",
+  #                        height = unit(0.5, "in"), width = unit(0.5, "in"),
+  #                        pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
+  #                        style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"))+
+  xlab('')+ 
+  ylab('')
+birdsPointsPlot 
 ggsave("bird_occurrence_points_map.png", plot = last_plot(), path = figure_path)
 
 
-all_points_maps <- ggpubr::ggarrange(plantsPointsPlot,
-                                     frugivoresPointsPlot,
-                                     mammalsPointsPlot,
-                                     birdsPointsPlot,
-                                     ncol = 2, nrow = 2)
+all_points_maps <- wrap_plots(plantsPointsPlot, mammalsPointsPlot, birdsPointsPlot, ncol = 3, nrow = 1)
 all_points_maps
-ggsave("all_points_maps.png", all_points_maps, path = figure_path, height =  7, width = 8, units = "in")
+ggsave("all_points_maps.png", all_points_maps, path = figure_path, height =  7, width = 8, units = "in", dpi=1000)
 
 
 # create presence-absence matrix
@@ -237,6 +247,8 @@ create_presence_absence_matrix <- function(resolution_meters, species_sf) {
   return(presence_absence_matrix_matrix)
 }
 
+
+#### presence-absence matrices ####
 
 #### 100 km #### 
 plant_PAM_100km <- create_presence_absence_matrix(100000, plants_sf_species)
@@ -522,9 +534,9 @@ bird_traits_df_subset$X <- NULL
 # remove duplicate species name column
 plant_traits_df_subset$species <- NULL
 
-frugivore_traits_df_subset <- frugivore_traits_df_subset[, c("diet_cat", "body_mass_e", "body_size_mm", "generation_time")]
-mammal_traits_df_subset <- mammal_traits_df_subset[, c("diet_cat", "body_mass_e", "body_size_mm", "generation_time")]
-bird_traits_df_subset <- bird_traits_df_subset[, c("diet_cat", "body_mass_e", "body_size_mm", "generation_time")]
+frugivore_traits_df_subset <- frugivore_traits_df_subset[, c("body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
+mammal_traits_df_subset <- mammal_traits_df_subset[, c("body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
+bird_traits_df_subset <- bird_traits_df_subset[, c("body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
 
 str(plant_traits_df_subset)
 str(frugivore_traits_df_subset)
