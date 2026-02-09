@@ -3,10 +3,9 @@
 # project: "Plant-Frugivore Diversity"
 # collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas"
 # overview: "This script subsets plant occurrence data to species with complete trait coverage and summarizes the taxonomic coverage."
-# data input: "TropicalAndes_imputed_plant_traits.csv, TropicalAndes_GBIF_plant_occ_harmonized_subset.csv, TropicalAndes_plant_checklist.csv"
+# data input: "TropicalAndes_imputed_plant_traits.csv", "TropicalAndes_GBIF_plant_occ_harmonized_subset.csv", "Forest_sf.shp"
 # data output: "TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv"
-# date: "2025-10-17"
-# output: html_document
+# date: "2023-10-04; 2025-10-17"
 
   
 # set file paths
