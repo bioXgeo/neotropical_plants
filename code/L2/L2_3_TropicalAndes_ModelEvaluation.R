@@ -1,15 +1,12 @@
-#title: "Tropical Andes Functional and Taxonomic Diversity Relationships"
+#title: "Tropical Andes functional and taxonomic diversity model comparison"
 #author: "Jenna B. Baljunas, Hazel J. Anderson"
 #project: "Plant-Frugivore Diversity"
 #collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 #overview: "This script compares FD and TD models."
-#date: "2025-12-19"
-#output: html_document
+#date: "2024-05-16; 2025-12-19"
+#data input: "compare_MPrichness_100km.rds", "compare_MPrichness_75km.rds", "compare_MPrichness_50km.rds", "compare_MPrichness_25km.rds", "compare_MPrichness_10km.rds", "compare_MPrichness_5km.rds", "compare_BPrichness_100km.rds", "compare_BPrichness_75km.rds", "compare_BPrichness_50km.rds", "compare_BPrichness_25km.rds", "compare_BPrichness_10km.rds", "compare_BPrichness_5km.rds", "compare_MPFDis_100km.rds", "compare_MPFDis_75km.rds", "compare_MPFDis_50km.rds", "compare_MPFDis_25km.rds", "compare_MPFDis_10km.rds", "compare_MPFDis_5km.rds", "compare_BPFDis_100km.rds", "compare_BPFDis_75km.rds", "compare_BPFDis_50km.rds", "compare_BPFDis_25km.rds", "compare_BPFDis_10km.rds", "compare_BPFDis_5km.rds"
+#data output: "LM_comparison_r2.png", "LM_comparison_sc.png", "r2_sc_comparison.png"
 #notes: JB used HPCC
-
-
-# load required packages
-library(mFD); library(sf); library(dplyr); library(ggplot2); library(rnaturalearth); library(ggspatial); library(rlang); library(doParallel); library(foreach); library(purrr); library(ggpubr); library(patchwork)
 
 
 # set file paths
@@ -17,15 +14,17 @@ data_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1'
 output_path_L2 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 
-#HPCC
-data_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
-output_path_L2 <- file.path('/mnt/research/nasabio/data_2025/plants/L2')
-figure_path <- file.path('/mnt/research/nasabio/data_2025/plants/figures')
+# #HPCC
+# data_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
+# output_path_L2 <- file.path('/mnt/research/nasabio/data_2025/plants/L2')
+# figure_path <- file.path('/mnt/research/nasabio/data_2025/plants/figures')
 
+
+# load required packages
+library(mFD); library(sf); library(dplyr); library(ggplot2); library(rnaturalearth); library(ggspatial); library(rlang); library(doParallel); library(foreach); library(purrr); library(ggpubr); library(patchwork)
 
 # load functions
-setwd("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code")
-source("Functions.R")
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
 
 
 # diversity comparison linear model information
