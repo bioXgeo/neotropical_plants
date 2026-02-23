@@ -4,7 +4,7 @@
 #collaborators: "Hazel J. Anderson, Beth E. Gerstner, Phoebe L. Zarnetske"
 #overview: "This script compares taxonomic diversity relationships for plants and frugivores for various spatial grains."
 #data input: "TropicalAndes_plantRichness_5km.csv", "TropicalAndes_frugivoreRichness_5km.csv", "TropicalAndes_mammalRichness_5km.csv", "TropicalAndes_birdRichness_5km.csv", "TropicalAndes_plantRichness_10km.csv", "TropicalAndes_frugivoreRichness_10km.csv", "TropicalAndes_mammalRichness_10km.csv", "TropicalAndes_birdRichness_10km.csv", "TropicalAndes_plantRichness_25km.csv", "TropicalAndes_frugivoreRichness_25km.csv", "TropicalAndes_mammalRichness_25km.csv", "TropicalAndes_birdRichness_25km.csv", "TropicalAndes_plantRichness_50km.csv", "TropicalAndes_frugivoreRichness_50km.csv", "TropicalAndes_mammalRichness_50km.csv", "TropicalAndes_birdRichness_50km.csv", "TropicalAndes_plantRichness_75km.csv", "TropicalAndes_frugivoreRichness_75km.csv", "TropicalAndes_mammalRichness_75km.csv", "TropicalAndes_birdRichness_75km.csv", "TropicalAndes_plantRichness_100km.csv", "TropicalAndes_frugivoreRichness_100km.csv", "TropicalAndes_mammalRichness_100km.csv", "TropicalAndes_birdRichness_100km.csv"
-#data output: "all_taxa_richness_plots.png"
+#data output: "compare_BPrichness_100km.rds", "compare_MPrichness_100km.rds", "compare_BPrichness_75km.rds", "compare_MPrichness_75km.rds", "compare_BPrichness_50km.rds", "compare_MPrichness_50km.rds", "compare_BPrichness_25km.rds", "compare_MPrichness_25km.rds", "compare_BPrichness_10km.rds", "compare_MPrichness_10km.rds", "compare_BPrichness_5km.rds", "compare_MPrichness_5km.rds", "all_taxa_richness_plots.png"
 #date: "2024-05-16; 2025-12-15"
 #notes: JB used HPCC
 
