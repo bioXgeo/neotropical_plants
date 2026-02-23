@@ -136,4 +136,6 @@ saveRDS(comparison_5km$mammal, file = file.path(output_path_L2,"compare_MPrichne
 # combined plot
 all_taxa_richness_plots <- wrap_plots(comparison_5km_plot, comparison_10km_plot, comparison_25km_plot, comparison_50km_plot, comparison_75km_plot, comparison_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 20, 20, 20),legend.position='bottom')
 
+all_taxa_richness_plots
+
 ggsave('all_taxa_richness_plots.png', all_taxa_richness_plots, path = figure_path, width = 14, height = 8, units = "in", dpi=1000)
