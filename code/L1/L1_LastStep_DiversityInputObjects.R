@@ -26,6 +26,13 @@ figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figu
 # figure_path <- file.path('/mnt/research/nasabio/data_2025/plants/figures')
 
 
+# load functions
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
+
+# # HPCC
+# source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
+
+
 # read in data
 TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv"))
 TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_frugivore_occ_cleaned_subset.csv"))
@@ -36,9 +43,6 @@ frugivore_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_Frugivoria_tr
 bird_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_bird_traits_subset.csv"))
 mammal_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_mammal_traits_subset.csv"))
 plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_imputed_plant_traits2.csv"))
-
-# load functions
-source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
 
 
 # convert data to spatial data
