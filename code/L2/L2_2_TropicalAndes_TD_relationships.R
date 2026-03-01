@@ -9,6 +9,10 @@
 #notes: JB used HPCC
 
 
+# load required packages
+library(dplyr); library(ggplot2); library(smoothr); library(purrr); library(ggtrendline); library(ggpubr); library(tidyr); library(patchwork)
+
+
 # set file paths
 data_path_L2 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 output_path_L2 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
@@ -19,9 +23,6 @@ figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figu
 # output_path_L2 <- file.path('/mnt/research/nasabio/data_2025/plants/L2')
 # figure_path <- file.path('/mnt/research/nasabio/data_2025/plants/figures')
 
-
-# load required packages
-library(dplyr); library(ggplot2); library(smoothr); library(purrr); library(ggtrendline); library(ggpubr); library(tidyr); library(patchwork)
 
 # load functions
 source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
