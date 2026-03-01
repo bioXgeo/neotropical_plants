@@ -9,6 +9,10 @@
 # notes: PLZ ran, JB couldn't on laptop and HPCC
 
 
+# load required packages
+library(BIEN); library(tidyr); library(dplyr)
+
+
 # set file paths
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
@@ -17,9 +21,6 @@ output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L
 data_path_L0 <- file.path('~/Google Drive/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path_L0 <- file.path('~/Google Drive/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 
-
-# load required packages
-library(BIEN); library(tidyr); library(dplyr)
 
 # load functions
 source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
