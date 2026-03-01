@@ -8,14 +8,14 @@
 # date: "2023-07-18; 2025-09-22"
 
 
+# Load required packages
+library(raster);library(sf);library(rnaturalearth);library(dplyr);library(terra);library(ggplot2);library(ggspatial)
+
+
 # Set file paths
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
-
-
-# Load required packages
-library(raster);library(sf);library(rnaturalearth);library(dplyr);library(terra);library(ggplot2);library(ggspatial)
 
 
 # Load in Ecosystem Functional Groups
