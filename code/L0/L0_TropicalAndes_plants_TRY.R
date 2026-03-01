@@ -9,7 +9,11 @@
 # output: html_document
 # notes: JB ran on HPCC
 
-  
+
+# Load required packages
+library(rtry); library(dplyr); library(tidyr)
+
+
 # Set file paths
 data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
@@ -17,10 +21,6 @@ output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 ## HPCC
 # data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
 # output_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
-
-
-# Load required packages
-library(rtry); library(dplyr); library(tidyr)
 
 
 # Load TRY data
