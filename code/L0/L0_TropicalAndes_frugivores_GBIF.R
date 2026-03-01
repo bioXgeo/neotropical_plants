@@ -9,6 +9,10 @@
 # notes: "JB used HPCC"
 
 
+# load required packages
+library(dplyr); library(rgbif); library(sf)
+
+
 # set file paths
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
@@ -18,11 +22,11 @@ output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L
 #output_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
 
 
-# load required packages
-library(dplyr); library(rgbif); library(sf)
-
 # load functions
 source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
+
+# # HPCC
+# source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
 
 
 # read in Frugivoria species list
