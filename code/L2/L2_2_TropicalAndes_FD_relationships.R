@@ -26,6 +26,9 @@ library(dplyr); library(ggplot2); library(smoothr); library(purrr); library(ggtr
 # load functions
 source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
 
+# # HPCC
+# source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
+
 
 # read in data
 
