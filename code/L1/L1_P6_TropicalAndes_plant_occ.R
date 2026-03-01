@@ -7,6 +7,10 @@
 # data output: "TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv"
 # date: "2023-10-04; 2025-10-17"
 
+
+# load required packages
+library(GIFT); library(dplyr); library(sf); library(tidyr); library(ggplot2)
+
   
 # set file paths
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
@@ -15,11 +19,11 @@ output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 
 
-# load required packages
-library(GIFT); library(dplyr); library(sf); library(tidyr); library(ggplot2)
-
 # load functions
 source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
+
+## HPCC
+# source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
 
 
 # read in data
