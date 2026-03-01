@@ -8,14 +8,14 @@
 #date: "2023-10-04; 2025-10-15"
 
   
+# load required packages
+library(tidyr); library(BIEN); library(GIFT); library(purrr); library(mice); library(dplyr); library(funbiogeo); library(visdat); library(ggplot2); library(forcats); library(viridis)
+
+
 # set file paths
 data_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
-
-
-# load required packages
-library(tidyr); library(BIEN); library(GIFT); library(purrr); library(mice); library(dplyr); library(funbiogeo); library(visdat); library(ggplot2); library(forcats); library(viridis)
 
 
 # read in data
