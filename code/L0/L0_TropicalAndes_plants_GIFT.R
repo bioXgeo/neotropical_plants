@@ -8,13 +8,13 @@
 # date: "2023-08-03; 2025-09-22"
 
 
+# load required packages
+library(GIFT); library(dplyr)
+
+
 # set file paths
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-
-
-# load required packages
-library(GIFT); library(dplyr)
 
 
 # retrieve GIFT data
