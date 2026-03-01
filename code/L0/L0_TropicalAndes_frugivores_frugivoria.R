@@ -8,17 +8,21 @@
 # date: "2023-07-18; 2025-09-22"
 
 
+# load required packages
+library(dplyr); library(stringr)
+
+
 # set file paths
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 
 
-# load required packages
-library(dplyr); library(stringr)
-
 # load functions
 source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
+
+# # HPCC
+# source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
 
 
 # retrieve Frugivoria data
