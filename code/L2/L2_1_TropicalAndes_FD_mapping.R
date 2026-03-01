@@ -9,6 +9,10 @@
 #notes: JB used HPCC
 
 
+# load required packages
+library(mFD); library(sf); library(dplyr); library(ggplot2); library(rnaturalearth); library(ggspatial); library(rlang); library(doParallel); library(foreach); library(purrr); library(ggpubr); library(patchwork)
+
+
 # set file paths
 data_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path_L2 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
@@ -20,14 +24,14 @@ figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figu
 # figure_path <- file.path('/mnt/research/nasabio/data_2025/plants/figures')
 
 
-# load required packages
-library(mFD); library(sf); library(dplyr); library(ggplot2); library(rnaturalearth); library(ggspatial); library(rlang); library(doParallel); library(foreach); library(purrr); library(ggpubr); library(patchwork)
-
 # load functions
 source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
 
+## HPCC
+# source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
 
-# read in Data
+
+# read in data
 
 # projected sf objects
 plants_sf_species <- readRDS(file = file.path(data_path_L1,"plants_sf_species.rds"))
