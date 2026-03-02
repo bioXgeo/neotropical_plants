@@ -413,10 +413,11 @@ create_rich_plots <- function(resolution_meters) {
       geom_sf(data = TApoly, fill = "grey") +
       geom_sf(aes(fill = num_species), color = NA) +
       scale_fill_viridis_c(limits=Plims, na.value = 'gray53', option='magma') +
-      labs(x = "Longitude", y = "Latitude", fill = "S") +
+      labs(fill = "Plant S") +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-      annotation_scale(location = "bl", width_hint = 0.5) +
-      theme(panel.background = element_rect(fill = "lightblue"))
+      scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+      scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+      theme(panel.background = element_rect(fill = "lightblue"), axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12), plot.title = element_text(hjust = 0.5, size=12))
   }
   
   generate_frugivore_plot <- function(data) {
@@ -425,10 +426,11 @@ create_rich_plots <- function(resolution_meters) {
       geom_sf(data = TApoly, fill = "grey") +
       geom_sf(aes(fill = num_species), color = NA) +
       scale_fill_viridis_c(limits=Flims, na.value = 'gray53') +
-      labs(x = "Longitude", y = "Latitude", fill = "S") +
+      labs(fill = "Frugivore S") +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-      annotation_scale(location = "bl", width_hint = 0.5) +
-      theme(panel.background = element_rect(fill = "lightblue"))
+      scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+      scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+      theme(panel.background = element_rect(fill = "lightblue"), axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12), plot.title = element_text(hjust = 0.5, size=12))
   }
   
   generate_mammal_plot <- function(data) {
@@ -437,10 +439,11 @@ create_rich_plots <- function(resolution_meters) {
       geom_sf(data = TApoly, fill = "grey") +
       geom_sf(aes(fill = num_species), color = NA) +
       scale_fill_viridis_c(limits=Mlims, na.value = 'gray53') +
-      labs(x = "Longitude", y = "Latitude", fill = "S") +
+      labs(fill = "Mammal S") +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-      annotation_scale(location = "bl", width_hint = 0.5) +
-      theme(panel.background = element_rect(fill = "lightblue"))
+      scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+      scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+      theme(panel.background = element_rect(fill = "lightblue"), axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12), plot.title = element_text(hjust = 0.5, size=12))
   }
   
   generate_bird_plot <- function(data) {
@@ -449,10 +452,11 @@ create_rich_plots <- function(resolution_meters) {
       geom_sf(data = TApoly, fill = "grey") +
       geom_sf(aes(fill = num_species), color = NA) +
       scale_fill_viridis_c(limits=Blims, na.value = 'gray53') +
-      labs(x = "Longitude", y = "Latitude", fill = "S") +
+      labs(fill = "Bird S") +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-      annotation_scale(location = "bl", width_hint = 0.5) +
-      theme(panel.background = element_rect(fill = "lightblue"))
+      scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+      scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+      theme(panel.background = element_rect(fill = "lightblue"), axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12), plot.title = element_text(hjust = 0.5, size=12))
   }
   
   # Generate plots
@@ -462,20 +466,13 @@ create_rich_plots <- function(resolution_meters) {
   bird_plot <- generate_bird_plot(bird_richness_grid)
   
   # Create histograms
-  plant_richness_hist <- hist(plant_richness_grid$num_species,
-                              main = paste("Histogram of Plant Richness [", resolution_meters / 1000, " km] by cell", sep = ""),
-                              xlab = "Plant Richness by cell")
-  frugivore_richness_hist <- hist(frugivore_richness_grid$num_species,
-                                  main = paste("Histogram of Frugivore Richness [", resolution_meters / 1000, " km] by cell", sep = ""),
-                                  xlab = "Frugivore Richness by cell")
+  plant_richness_hist <- hist(plant_richness_grid$num_species, main = paste("Histogram of Plant Richness [", resolution_meters / 1000, " km] by cell", sep = ""), xlab = "Plant Richness by cell")
   
-  mammal_richness_hist <- hist(mammal_richness_grid$num_species,
-                               main = paste("Histogram of Mammal Richness [", resolution_meters / 1000, " km] by cell", sep = ""),
-                               xlab = "Mammal Richness by cell")
+  frugivore_richness_hist <- hist(frugivore_richness_grid$num_species, main = paste("Histogram of Frugivore Richness [", resolution_meters / 1000, " km] by cell", sep = ""), xlab = "Frugivore Richness by cell")
   
-  bird_richness_hist <- hist(bird_richness_grid$num_species,
-                             main = paste("Histogram of Bird Richness [", resolution_meters / 1000, " km] by cell", sep = ""),
-                             xlab = "Bird Richness by cell")
+  mammal_richness_hist <- hist(mammal_richness_grid$num_species, main = paste("Histogram of Mammal Richness [", resolution_meters / 1000, " km] by cell", sep = ""), xlab = "Mammal Richness by cell")
+  
+  bird_richness_hist <- hist(bird_richness_grid$num_species, main = paste("Histogram of Bird Richness [", resolution_meters / 1000, " km] by cell", sep = ""), xlab = "Bird Richness by cell")
   
   # Return a list of data
   list(plantgridRichTA = plant_plot,
@@ -834,12 +831,12 @@ FD_map <- function(loc_key, PAM, resolution_meters, fdis, guild){
       geom_sf(data = Americas, fill = "white")+
       geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
       geom_sf(data = spatial_fdis_grid, aes(fill = fdis_value), color = 'NA') +
-      labs(fill = "FDis") +
-      ggtitle(paste0(resolution_meters/1000,"km")) +
+      labs(fill = "Plant FDis") +
       scale_fill_viridis_c(limits=lims, na.value = 'gray53', option='magma') +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-      theme(panel.background = element_rect(fill = "lightblue"),
-            text = element_text(size = 12), plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 45, hjust = 1))
+      scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+      scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+      theme(panel.background = element_rect(fill = "lightblue"), axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12), plot.title = element_text(hjust = 0.5, size=12))
     
   }else{
     gridFDisTA <-
@@ -847,18 +844,20 @@ FD_map <- function(loc_key, PAM, resolution_meters, fdis, guild){
       geom_sf(data = Americas, fill = "white")+
       geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
       geom_sf(data = spatial_fdis_grid, aes(fill = fdis_value), color = 'NA') +
-      labs(fill = "FDis") +
-      ggtitle(paste0(resolution_meters/1000,"km")) +
+      labs(fill = paste(str_to_title(guild),"FDis")) +
       scale_fill_viridis_c(limits=lims, na.value = 'gray53') +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-      theme(panel.background = element_rect(fill = "lightblue"),
-            text = element_text(size = 12), plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 45, hjust = 1))
+      scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+      scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+      theme(panel.background = element_rect(fill = "lightblue"), axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12), plot.title = element_text(hjust = 0.5, size=12))
   }
   
   list(gridFDisTA = gridFDisTA, spatial_fdis_grid = spatial_fdis_grid)
 }
 
 # Comparisons of diversity measurements
+
+# TD-TD or FD-FD
 div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
   
   if('num_species' %in% colnames(plant_div)){
@@ -920,6 +919,141 @@ div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
   
   result <- list(
     plot   = plot,
+    mammal = mammal_plant_sum_trend,
+    bird   = bird_plant_sum_trend
+  )
+  
+  return(result)
+}
+
+# TD-FD within same taxa
+div_comparison2 <- function(TD, FD, guild, resolution){
+  
+  all_div <- data.frame(cell_id=TD$cellid, TD = TD$num_species, FD=FD$fdis)
+  
+  # Filter out rows where either plant or frugivore richness is zero
+  div_filtered <- all_div %>%
+    filter(TD > 0 & FD > 0)
+  
+  if(guild=='plant'){
+    plot <- ggplot(data=div_filtered, aes(x=TD, y=FD))+
+      geom_point(size=2, color='darkseagreen3')+
+      labs(x='Plant richness by cell', y='Plant FDis by cell', title=paste0('[',resolution,'km]'))+
+      geom_smooth(method='lm', se=FALSE, color='darkseagreen3')+
+      scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
+      scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
+      theme_classic()+
+      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14)) 
+    
+    sum_trend <- trendline_sum(div_filtered$TD, div_filtered$FD, model="line2P")
+  } 
+  
+  else {
+    if(guild=='mammal'){
+      plot <- ggplot(data=div_filtered, aes(x=TD, y=FD))+
+        geom_point(size=2, color='burlywood3')+
+        labs(x='Mammal richness by cell', y='Mammal FDis by cell', title=paste0('[',resolution,'km]'))+
+        geom_smooth(method='lm', se=FALSE, color='burlywood3')+
+        scale_x_continuous(expand=c(0,0), limits=c(0,130))+
+        scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
+        theme_classic()+
+        theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14)) 
+      
+      sum_trend <- trendline_sum(div_filtered$TD, div_filtered$FD, model="line2P")
+    } 
+    else {
+      plot <- ggplot(data=div_filtered, aes(x=TD, y=FD))+
+        geom_point(size=2, color='lightsteelblue2')+
+        labs(x='Bird richness by cell', y='Bird FDis by cell', title=paste0('[',resolution,'km]'))+
+        geom_smooth(method='lm', se=FALSE, color='lightsteelblue2')+
+        scale_x_continuous(expand=c(0,0), limits=c(0,360))+
+        scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
+        theme_classic()+
+        theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14)) 
+      
+      sum_trend <- trendline_sum(div_filtered$TD, div_filtered$FD, model="line2P")
+    }
+  }
+  
+  result <- list(
+    plot = plot,
+    trend = sum_trend
+  )
+  return(result)
+}
+
+
+# TD plants-FD birds/mammals, FD plants-TD birds/mammals
+div_comparison3 <- function(plant_div, mammal_div, bird_div, resolution){
+  
+  if('num_species' %in% colnames(plant_div)){
+    
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, plant_div = plant_div$num_species, frug_div=mammal_div$fdis, taxa=c(rep('Mammal', nrow(mammal_div))))
+    
+    mammal_plant <- mammal_plant %>%
+      filter(plant_div > 0 & frug_div > 0)
+    
+    bird_plant <- data.frame(cell_id=plant_div$cellid, plant_div = plant_div$num_species, frug_div=bird_div$fdis, taxa=c(rep('Bird', nrow(bird_div))))
+    
+    bird_plant <- bird_plant %>%
+      filter(plant_div > 0 & frug_div > 0)
+    
+    plot1 <- ggplot(data=mammal_plant, aes(x=plant_div, y=frug_div))+
+      geom_point(size=2, color='burlywood3')+
+      labs(x='Plant richness by cell', y='Mammal FDis by cell', title=paste0('[',resolution,'km]'))+
+      geom_smooth(method='lm', se=FALSE, color='burlywood3')+
+      scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
+      scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
+      theme_classic()+
+      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14))
+    mammal_plant_sum_trend <- trendline_sum(mammal_plant$plant_div, mammal_plant$frug_div, model="line2P")
+    
+    plot2 <- ggplot(data=bird_plant, aes(x=plant_div, y=frug_div))+
+      geom_point(size=2, color='lightsteelblue2')+
+      labs(x='Plant richness by cell', y='Bird FDis by cell', title=paste0('[',resolution,'km]'))+
+      geom_smooth(method='lm', se=FALSE, color='lightsteelblue2')+
+      scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
+      scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
+      theme_classic()+
+      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14))
+    bird_plant_sum_trend <- trendline_sum(bird_plant$plant_div, bird_plant$frug_div, model="line2P")
+    
+  } else {
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, plant_div = plant_div$fdis, frug_div=mammal_div$num_species, taxa=c(rep('Mammal', nrow(mammal_div))))
+    
+    mammal_plant <- mammal_plant %>%
+      filter(plant_div > 0 & frug_div > 0)
+    
+    bird_plant <- data.frame(cell_id=plant_div$cellid, plant_div = plant_div$fdis, frug_div=bird_div$num_species, taxa=c(rep('Bird', nrow(bird_div)))) 
+    
+    bird_plant <- bird_plant %>%
+      filter(plant_div > 0 & frug_div > 0)
+    
+    plot1 <- ggplot(data=mammal_plant, aes(x=frug_div, y=plant_div))+
+      geom_point(size=2, color='burlywood3')+
+      labs(x='Mammal richness by cell', y='Plant FDis by cell', title=paste0('[',resolution,'km]'))+
+      geom_smooth(method='lm', se=FALSE, color='burlywood3')+
+      scale_x_continuous(expand=c(0,0), limits=c(0,130))+
+      scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
+      theme_classic()+
+      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14))
+    mammal_plant_sum_trend <- trendline_sum(mammal_plant$plant_div, mammal_plant$frug_div, model="line2P")
+    
+    plot2 <- ggplot(data=bird_plant, aes(x=frug_div, y=plant_div))+
+      geom_point(size=2, color='lightsteelblue2')+
+      labs(x='Bird richness by cell', y='Plant FDis by cell', title=paste0('[',resolution,'km]'))+
+      geom_smooth(method='lm', se=FALSE, color='lightsteelblue2')+
+      scale_x_continuous(expand=c(0,0), limits=c(0,400))+
+      scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
+      theme_classic()+
+      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14))
+    bird_plant_sum_trend <- trendline_sum(bird_plant$plant_div, bird_plant$frug_div, model="line2P")
+    
+  }
+  
+  result <- list(
+    plot1 = plot1,
+    plot2 = plot2,
     mammal = mammal_plant_sum_trend,
     bird   = bird_plant_sum_trend
   )
