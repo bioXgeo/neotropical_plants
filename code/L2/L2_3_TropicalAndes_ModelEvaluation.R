@@ -153,9 +153,10 @@ r2 <- ggplot(bothdiv_r2_long, aes(x=resolution, y=r_squared, color=type, linetyp
   scale_linetype_manual(values=c('solid','solid','dashed','dashed'))+
   geom_point(size=3)+
   scale_x_continuous(breaks=c(5,10,25,50,75,100))+
-  labs(color='Linear model measurement', x='Resolution', y=expression('R'^2))+
+  labs(color='Linear model', x='Resolution', y=expression('R'^2))+
   guides(color = guide_legend(override.aes = list(linetype = c("solid", "solid", "dashed", "dashed"), shape = NA)), linetype = "none") +
-  theme_classic()
+  theme_classic() +
+  theme(axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12))
 ggsave('LM_comparison_r2.png', r2, path = figure_path, width = 8, height = 6, units = "in", dpi=1000)
 
 
@@ -240,10 +241,11 @@ sc <- ggplot(bothdiv_sc_long, aes(x=resolution, y=slope_coefficient, color=type,
   scale_linetype_manual(values=c('solid','solid','dashed','dashed'))+
   geom_point(size=3)+
   scale_x_continuous(breaks=c(5,10,25,50,75,100))+
-  labs(color='Linear model measurement', x='Resolution', y='Slope coefficient')+
+  labs(color='Linear model', x='Resolution', y='Slope coefficient')+
   guides(color = guide_legend(override.aes = list(linetype = c("solid", "solid", "dashed", "dashed"), shape = NA)), linetype = "none") +
-  theme_classic()
+  theme_classic() +
+  theme(axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12))
 ggsave('LM_comparison_sc.png', sc, path = figure_path, width = 8, height = 6, units = "in", dpi=1000)
 
 wrap_plots(r2, sc) + plot_layout(guides='collect', axis_titles = 'collect')
-ggsave('r2_sc_comparison.png', path = figure_path, width = 12, height = 6, units = "in", dpi=1000)
+ggsave('r2_sc_comparison.png', path = figure_path, width = 10, height = 6, units = "in", dpi=1000)
