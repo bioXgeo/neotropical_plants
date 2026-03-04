@@ -22,9 +22,6 @@ figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figu
 # load functions
 source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
 
-## HPCC
-# source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
-
 
 # read in data
 plant_traits <- read.csv(file.path(data_path_L1, file = "TropicalAndes_imputed_plant_traits.csv"))
