@@ -9,13 +9,17 @@
 
   
 # load required packages
-library(tidyr); library(BIEN); library(GIFT); library(purrr); library(mice); library(dplyr); library(funbiogeo); library(visdat); library(ggplot2); library(forcats); library(viridis)
+library(tidyr); library(BIEN); library(GIFT); library(purrr); library(mice); library(dplyr); library(funbiogeo); library(visdat); library(ggplot2); library(forcats); library(viridis); library(car); library(patchwork)
 
 
 # set file paths
 data_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
+
+
+# load functions
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
 
 
 # read in data
@@ -984,73 +988,9 @@ fb_table_trait_summary(wide_traits)
 fb_plot_species_traits_completeness(wide_traits)
 ggsave("plant_trait_completeness_familygenus.png", plot = last_plot(), path = figure_path)
 
-fb_plot_number_species_by_trait(wide_traits)
-ggsave("plant_number_species_trait_familygenus.png", plot = last_plot(), path = figure_path)
+trait_props <- fb_plot_number_species_by_trait(wide_traits)
+ggsave("plant_number_species_trait_familygenus.png", plot = trait_props, path = figure_path)
 
-
-#### remove traits that no GIFT or BIEN data can be collected from ####
-
-# exploratory analyses
-# some traits cover a small % of plants: look for correlation
-
-hist(log(wide_traits$SeedLength_mm))
-hist(log(wide_traits$FruitMass_mg))
-hist(log(wide_traits$FruitLength_mm))
-hist(log(wide_traits$SeedWidth_mm))
-hist(log(wide_traits$SeedMass_g))
-
-# comparing fruit measurements
-measurements <- subset(wide_traits, select=c('SeedLength_mm','FruitMass_mg','FruitLength_mm','SeedWidth_mm', 'SeedMass_g'))
-
-measurements$SeedLength_mm <- log(measurements$SeedLength_mm+1)
-measurements$FruitMass_mg <- log(measurements$FruitMass_mg)
-measurements$FruitLength_mm <- log(measurements$FruitLength_mm+1)
-measurements$SeedWidth_mm <- log(measurements$SeedWidth_mm+1)
-measurements$SeedMass_g <- log(measurements$SeedMass_g+1)
-
-mG <- lm(data=measurements, SeedLength_mm~.)
-step(mG, direction='backward')
-
-mL <- lm(data=measurements, SeedLength_mm~1)
-step(mG, direction='forward')
-
-m <- lm(formula = SeedLength_mm ~ FruitMass_mg + SeedWidth_mm + FruitLength_mm + SeedMass_g, data = measurements)
-summary(m)
-
-ggplot(measurements, aes(x=FruitMass_mg, y=SeedLength_mm))+
-  geom_point()+
-  theme_classic()
-
-ggplot(measurements, aes(x=SeedWidth_mm, y=SeedLength_mm))+
-  geom_point()+
-  theme_classic()
-
-ggplot(measurements, aes(x=FruitLength_mm, y=SeedLength_mm))+
-  geom_point()+
-  theme_classic()
-
-ggplot(measurements, aes(x=SeedMass_g, y=SeedLength_mm))+
-  geom_point()+
-  theme_classic()
-
-library(car)
-dryness <- filter(wide_traits, !is.na(FruitDryness))
-m2 <- lm(data=dryness, log(SeedMass_g+1)~FruitDryness)
-summary(m2)
-Anova(m2)
-
-ggplot(dryness, aes(x=FruitDryness, y=log(SeedMass_g+1)))+
-  geom_boxplot()+
-  theme_classic()
-
-conspicuousness <- filter(wide_traits, !is.na(FruitConspicuousness))
-m2 <- lm(data=conspicuousness, log(SeedLength_mm+1)~FruitConspicuousness)
-summary(m2)
-Anova(m2)
-
-ggplot(conspicuousness, aes(x=FruitConspicuousness, y=log(SeedLength_mm+1)))+
-  geom_boxplot()+
-  theme_classic()
 
 # subset data
 traits_kept <- c('PlantHeight_m','FruitType','PlantLifespan_years','SeedMass_g','FruitLength_mm','GrowthForm','SeedLength_mm','DispersalSyndrome')
@@ -1081,6 +1021,7 @@ cat("Number of traits with NA records:", traits_with_na_count2, "\n")
 100 * na_records_count2/nrow(all_traits_with_NAs2)
 
 wide_traits2 <- subset(wide_traits, select=c('species','PlantHeight_m','FruitType','PlantLifespan_years','SeedMass_g','FruitLength_mm','GrowthForm','SeedLength_mm','DispersalSyndrome'))
+write.csv(wide_traits2, file.path(output_path_L1,"TropicalAndes_wide_traits_before_imputation.csv"))
 
 # plot completeness
 fb_plot_species_traits_completeness(wide_traits2)
@@ -1107,8 +1048,8 @@ write.csv(imputed_data, file.path(output_path_L1,"TropicalAndes_imputed_plant_tr
 fb_plot_species_traits_completeness(imputed_data)
 ggsave("plant_trait_completeness_imputed.png", plot = last_plot(), path = figure_path)
 
-fb_plot_number_species_by_trait(imputed_data)
-ggsave("plant_number_species_trait_imputed.png", plot = last_plot(), path = figure_path)
+imputed_data <- fb_plot_number_species_by_trait(imputed_data)
+ggsave("plant_number_species_trait_imputed.png", plot = imputed_data, path = figure_path)
 
 fb_table_trait_summary(imputed_data)
 
@@ -1168,5 +1109,16 @@ trait_counts_overall$percentage <- (trait_counts_overall$n / total_sum) * 100
 print(trait_counts_overall)
 
 
-# Save imputed data
-write.csv(imputed_data2, file.path(output_path_L1,"TropicalAndes_imputed_plant_traits2.csv"))
+# combine trait proportion plots
+trait_props <- trait_props + theme(axis.title.y = element_blank(), axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12), plot.title = element_text(hjust = 0.5, size=12))
+
+# version from L1_P4_TropicalAndes_plant_traits
+old_wide_plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_all_plant_traits_standardized.csv"))
+old_wide_plant_traits <- old_wide_plant_traits[,-1]
+old_trait_props <- fb_plot_number_species_by_trait(old_wide_plant_traits)
+
+old_trait_props <- old_trait_props + theme(axis.title.y = element_blank(), axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12), plot.title = element_text(hjust = 0.5, size=12))
+
+species_coverage <- wrap_plots(old_trait_props, trait_props) + plot_annotation(tag_levels=list(c('(a)','(b)'))) + plot_layout(guides='collect', axis_titles = 'collect', ncol=1)
+
+ggsave('species_coverage_imputation.png', species_coverage, path = figure_path, width = 12, height = 10, units = "in", dpi=1000)
