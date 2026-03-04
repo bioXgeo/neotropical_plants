@@ -146,6 +146,7 @@ print(fruitMass_outliers)
 
 fruitMass_outliers_species <- species_with_outliers(fruitMass_outliers)
 print(fruitMass_outliers_species)
+count(fruitMass_outliers_species)
 
 summarize_species_records(traits_fruitMass)
 
@@ -193,6 +194,7 @@ print(fruitLength_outliers)
 
 fruitLength_outliers_species <- species_with_outliers(fruitLength_outliers)
 print(fruitLength_outliers_species)
+count(fruitLength_outliers_species)
 
 summarize_species_records(traits_fruitLength)
 
@@ -478,6 +480,7 @@ print(plantLifespan_outliers)
 
 plantLifespan_outliers_species <- species_with_outliers(plantLifespan_outliers)
 print(plantLifespan_outliers_species)
+count(plantLifespan_outliers_species)
 
 summarize_species_records(traits_plantLifespan)
 
@@ -521,6 +524,7 @@ print(plantHeight_outliers)
 
 plantHeight_outliers_species <- species_with_outliers(plantHeight_outliers)
 print(plantHeight_outliers_species)
+count(plantHeight_outliers_species)
 
 summarize_species_records(traits_plantHeight)
 
@@ -567,6 +571,7 @@ print(seedMass_outliers)
 
 seedMass_outliers_species <- species_with_outliers(seedMass_outliers)
 print(seedMass_outliers_species)
+count(seedMass_outliers_species)
 
 summarize_species_records(traits_seedMass)
 
@@ -608,6 +613,7 @@ print(seedLength_outliers)
 
 seedLength_outliers_species <- species_with_outliers(seedLength_outliers)
 print(seedLength_outliers_species)
+count(seedLength_outliers_species)
 
 summarize_species_records(traits_seedLength)
 
@@ -650,6 +656,7 @@ print(seedWidth_outliers)
 
 seedWidth_outliers_species <- species_with_outliers(seedWidth_outliers)
 print(seedWidth_outliers_species)
+count(seedWidth_outliers_species)
 
 summarize_species_records(traits_seedWidth)
 
@@ -667,6 +674,11 @@ summary(averagetraits_seedWidth)
 unaveraged_traits <- rbind(traits_dispersal, traits_fruitColor, traits_fruitConspicuousness, traits_fruitDryness, traits_fruitLength, traits_fruitMass, traits_fruitType, traits_growthForm, traits_plantHeight, traits_plantLifespan, traits_seedLength, traits_seedMass, traits_seedWidth)
 
 trait_dfs <- list(averagetraits_dispersal, averagetraits_fruitColor, averagetraits_fruitConspicuousness, averagetraits_fruitDryness, averagetraits_fruitLength, averagetraits_fruitMass, averagetraits_fruitType, averagetraits_growthForm, averagetraits_plantHeight, averagetraits_plantLifespan, averagetraits_seedLength, averagetraits_seedMass, averagetraits_seedWidth)
+
+
+# clean traits
+clean_traits <- combine_matching_columns(trait_dfs)
+nrow(clean_traits)
 
 
 # transform plant dataframe from long to wide
@@ -695,6 +707,7 @@ wide_plant_traits$`SeedWidth_mm` <- as.numeric(wide_plant_traits$`SeedWidth_mm`)
 # rename accepted_species column to species
 wide_plant_traits <- wide_plant_traits %>%
   rename(species = Accepted_species)
+write.csv(wide_plant_traits, file.path(output_path_L1,"TropicalAndes_wide_traits_after_standardization.csv"))
 
 
 # summary
@@ -704,7 +717,7 @@ cat("Number of species:", length(unique(clean_traits$Accepted_species)), "\n")
 fb_plot_species_traits_completeness(wide_plant_traits)
 ggsave("plant_trait_completeness.png", plot = last_plot(), path = figure_path)
 
-fb_plot_number_species_by_trait(wide_plant_traits)
+trait_props <- fb_plot_number_species_by_trait(wide_plant_traits)
 ggsave("plant_number_species_trait.png", plot = last_plot(), path = figure_path)
 
 fb_table_trait_summary(wide_plant_traits)
