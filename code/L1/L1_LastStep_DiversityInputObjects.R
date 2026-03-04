@@ -10,7 +10,7 @@
 
 
 # load required packages
-library(letsR); library(mFD); library(vegan); library(rnaturalearth); library(sf); library(raster); library(fasterize); library(funbiogeo); library(dplyr); library(tidyr); library(ggspatial); library(ggplot2); library(ggpubr)
+library(letsR); library(mFD); library(vegan); library(rnaturalearth); library(sf); library(raster); library(fasterize); library(funbiogeo); library(dplyr); library(tidyr); library(ggspatial); library(ggplot2); library(ggpubr); library(rphylopic); library(patchwork)
 
 
 # set file paths
@@ -95,6 +95,10 @@ birds_sf_species <- birds.sf %>%
   group_by(species) %>%
   summarise()
 
+# data (if already saved)
+Americas <- readRDS(file.path(data_path_L1, "Americas.rds"))
+TApoly <- readRDS(file.path(data_path_L1,"TApoly.rds"))
+TropicalAndes_IUCNHabitat_Forest <- readRDS(file.path(data_path_L1,"TropicalAndes_IUCNHabitat_Forest.rds"))
 
 # plot base map
 basePlot <-
@@ -113,6 +117,12 @@ basePlot
 ggsave("tropical_andes_forest_map.png", plot = last_plot(), path = figure_path)
 
 
+# data (if already saved)
+plants_sf_species <- readRDS(file.path(data_path_L1,"plants_sf_species.rds"))
+
+# plant picture
+plant <- pick_phylopic(name='Coffea alleizettei')
+
 # plot points
 plantsPointsPlot <-
   ggplot() +
@@ -120,16 +130,19 @@ plantsPointsPlot <-
   geom_sf(data = TApoly) +
   geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50") + 
   geom_sf(data = plants_sf_species, pch = 16, size = 0.05, color='darkseagreen3') +
-  labs(title = "Fruiting Plant\nOccurrences", x = "Latitude", y = "Longitude") +
+  labs(title = "Fruiting plants") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
   scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
   scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+  add_phylopic(img=plant, x=-82, y=17, height=5)+
   annotation_scale(location = "bl",width_hint = 0.2, style = "bar") +
   annotation_north_arrow(location = "bl", which_north = "true",
-                         height = unit(0.5, "in"), width = unit(0.5, "in"),
+                         height = unit(0.3, "in"), width = unit(0.3, "in"),
                          pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
                          style = north_arrow_fancy_orienteering) +
-  theme(panel.background = element_rect(fill = "lightblue"))
+  theme(panel.background = element_rect(fill = "lightblue"), plot.title=element_text(hjust=0.5))+
+  xlab('')+ 
+  ylab('Longitude')
 
 plantsPointsPlot
 ggsave("plant_occurrence_points_map.png", plot = last_plot(), path = figure_path)
@@ -158,27 +171,40 @@ frugivoresPointsPlot
 ggsave("frugivore_occurrence_points_map.png", plot = last_plot(), path = figure_path)
 
 
+# data (if already saved)
+mammals_sf_species <- readRDS(file.path(data_path_L1,"mammals_sf_species.rds"))
+
+# mammal picture
+mammal <- pick_phylopic(name='Potos flavus', n=2, auto=2)
+
 mammalsPointsPlot <-
   ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
   geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50") +
   geom_sf(data = mammals_sf_species, pch = 16, size = 0.01, color='burlywood3') +
-  labs(title = "Mammal\nOccurrences") +
+  labs(title = "Mammals") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
   scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
   scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+  add_phylopic(img=mammal, x=-78, y=16, height=6)+
   # annotation_scale(location = "bl",width_hint = 0.3, style = "bar") +
   # annotation_north_arrow(location = "bl", which_north = "true",
   #                        height = unit(0.5, "in"), width = unit(0.5, "in"),
   #                        pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
   #                        style = north_arrow_fancy_orienteering) +
-  theme(panel.background = element_rect(fill = "lightblue"))+
-  xlab('')+ 
+  theme(panel.background = element_rect(fill = "lightblue"), plot.title=element_text(hjust=0.5))+
+  xlab('Latitude')+ 
   ylab('')
 mammalsPointsPlot
 ggsave("mammal_occurrence_points_map.png", plot = last_plot(), path = figure_path)
 
+
+# data (if already saved)
+birds_sf_species <- readRDS(file.path(data_path_L1,"birds_sf_species.rds"))
+
+# bird picture
+bird <- pick_phylopic(name='Ramphastos sulfuratus', n=2, auto=1)
 
 birdsPointsPlot <-
   ggplot() +
@@ -186,23 +212,24 @@ birdsPointsPlot <-
   geom_sf(data = TApoly) +
   geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50")+
   geom_sf(data = birds_sf_species, pch = 16, size = 0.01, color='lightsteelblue2') +
-  labs(title = "Bird\nOccurrences") +
+  labs(title = "Birds") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
   scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
   scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+  add_phylopic(img=bird, x=-76, y=17, height=6)+
   # annotation_scale(location = "bl",width_hint = 0.3, style = "bar") +
   # annotation_north_arrow(location = "bl", which_north = "true",
   #                        height = unit(0.5, "in"), width = unit(0.5, "in"),
   #                        pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
   #                        style = north_arrow_fancy_orienteering) +
-  theme(panel.background = element_rect(fill = "lightblue"))+
+  theme(panel.background = element_rect(fill = "lightblue"), plot.title=element_text(hjust=0.5))+
   xlab('')+ 
   ylab('')
 birdsPointsPlot 
 ggsave("bird_occurrence_points_map.png", plot = last_plot(), path = figure_path)
 
 
-all_points_maps <- wrap_plots(plantsPointsPlot, mammalsPointsPlot, birdsPointsPlot, ncol = 3, nrow = 1)
+all_points_maps <- wrap_plots(plantsPointsPlot, mammalsPointsPlot, birdsPointsPlot, ncol = 3, nrow = 1) + plot_annotation(tag_levels=list(c('(a)','(b)','(c)')))
 all_points_maps
 ggsave("all_points_maps.png", all_points_maps, path = figure_path, height =  7, width = 8, units = "in", dpi=1000)
 
