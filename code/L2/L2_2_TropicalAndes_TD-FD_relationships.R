@@ -392,7 +392,7 @@ all_bird_R_FD_plots
 ggsave('plantRichness-birdFDis_plots.png', all_bird_R_FD_plots, path = figure_path, width = 14, height = 8, units = "in", dpi=1000)
 
 # both together
-plantRichness_frugFDis_plots <- plot_grid(all_mammal_R_FD_plots, all_bird_R_FD_plots, labels = c('A', 'B'), nrow=2)
+plantRichness_frugFDis_plots <- plot_grid(all_mammal_R_FD_plots, all_bird_R_FD_plots, labels = c('(a)', '(b)'), label_fontface='plain', nrow=2)
 plantRichness_frugFDis_plots
 ggsave('plantRichness-frugFDis_plots.png', plantRichness_frugFDis_plots, path = figure_path, width = 14, height = 12, units = "in", dpi=1000)
 
@@ -512,6 +512,7 @@ all_bird_FD_R_plots
 ggsave('birdRichness_plantFDis_plots.png', all_bird_FD_R_plots, path = figure_path, width = 14, height = 8, units = "in", dpi=1000)
 
 # both together
-frugRichness_plantFDis_plots <- plot_grid(all_mammal_FD_R_plots, all_bird_FD_R_plots, labels = c('A', 'B'), nrow=2)
+frugRichness_plantFDis_plots <- plot_grid(all_mammal_FD_R_plots, all_bird_FD_R_plots, labels = c('(a)', '(b)'), label_fontface='plain', nrow=2)
 frugRichness_plantFDis_plots
 ggsave('frugRichness_plantFDis_plots.png', frugRichness_plantFDis_plots, path = figure_path, width = 14, height = 12, units = "in", dpi=1000)
+
