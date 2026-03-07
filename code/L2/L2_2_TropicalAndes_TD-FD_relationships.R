@@ -178,7 +178,7 @@ plants_5km_plot <- plants_5km_plot + xlab('Plant richness by cell') + ylab('Plan
 
 
 # combined plot
-all_plant_R_FD_plots <- wrap_plots(plants_5km_plot, plants_10km_plot, plants_25km_plot, plants_50km_plot, plants_75km_plot, plants_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 20, 20, 20),legend.position='bottom')
+all_plant_R_FD_plots <- wrap_plots(plants_5km_plot, plants_10km_plot, plants_25km_plot, plants_50km_plot, plants_75km_plot, plants_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 15, 15, 15),legend.position='bottom')
 
 all_plant_R_FD_plots
 
@@ -224,7 +224,7 @@ mammals_5km_plot <- mammals_5km_plot + xlab('Mammal richness by cell') + ylab('M
 
 
 # combined plot
-all_mammal_R_FD_plots <- wrap_plots(mammals_5km_plot, mammals_10km_plot, mammals_25km_plot, mammals_50km_plot, mammals_75km_plot, mammals_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 20, 20, 20),legend.position='bottom')
+all_mammal_R_FD_plots <- wrap_plots(mammals_5km_plot, mammals_10km_plot, mammals_25km_plot, mammals_50km_plot, mammals_75km_plot, mammals_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 15, 15, 15),legend.position='bottom')
 
 all_mammal_R_FD_plots
 
@@ -270,7 +270,7 @@ birds_5km_plot <- birds_5km_plot + xlab('Bird richness by cell') + ylab('Bird FD
 
 
 # combined plot
-all_bird_R_FD_plots <- wrap_plots(birds_5km_plot, birds_10km_plot, birds_25km_plot, birds_50km_plot, birds_75km_plot, birds_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 20, 20, 20),legend.position='bottom')
+all_bird_R_FD_plots <- wrap_plots(birds_5km_plot, birds_10km_plot, birds_25km_plot, birds_50km_plot, birds_75km_plot, birds_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 15, 15, 15),legend.position='bottom')
 
 all_bird_R_FD_plots
 
@@ -378,14 +378,14 @@ saveRDS(R_FD_comparison_5km$bird, file = file.path(output_path_L2,"compare_Prich
 # combined plots
 
 # mammals
-all_mammal_R_FD_plots <- wrap_plots(PR_MFD_comparison_5km_plot, PR_MFD_comparison_10km_plot, PR_MFD_comparison_25km_plot, PR_MFD_comparison_50km_plot, PR_MFD_comparison_75km_plot, PR_MFD_comparison_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 20, 20, 20),legend.position='bottom')
+all_mammal_R_FD_plots <- wrap_plots(PR_MFD_comparison_5km_plot, PR_MFD_comparison_10km_plot, PR_MFD_comparison_25km_plot, PR_MFD_comparison_50km_plot, PR_MFD_comparison_75km_plot, PR_MFD_comparison_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 15, 15, 15),legend.position='bottom')
 
 all_mammal_R_FD_plots
 
 ggsave('plantRichness-mammalFDis_plots.png', all_mammal_R_FD_plots, path = figure_path, width = 14, height = 8, units = "in", dpi=1000)
 
 # birds
-all_bird_R_FD_plots <- wrap_plots(PR_BFD_comparison_5km_plot, PR_BFD_comparison_10km_plot, PR_BFD_comparison_25km_plot, PR_BFD_comparison_50km_plot, PR_BFD_comparison_75km_plot, PR_BFD_comparison_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 20, 20, 20),legend.position='bottom')
+all_bird_R_FD_plots <- wrap_plots(PR_BFD_comparison_5km_plot, PR_BFD_comparison_10km_plot, PR_BFD_comparison_25km_plot, PR_BFD_comparison_50km_plot, PR_BFD_comparison_75km_plot, PR_BFD_comparison_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 15, 15, 15),legend.position='bottom')
 
 all_bird_R_FD_plots
 
@@ -394,7 +394,7 @@ ggsave('plantRichness-birdFDis_plots.png', all_bird_R_FD_plots, path = figure_pa
 # both together
 plantRichness_frugFDis_plots <- plot_grid(all_mammal_R_FD_plots, all_bird_R_FD_plots, labels = c('(a)', '(b)'), label_fontface='plain', nrow=2)
 plantRichness_frugFDis_plots
-ggsave('plantRichness-frugFDis_plots.png', plantRichness_frugFDis_plots, path = figure_path, width = 14, height = 12, units = "in", dpi=1000)
+ggsave('plantRichness-frugFDis_plots.png', plantRichness_frugFDis_plots, path = figure_path, width = 11, height = 10, units = "in", dpi=1000)
 
 
 #### comparison of plant FDis-frugivore richness ####
@@ -498,14 +498,14 @@ saveRDS(FD_R_comparison_5km$bird, file = file.path(output_path_L2,"compare_PFDis
 # combined plots
 
 # mammals
-all_mammal_FD_R_plots <- wrap_plots(PFD_MR_5km, PFD_MR_10km, PFD_MR_25km, PFD_MR_50km, PFD_MR_75km, PFD_MR_100km, ncol=3, nrow=2) + plot_layout( axis_titles = 'collect') & theme(plot.margin = margin(5, 20, 20, 20), legend.position='bottom')
+all_mammal_FD_R_plots <- wrap_plots(PFD_MR_5km, PFD_MR_10km, PFD_MR_25km, PFD_MR_50km, PFD_MR_75km, PFD_MR_100km, ncol=3, nrow=2) + plot_layout( axis_titles = 'collect') & theme(plot.margin = margin(5, 15, 15, 15), legend.position='bottom')
 
 all_mammal_FD_R_plots
 
 ggsave('mammalRichness_plantFDis_plots.png', all_mammal_FD_R_plots, path = figure_path, width = 14, height = 8, units = "in", dpi=1000)
 
 # birds
-all_bird_FD_R_plots <- wrap_plots(PFD_BR_5km, PFD_BR_10km, PFD_BR_25km, PFD_BR_50km, PFD_BR_75km, PFD_BR_100km, ncol=3, nrow=2) + plot_layout( axis_titles = 'collect') & theme(plot.margin = margin(5, 20, 20, 20), legend.position='bottom')
+all_bird_FD_R_plots <- wrap_plots(PFD_BR_5km, PFD_BR_10km, PFD_BR_25km, PFD_BR_50km, PFD_BR_75km, PFD_BR_100km, ncol=3, nrow=2) + plot_layout( axis_titles = 'collect') & theme(plot.margin = margin(5, 15, 15, 15), legend.position='bottom')
 
 all_bird_FD_R_plots
 
@@ -514,5 +514,5 @@ ggsave('birdRichness_plantFDis_plots.png', all_bird_FD_R_plots, path = figure_pa
 # both together
 frugRichness_plantFDis_plots <- plot_grid(all_mammal_FD_R_plots, all_bird_FD_R_plots, labels = c('(a)', '(b)'), label_fontface='plain', nrow=2)
 frugRichness_plantFDis_plots
-ggsave('frugRichness_plantFDis_plots.png', frugRichness_plantFDis_plots, path = figure_path, width = 14, height = 12, units = "in", dpi=1000)
+ggsave('frugRichness_plantFDis_plots.png', frugRichness_plantFDis_plots, path = figure_path, width = 11, height = 10, units = "in", dpi=1000)
 
