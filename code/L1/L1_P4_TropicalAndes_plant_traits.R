@@ -18,6 +18,10 @@ output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 
 
+# load functions
+source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
+
+
 # read in subset fruiting species data
 plant_traits <- read.csv(file.path(data_path_L1, "TropicalAndes_all_plant_traits_harmonized_subset.csv"))
 
@@ -748,9 +752,13 @@ ggplot(trait_counts, aes(x = DatabaseSource, y = n, fill = DatabaseSource)) +
   scale_fill_manual(values = custom_colors) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1), 
-        legend.position = "none") +
+        legend.position = "none",
+        plot.title = element_text(hjust = 0.5, size=20),
+        axis.text = element_text(size=12),
+        strip.text = element_text(size=14),
+        axis.title = element_text(size=18)) +
   facet_wrap(~ TraitName, scales = "free_y", nrow = 2)
-ggsave("plant_trait_counts_per_database.png", plot = last_plot(), path = figure_path, width = 12, height = 5)
+ggsave("plant_trait_counts_per_database.png", plot = last_plot(), path = figure_path, width = 18, height = 8)
 
 
 # write data to csv
