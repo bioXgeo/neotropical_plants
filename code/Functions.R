@@ -413,7 +413,7 @@ create_rich_plots <- function(resolution_meters) {
       geom_sf(data = TApoly, fill = "grey") +
       geom_sf(aes(fill = num_species), color = NA) +
       scale_fill_viridis_c(limits=Plims, na.value = 'gray53', option='magma') +
-      labs(fill = "Plant S") +
+      labs(fill = "Plants") +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
       scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
       scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
@@ -426,7 +426,7 @@ create_rich_plots <- function(resolution_meters) {
       geom_sf(data = TApoly, fill = "grey") +
       geom_sf(aes(fill = num_species), color = NA) +
       scale_fill_viridis_c(limits=Flims, na.value = 'gray53') +
-      labs(fill = "Frugivore S") +
+      labs(fill = "Frugivores") +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
       scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
       scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
@@ -439,7 +439,7 @@ create_rich_plots <- function(resolution_meters) {
       geom_sf(data = TApoly, fill = "grey") +
       geom_sf(aes(fill = num_species), color = NA) +
       scale_fill_viridis_c(limits=Mlims, na.value = 'gray53') +
-      labs(fill = "Mammal S") +
+      labs(fill = "Mammals") +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
       scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
       scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
@@ -452,7 +452,7 @@ create_rich_plots <- function(resolution_meters) {
       geom_sf(data = TApoly, fill = "grey") +
       geom_sf(aes(fill = num_species), color = NA) +
       scale_fill_viridis_c(limits=Blims, na.value = 'gray53') +
-      labs(fill = "Bird S") +
+      labs(fill = "Birds") +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
       scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
       scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
@@ -831,7 +831,7 @@ FD_map <- function(loc_key, PAM, resolution_meters, fdis, guild){
       geom_sf(data = Americas, fill = "white")+
       geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
       geom_sf(data = spatial_fdis_grid, aes(fill = fdis_value), color = 'NA') +
-      labs(fill = "Plant FDis") +
+      labs(fill = "Plants") +
       scale_fill_viridis_c(limits=lims, na.value = 'gray53', option='magma') +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
       scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
@@ -844,7 +844,7 @@ FD_map <- function(loc_key, PAM, resolution_meters, fdis, guild){
       geom_sf(data = Americas, fill = "white")+
       geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
       geom_sf(data = spatial_fdis_grid, aes(fill = fdis_value), color = 'NA') +
-      labs(fill = paste(str_to_title(guild),"FDis")) +
+      labs(fill = paste0(str_to_title(guild),"s")) +
       scale_fill_viridis_c(limits=lims, na.value = 'gray53') +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
       scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
@@ -880,7 +880,7 @@ div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
       scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
       scale_y_continuous(expand=c(0,0), limits=c(0,400))+
       theme_classic()+
-      theme(axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12))
+      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))
     
     mammal_plant_sum <- div_filtered[div_filtered$taxa=='Mammal',]
     mammal_plant_sum_trend <- trendline_sum(mammal_plant_sum$plant_div, mammal_plant_sum$frug_div, model="line2P")
@@ -907,7 +907,7 @@ div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
       scale_x_continuous(expand=c(0,0), limits=c(0,.8))+
       scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
       theme_classic()+
-      theme(axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12))
+      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))
     mammal_plant_sum <- div_filtered[div_filtered$taxa=='Mammal',]
     mammal_plant_sum_trend <- trendline_sum(mammal_plant_sum$plant_div, mammal_plant_sum$frug_div, model="line2P")
     
@@ -943,7 +943,7 @@ div_comparison2 <- function(TD, FD, guild, resolution){
       scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
       scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
       theme_classic()+
-      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14)) 
+      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16)) 
     
     sum_trend <- trendline_sum(div_filtered$TD, div_filtered$FD, model="line2P")
   } 
@@ -957,7 +957,7 @@ div_comparison2 <- function(TD, FD, guild, resolution){
         scale_x_continuous(expand=c(0,0), limits=c(0,130))+
         scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
         theme_classic()+
-        theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14)) 
+        theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16)) 
       
       sum_trend <- trendline_sum(div_filtered$TD, div_filtered$FD, model="line2P")
     } 
@@ -969,7 +969,7 @@ div_comparison2 <- function(TD, FD, guild, resolution){
         scale_x_continuous(expand=c(0,0), limits=c(0,360))+
         scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
         theme_classic()+
-        theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14)) 
+        theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16)) 
       
       sum_trend <- trendline_sum(div_filtered$TD, div_filtered$FD, model="line2P")
     }
@@ -1005,7 +1005,7 @@ div_comparison3 <- function(plant_div, mammal_div, bird_div, resolution){
       scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
       scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
       theme_classic()+
-      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14))
+      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))
     mammal_plant_sum_trend <- trendline_sum(mammal_plant$plant_div, mammal_plant$frug_div, model="line2P")
     
     plot2 <- ggplot(data=bird_plant, aes(x=plant_div, y=frug_div))+
@@ -1015,7 +1015,7 @@ div_comparison3 <- function(plant_div, mammal_div, bird_div, resolution){
       scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
       scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
       theme_classic()+
-      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14))
+      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))
     bird_plant_sum_trend <- trendline_sum(bird_plant$plant_div, bird_plant$frug_div, model="line2P")
     
   } else {
@@ -1036,7 +1036,7 @@ div_comparison3 <- function(plant_div, mammal_div, bird_div, resolution){
       scale_x_continuous(expand=c(0,0), limits=c(0,130))+
       scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
       theme_classic()+
-      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14))
+      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))
     mammal_plant_sum_trend <- trendline_sum(mammal_plant$plant_div, mammal_plant$frug_div, model="line2P")
     
     plot2 <- ggplot(data=bird_plant, aes(x=frug_div, y=plant_div))+
@@ -1046,7 +1046,7 @@ div_comparison3 <- function(plant_div, mammal_div, bird_div, resolution){
       scale_x_continuous(expand=c(0,0), limits=c(0,400))+
       scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
       theme_classic()+
-      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 14), legend.title = element_text(size = 18), legend.text = element_text(size = 14))
+      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))
     bird_plant_sum_trend <- trendline_sum(bird_plant$plant_div, bird_plant$frug_div, model="line2P")
     
   }
