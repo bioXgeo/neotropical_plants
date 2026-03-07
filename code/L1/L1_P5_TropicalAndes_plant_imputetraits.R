@@ -1066,13 +1066,16 @@ trait_counts <- all_traits_with_NAs2 %>%
 (trait_count_level_plot <- ggplot(trait_counts, aes(x = TraitLevel, y = n, fill = TraitLevel)) +
     geom_bar(stat = "identity", position = "dodge") +
     scale_fill_viridis(discrete = TRUE) +
-    labs(x = "Trait Level",
-         y = "Trait Count",
+    labs(x = "Trait level",
+         y = "Trait count",
          fill = "Level") +
+    facet_wrap(~ TraitName, scales = "free_y", nrow = 2) +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
-          legend.position = "none") +  # Remove legend
-    facet_wrap(~ TraitName, scales = "free_y", nrow = 2) +
+          axis.text = element_text(size=12),
+          legend.position = "none",
+          strip.text = element_text(size=16),
+          axis.title = element_text(size=20)) +  # Remove legend
     guides(fill = "none"))  # Remove legend
 ggsave("plant_trait_counts_per_level.png", plot = trait_count_level_plot, path = figure_path, height = 6, width = 8, units = "in", dpi=1000)
 
@@ -1088,13 +1091,21 @@ trait_counts_overall <- all_traits_with_NAs2 %>%
     geom_bar(stat = "identity", position = "dodge") +
     scale_fill_viridis(discrete = TRUE) +
     labs(title = "All traits",
-         x = "Trait Level",
-         y = "Trait Count",
+         x = "Trait level",
+         y = "Trait count",
          fill = "Level") +
     theme_minimal() +
-    theme(plot.title = element_text(hjust = 0.5)) +
+    theme(plot.title = element_text(hjust = 0.5, size=16),
+          axis.text = element_text(size=12),
+          axis.title = element_text(size=20)) +
     guides(fill = "none"))  # Remove legend
 ggsave("plant_trait_counts_per_level_overall.png", plot = all_trait_count_plot, path = figure_path, height = 6, width = 4, units = "in", dpi=1000)
+
+
+# combine plots
+trait_counts <- wrap_plots(trait_count_level_plot, all_trait_count_plot) + plot_annotation(tag_levels=list(c('(a)','(b)'))) + plot_layout(guides='collect', axis_titles = 'collect', ncol=2, widths = c(2, 1)) & theme(plot.tag = element_text(size = 18))
+
+ggsave('trait_counts_imputation.png', trait_counts, path = figure_path, width = 16, height = 10, units = "in", dpi=1000)
 
 
 # calculate the total sum of the values
