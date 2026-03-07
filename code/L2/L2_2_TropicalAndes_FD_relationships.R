@@ -114,7 +114,7 @@ plant_cellFDis_5km <- clean_fdis(fdis_plant_5km, 5)
 comparison_100km <- div_comparison(plant_cellFDis_100km, mammal_cellFDis_100km, bird_cellFDis_100km, 100)
 
 comparison_100km_plot <- comparison_100km$plot
-comparison_100km_plot <- comparison_100km_plot + ylab('Frugivore FDis by cell') + xlab('Plant FDis by cell') + theme(axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank())
+comparison_100km_plot <- comparison_100km_plot + ylab('Frugivore FDis by cell') + xlab('Plant FDis by cell') + theme(axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank())+ annotate("text", x = 0.4, y = 0.7, label = paste('R² =', comparison_100km$mammal$R.squared), size=5) + annotate("text", x = 0.4, y = 0.5, label = paste('R² =', comparison_100km$bird$R.squared), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))
 
 saveRDS(comparison_100km$bird, file = file.path(output_path_L2,"compare_BPFDis_100km.rds"))
 saveRDS(comparison_100km$mammal, file = file.path(output_path_L2,"compare_MPFDis_100km.rds"))
@@ -124,7 +124,7 @@ saveRDS(comparison_100km$mammal, file = file.path(output_path_L2,"compare_MPFDis
 comparison_75km <- div_comparison(plant_cellFDis_75km, mammal_cellFDis_75km, bird_cellFDis_75km, 75)
 
 comparison_75km_plot <- comparison_75km$plot
-comparison_75km_plot <- comparison_75km_plot + ylab('Frugivore FDis by cell') + xlab('Plant FDis by cell') + theme(axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank())
+comparison_75km_plot <- comparison_75km_plot + ylab('Frugivore FDis by cell') + xlab('Plant FDis by cell') + theme(axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) + annotate("text", x = 0.3, y = 0.7, label = paste('R² =', comparison_75km$mammal$R.squared), size=5) + annotate("text", x = 0.3, y = 0.5, label = paste('R² =', comparison_75km$bird$R.squared), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))
 
 saveRDS(comparison_75km$bird, file = file.path(output_path_L2,"compare_BPFDis_75km.rds"))
 saveRDS(comparison_75km$mammal, file = file.path(output_path_L2,"compare_MPFDis_75km.rds"))
@@ -134,7 +134,7 @@ saveRDS(comparison_75km$mammal, file = file.path(output_path_L2,"compare_MPFDis_
 comparison_50km <- div_comparison(plant_cellFDis_50km, mammal_cellFDis_50km, bird_cellFDis_50km, 50)
 
 comparison_50km_plot <- comparison_50km$plot
-comparison_50km_plot <- comparison_50km_plot + ylab('Frugivore FDis by cell') + xlab('Plant FDis by cell')
+comparison_50km_plot <- comparison_50km_plot + ylab('Frugivore FDis by cell') + xlab('Plant FDis by cell') + annotate("text", x = 0.3, y = 0.7, label = paste('R² =', comparison_50km$mammal$R.squared), size=5) + annotate("text", x = 0.3, y = 0.5, label = paste('R² =', comparison_50km$bird$R.squared), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))
 
 saveRDS(comparison_50km$bird, file = file.path(output_path_L2,"compare_BPFDis_50km.rds"))
 saveRDS(comparison_50km$mammal, file = file.path(output_path_L2,"compare_MPFDis_50km.rds"))
@@ -144,7 +144,7 @@ saveRDS(comparison_50km$mammal, file = file.path(output_path_L2,"compare_MPFDis_
 comparison_25km <- div_comparison(plant_cellFDis_25km, mammal_cellFDis_25km, bird_cellFDis_25km, 25)
 
 comparison_25km_plot <- comparison_25km$plot
-comparison_25km_plot <- comparison_25km_plot + ylab('Frugivore FDis by cell') + xlab('Plant FDis by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank(), axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank())
+comparison_25km_plot <- comparison_25km_plot + ylab('Frugivore FDis by cell') + xlab('Plant FDis by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank(), axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) + annotate("text", x = 0.2, y = 0.7, label = paste('R² =', comparison_25km$mammal$R.squared), size=5) + annotate("text", x = 0.2, y = 0.4, label = paste('R² =', comparison_25km$bird$R.squared), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))
 
 saveRDS(comparison_25km$bird, file = file.path(output_path_L2,"compare_BPFDis_25km.rds"))
 saveRDS(comparison_25km$mammal, file = file.path(output_path_L2,"compare_MPFDis_25km.rds"))
@@ -154,7 +154,7 @@ saveRDS(comparison_25km$mammal, file = file.path(output_path_L2,"compare_MPFDis_
 comparison_10km <- div_comparison(plant_cellFDis_10km, mammal_cellFDis_10km, bird_cellFDis_10km, 10)
 
 comparison_10km_plot <- comparison_10km$plot
-comparison_10km_plot <- comparison_10km_plot + ylab('Frugivore FDis by cell') + xlab('Plant FDis by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank(), axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank())
+comparison_10km_plot <- comparison_10km_plot + ylab('Frugivore FDis by cell') + xlab('Plant FDis by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank(), axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) + annotate("text", x = 0.2, y = 0.6, label = paste('R² =', comparison_10km$mammal$R.squared), size=5) + annotate("text", x = 0.2, y = 0.4, label = paste('R² =', comparison_10km$bird$R.squared), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))
 
 saveRDS(comparison_10km$bird, file = file.path(output_path_L2,"compare_BPFDis_10km.rds"))
 saveRDS(comparison_10km$mammal, file = file.path(output_path_L2,"compare_MPFDis_10km.rds"))
@@ -164,15 +164,15 @@ saveRDS(comparison_10km$mammal, file = file.path(output_path_L2,"compare_MPFDis_
 comparison_5km <- div_comparison(plant_cellFDis_5km, mammal_cellFDis_5km, bird_cellFDis_5km, 5)
 
 comparison_5km_plot <- comparison_5km$plot
-comparison_5km_plot <- comparison_5km_plot + ylab('Frugivore FDis by cell') + xlab('Plant FDis by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank()) 
+comparison_5km_plot <- comparison_5km_plot + ylab('Frugivore FDis by cell') + xlab('Plant FDis by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank()) + annotate("text", x = 0.2, y = 0.6, label = paste('R² =', comparison_5km$mammal$R.squared), size=5) + annotate("text", x = 0.2, y = 0.4, label = paste('R² =', comparison_5km$bird$R.squared), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))
 
 saveRDS(comparison_5km$bird, file = file.path(output_path_L2,"compare_BPFDis_5km.rds"))
 saveRDS(comparison_5km$mammal, file = file.path(output_path_L2,"compare_MPFDis_5km.rds"))
 
 
 # combined plot
-all_taxa_FDis_plots <- wrap_plots(comparison_5km_plot, comparison_10km_plot, comparison_25km_plot, comparison_50km_plot, comparison_75km_plot, comparison_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 20, 20, 20),legend.position='bottom')
+all_taxa_FDis_plots <- wrap_plots(comparison_5km_plot, comparison_10km_plot, comparison_25km_plot, comparison_50km_plot, comparison_75km_plot, comparison_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 15, 15, 15),legend.position='bottom')
 
 all_taxa_FDis_plots
 
-ggsave('all_taxa_FDis_plots.png', all_taxa_FDis_plots, path = figure_path, width = 14, height = 8, units = "in", dpi=1000)
+ggsave('all_taxa_FDis_plots.png', all_taxa_FDis_plots, path = figure_path, width = 13, height = 8, units = "in", dpi=1000)
