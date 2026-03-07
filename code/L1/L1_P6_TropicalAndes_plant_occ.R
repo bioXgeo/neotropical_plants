@@ -127,8 +127,8 @@ ggplot(combined_summary_long, aes(x = source, y = count, fill = source)) +
     legend.position = "none"
   ) +
   facet_wrap(~ category, scales = "free_y") +
-  theme(strip.text.x = element_text(size = 12, face = "bold"))
-ggsave("plant_taxonomic_coverage.png", plot = last_plot(), path = figure_path)
+  theme(strip.text.x = element_text(size = 18), axis.text = element_text(size=12), axis.title = element_text(size = 16))
+ggsave("plant_taxonomic_coverage.png", plot = last_plot(), path = figure_path, width = 11, height = 8, units = "in", dpi=1000)
 
 
 # write data to csv
