@@ -10,7 +10,7 @@
 
 
 # load required packages
-library(sf); library(dplyr); library(ggplot2); library(parallel); library(foreach); library(doParallel); library(ggspatial); library(ggpubr)
+library(sf); library(dplyr); library(ggplot2); library(parallel); library(foreach); library(doParallel); library(ggspatial); library(ggpubr); library(patchwork); library(rphylopic)
 
 
 # set file paths
@@ -172,40 +172,63 @@ richness_100km <- readRDS(file = file.path(output_path_L2,"richness_100km.rds"))
 # combine all plots
 
 # individual plot edits
-plantgridRichTA_100km <- plantgridRichTA_100km + labs(title='[100km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
-mammalgridRichTA_100km <- mammalgridRichTA_100km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
-birdgridRichTA_100km <- birdgridRichTA_100km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+plantgridRichTA_100km <- plantgridRichTA_100km + labs(title='[100km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=16))
 
-plantgridRichTA_75km <- plantgridRichTA_75km + labs(title='[75km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
-mammalgridRichTA_75km <- mammalgridRichTA_75km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
-birdgridRichTA_75km <- birdgridRichTA_75km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+mammalgridRichTA_100km <- mammalgridRichTA_100km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
-plantgridRichTA_50km <- plantgridRichTA_50km + labs(title='[50km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
-mammalgridRichTA_50km <- mammalgridRichTA_50km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
-birdgridRichTA_50km <- birdgridRichTA_50km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+birdgridRichTA_100km <- birdgridRichTA_100km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0))
 
-plantgridRichTA_25km <- plantgridRichTA_25km + labs(title='[25km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
-mammalgridRichTA_25km <- mammalgridRichTA_25km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
-birdgridRichTA_25km <- birdgridRichTA_25km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())+ labs(x = "Longitude")
 
-plantgridRichTA_10km <- plantgridRichTA_10km + labs(title='[10km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
-mammalgridRichTA_10km <- mammalgridRichTA_10km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank())
-birdgridRichTA_10km <- birdgridRichTA_10km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
+plantgridRichTA_75km <- plantgridRichTA_75km + labs(title='[75km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=16))
 
-plantgridRichTA_5km <- plantgridRichTA_5km + labs(title='[5km]') + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
-mammalgridRichTA_5km <- mammalgridRichTA_5km + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) + labs(y = "Latitude")
-birdgridRichTA_5km <- birdgridRichTA_5km + annotation_scale(location = "bl",width_hint = 0.2, style = "bar") + annotation_north_arrow(location = "bl", which_north = "true",
-                                                                                                                                      height = unit(0.3, "in"), width = unit(0.3, "in"),
-                                                                                                                                      pad_x = unit(0.05, "in"), pad_y = unit(0.3, "in"),
-                                                                                                                                      style = north_arrow_fancy_orienteering)
+mammalgridRichTA_75km <- mammalgridRichTA_75km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+
+birdgridRichTA_75km <- birdgridRichTA_75km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + theme(plot.margin = margin(0,0,0,0))
+
+
+plantgridRichTA_50km <- plantgridRichTA_50km + labs(title='[50km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=16))
+
+mammalgridRichTA_50km <- mammalgridRichTA_50km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+
+birdgridRichTA_50km <- birdgridRichTA_50km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + theme(plot.margin = margin(0,0,0,0))
+
+
+plantgridRichTA_25km <- plantgridRichTA_25km + labs(title='[25km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=16))
+
+mammalgridRichTA_25km <- mammalgridRichTA_25km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+
+birdgridRichTA_25km <- birdgridRichTA_25km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0))+ labs(x = "Longitude")
+
+
+plantgridRichTA_10km <- plantgridRichTA_10km + labs(title='[10km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=16))
+
+mammalgridRichTA_10km <- mammalgridRichTA_10km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+
+birdgridRichTA_10km <- birdgridRichTA_10km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0))
+
+
+# plant picture
+plant <- pick_phylopic(name='Coffea alleizettei')
+
+plantgridRichTA_5km <- plantgridRichTA_5km + labs(title='[5km]') + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=16)) + add_phylopic(img=plant, x=-79.5, y=13, height=8)
+
+# mammal picture
+mammal <- pick_phylopic(name='Potos flavus', n=2, auto=2)
+
+mammalgridRichTA_5km <- mammalgridRichTA_5km + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0)) + labs(y = "Latitude") + add_phylopic(img=mammal, x=-79, y=12, height=8)
+
+# bird picture
+bird <- pick_phylopic(name='Ramphastos sulfuratus', n=2, auto=1)
+
+birdgridRichTA_5km <- birdgridRichTA_5km + annotation_scale(location = "bl",width_hint = 0.2, style = "bar") + annotation_north_arrow(location = "bl", which_north = "true", height = unit(0.3, "in"), width = unit(0.3, "in"), pad_x = unit(0.05, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) + add_phylopic(img=bird, x=-80, y=12.5, height=8) + theme(plot.margin = margin(0,0,0,0))
 
 
 # arrange
-all_richness_plots <- plantgridRichTA_5km + plantgridRichTA_10km + plantgridRichTA_25km + plantgridRichTA_50km + plantgridRichTA_75km + plantgridRichTA_100km + mammalgridRichTA_5km + mammalgridRichTA_10km + mammalgridRichTA_25km + mammalgridRichTA_50km + mammalgridRichTA_75km + mammalgridRichTA_100km + birdgridRichTA_5km + birdgridRichTA_10km + birdgridRichTA_25km + birdgridRichTA_50km + birdgridRichTA_75km + birdgridRichTA_100km + plot_layout(ncol = 6, nrow = 3, guides = 'collect', axis_titles = 'collect') & theme(legend.position = 'left') 
+all_richness_plots <- plantgridRichTA_5km + plantgridRichTA_10km + plantgridRichTA_25km + plantgridRichTA_50km + plantgridRichTA_75km + plantgridRichTA_100km + mammalgridRichTA_5km + mammalgridRichTA_10km + mammalgridRichTA_25km + mammalgridRichTA_50km + mammalgridRichTA_75km + mammalgridRichTA_100km + birdgridRichTA_5km + birdgridRichTA_10km + birdgridRichTA_25km + birdgridRichTA_50km + birdgridRichTA_75km + birdgridRichTA_100km + plot_layout(ncol = 6, nrow = 3, guides = 'collect', axis_titles = 'collect', heights = c(1, 1, 1)) & theme(legend.position = 'left') & plot_annotation(title='Species richness', theme = theme(plot.title = element_text(hjust = 0.5, size=20, face='bold')))
 
 all_richness_plots
 
-ggsave('all_richness_plots.png', all_richness_plots, path = figure_path, width = 12, height = 8, units = "in", dpi=1000)
+ggsave('all_richness_plots.png', all_richness_plots, path = figure_path, width = 14, height = 12, units = "in", dpi=1000)
 
 
 # write data to csv
