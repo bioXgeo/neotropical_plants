@@ -340,6 +340,52 @@ get_taxonomic_info_chunk <- function(chunk_species_names) {
 }
 
 
+#### Presence-absence matrix ####
+
+create_presence_absence_matrix <- function(resolution_meters, species_sf) {
+  # Make Grid
+  TAGrid <- TApoly %>%
+    st_make_grid(cellsize = c(resolution_meters)) %>%
+    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = row_number())
+  
+  # Join with species data and filter out NA species
+  species_grid <- TAGrid %>%
+    st_join(species_sf) %>%
+    filter(!is.na(species)) %>%
+    dplyr::select(cellid, species, geometry)
+  
+  # Extract the coordinates for each grid cell
+  species_grid_coords <- species_grid %>%
+    st_centroid() %>%
+    st_coordinates() %>%
+    as.data.frame() %>%
+    rename(Longitude = X, Latitude = Y)
+  
+  # Combine coordinates with the species grid
+  species_grid <- bind_cols(species_grid, species_grid_coords)
+  
+  # Create Presence-Absence Matrix
+  presence_absence_matrix <- species_grid %>%
+    st_set_geometry(NULL) %>%
+    mutate(presence = 1) %>%
+    pivot_wider(names_from = species, values_from = presence, values_fill = list(presence = 0))
+  
+  # Convert to matrix
+  presence_absence_matrix_matrix <- as.matrix(presence_absence_matrix)
+  
+  # Set row names as "cell_rowNumber"
+  rownames(presence_absence_matrix_matrix) <- paste0("cell_", seq_len(nrow(presence_absence_matrix_matrix)))
+  
+  # Ensure latitude and longitude are the first columns
+  presence_absence_matrix_matrix <- presence_absence_matrix_matrix[, c("Latitude", "Longitude", setdiff(colnames(presence_absence_matrix_matrix), c("Latitude", "Longitude", "cellid")))]
+  
+  return(presence_absence_matrix_matrix)
+}
+
+
 #### Taxonomic Diversity Calculation & Mapping ####
 
 # Function for richness plots using parallel processing
@@ -489,52 +535,6 @@ create_rich_plots <- function(resolution_meters) {
        frugivore_richness_hist = frugivore_richness_hist,
        mammal_richness_hist = mammal_richness_hist,
        bird_richness_hist = bird_richness_hist)
-}
-
-
-#### Presence-absence matrix ####
-
-create_presence_absence_matrix <- function(resolution_meters, species_sf) {
-  # Make Grid
-  TAGrid <- TApoly %>%
-    st_make_grid(cellsize = c(resolution_meters)) %>%
-    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
-    st_cast("MULTIPOLYGON") %>%
-    st_sf() %>%
-    mutate(cellid = row_number())
-  
-  # Join with species data and filter out NA species
-  species_grid <- TAGrid %>%
-    st_join(species_sf) %>%
-    filter(!is.na(species)) %>%
-    dplyr::select(cellid, species, geometry)
-  
-  # Extract the coordinates for each grid cell
-  species_grid_coords <- species_grid %>%
-    st_centroid() %>%
-    st_coordinates() %>%
-    as.data.frame() %>%
-    rename(Longitude = X, Latitude = Y)
-  
-  # Combine coordinates with the species grid
-  species_grid <- bind_cols(species_grid, species_grid_coords)
-  
-  # Create Presence-Absence Matrix
-  presence_absence_matrix <- species_grid %>%
-    st_set_geometry(NULL) %>%
-    mutate(presence = 1) %>%
-    pivot_wider(names_from = species, values_from = presence, values_fill = list(presence = 0))
-  
-  # Convert to matrix
-  presence_absence_matrix_matrix <- as.matrix(presence_absence_matrix)
-  
-  # Set row names as "cell_rowNumber"
-  rownames(presence_absence_matrix_matrix) <- paste0("cell_", seq_len(nrow(presence_absence_matrix_matrix)))
-  
-  # Ensure latitude and longitude are the first columns
-  presence_absence_matrix_matrix <- presence_absence_matrix_matrix[, c("Latitude", "Longitude", setdiff(colnames(presence_absence_matrix_matrix), c("Latitude", "Longitude", "cellid")))]
-  
-  return(presence_absence_matrix_matrix)
 }
 
 
