@@ -6,7 +6,10 @@
 #data input: "fdis_frugivore_5km.rds", "fdis_mammal_5km.rds", "fdis_bird_5km.rds", "fdis_plant_5km.rds", "fdis_frugivore_10km.rds", "fdis_mammal_10km.rds", "fdis_bird_10km.rds", "fdis_plant_10km.rds", "fdis_frugivore_25km.rds", "fdis_mammal_25km.rds", "fdis_bird_25km.rds", "fdis_plant_25km.rds", "fdis_frugivore_50km.rds", "fdis_mammal_50km.rds", "fdis_bird_50km.rds", "fdis_plant_50km.rds", "fdis_frugivore_75km.rds", "fdis_mammal_75km.rds", "fdis_bird_75km.rds", "fdis_plant_75km.rds", "fdis_frugivore_100km.rds", "fdis_mammal_100km.rds", "fdis_bird_100km.rds", "fdis_plant_100km.rds"
 #data ouput: "compare_BPFDis_100km.rds", "compare_MPFDis_100km.rds", "compare_BPFDis_75km.rds", "compare_MPFDis_75km.rds", "compare_BPFDis_50km.rds", "compare_MPFDis_50km.rds", "compare_BPFDis_25km.rds", "compare_MPFDis_25km.rds", "compare_BPFDis_10km.rds", "compare_MPFDis_10km.rds", "compare_BPFDis_5km.rds", "compare_MPFDis_5km.rds", "all_taxa_FDis_plots.png"
 #date: "2024-05-16; 2025-12-15"
-#notes: JB used HPCC
+
+
+# load required packages
+library(dplyr); library(ggplot2); library(smoothr); library(purrr); library(ggtrendline); library(ggpubr); library(tidyr); library(patchwork); library(cowplot)
 
 
 # set file paths
@@ -14,20 +17,9 @@ data_path_L2 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 output_path_L2 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 
-# #HPCC
-# data_path_L2 <- file.path('/mnt/research/nasabio/data_2025/plants/L2')
-# output_path_L2 <- file.path('/mnt/research/nasabio/data_2025/plants/L2')
-# figure_path <- file.path('/mnt/research/nasabio/data_2025/plants/figures')
-
-
-# load required packages
-library(dplyr); library(ggplot2); library(smoothr); library(purrr); library(ggtrendline); library(ggpubr); library(tidyr); library(patchwork); library(cowplot)
 
 # load functions
 source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
-
-# # HPCC
-# source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
 
 
 # read in data
@@ -144,37 +136,37 @@ plant_cellFDis_5km <- clean_fdis(fdis_plant_5km, 5)
 # 100km
 plants_100km <- div_comparison2(plant_cellRichness_100km, plant_cellFDis_100km, 'plant', 100)
 plants_100km_plot <- plants_100km$plot
-plants_100km_plot <- plants_100km_plot + xlab('Plant richness by cell') + ylab('Plant FDis by cell') + labs(subtitle = paste('r² =', plants_100km$trend$R.squared))
+plants_100km_plot <- plants_100km_plot + xlab('Plant richness by cell') + ylab('Plant FDis by cell') + labs(subtitle = paste('R² =', plants_100km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 75km
 plants_75km <- div_comparison2(plant_cellRichness_75km, plant_cellFDis_75km, 'plant', 75)
 plants_75km_plot <- plants_75km$plot
-plants_75km_plot <- plants_75km_plot + xlab('Plant richness by cell') + ylab('Plant FDis by cell') + labs(subtitle = paste('r² =', plants_75km$trend$R.squared))  
+plants_75km_plot <- plants_75km_plot + xlab('Plant richness by cell') + ylab('Plant FDis by cell') + labs(subtitle = paste('R² =', plants_75km$trend$R.squared))+ theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 50km
 plants_50km <- div_comparison2(plant_cellRichness_50km, plant_cellFDis_50km, 'plant', 50)
 plants_50km_plot <- plants_50km$plot
-plants_50km_plot <- plants_50km_plot + xlab('Plant richness by cell') + ylab('Plant FDis by cell') + labs(subtitle = paste('r² =', plants_50km$trend$R.squared))
+plants_50km_plot <- plants_50km_plot + xlab('Plant richness by cell') + ylab('Plant FDis by cell') + labs(subtitle = paste('R² =', plants_50km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 25km
 plants_25km <- div_comparison2(plant_cellRichness_25km, plant_cellFDis_25km, 'plant', 25)
 plants_25km_plot <- plants_25km$plot
-plants_25km_plot <- plants_25km_plot + xlab('Plant richness by cell') + ylab('Plant FDis by cell') + labs(subtitle = paste('r² =', plants_25km$trend$R.squared))
+plants_25km_plot <- plants_25km_plot + xlab('Plant richness by cell') + ylab('Plant FDis by cell') + labs(subtitle = paste('R² =', plants_25km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 10km
 plants_10km <- div_comparison2(plant_cellRichness_10km, plant_cellFDis_10km, 'plant', 10)
 plants_10km_plot <- plants_10km$plot
-plants_10km_plot <- plants_10km_plot + xlab('Plant richness by cell') + ylab('Plant FDis by cell') + labs(subtitle = paste('r² =', plants_10km$trend$R.squared)) 
+plants_10km_plot <- plants_10km_plot + xlab('Plant richness by cell') + ylab('Plant FDis by cell') + labs(subtitle = paste('R² =', plants_10km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 5km
 plants_5km <- div_comparison2(plant_cellRichness_5km, plant_cellFDis_5km, 'plant', 5)
 plants_5km_plot <- plants_5km$plot
-plants_5km_plot <- plants_5km_plot + xlab('Plant richness by cell') + ylab('Plant FDis by cell') + labs(subtitle = paste('r² =', plants_5km$trend$R.squared))
+plants_5km_plot <- plants_5km_plot + xlab('Plant richness by cell') + ylab('Plant FDis by cell') + labs(subtitle = paste('R² =', plants_5km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # combined plot
@@ -190,37 +182,37 @@ ggsave('plantRichness-FDis_plots.png', all_plant_R_FD_plots, path = figure_path,
 # 100km
 mammals_100km <- div_comparison2(mammal_cellRichness_100km, mammal_cellFDis_100km, 'mammal', 100)
 mammals_100km_plot <- mammals_100km$plot
-mammals_100km_plot <- mammals_100km_plot + xlab('Mammal richness by cell') + ylab('Mammal FDis by cell') + labs(subtitle = paste('r² =', mammals_100km$trend$R.squared))
+mammals_100km_plot <- mammals_100km_plot + xlab('Mammal richness by cell') + ylab('Mammal FDis by cell') + labs(subtitle = paste('R² =', mammals_100km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 75km
 mammals_75km <- div_comparison2(mammal_cellRichness_75km, mammal_cellFDis_75km, 'mammal', 75)
 mammals_75km_plot <- mammals_75km$plot
-mammals_75km_plot <- mammals_75km_plot + xlab('Mammal richness by cell') + ylab('Mammal FDis by cell') + labs(subtitle = paste('r² =', mammals_75km$trend$R.squared))
+mammals_75km_plot <- mammals_75km_plot + xlab('Mammal richness by cell') + ylab('Mammal FDis by cell') + labs(subtitle = paste('R² =', mammals_75km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 50km
 mammals_50km <- div_comparison2(mammal_cellRichness_50km, mammal_cellFDis_50km, 'mammal', 50)
 mammals_50km_plot <- mammals_50km$plot
-mammals_50km_plot <- mammals_50km_plot + xlab('Mammal richness by cell') + ylab('Mammal FDis by cell') + labs(subtitle = paste('r² =', mammals_50km$trend$R.squared))
+mammals_50km_plot <- mammals_50km_plot + xlab('Mammal richness by cell') + ylab('Mammal FDis by cell') + labs(subtitle = paste('R² =', mammals_50km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 25km
 mammals_25km <- div_comparison2(mammal_cellRichness_25km, mammal_cellFDis_25km, 'mammal', 25)
 mammals_25km_plot <- mammals_25km$plot
-mammals_25km_plot <- mammals_25km_plot + xlab('Mammal richness by cell') + ylab('Mammal FDis by cell') + labs(subtitle = paste('r² =', mammals_25km$trend$R.squared))
+mammals_25km_plot <- mammals_25km_plot + xlab('Mammal richness by cell') + ylab('Mammal FDis by cell') + labs(subtitle = paste('R² =', mammals_25km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 10km
 mammals_10km <- div_comparison2(mammal_cellRichness_10km, mammal_cellFDis_10km, 'mammal', 10)
 mammals_10km_plot <- mammals_10km$plot
-mammals_10km_plot <- mammals_10km_plot + xlab('Mammal richness by cell') + ylab('Mammal FDis by cell') + labs(subtitle = paste('r² =', mammals_10km$trend$R.squared)) 
+mammals_10km_plot <- mammals_10km_plot + xlab('Mammal richness by cell') + ylab('Mammal FDis by cell') + labs(subtitle = paste('R² =', mammals_10km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 5km
 mammals_5km <- div_comparison2(mammal_cellRichness_5km, mammal_cellFDis_5km, 'mammal', 5)
 mammals_5km_plot <- mammals_5km$plot
-mammals_5km_plot <- mammals_5km_plot + xlab('Mammal richness by cell') + ylab('Mammal FDis by cell') + labs(subtitle = paste('r² =', mammals_5km$trend$R.squared)) 
+mammals_5km_plot <- mammals_5km_plot + xlab('Mammal richness by cell') + ylab('Mammal FDis by cell') + labs(subtitle = paste('R² =', mammals_5km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # combined plot
@@ -236,37 +228,37 @@ ggsave('mammalRichness-FDis_plots.png', all_mammal_R_FD_plots, path = figure_pat
 # 100km
 birds_100km <- div_comparison2(bird_cellRichness_100km, bird_cellFDis_100km, 'bird', 100)
 birds_100km_plot <- birds_100km$plot
-birds_100km_plot <- birds_100km_plot + xlab('Bird richness by cell') + ylab('Bird FDis by cell') + labs(subtitle = paste('r² =', birds_100km$trend$R.squared))
+birds_100km_plot <- birds_100km_plot + xlab('Bird richness by cell') + ylab('Bird FDis by cell') + labs(subtitle = paste('R² =', birds_100km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 75km
 birds_75km <- div_comparison2(bird_cellRichness_75km, bird_cellFDis_75km, 'bird', 75)
 birds_75km_plot <- birds_75km$plot
-birds_75km_plot <- birds_75km_plot + xlab('Bird richness by cell') + ylab('Bird FDis by cell') + labs(subtitle = paste('r² =', birds_75km$trend$R.squared)) 
+birds_75km_plot <- birds_75km_plot + xlab('Bird richness by cell') + ylab('Bird FDis by cell') + labs(subtitle = paste('R² =', birds_75km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 50km
 birds_50km <- div_comparison2(bird_cellRichness_50km, bird_cellFDis_50km, 'bird', 50)
 birds_50km_plot <- birds_50km$plot
-birds_50km_plot <- birds_50km_plot + xlab('Bird richness by cell') + ylab('Bird FDis by cell') + labs(subtitle = paste('r² =', birds_50km$trend$R.squared))
+birds_50km_plot <- birds_50km_plot + xlab('Bird richness by cell') + ylab('Bird FDis by cell') + labs(subtitle = paste('R² =', birds_50km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 25km
 birds_25km <- div_comparison2(bird_cellRichness_25km, bird_cellFDis_25km, 'bird', 25)
 birds_25km_plot <- birds_25km$plot
-birds_25km_plot <- birds_25km_plot + xlab('Bird richness by cell') + ylab('Bird FDis by cell') + labs(subtitle = paste('r² =', birds_25km$trend$R.squared)) 
+birds_25km_plot <- birds_25km_plot + xlab('Bird richness by cell') + ylab('Bird FDis by cell') + labs(subtitle = paste('R² =', birds_25km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 10km
 birds_10km <- div_comparison2(bird_cellRichness_10km, bird_cellFDis_10km, 'bird', 10)
 birds_10km_plot <- birds_10km$plot
-birds_10km_plot <- birds_10km_plot + xlab('Bird richness by cell') + ylab('Bird FDis by cell') + labs(subtitle = paste('r² =', birds_10km$trend$R.squared))
+birds_10km_plot <- birds_10km_plot + xlab('Bird richness by cell') + ylab('Bird FDis by cell') + labs(subtitle = paste('R² =', birds_10km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # 5km
 birds_5km <- div_comparison2(bird_cellRichness_5km, bird_cellFDis_5km, 'bird', 5)
 birds_5km_plot <- birds_5km$plot
-birds_5km_plot <- birds_5km_plot + xlab('Bird richness by cell') + ylab('Bird FDis by cell') + labs(subtitle = paste('r² =', birds_5km$trend$R.squared))
+birds_5km_plot <- birds_5km_plot + xlab('Bird richness by cell') + ylab('Bird FDis by cell') + labs(subtitle = paste('R² =', birds_5km$trend$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 
 # combined plot
@@ -284,13 +276,13 @@ R_FD_comparison_100km <- div_comparison3(plant_cellRichness_100km, mammal_cellFD
 
 # mammals
 PR_MFD_comparison_100km_plot <- R_FD_comparison_100km$plot1
-PR_MFD_comparison_100km_plot <- PR_MFD_comparison_100km_plot + ylab('Mammal FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('r² =', R_FD_comparison_100km$mammal$R.squared))
+PR_MFD_comparison_100km_plot <- PR_MFD_comparison_100km_plot + ylab('Mammal FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('R² =', R_FD_comparison_100km$mammal$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(R_FD_comparison_100km$mammal, file = file.path(output_path_L2,"compare_Prichness-MFDis_100km.rds"))
 
 # birds
 PR_BFD_comparison_100km_plot <- R_FD_comparison_100km$plot2
-PR_BFD_comparison_100km_plot <- PR_BFD_comparison_100km_plot + ylab('Bird FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('r² =', R_FD_comparison_100km$bird$R.squared))
+PR_BFD_comparison_100km_plot <- PR_BFD_comparison_100km_plot + ylab('Bird FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('R² =', R_FD_comparison_100km$bird$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(R_FD_comparison_100km$bird, file = file.path(output_path_L2,"compare_Prichness-BFDis_100km.rds"))
 
@@ -300,13 +292,13 @@ R_FD_comparison_75km <- div_comparison3(plant_cellRichness_75km, mammal_cellFDis
 
 # mammals
 PR_MFD_comparison_75km_plot <- R_FD_comparison_75km$plot1
-PR_MFD_comparison_75km_plot <- PR_MFD_comparison_75km_plot + ylab('Mammal FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('r² =', R_FD_comparison_75km$mammal$R.squared))
+PR_MFD_comparison_75km_plot <- PR_MFD_comparison_75km_plot + ylab('Mammal FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('R² =', R_FD_comparison_75km$mammal$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(R_FD_comparison_75km$mammal, file = file.path(output_path_L2,"compare_Prichness-MFDis_75km.rds"))
 
 # birds
 PR_BFD_comparison_75km_plot <- R_FD_comparison_75km$plot2
-PR_BFD_comparison_75km_plot <- PR_BFD_comparison_75km_plot + ylab('Bird FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('r² =', R_FD_comparison_75km$bird$R.squared))
+PR_BFD_comparison_75km_plot <- PR_BFD_comparison_75km_plot + ylab('Bird FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('R² =', R_FD_comparison_75km$bird$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(R_FD_comparison_75km$bird, file = file.path(output_path_L2,"compare_Prichness-BFDis_75km.rds"))
 
@@ -316,13 +308,13 @@ R_FD_comparison_50km <- div_comparison3(plant_cellRichness_50km, mammal_cellFDis
 
 # mammals
 PR_MFD_comparison_50km_plot <- R_FD_comparison_50km$plot1
-PR_MFD_comparison_50km_plot <- PR_MFD_comparison_50km_plot + ylab('Mammal FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('r² =', R_FD_comparison_50km$mammal$R.squared))
+PR_MFD_comparison_50km_plot <- PR_MFD_comparison_50km_plot + ylab('Mammal FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('R² =', R_FD_comparison_50km$mammal$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(R_FD_comparison_50km$mammal, file = file.path(output_path_L2,"compare_Prichness-MFDis_50km.rds"))
 
 # birds
 PR_BFD_comparison_50km_plot <- R_FD_comparison_50km$plot2
-PR_BFD_comparison_50km_plot <- PR_BFD_comparison_50km_plot + ylab('Bird FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('r² =', R_FD_comparison_50km$bird$R.squared))
+PR_BFD_comparison_50km_plot <- PR_BFD_comparison_50km_plot + ylab('Bird FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('R² =', R_FD_comparison_50km$bird$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(R_FD_comparison_50km$bird, file = file.path(output_path_L2,"compare_Prichness-BFDis_50km.rds"))
 
@@ -332,13 +324,13 @@ R_FD_comparison_25km <- div_comparison3(plant_cellRichness_25km, mammal_cellFDis
 
 # mammals
 PR_MFD_comparison_25km_plot <- R_FD_comparison_25km$plot1
-PR_MFD_comparison_25km_plot <- PR_MFD_comparison_25km_plot + ylab('Mammal FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('r² =', R_FD_comparison_25km$mammal$R.squared))
+PR_MFD_comparison_25km_plot <- PR_MFD_comparison_25km_plot + ylab('Mammal FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('R² =', R_FD_comparison_25km$mammal$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(R_FD_comparison_25km$mammal, file = file.path(output_path_L2,"compare_Prichness-MFDis_25km.rds"))
 
 # birds
 PR_BFD_comparison_25km_plot <- R_FD_comparison_25km$plot2
-PR_BFD_comparison_25km_plot <- PR_BFD_comparison_25km_plot + ylab('Bird FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('r² =', R_FD_comparison_25km$bird$R.squared))
+PR_BFD_comparison_25km_plot <- PR_BFD_comparison_25km_plot + ylab('Bird FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('R² =', R_FD_comparison_25km$bird$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(R_FD_comparison_25km$bird, file = file.path(output_path_L2,"compare_Prichness-BFDis_25km.rds"))
 
@@ -348,13 +340,13 @@ R_FD_comparison_10km <- div_comparison3(plant_cellRichness_10km, mammal_cellFDis
 
 # mammals
 PR_MFD_comparison_10km_plot <- R_FD_comparison_10km$plot1
-PR_MFD_comparison_10km_plot <- PR_MFD_comparison_10km_plot + ylab('Mammal FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('r² =', R_FD_comparison_10km$mammal$R.squared))
+PR_MFD_comparison_10km_plot <- PR_MFD_comparison_10km_plot + ylab('Mammal FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('R² =', R_FD_comparison_10km$mammal$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(R_FD_comparison_10km$mammal, file = file.path(output_path_L2,"compare_Prichness-MFDis_10km.rds"))
 
 # birds
 PR_BFD_comparison_10km_plot <- R_FD_comparison_10km$plot2
-PR_BFD_comparison_10km_plot <- PR_BFD_comparison_10km_plot + ylab('Bird FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('r² =', R_FD_comparison_10km$bird$R.squared))
+PR_BFD_comparison_10km_plot <- PR_BFD_comparison_10km_plot + ylab('Bird FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('R² =', R_FD_comparison_10km$bird$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(R_FD_comparison_10km$bird, file = file.path(output_path_L2,"compare_Prichness-BFDis_10km.rds"))
 
@@ -364,13 +356,13 @@ R_FD_comparison_5km <- div_comparison3(plant_cellRichness_5km, mammal_cellFDis_5
 
 # mammals
 PR_MFD_comparison_5km_plot <- R_FD_comparison_5km$plot1
-PR_MFD_comparison_5km_plot <- PR_MFD_comparison_5km_plot + ylab('Mammal FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('r² =', R_FD_comparison_5km$mammal$R.squared))
+PR_MFD_comparison_5km_plot <- PR_MFD_comparison_5km_plot + ylab('Mammal FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('R² =', R_FD_comparison_5km$mammal$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(R_FD_comparison_5km$mammal, file = file.path(output_path_L2,"compare_Prichness-MFDis_5km.rds"))
 
 # birds
 PR_BFD_comparison_5km_plot <- R_FD_comparison_5km$plot2
-PR_BFD_comparison_5km_plot <- PR_BFD_comparison_5km_plot + ylab('Bird FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('r² =', R_FD_comparison_5km$bird$R.squared))
+PR_BFD_comparison_5km_plot <- PR_BFD_comparison_5km_plot + ylab('Bird FDis by cell') + xlab('Plant richness by cell') + labs(subtitle = paste('R² =', R_FD_comparison_5km$bird$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(R_FD_comparison_5km$bird, file = file.path(output_path_L2,"compare_Prichness-BFDis_5km.rds"))
 
@@ -404,13 +396,13 @@ FD_R_comparison_100km <- div_comparison3(plant_cellFDis_100km, mammal_cellRichne
 
 # mammals
 PFD_MR_100km <- FD_R_comparison_100km$plot1
-PFD_MR_100km <- PFD_MR_100km + ylab('Plant FDis by cell') + xlab('Mammal richness by cell') + labs(subtitle = paste('r² =', FD_R_comparison_100km$mammal$R.squared))
+PFD_MR_100km <- PFD_MR_100km + ylab('Plant FDis by cell') + xlab('Mammal richness by cell') + labs(subtitle = paste('R² =', FD_R_comparison_100km$mammal$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(FD_R_comparison_100km$mammal, file = file.path(output_path_L2,"compare_PFDis-Mrichness_100km.rds"))
 
 # birds
 PFD_BR_100km <- FD_R_comparison_100km$plot2
-PFD_BR_100km <- PFD_BR_100km + ylab('Plant FDis by cell') + xlab('Bird richness by cell') + labs(subtitle = paste('r² =', FD_R_comparison_100km$bird$R.squared))
+PFD_BR_100km <- PFD_BR_100km + ylab('Plant FDis by cell') + xlab('Bird richness by cell') + labs(subtitle = paste('R² =', FD_R_comparison_100km$bird$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(FD_R_comparison_100km$bird, file = file.path(output_path_L2,"compare_PFDis-Brichness_100km.rds"))
 
@@ -420,13 +412,13 @@ FD_R_comparison_75km <- div_comparison3(plant_cellFDis_75km, mammal_cellRichness
 
 # mammals
 PFD_MR_75km <- FD_R_comparison_75km$plot1
-PFD_MR_75km <- PFD_MR_75km + ylab('Plant FDis by cell') + xlab('Mammal richness by cell') + labs(subtitle = paste('r² =', FD_R_comparison_75km$mammal$R.squared))
+PFD_MR_75km <- PFD_MR_75km + ylab('Plant FDis by cell') + xlab('Mammal richness by cell') + labs(subtitle = paste('R² =', FD_R_comparison_75km$mammal$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(FD_R_comparison_75km$mammal, file = file.path(output_path_L2,"compare_PFDis-Mrichness_75km.rds"))
 
 # birds
 PFD_BR_75km <- FD_R_comparison_75km$plot2
-PFD_BR_75km <- PFD_BR_75km + ylab('Plant FDis by cell') + xlab('Bird richness by cell') + labs(subtitle = paste('r² =', FD_R_comparison_75km$bird$R.squared)) 
+PFD_BR_75km <- PFD_BR_75km + ylab('Plant FDis by cell') + xlab('Bird richness by cell') + labs(subtitle = paste('R² =', FD_R_comparison_75km$bird$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(FD_R_comparison_75km$bird, file = file.path(output_path_L2,"compare_PFDis-BRichness_75km.rds"))
 
@@ -436,13 +428,13 @@ FD_R_comparison_50km <- div_comparison3(plant_cellFDis_50km, mammal_cellRichness
 
 # mammals
 PFD_MR_50km <- FD_R_comparison_50km$plot1
-PFD_MR_50km <- PFD_MR_50km + ylab('Plant FDis by cell') + xlab('Mammal richness by cell') + labs(subtitle = paste('r² =', FD_R_comparison_50km$mammal$R.squared))
+PFD_MR_50km <- PFD_MR_50km + ylab('Plant FDis by cell') + xlab('Mammal richness by cell') + labs(subtitle = paste('R² =', FD_R_comparison_50km$mammal$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(FD_R_comparison_50km$mammal, file = file.path(output_path_L2,"compare_PFDis-Mrichness_50km.rds"))
 
 # birds
 PFD_BR_50km <- FD_R_comparison_50km$plot2
-PFD_BR_50km <- PFD_BR_50km + ylab('Plant FDis by cell') + xlab('Bird richness by cell') + labs(subtitle = paste('r² =', FD_R_comparison_50km$bird$R.squared))
+PFD_BR_50km <- PFD_BR_50km + ylab('Plant FDis by cell') + xlab('Bird richness by cell') + labs(subtitle = paste('R² =', FD_R_comparison_50km$bird$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(FD_R_comparison_50km$bird, file = file.path(output_path_L2,"compare_PFDis-Brichness_50km.rds"))
 
@@ -452,13 +444,13 @@ FD_R_comparison_25km <- div_comparison3(plant_cellFDis_25km, mammal_cellRichness
 
 # mammals
 PFD_MR_25km <- FD_R_comparison_25km$plot1
-PFD_MR_25km <- PFD_MR_25km + ylab('Plant FDis by cell') + xlab('Mammal richness by cell') + labs(subtitle = paste('r² =', FD_R_comparison_25km$mammal$R.squared))
+PFD_MR_25km <- PFD_MR_25km + ylab('Plant FDis by cell') + xlab('Mammal richness by cell') + labs(subtitle = paste('R² =', FD_R_comparison_25km$mammal$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(FD_R_comparison_25km$mammal, file = file.path(output_path_L2,"compare_PFDis-Mrichness_25km.rds"))
 
 # birds
 PFD_BR_25km <- FD_R_comparison_25km$plot2
-PFD_BR_25km <- PFD_BR_25km + ylab('Plant FDis by cell') + xlab('Bird richness by cell') + labs(subtitle = paste('r² =', FD_R_comparison_25km$bird$R.squared)) 
+PFD_BR_25km <- PFD_BR_25km + ylab('Plant FDis by cell') + xlab('Bird richness by cell') + labs(subtitle = paste('R² =', FD_R_comparison_25km$bird$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(FD_R_comparison_25km$bird, file = file.path(output_path_L2,"compare_PFDis-Brichness_25km.rds"))
 
@@ -468,13 +460,13 @@ FD_R_comparison_10km <- div_comparison3(plant_cellFDis_10km, mammal_cellRichness
 
 # mammals
 PFD_MR_10km <- FD_R_comparison_10km$plot1
-PFD_MR_10km <- PFD_MR_10km + ylab('Plant FDis by cell') + xlab('Mammal richness by cell') + labs(subtitle = paste('r² =', FD_R_comparison_10km$mammal$R.squared))
+PFD_MR_10km <- PFD_MR_10km + ylab('Plant FDis by cell') + xlab('Mammal richness by cell') + labs(subtitle = paste('R² =', FD_R_comparison_10km$mammal$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(FD_R_comparison_10km$mammal, file = file.path(output_path_L2,"compare_PFDis-Mrichness_10km.rds"))
 
 # birds
 PFD_BR_10km <- FD_R_comparison_10km$plot2
-PFD_BR_10km <- PFD_BR_10km + ylab('Plant FDis by cell') + xlab('Bird richness by cell') + labs(subtitle = paste('r² =', FD_R_comparison_10km$bird$R.squared))
+PFD_BR_10km <- PFD_BR_10km + ylab('Plant FDis by cell') + xlab('Bird richness by cell') + labs(subtitle = paste('R² =', FD_R_comparison_10km$bird$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(FD_R_comparison_10km$bird, file = file.path(output_path_L2,"compare_PFDis-Brichness_10km.rds"))
 
@@ -484,13 +476,13 @@ FD_R_comparison_5km <- div_comparison3(plant_cellFDis_5km, mammal_cellRichness_5
 
 # mammals
 PFD_MR_5km <- FD_R_comparison_5km$plot1
-PFD_MR_5km <- PFD_MR_5km + ylab('Plant FDis by cell') + xlab('Mammal richness by cell') + labs(subtitle = paste('r² =', FD_R_comparison_5km$mammal$R.squared)) 
+PFD_MR_5km <- PFD_MR_5km + ylab('Plant FDis by cell') + xlab('Mammal richness by cell') + labs(subtitle = paste('R² =', FD_R_comparison_5km$mammal$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(FD_R_comparison_5km$mammal, file = file.path(output_path_L2,"compare_PFDis-Mrichness_5km.rds"))
 
 # birds
 PFD_BR_5km <- FD_R_comparison_5km$plot2
-PFD_BR_5km <- PFD_BR_5km + ylab('Plant FDis by cell') + xlab('Bird richness by cell') + labs(subtitle = paste('r² =', FD_R_comparison_5km$bird$R.squared))
+PFD_BR_5km <- PFD_BR_5km + ylab('Plant FDis by cell') + xlab('Bird richness by cell') + labs(subtitle = paste('R² =', FD_R_comparison_5km$bird$R.squared)) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16), plot.subtitle = element_text(size=14, hjust=0.5))
 
 saveRDS(FD_R_comparison_5km$bird, file = file.path(output_path_L2,"compare_PFDis-Brichness5km.rds"))
 
