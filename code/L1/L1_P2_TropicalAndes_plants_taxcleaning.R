@@ -66,10 +66,7 @@ length(all_species_cleaned)
 
 
 # using TNRS to get harmonize taxonomy
-#all_species_harmonized_results <- TNRS(taxonomic_names = all_species_cleaned)
-
-# save(all_species_harmonized_results, file='all_species_harmonized_results.R')
-load("all_species_harmonized_results.R")
+all_species_harmonized_results <- TNRS(taxonomic_names = all_species_cleaned)
 
 
 # subset TNRS results to species with matches, conflicts, and disparties
@@ -110,9 +107,6 @@ nrow(all_species_disparities)
 # using COL database
 
 all_species_disparities_col_results <- bdc_query_names_taxadb(sci_name = all_species_disparities$Name_submitted, replace_synonyms = TRUE,suggest_names = TRUE, db = "col", rank_name = "Plantae", rank = "kingdom")
-
-#save(all_species_disparities_col_results, file='all_species_disparities_col_results.R')
-load("all_species_disparities_col_results.R")
 
 
 # subset COL results to accepted, synonym, and NA
