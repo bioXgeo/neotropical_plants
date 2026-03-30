@@ -801,7 +801,7 @@ FD_map <- function(loc_key, PAM, resolution_meters, fdis, guild){
   spatial_fdis <- st_as_sf(fd_sp, coords = c("Longitude", "Latitude"))
   
   # set crs of sf objects
-  spatial_fdis <- spatial_fdis %>% st_set_crs(5389)
+  spatial_fdis <- spatial_fdis %>% st_set_crs(32719)
   
   # extract coordinates 
   spatial_fdis_coords <- st_coordinates(spatial_fdis)
