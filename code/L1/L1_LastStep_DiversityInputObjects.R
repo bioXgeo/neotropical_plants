@@ -593,8 +593,8 @@ saveRDS(PAM_bird_site_final_100km, file = file.path(data_path_L1,"PAM_bird_site_
 # 75km
 saveRDS(site_loc_key_plant_75km, file = file.path(data_path_L1,"site_loc_key_plant_75km.rds"))
 #saveRDS(site_loc_key_frugivore_75km, file = file.path(data_path_L1,"site_loc_key_frugivore_75km.rds"))
-saveRDS(site_loc_key_frugivore_75km, file = file.path(data_path_L1,"site_loc_key_mammal_75km.rds"))
-saveRDS(site_loc_key_frugivore_75km, file = file.path(data_path_L1,"site_loc_key_bird_75km.rds"))
+saveRDS(site_loc_key_mammal_75km, file = file.path(data_path_L1,"site_loc_key_mammal_75km.rds"))
+saveRDS(site_loc_key_bird_75km, file = file.path(data_path_L1,"site_loc_key_bird_75km.rds"))
 
 saveRDS(PAM_plant_site_final_75km, file = file.path(data_path_L1,"PAM_plant_site_final_75km.rds"))
 #saveRDS(PAM_frugivore_site_final_75km, file = file.path(data_path_L1,"PAM_frugivore_site_final_75km.rds"))
@@ -604,8 +604,8 @@ saveRDS(PAM_bird_site_final_75km, file = file.path(data_path_L1,"PAM_bird_site_f
 # 50km
 saveRDS(site_loc_key_plant_50km, file = file.path(data_path_L1,"site_loc_key_plant_50km.rds"))
 #saveRDS(site_loc_key_frugivore_50km, file = file.path(data_path_L1,"site_loc_key_frugivore_50km.rds"))
-saveRDS(site_loc_key_frugivore_50km, file = file.path(data_path_L1,"site_loc_key_mammal_50km.rds"))
-saveRDS(site_loc_key_frugivore_50km, file = file.path(data_path_L1,"site_loc_key_bird_50km.rds"))
+saveRDS(site_loc_key_mammal_50km, file = file.path(data_path_L1,"site_loc_key_mammal_50km.rds"))
+saveRDS(site_loc_key_bird_50km, file = file.path(data_path_L1,"site_loc_key_bird_50km.rds"))
 
 saveRDS(PAM_plant_site_final_50km, file = file.path(data_path_L1,"PAM_plant_site_final_50km.rds"))
 #saveRDS(PAM_frugivore_site_final_50km, file = file.path(data_path_L1,"PAM_frugivore_site_final_50km.rds"))
@@ -615,8 +615,8 @@ saveRDS(PAM_bird_site_final_50km, file = file.path(data_path_L1,"PAM_bird_site_f
 # 25km
 saveRDS(site_loc_key_plant_25km, file = file.path(data_path_L1,"site_loc_key_plant_25km.rds"))
 #saveRDS(site_loc_key_frugivore_25km, file = file.path(data_path_L1,"site_loc_key_frugivore_25km.rds"))
-saveRDS(site_loc_key_frugivore_25km, file = file.path(data_path_L1,"site_loc_key_mammal_25km.rds"))
-saveRDS(site_loc_key_frugivore_25km, file = file.path(data_path_L1,"site_loc_key_bird_25km.rds"))
+saveRDS(site_loc_key_mammal_25km, file = file.path(data_path_L1,"site_loc_key_mammal_25km.rds"))
+saveRDS(site_loc_key_bird_25km, file = file.path(data_path_L1,"site_loc_key_bird_25km.rds"))
 
 saveRDS(PAM_plant_site_final_25km, file = file.path(data_path_L1,"PAM_plant_site_final_25km.rds"))
 #saveRDS(PAM_frugivore_site_final_25km, file = file.path(data_path_L1,"PAM_frugivore_site_final_25km.rds"))
@@ -626,8 +626,8 @@ saveRDS(PAM_bird_site_final_25km, file = file.path(data_path_L1,"PAM_bird_site_f
 # 10km
 saveRDS(site_loc_key_plant_10km, file = file.path(data_path_L1,"site_loc_key_plant_10km.rds"))
 #saveRDS(site_loc_key_frugivore_10km, file = file.path(data_path_L1,"site_loc_key_frugivore_10km.rds"))
-saveRDS(site_loc_key_frugivore_10km, file = file.path(data_path_L1,"site_loc_key_mammal_10km.rds"))
-saveRDS(site_loc_key_frugivore_10km, file = file.path(data_path_L1,"site_loc_key_bird_10km.rds"))
+saveRDS(site_loc_key_mammal_10km, file = file.path(data_path_L1,"site_loc_key_mammal_10km.rds"))
+saveRDS(site_loc_key_bird_10km, file = file.path(data_path_L1,"site_loc_key_bird_10km.rds"))
 
 saveRDS(PAM_plant_site_final_10km, file = file.path(data_path_L1,"PAM_plant_site_final_10km.rds"))
 #saveRDS(PAM_frugivore_site_final_10km, file = file.path(data_path_L1,"PAM_frugivore_site_final_10km.rds"))
@@ -637,8 +637,8 @@ saveRDS(PAM_bird_site_final_10km, file = file.path(data_path_L1,"PAM_bird_site_f
 # 5km
 saveRDS(site_loc_key_plant_5km, file = file.path(data_path_L1,"site_loc_key_plant_5km.rds"))
 #saveRDS(site_loc_key_frugivore_5km, file = file.path(data_path_L1,"site_loc_key_frugivore_5km.rds"))
-saveRDS(site_loc_key_frugivore_5km, file = file.path(data_path_L1,"site_loc_key_mammal_5km.rds"))
-saveRDS(site_loc_key_frugivore_5km, file = file.path(data_path_L1,"site_loc_key_bird_5km.rds"))
+saveRDS(site_loc_key_mammal_5km, file = file.path(data_path_L1,"site_loc_key_mammal_5km.rds"))
+saveRDS(site_loc_key_bird_5km, file = file.path(data_path_L1,"site_loc_key_bird_5km.rds"))
 
 saveRDS(PAM_plant_site_final_5km, file = file.path(data_path_L1,"PAM_plant_site_final_5km.rds"))
 #saveRDS(PAM_frugivore_site_final_5km, file = file.path(data_path_L1,"PAM_frugivore_site_final_5km.rds"))
