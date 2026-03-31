@@ -463,60 +463,60 @@ B5 <- readRDS(file = file.path(output_path_L2,"B5.rds"))
 # combine all plots 
 
 # individual plot edits
-PgridFDisTA_100km <- PgridFDisTA_100km + labs(title='[100km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=16)) 
+PgridFDisTA_100km <- PgridFDisTA_100km + labs(title='[100km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20)) 
 
 MgridFDisTA_100km <- MgridFDisTA_100km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
-BgridFDisTA_100km <- BgridFDisTA_100km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0))
+BgridFDisTA_100km <- BgridFDisTA_100km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
 
 
-PgridFDisTA_75km <- PgridFDisTA_75km + labs(title='[75km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=16))
+PgridFDisTA_75km <- PgridFDisTA_75km + labs(title='[75km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
 
 MgridFDisTA_75km <- MgridFDisTA_75km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
-BgridFDisTA_75km <- BgridFDisTA_75km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0))
+BgridFDisTA_75km <- BgridFDisTA_75km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
 
 
-PgridFDisTA_50km <- PgridFDisTA_50km + labs(title='[50km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=16))
+PgridFDisTA_50km <- PgridFDisTA_50km + labs(title='[50km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
 
 MgridFDisTA_50km <- MgridFDisTA_50km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
-BgridFDisTA_50km <- BgridFDisTA_50km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0))
+BgridFDisTA_50km <- BgridFDisTA_50km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
 
 
-PgridFDisTA_25km <- PgridFDisTA_25km + labs(title='[25km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=16))
+PgridFDisTA_25km <- PgridFDisTA_25km + labs(title='[25km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
 
 MgridFDisTA_25km <- MgridFDisTA_25km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
-BgridFDisTA_25km <- BgridFDisTA_25km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0)) + labs(x = "Longitude")
+BgridFDisTA_25km <- BgridFDisTA_25km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16)) + labs(x = "Longitude")
 
 
-PgridFDisTA_10km <- PgridFDisTA_10km + labs(title='[10km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=16))
+PgridFDisTA_10km <- PgridFDisTA_10km + labs(title='[10km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
 
 MgridFDisTA_10km <- MgridFDisTA_10km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
-BgridFDisTA_10km <- BgridFDisTA_10km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0))
+BgridFDisTA_10km <- BgridFDisTA_10km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
 
 
 # plant picture
 plant <- pick_phylopic(name='Coffea alleizettei')
 
-PgridFDisTA_5km <- PgridFDisTA_5km + labs(title='[5km]') + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=16)) + add_phylopic(img=plant, x=-79, y=12, height=8)
+PgridFDisTA_5km <- PgridFDisTA_5km + labs(title='[5km]') + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20), axis.text = element_text(size=16)) + add_phylopic(img=plant, x=-79, y=12, height=8)
 
 # mammal picture
 mammal <- pick_phylopic(name='Potos flavus', n=2, auto=2)
 
-MgridFDisTA_5km <- MgridFDisTA_5km + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0)) + labs(y = "Latitude") + add_phylopic(img=mammal, x=-79, y=12, height=8)
+MgridFDisTA_5km <- MgridFDisTA_5km + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16)) + labs(y = "Latitude") + add_phylopic(img=mammal, x=-79, y=12, height=8)
 
 # bird picture
 bird <- pick_phylopic(name='Ramphastos sulfuratus', n=2, auto=1)
 
-BgridFDisTA_5km <- BgridFDisTA_5km + annotation_scale(location = "bl",width_hint = 0.2, style = "bar") + annotation_north_arrow(location = "bl", which_north = "true", height = unit(0.3, "in"), width = unit(0.3, "in"), pad_x = unit(0.05, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) + theme(plot.margin = margin(0,0,0,0)) + add_phylopic(img=bird, x=-79, y=12, height=8)
+BgridFDisTA_5km <- BgridFDisTA_5km + annotation_scale(location = "bl",width_hint = 0.4, style = "bar") + annotation_north_arrow(location = "bl", which_north = "true", height = unit(0.5, "in"), width = unit(0.5, "in"), pad_x = unit(0.05, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) + theme(plot.margin = margin(0,0,0,0), axis.text = element_text(size=16)) + add_phylopic(img=bird, x=-79, y=12, height=8)
 
 
 # arrange
-all_fdis_plots <- PgridFDisTA_5km + PgridFDisTA_10km + PgridFDisTA_25km + PgridFDisTA_50km + PgridFDisTA_75km + PgridFDisTA_100km + MgridFDisTA_5km + MgridFDisTA_10km + MgridFDisTA_25km + MgridFDisTA_50km + MgridFDisTA_75km + MgridFDisTA_100km + BgridFDisTA_5km + BgridFDisTA_10km + BgridFDisTA_25km + BgridFDisTA_50km + BgridFDisTA_75km + BgridFDisTA_100km + plot_layout(ncol = 6, nrow = 3, guides = 'collect', axis_titles = 'collect') & theme(legend.position = 'left') & plot_annotation(title='FDis', theme = theme(plot.title = element_text(hjust = 0.5, size=20, face='bold')))
+all_fdis_plots <- PgridFDisTA_5km + PgridFDisTA_10km + PgridFDisTA_25km + PgridFDisTA_50km + PgridFDisTA_75km + PgridFDisTA_100km + MgridFDisTA_5km + MgridFDisTA_10km + MgridFDisTA_25km + MgridFDisTA_50km + MgridFDisTA_75km + MgridFDisTA_100km + BgridFDisTA_5km + BgridFDisTA_10km + BgridFDisTA_25km + BgridFDisTA_50km + BgridFDisTA_75km + BgridFDisTA_100km + plot_layout(ncol = 6, nrow = 3, guides = 'collect', axis_titles = 'collect') & theme(legend.position = 'left', axis.title = element_text(size=20), legend.title = element_text(size=20), legend.text = element_text(size=16)) & plot_annotation(title='FDis', theme = theme(plot.title = element_text(hjust = 0.5, size=30, face='bold')))
 
 all_fdis_plots
 
-ggsave('all_fdis_plots.png', all_fdis_plots, path = figure_path, width = 14, height = 12, units = "in", dpi=1000)
+ggsave('all_fdis_plots.png', all_fdis_plots, path = figure_path, width = 14, height = 11.8, units = "in", dpi=1000)
