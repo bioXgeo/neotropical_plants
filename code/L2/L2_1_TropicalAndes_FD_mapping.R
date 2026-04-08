@@ -515,7 +515,7 @@ BgridFDisTA_5km <- BgridFDisTA_5km + annotation_scale(location = "bl",width_hint
 
 
 # arrange
-all_fdis_plots <- PgridFDisTA_5km + PgridFDisTA_10km + PgridFDisTA_25km + PgridFDisTA_50km + PgridFDisTA_75km + PgridFDisTA_100km + MgridFDisTA_5km + MgridFDisTA_10km + MgridFDisTA_25km + MgridFDisTA_50km + MgridFDisTA_75km + MgridFDisTA_100km + BgridFDisTA_5km + BgridFDisTA_10km + BgridFDisTA_25km + BgridFDisTA_50km + BgridFDisTA_75km + BgridFDisTA_100km + plot_layout(ncol = 6, nrow = 3, guides = 'collect', axis_titles = 'collect') & theme(legend.position = 'left', axis.title = element_text(size=20), legend.title = element_text(size=20), legend.text = element_text(size=16)) & plot_annotation(title='FDis', theme = theme(plot.title = element_text(hjust = 0.5, size=30, face='bold')))
+all_fdis_plots <- PgridFDisTA_5km + PgridFDisTA_10km + PgridFDisTA_25km + PgridFDisTA_50km + PgridFDisTA_75km + PgridFDisTA_100km + MgridFDisTA_5km + MgridFDisTA_10km + MgridFDisTA_25km + MgridFDisTA_50km + MgridFDisTA_75km + MgridFDisTA_100km + BgridFDisTA_5km + BgridFDisTA_10km + BgridFDisTA_25km + BgridFDisTA_50km + BgridFDisTA_75km + BgridFDisTA_100km + plot_layout(ncol = 6, nrow = 3, guides = 'collect', axis_titles = 'collect', heights = c(1, 1, 1)) & theme(legend.position = 'left', axis.title = element_text(size=20), legend.title = element_text(size=20), legend.text = element_text(size=16)) & plot_annotation(title='FDis', theme = theme(plot.title = element_text(hjust = 0.5, size=30, face='bold')))
 
 all_fdis_plots
 
