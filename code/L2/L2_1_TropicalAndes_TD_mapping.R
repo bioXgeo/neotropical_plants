@@ -231,70 +231,34 @@ all_richness_plots
 ggsave('all_richness_plots.png', all_richness_plots, path = figure_path, width = 14, height = 12, units = "in", dpi=1000)
 
 
-# write data to csv
+# save richness data
 
-# have to remove geometry before saving to csv
-plant_cellRichness_5km_df <- data.frame(cellid = plant_cellRichness_5km$cellid, num_species = plant_cellRichness_5km$num_species)
-frugivore_cellRichness_5km_df <- data.frame(cellid = frugivore_cellRichness_5km$cellid, num_species = frugivore_cellRichness_5km$num_species)
-mammal_cellRichness_5km_df <- data.frame(cellid = mammal_cellRichness_5km$cellid, num_species = mammal_cellRichness_5km$num_species)
-bird_cellRichness_5km_df <- data.frame(cellid = bird_cellRichness_5km$cellid, num_species = bird_cellRichness_5km$num_species)
+saveRDS(plant_cellRichness_5km, file.path(output_path_L2,"TropicalAndes_plantRichness_5km.rds"))
+saveRDS(frugivore_cellRichness_5km, file.path(output_path_L2,"TropicalAndes_frugivoreRichness_5km.rds"))
+saveRDS(mammal_cellRichness_5km, file.path(output_path_L2,"TropicalAndes_mammalRichness_5km.rds"))
+saveRDS(bird_cellRichness_5km, file.path(output_path_L2,"TropicalAndes_birdRichness_5km.rds"))
 
+saveRDS(plant_cellRichness_10km, file.path(output_path_L2,"TropicalAndes_plantRichness_10km.rds"))
+saveRDS(frugivore_cellRichness_10km, file.path(output_path_L2,"TropicalAndes_frugivoreRichness_10km.rds"))
+saveRDS(mammal_cellRichness_10km, file.path(output_path_L2,"TropicalAndes_mammalRichness_10km.rds"))
+saveRDS(bird_cellRichness_10km, file.path(output_path_L2,"TropicalAndes_birdRichness_10km.rds"))
 
-plant_cellRichness_10km_df <- data.frame(cellid = plant_cellRichness_10km$cellid, num_species = plant_cellRichness_10km$num_species)
-frugivore_cellRichness_10km_df <- data.frame(cellid = frugivore_cellRichness_10km$cellid, num_species = frugivore_cellRichness_10km$num_species)
-mammal_cellRichness_10km_df <- data.frame(cellid = mammal_cellRichness_10km$cellid, num_species = mammal_cellRichness_10km$num_species)
-bird_cellRichness_10km_df <- data.frame(cellid = bird_cellRichness_10km$cellid, num_species = bird_cellRichness_10km$num_species)
+saveRDS(plant_cellRichness_25km, file.path(output_path_L2,"TropicalAndes_plantRichness_25km.rds"))
+saveRDS(frugivore_cellRichness_25km, file.path(output_path_L2,"TropicalAndes_frugivoreRichness_25km.rds"))
+saveRDS(mammal_cellRichness_25km, file.path(output_path_L2,"TropicalAndes_mammalRichness_25km.rds"))
+saveRDS(bird_cellRichness_25km, file.path(output_path_L2,"TropicalAndes_birdRichness_25km.rds"))
 
+saveRDS(plant_cellRichness_50km, file.path(output_path_L2,"TropicalAndes_plantRichness_50km.rds"))
+saveRDS(frugivore_cellRichness_50km, file.path(output_path_L2,"TropicalAndes_frugivoreRichness_50km.rds"))
+saveRDS(mammal_cellRichness_50km, file.path(output_path_L2,"TropicalAndes_mammalRichness_50km.rds"))
+saveRDS(bird_cellRichness_50km, file.path(output_path_L2,"TropicalAndes_birdRichness_50km.rds"))
 
-plant_cellRichness_25km_df <- data.frame(cellid = plant_cellRichness_25km$cellid, num_species = plant_cellRichness_25km$num_species)
-frugivore_cellRichness_25km_df <- data.frame(cellid = frugivore_cellRichness_25km$cellid, num_species = frugivore_cellRichness_25km$num_species)
-mammal_cellRichness_25km_df <- data.frame(cellid = mammal_cellRichness_25km$cellid, num_species = mammal_cellRichness_25km$num_species)
-bird_cellRichness_25km_df <- data.frame(cellid = bird_cellRichness_25km$cellid, num_species = bird_cellRichness_25km$num_species)
+saveRDS(plant_cellRichness_75km, file.path(output_path_L2,"TropicalAndes_plantRichness_75km.rds"))
+saveRDS(frugivore_cellRichness_75km, file.path(output_path_L2,"TropicalAndes_frugivoreRichness_75km.rds"))
+saveRDS(mammal_cellRichness_75km, file.path(output_path_L2,"TropicalAndes_mammalRichness_75km.rds"))
+saveRDS(bird_cellRichness_75km, file.path(output_path_L2,"TropicalAndes_birdRichness_75km.rds"))
 
-
-plant_cellRichness_50km_df <- data.frame(cellid = plant_cellRichness_50km$cellid, num_species = plant_cellRichness_50km$num_species)
-frugivore_cellRichness_50km_df <- data.frame(cellid = frugivore_cellRichness_50km$cellid, num_species = frugivore_cellRichness_50km$num_species)
-mammal_cellRichness_50km_df <- data.frame(cellid = mammal_cellRichness_50km$cellid, num_species = mammal_cellRichness_50km$num_species)
-bird_cellRichness_50km_df <- data.frame(cellid = bird_cellRichness_50km$cellid, num_species = bird_cellRichness_50km$num_species)
-
-
-plant_cellRichness_75km_df <- data.frame(cellid = plant_cellRichness_75km$cellid, num_species = plant_cellRichness_75km$num_species)
-frugivore_cellRichness_75km_df <- data.frame(cellid = frugivore_cellRichness_75km$cellid, num_species = frugivore_cellRichness_75km$num_species)
-mammal_cellRichness_75km_df <- data.frame(cellid = mammal_cellRichness_75km$cellid, num_species = mammal_cellRichness_75km$num_species)
-bird_cellRichness_75km_df <- data.frame(cellid = bird_cellRichness_75km$cellid, num_species = bird_cellRichness_75km$num_species)
-
-
-plant_cellRichness_100km_df <- data.frame(cellid = plant_cellRichness_100km$cellid, num_species = plant_cellRichness_100km$num_species)
-frugivore_cellRichness_100km_df <- data.frame(cellid = frugivore_cellRichness_100km$cellid, num_species = frugivore_cellRichness_100km$num_species)
-mammal_cellRichness_100km_df <- data.frame(cellid = mammal_cellRichness_100km$cellid, num_species = mammal_cellRichness_100km$num_species)
-bird_cellRichness_100km_df <- data.frame(cellid = bird_cellRichness_100km$cellid, num_species = bird_cellRichness_100km$num_species)
-
-write.csv(plant_cellRichness_5km_df, file.path(output_path_L2,"TropicalAndes_plantRichness_5km.csv"), row.names = FALSE)
-write.csv(frugivore_cellRichness_5km_df, file.path(output_path_L2,"TropicalAndes_frugivoreRichness_5km.csv"), row.names = FALSE)
-write.csv(mammal_cellRichness_5km_df, file.path(output_path_L2,"TropicalAndes_mammalRichness_5km.csv"), row.names = FALSE)
-write.csv(bird_cellRichness_5km_df, file.path(output_path_L2,"TropicalAndes_birdRichness_5km.csv"), row.names = FALSE)
-
-write.csv(plant_cellRichness_10km_df, file.path(output_path_L2,"TropicalAndes_plantRichness_10km.csv"), row.names = FALSE)
-write.csv(frugivore_cellRichness_10km_df, file.path(output_path_L2,"TropicalAndes_frugivoreRichness_10km.csv"), row.names = FALSE)
-write.csv(mammal_cellRichness_10km_df, file.path(output_path_L2,"TropicalAndes_mammalRichness_10km.csv"), row.names = FALSE)
-write.csv(bird_cellRichness_10km_df, file.path(output_path_L2,"TropicalAndes_birdRichness_10km.csv"), row.names = FALSE)
-
-write.csv(plant_cellRichness_25km_df, file.path(output_path_L2,"TropicalAndes_plantRichness_25km.csv"), row.names = FALSE)
-write.csv(frugivore_cellRichness_25km_df, file.path(output_path_L2,"TropicalAndes_frugivoreRichness_25km.csv"), row.names = FALSE)
-write.csv(mammal_cellRichness_25km_df, file.path(output_path_L2,"TropicalAndes_mammalRichness_25km.csv"), row.names = FALSE)
-write.csv(bird_cellRichness_25km_df, file.path(output_path_L2,"TropicalAndes_birdRichness_25km.csv"), row.names = FALSE)
-
-write.csv(plant_cellRichness_50km_df, file.path(output_path_L2,"TropicalAndes_plantRichness_50km.csv"), row.names = FALSE)
-write.csv(frugivore_cellRichness_50km_df, file.path(output_path_L2,"TropicalAndes_frugivoreRichness_50km.csv"), row.names = FALSE)
-write.csv(mammal_cellRichness_50km_df, file.path(output_path_L2,"TropicalAndes_mammalRichness_50km.csv"), row.names = FALSE)
-write.csv(bird_cellRichness_50km_df, file.path(output_path_L2,"TropicalAndes_birdRichness_50km.csv"), row.names = FALSE)
-
-write.csv(plant_cellRichness_75km_df, file.path(output_path_L2,"TropicalAndes_plantRichness_75km.csv"), row.names = FALSE)
-write.csv(frugivore_cellRichness_75km_df, file.path(output_path_L2,"TropicalAndes_frugivoreRichness_75km.csv"), row.names = FALSE)
-write.csv(mammal_cellRichness_75km_df, file.path(output_path_L2,"TropicalAndes_mammalRichness_75km.csv"), row.names = FALSE)
-write.csv(bird_cellRichness_75km_df, file.path(output_path_L2,"TropicalAndes_birdRichness_75km.csv"), row.names = FALSE)
-
-write.csv(plant_cellRichness_100km_df, file.path(output_path_L2,"TropicalAndes_plantRichness_100km.csv"), row.names = FALSE)
-write.csv(frugivore_cellRichness_100km_df, file.path(output_path_L2,"TropicalAndes_frugivoreRichness_100km.csv"), row.names = FALSE)
-write.csv(mammal_cellRichness_100km_df, file.path(output_path_L2,"TropicalAndes_mammalRichness_100km.csv"), row.names = FALSE)
-write.csv(bird_cellRichness_100km_df, file.path(output_path_L2,"TropicalAndes_birdRichness_100km.csv"), row.names = FALSE)
+saveRDS(plant_cellRichness_100km, file.path(output_path_L2,"TropicalAndes_plantRichness_100km.rds"))
+saveRDS(frugivore_cellRichness_100km, file.path(output_path_L2,"TropicalAndes_frugivoreRichness_100km.rds"))
+saveRDS(mammal_cellRichness_100km, file.path(output_path_L2,"TropicalAndes_mammalRichness_100km.rds"))
+saveRDS(bird_cellRichness_100km, file.path(output_path_L2,"TropicalAndes_birdRichness_100km.rds"))

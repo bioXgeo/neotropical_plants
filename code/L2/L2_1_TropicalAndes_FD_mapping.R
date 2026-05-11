@@ -135,6 +135,12 @@ pc_coords(fspaces_quality_plant, plant_traits_df_final, 'plant')
 fspace_corr_plots(sp_faxes_coord_plant, tr_faxes_plant)
 
 
+sp_faxes_coord_frugivore <- readRDS(file = file.path(output_path_L2,"sp_faxes_coord_frugivore.rds"))
+sp_faxes_coord_mammal <- readRDS(file = file.path(output_path_L2,"sp_faxes_coord_mammal.rds"))
+sp_faxes_coord_bird <- readRDS(file = file.path(output_path_L2,"sp_faxes_coord_bird.rds"))
+sp_faxes_coord_plant <- readRDS(file = file.path(output_path_L2,"sp_faxes_coord_plant.rds"))
+
+
 # functional dispersion calculation
 
 # 100 km
@@ -260,12 +266,20 @@ saveRDS(F100, file = file.path(output_path_L2,"F100.rds"))
 FgridFDisTA_100km <- F100$gridFDisTA
 FcellFDis_100km <- F100$spatial_fdis_grid
 
+# save data
+saveRDS(FcellFDis_100km, file.path(output_path_L2,"FcellFDis_100km.rds"))
+
+
 # mammals
 M100 <- FD_map(site_loc_key_mammal_100km, PAM_mammal_site_final_100km, 100000, fdis_mammal_100km, 'mammal')
 saveRDS(M100, file = file.path(output_path_L2,"M100.rds"))
 
 MgridFDisTA_100km <- M100$gridFDisTA
 McellFDis_100km <- M100$spatial_fdis_grid
+
+# save data
+saveRDS(McellFDis_100km, file.path(output_path_L2,"McellFDis_100km.rds"))
+
 
 # birds
 B100 <- FD_map(site_loc_key_bird_100km, PAM_bird_site_final_100km, 100000, fdis_bird_100km, 'bird')
@@ -274,12 +288,19 @@ saveRDS(B100, file = file.path(output_path_L2,"B100.rds"))
 BgridFDisTA_100km <- B100$gridFDisTA
 BcellFDis_100km <- B100$spatial_fdis_grid
 
+# save data
+saveRDS(BcellFDis_100km, file.path(output_path_L2,"BcellFDis_100km.rds"))
+
+
 # plants
 P100 <- FD_map(site_loc_key_plant_100km, PAM_plant_site_final_100km, 100000, fdis_plant_100km, 'plant')
 saveRDS(P100, file = file.path(output_path_L2,"P100.rds"))
 
 PgridFDisTA_100km <- P100$gridFDisTA
 PcellFDis_100km <- P100$spatial_fdis_grid
+
+# save data
+saveRDS(PcellFDis_100km, file.path(output_path_L2,"PcellFDis_100km.rds"))
 
 
 # 75km 
@@ -291,12 +312,20 @@ saveRDS(F75, file = file.path(output_path_L2,"F75.rds"))
 FgridFDisTA_75km <- F75$gridFDisTA
 FcellFDis_75km <- F75$spatial_fdis_grid
 
+# save data
+saveRDS(FcellFDis_75km, file.path(output_path_L2,"FcellFDis_75km.rds"))
+
+
 # mammals
 M75 <- FD_map(site_loc_key_mammal_75km, PAM_mammal_site_final_75km, 75000, fdis_mammal_75km, 'mammal')
 saveRDS(M75, file = file.path(output_path_L2,"M75.rds"))
 
 MgridFDisTA_75km <- M75$gridFDisTA
 McellFDis_75km <- M75$spatial_fdis_grid
+
+# save data
+saveRDS(McellFDis_75km, file.path(output_path_L2,"McellFDis_75km.rds"))
+
 
 # birds
 B75 <- FD_map(site_loc_key_bird_75km, PAM_bird_site_final_75km, 75000, fdis_bird_75km, 'bird')
@@ -305,12 +334,19 @@ saveRDS(B75, file = file.path(output_path_L2,"B75.rds"))
 BgridFDisTA_75km <- B75$gridFDisTA
 BcellFDis_75km <- B75$spatial_fdis_grid
 
+# save data
+saveRDS(BcellFDis_75km, file.path(output_path_L2,"BcellFDis_75km.rds"))
+
+
 # plants
 P75 <- FD_map(site_loc_key_plant_75km, PAM_plant_site_final_75km, 75000, fdis_plant_75km, 'plant')
 saveRDS(P75, file = file.path(output_path_L2,"P75.rds"))
 
 PgridFDisTA_75km <- P75$gridFDisTA
 PcellFDis_75km <- P75$spatial_fdis_grid
+
+# save data
+saveRDS(PcellFDis_75km, file.path(output_path_L2,"PcellFDis_75km.rds"))
 
 
 # 50km 
@@ -322,12 +358,20 @@ saveRDS(F50, file = file.path(output_path_L2,"F50.rds"))
 FgridFDisTA_50km <- F50$gridFDisTA
 FcellFDis_50km <- F50$spatial_fdis_grid
 
+# save data
+saveRDS(FcellFDis_50km, file.path(output_path_L2,"FcellFDis_50km.rds"))
+
+
 # mammals
 M50 <- FD_map(site_loc_key_mammal_50km, PAM_mammal_site_final_50km, 50000, fdis_mammal_50km, 'mammal')
 saveRDS(M50, file = file.path(output_path_L2,"M50.rds"))
 
 MgridFDisTA_50km <- M50$gridFDisTA
 McellFDis_50km <- M50$spatial_fdis_grid
+
+# save data
+saveRDS(McellFDis_50km, file.path(output_path_L2,"McellFDis_50km.rds"))
+
 
 # birds
 B50 <- FD_map(site_loc_key_bird_50km, PAM_bird_site_final_50km, 50000, fdis_bird_50km, 'bird')
@@ -336,12 +380,19 @@ saveRDS(B50, file = file.path(output_path_L2,"B50.rds"))
 BgridFDisTA_50km <- B50$gridFDisTA
 BcellFDis_50km <- B50$spatial_fdis_grid
 
+# save data
+saveRDS(BcellFDis_50km, file.path(output_path_L2,"BcellFDis_50km.rds"))
+
+
 # plants
 P50 <- FD_map(site_loc_key_plant_50km, PAM_plant_site_final_50km, 50000, fdis_plant_50km, 'plant')
 saveRDS(P50, file = file.path(output_path_L2,"P50.rds"))
 
 PgridFDisTA_50km <- P50$gridFDisTA
 PcellFDis_50km <- P50$spatial_fdis_grid
+
+# save data
+saveRDS(PcellFDis_50km, file.path(output_path_L2,"PcellFDis_50km.rds"))
 
 
 # 25km
@@ -353,12 +404,20 @@ saveRDS(F25, file = file.path(output_path_L2,"F25.rds"))
 FgridFDisTA_25km <- F25$gridFDisTA
 FcellFDis_25km <- F25$spatial_fdis_grid
 
+# save data
+saveRDS(FcellFDis_25km, file.path(output_path_L2,"FcellFDis_25km.rds"))
+
+
 # mammals
 M25 <- FD_map(site_loc_key_mammal_25km, PAM_mammal_site_final_25km, 25000, fdis_mammal_25km, 'mammal')
 saveRDS(M25, file = file.path(output_path_L2,"M25.rds"))
 
 MgridFDisTA_25km <- M25$gridFDisTA
 McellFDis_25km <- M25$spatial_fdis_grid
+
+# save data
+saveRDS(McellFDis_25km, file.path(output_path_L2,"McellFDis_25km.rds"))
+
 
 # birds
 B25 <- FD_map(site_loc_key_bird_25km, PAM_bird_site_final_25km, 25000, fdis_bird_25km, 'bird')
@@ -367,12 +426,19 @@ saveRDS(B25, file = file.path(output_path_L2,"B25.rds"))
 BgridFDisTA_25km <- B25$gridFDisTA
 BcellFDis_25km <- B25$spatial_fdis_grid
 
+# save data
+saveRDS(BcellFDis_25km, file.path(output_path_L2,"BcellFDis_25km.rds"))
+
+
 # plants
 P25 <- FD_map(site_loc_key_plant_25km, PAM_plant_site_final_25km, 25000, fdis_plant_25km, 'plant')
 saveRDS(P25, file = file.path(output_path_L2,"P25.rds"))
 
 PgridFDisTA_25km <- P25$gridFDisTA
 PcellFDis_25km <- P25$spatial_fdis_grid
+
+# save data
+saveRDS(PcellFDis_25km, file.path(output_path_L2,"PcellFDis_25km.rds"))
 
 
 # 10km
@@ -384,12 +450,20 @@ saveRDS(F10, file = file.path(output_path_L2,"F10.rds"))
 FgridFDisTA_10km <- F10$gridFDisTA
 FcellFDis_10km <- F10$spatial_fdis_grid
 
+# save data
+saveRDS(FcellFDis_10km, file.path(output_path_L2,"FcellFDis_10km.rds"))
+
+
 # mammals
 M10 <- FD_map(site_loc_key_mammal_10km, PAM_mammal_site_final_10km, 10000, fdis_mammal_10km, 'mammal')
 saveRDS(M10, file = file.path(output_path_L2,"M10.rds"))
 
 MgridFDisTA_10km <- M10$gridFDisTA
 McellFDis_10km <- M10$spatial_fdis_grid
+
+# save data
+saveRDS(McellFDis_10km, file.path(output_path_L2,"McellFDis_10km.rds"))
+
 
 # birds
 B10 <- FD_map(site_loc_key_bird_10km, PAM_bird_site_final_10km, 10000, fdis_bird_10km, 'bird')
@@ -398,12 +472,19 @@ saveRDS(B10, file = file.path(output_path_L2,"B10.rds"))
 BgridFDisTA_10km <- B10$gridFDisTA
 BcellFDis_10km <- B10$spatial_fdis_grid
 
+# save data
+saveRDS(BcellFDis_10km, file.path(output_path_L2,"BcellFDis_10km.rds"))
+
+
 #  plants
 P10 <- FD_map(site_loc_key_plant_10km, PAM_plant_site_final_10km, 10000, fdis_plant_10km, 'plant')
 saveRDS(P10, file = file.path(output_path_L2,"P10.rds"))
 
 PgridFDisTA_10km <- P10$gridFDisTA
 PcellFDis_10km <- P10$spatial_fdis_grid
+
+# save data
+saveRDS(PcellFDis_10km, file.path(output_path_L2,"PcellFDis_10km.rds"))
 
 
 # 5km
@@ -415,12 +496,20 @@ saveRDS(F5, file = file.path(output_path_L2,"F5.rds"))
 FgridFDisTA_5km <- F5$gridFDisTA
 FcellFDis_5km <- F5$spatial_fdis_grid
 
+# save data
+saveRDS(FcellFDis_5km, file.path(output_path_L2,"FcellFDis_5km.rds"))
+
+
 # mammals
 M5 <- FD_map(site_loc_key_mammal_5km, PAM_mammal_site_final_5km, 5000, fdis_mammal_5km, 'mammal')
 saveRDS(M5, file = file.path(output_path_L2,"M5.rds"))
 
 MgridFDisTA_5km <- M5$gridFDisTA
 McellFDis_5km <- M5$spatial_fdis_grid
+
+# save data
+saveRDS(McellFDis_5km, file.path(output_path_L2,"McellFDis_5km.rds"))
+
 
 # birds
 B5 <- FD_map(site_loc_key_bird_5km, PAM_bird_site_final_5km, 5000, fdis_bird_5km, 'bird')
@@ -429,12 +518,19 @@ saveRDS(B5, file = file.path(output_path_L2,"B5.rds"))
 BgridFDisTA_5km <- B5$gridFDisTA
 BcellFDis_5km <- B5$spatial_fdis_grid
 
+# save data
+saveRDS(BcellFDis_5km, file.path(output_path_L2,"BcellFDis_5km.rds"))
+
+
 # plants
 P5 <- FD_map(site_loc_key_plant_5km, PAM_plant_site_final_5km, 5000, fdis_plant_5km, 'plant')
 saveRDS(P5, file = file.path(output_path_L2,"P5.rds"))
 
 PgridFDisTA_5km <- P5$gridFDisTA
 PcellFDis_5km <- P5$spatial_fdis_grid
+
+# save data
+saveRDS(PcellFDis_5km, file.path(output_path_L2,"PcellFDis_5km.rds"))
 
 
 # load saved data

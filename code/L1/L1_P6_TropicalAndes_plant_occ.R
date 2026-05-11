@@ -9,7 +9,7 @@
 
 
 # load required packages
-library(GIFT); library(dplyr); library(sf); library(tidyr); library(ggplot2)
+library(GIFT); library(dplyr); library(sf); library(tidyr); library(ggplot2); library(forcats)
 
   
 # set file paths
@@ -133,3 +133,4 @@ ggsave("plant_taxonomic_coverage.png", plot = last_plot(), path = figure_path, w
 
 # write data to csv
 write.csv(plant_occ_subset, file.path(output_path_L1,"TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv"))
+

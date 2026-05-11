@@ -41,7 +41,7 @@ dim(na_traits)
 
 
 # get a list of species
-na_species_list <- unique(plant_traits$species)
+na_species_list <- unique(na_traits$species)
 length(na_species_list)
 
 # add genus and family information to dataframe
@@ -101,7 +101,7 @@ for (chunk_index in seq_along(chunks)) {
   chunk_species_names <- chunks[[chunk_index]]
   
   # Retrieve taxonomic information for the chunk
-  chunk_taxonomic_info <- get_taxonomic_info_chunk(chunk_species_names)
+  chunk_taxonomic_info <- get_taxonomic_info_chunk_names(chunk_species_names)
   
   # Append taxonomic information for the chunk to the list
   all_taxonomic_info <- c(all_taxonomic_info, list(chunk_taxonomic_info))
@@ -141,11 +141,8 @@ species_no_family_2 <- na_species_df %>%
 length(species_no_family_2)
 
 # get powo id
-# when prompted to choose one out of a list, selected the one that matched the species exactly and has TRUE under accepted
-species_no_family_2_powo <- lapply(species_no_family_2, function(sp) {
-  Sys.sleep(1)  # wait 1 second between requests
-  tryCatch(get_pow(sp, messages = TRUE), error = function(e) NULL)
-})
+species_no_family_2_powo <- get_pow(species_no_family_2, messages = TRUE)
+  # when prompted to choose one out of a list, selected the one that matched the   species exactly and has TRUE under accepted
 
 
 # retrieve taxonomic information for a chunk of taxon IDs
@@ -164,7 +161,7 @@ for (chunk_index in seq_along(chunks)) {
   chunk_taxon_id <- chunks[[chunk_index]]
   
   # Retrieve taxonomic information for the chunk
-  chunk_taxonomic_info <- get_taxonomic_info_chunk(chunk_taxon_id)
+  chunk_taxonomic_info <- get_taxonomic_info_chunk_powo(chunk_taxon_id)
   
   # Append taxonomic information for the chunk to the list
   all_taxonomic_info <- c(all_taxonomic_info, list(chunk_taxonomic_info))
@@ -193,6 +190,21 @@ species_no_family_3 <- na_species_df %>%
   pull()
 length(species_no_family_3)
 
+
+# manually fill in family & genus info for two species
+na_species_df <- na_species_df %>%
+  mutate(
+    family = case_when(
+      species == 'Cistus florentinus' ~ 'Cistaceae',
+      species == 'Passiflora tranversalis' ~ 'Passifloraceae',
+      TRUE ~ family
+    ),
+    genus = case_when(
+      species == 'Cistus florentinus' ~ 'Cistus',
+      species == 'Passiflora tranversalis' ~ 'Passiflora',
+      TRUE ~ genus
+    )
+  )
 
 # add genus and family info to dataframe with species and traits
 na_traits_family_genus <- merge(na_traits, na_species_df, by = "species", all.x = TRUE)

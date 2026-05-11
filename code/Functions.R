@@ -186,8 +186,36 @@ combine_matching_columns <- function(df_list) {
   return(combined_df)
 }
 
+# Function to retrieve taxonomic information for a chunk of species names
+get_taxonomic_info_chunk_names <- function(chunk_species_names) {
+  # Initialize an empty list to store taxonomic information for each chunk
+  chunk_taxonomic_info <- list()
+  
+  # Loop through each species name in the chunk and retrieve taxonomic information
+  for (species_name in chunk_species_names) {
+    tryCatch({
+      # Add a delay between consecutive API requests
+      Sys.sleep(1)
+      
+      # Make API request to retrieve taxonomic information
+      taxon_info <- tax_name(species_name, get = c("genus", "family"), db = "ncbi")
+      
+      # Store taxonomic information for the species in the list
+      chunk_taxonomic_info[[species_name]] <- data.frame(Species = species_name, 
+                                                         Genus = taxon_info$genus, 
+                                                         Family = taxon_info$family)
+    }, error = function(e) {
+      # Print error message
+      cat("Error retrieving taxonomic information for", species_name, ":", conditionMessage(e), "\n")
+    })
+  }
+  
+  # Return the list of taxonomic information for the chunk
+  return(chunk_taxonomic_info)
+}
+
 # function to retrieve taxonomic information for a chunk of taxon IDs
-get_taxonomic_info_chunk <- function(chunk_taxon_id) {
+get_taxonomic_info_chunk_powo <- function(chunk_taxon_id) {
   # Initialize an empty list to store taxonomic information for each chunk
   chunk_taxonomic_info <- list()
   
@@ -209,10 +237,7 @@ get_taxonomic_info_chunk <- function(chunk_taxon_id) {
         chunk_taxonomic_info[[taxon_id]] <- data.frame(taxon_id = taxon_id, species = NA, family = NA, genus = NA)
       } else {
         # Store taxonomic information for the taxon ID in the list
-        chunk_taxonomic_info[[taxon_id]] <- data.frame(taxon_id = taxon_id,
-                                                       species = taxon_info$meta$name,
-                                                       genus = taxon_info$meta$genus, 
-                                                       family = taxon_info$meta$family)
+        chunk_taxonomic_info[[taxon_id]] <- data.frame(taxon_id = taxon_id, species = taxon_info$meta$name, genus = taxon_info$meta$genus, family = taxon_info$meta$family)
       }
     }, error = function(e) {
       # Print error message for debugging
@@ -856,71 +881,174 @@ FD_map <- function(loc_key, PAM, resolution_meters, fdis, guild){
 }
 
 # Comparisons of diversity measurements
+#fit_model <- function(df) {
+#  mgcv::gam(
+#    frug_div ~ s(plant_div) + s(x, y, bs = 'gp'),
+#    data = df,
+#    method = "REML"
+#  )
+#}
+
+#run_iter_models <- function(df, n_iter = 1000, n_sub = 130) {
+  
+#  coef_list <- vector("list", n_iter)
+  
+#  for (i in seq_len(n_iter)) {
+    
+#    coef_list[[i]] <- tryCatch({
+      
+#      sub_df <- subsample_df(df, n_sub)
+      
+#      if (nrow(sub_df) < 10) return(NULL)
+      
+#      m <- fit_model(sub_df)
+      
+#     as.data.frame(summary(m)$p.table) |>
+#        tibble::rownames_to_column("term") |>
+#        dplyr::mutate(iter = i)
+      
+#   }, error = function(e) {
+#      message(paste("Iteration", i, "failed:", e$message))
+#      NULL
+#    })
+#  }
+  
+#  dplyr::bind_rows(coef_list)
+#}
+
+#subsample_df <- function(df, n) {
+#  df %>%
+#    dplyr::slice_sample(n = min(n, nrow(df)), replace = FALSE)
+#}
+
 
 # TD-TD or FD-FD
 div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
   
+  set.seed(123)
+  
+  metric <- if ("num_species" %in% colnames(plant_div)) "richness" else "fdis"
+  
   if('num_species' %in% colnames(plant_div)){
+    coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
     
-    mammal_plant <- data.frame(cell_id=plant_div$cellid, plant_div = plant_div$num_species, frug_div=mammal_div$num_species, taxa=c(rep('Mammal', nrow(mammal_div))))
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$num_species, frug_div=mammal_div$num_species, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
+      dplyr::filter(plant_div > 0 & frug_div > 0)
     
-    bird_plant <- data.frame(cell_id=plant_div$cellid, plant_div = plant_div$num_species, frug_div=bird_div$num_species, taxa=c(rep('Bird', nrow(bird_div))))
+    m1 <- gam(
+      frug_div ~ s(plant_div) + s(x, y, bs = 'gp', k = 50),
+      data = mammal_plant,
+      method = "REML")
     
-    all_div <- rbind(mammal_plant, bird_plant)
+    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$num_species, frug_div=bird_div$num_species, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
+      dplyr::filter(plant_div > 0 & frug_div > 0)
     
-    # Filter out rows where either plant or frugivore richness is zero
-    div_filtered <- all_div %>%
-      filter(plant_div > 0 & frug_div > 0)
+    m2 <- gam(
+      frug_div ~ s(plant_div) + s(x, y, bs = 'gp', k = 50),
+      data = bird_plant,
+      method = "REML")
     
-    plot <- ggplot(data=div_filtered, aes(x=plant_div, y=frug_div, color=taxa))+
-      geom_point(size=2)+
-      labs(x='Plant richness by cell', y='Frugivore richness by cell', color='Taxa', title=paste0('[',resolution,'km]'))+
-      geom_smooth(method='lm', se=FALSE)+
+    rng <- range(plant_div$num_species, na.rm = TRUE)
+    
+    newdata <- data.frame(
+      plant_div = seq(rng[1], rng[2], length.out = 100),
+      x = mean(coords$X, na.rm = TRUE),
+      y = mean(coords$Y, na.rm = TRUE)
+    )
+    
+    newdata$Mammal <- predict(m1, newdata = newdata, type = "response")
+    newdata$Bird   <- predict(m2, newdata = newdata, type = "response")
+    
+    plot_df <- newdata %>%
+      pivot_longer(cols = c(Mammal, Bird),
+                   names_to = "taxa",
+                   values_to = "frug_div")
+    
+    plot_points <- dplyr::bind_rows(
+      mammal_plant,
+      bird_plant
+    )
+    
+    r2_df <- data.frame(
+      taxa = c("Mammal", "Bird"),
+      r2   = c(summary(m1)$r.sq, summary(m2)$r.sq)
+    )
+    
+    r2_df$dev_expl <- c(summary(m1)$dev.expl, summary(m2)$dev.expl)
+    
+    (plot <- ggplot(data = plot_points, aes(x = plant_div, y = frug_div, color = taxa)) +
+      geom_point(alpha = 0.6, size = 2) +
+      geom_line(data = plot_df, aes(x = plant_div, y = frug_div, color = taxa), size = 1.2) +
       scale_color_manual(values=c('lightsteelblue2','burlywood3'))+
       scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
       scale_y_continuous(expand=c(0,0), limits=c(0,400))+
+        labs(x='Plant richness by cell', y='Frugivore richness by cell', color='Taxa', title=paste0('[',resolution,'km]'))+
       theme_classic()+
-      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))
-    
-    mammal_plant_sum <- div_filtered[div_filtered$taxa=='Mammal',]
-    mammal_plant_sum_trend <- trendline_sum(mammal_plant_sum$plant_div, mammal_plant_sum$frug_div, model="line2P")
-    
-    bird_plant_sum <- div_filtered[div_filtered$taxa=='Bird',]
-    bird_plant_sum_trend <- trendline_sum(bird_plant_sum$plant_div, bird_plant_sum$frug_div, model="line2P")
+      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))) 
     
   } else {
-    mammal_plant <- data.frame(cell_id=plant_div$cellid, plant_div = plant_div$fdis, frug_div=mammal_div$fdis, taxa=c(rep('Mammal', nrow(mammal_div))))
+    coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
     
-    bird_plant <- data.frame(cell_id=plant_div$cellid, plant_div = plant_div$fdis, frug_div=bird_div$fdis, taxa=c(rep('Bird', nrow(bird_div)))) 
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$fdis_value, frug_div=mammal_div$fdis_value, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
+      dplyr::filter(plant_div > 0 & frug_div > 0)
     
-    all_div <- rbind(mammal_plant, bird_plant)
+    m1 <- gam(
+      frug_div ~ s(plant_div),
+      data = bird_plant,
+      family = betar(link = "logit"),
+      method = "REML")
     
-    # Filter out rows where either plant or frugivore richness is zero
-    div_filtered <- all_div %>%
-      filter(plant_div > 0 & frug_div > 0)
+    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$fdis_value, frug_div=bird_div$fdis_value, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
+      dplyr::filter(plant_div > 0 & frug_div > 0)
     
-    plot <- ggplot(data=div_filtered, aes(x=plant_div, y=frug_div, color=taxa))+
-      geom_point(size=2)+
-      labs(x='Plant FDis by cell', y='Frugivore FDis by cell', color='Taxa', title=paste0('[',resolution,'km]'))+
-      geom_smooth(method='lm', se=FALSE)+
-      scale_color_manual(values=c('lightsteelblue2','burlywood3'))+
-      scale_x_continuous(expand=c(0,0), limits=c(0,.8))+
-      scale_y_continuous(expand=c(0,0), limits=c(0,.8))+
-      theme_classic()+
-      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))
-    mammal_plant_sum <- div_filtered[div_filtered$taxa=='Mammal',]
-    mammal_plant_sum_trend <- trendline_sum(mammal_plant_sum$plant_div, mammal_plant_sum$frug_div, model="line2P")
+    m2 <- gam(
+      frug_div ~ s(plant_div),
+      data = bird_plant,
+      family = betar(link = "logit"),
+      method = "REML")
     
+    rng <- range(plant_div$fdis_value, na.rm = TRUE)
     
-    bird_plant_sum <- div_filtered[div_filtered$taxa=='Bird',]
-    bird_plant_sum_trend <- trendline_sum(bird_plant_sum$plant_div, bird_plant_sum$frug_div, model="line2P")
+    newdata <- data.frame(
+      plant_div = seq(rng[1], rng[2], length.out = 100),
+      x = mean(coords$X, na.rm = TRUE),
+      y = mean(coords$Y, na.rm = TRUE)
+    )
     
+    newdata$Mammal <- predict(m1, newdata = newdata, type = "response")
+    newdata$Bird   <- predict(m2, newdata = newdata, type = "response")
+    
+    plot_df <- newdata %>%
+      pivot_longer(cols = c(Mammal, Bird),
+                   names_to = "taxa",
+                   values_to = "frug_div")
+    
+    plot_points <- dplyr::bind_rows(
+      mammal_plant,
+      bird_plant
+    )
+    
+    r2_df <- data.frame(
+      taxa = c("Mammal", "Bird"),
+      r2   = c(summary(m1)$r.sq, summary(m2)$r.sq)
+    )
+    
+    r2_df$dev_expl <- c(summary(m1)$dev.expl, summary(m2)$dev.expl)
+    
+    (plot <- ggplot(data = plot_points, aes(x = plant_div, y = frug_div, color = taxa)) +
+        geom_point(alpha = 0.6, size = 2) +
+        geom_line(data = plot_df, aes(x = plant_div, y = frug_div, color = taxa), size = 1.2) +
+        scale_color_manual(values=c('lightsteelblue2','burlywood3'))+
+        scale_x_continuous(expand=c(0,0), limits=c(0,0.8))+
+        scale_y_continuous(expand=c(0,0), limits=c(0,0.8))+
+        labs(x='Plant richness by cell', y='Frugivore richness by cell', color='Taxa', title=paste0('[',resolution,'km]'))+
+        theme_classic()+
+        theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))) 
   }
   
   result <- list(
     plot   = plot,
-    mammal = mammal_plant_sum_trend,
-    bird   = bird_plant_sum_trend
+    r2_df = r2_df
   )
   
   return(result)
