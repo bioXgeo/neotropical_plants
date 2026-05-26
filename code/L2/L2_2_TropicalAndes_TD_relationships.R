@@ -19,7 +19,7 @@ figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figu
 
 
 # load functions
-source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
+source("C:/GitHub_projects/neotropical_plants/code/Functions.R")
 
 
 # read in data
@@ -72,118 +72,131 @@ bird_cellRichness_100km <- readRDS(file.path(data_path_L2,"TropicalAndes_birdRic
 comparison_100km <- div_comparison(plant_cellRichness_100km, mammal_cellRichness_100km, bird_cellRichness_100km, 100)
 
 comparison_100km_plot <- comparison_100km$plot
-comparison_100km_plot <- comparison_100km_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +   annotate("text", x = 1200, y = 380, label = paste('Bird D² =', round(comparison_100km$r2_df$dev_expl[2], 3)), size=5) + annotate("text", x = 1200, y = 120, label = paste('Mammal D² =', round(comparison_100km$r2_df$dev_expl[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))
+(comparison_100km_plot <- comparison_100km_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +   annotate("text", x = 1200, y = 380, label = paste('Bird R² =', round(comparison_100km$r2_df$r2[2], 3)), size=5) + annotate("text", x = 1200, y = 120, label = paste('Mammal R² =', round(comparison_100km$r2_df$r2[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
+
+simulateResiduals(comparison_100km$m1, plot=T)
+simulateResiduals(comparison_100km$m2, plot=T)
 
 
 # 75 km
 comparison_75km <- div_comparison(plant_cellRichness_75km, mammal_cellRichness_75km, bird_cellRichness_75km, 75)
 
 comparison_75km_plot <- comparison_75km$plot
-comparison_75km_plot <- comparison_75km_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +   annotate("text", x = 1200, y = 380, label = paste('Bird D² =', round(comparison_75km$r2_df$dev_expl[2], 3)), size=5) + annotate("text", x = 1200, y = 120, label = paste('Mammal D² =', round(comparison_75km$r2_df$dev_expl[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))
+(comparison_75km_plot <- comparison_75km_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +   annotate("text", x = 1200, y = 380, label = paste('Bird R² =', round(comparison_75km$r2_df$r2[2], 3)), size=5) + annotate("text", x = 1200, y = 120, label = paste('Mammal R² =', round(comparison_75km$r2_df$r2[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
+
+simulateResiduals(comparison_75km$m1, plot=T)
+simulateResiduals(comparison_75km$m2, plot=T)
 
 
 # 50 km
 comparison_50km <- div_comparison(plant_cellRichness_50km, mammal_cellRichness_50km, bird_cellRichness_50km, 50)
 
 comparison_50km_plot <- comparison_50km$plot
-comparison_50km_plot <- comparison_50km_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + annotate("text", x = 1200, y = 380, label = paste('Bird D² =', round(comparison_50km$r2_df$dev_expl[2], 3)), size=5) + annotate("text", x = 1200, y = 120, label = paste('Mammal D² =', round(comparison_50km$r2_df$dev_expl[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))
+(comparison_50km_plot <- comparison_50km_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + annotate("text", x = 1200, y = 380, label = paste('Bird R² =', round(comparison_50km$r2_df$r2[2], 3)), size=5) + annotate("text", x = 1200, y = 120, label = paste('Mammal R² =', round(comparison_50km$r2_df$r2[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
 
+simulateResiduals(comparison_50km$m1, plot=T)
+simulateResiduals(comparison_50km$m2, plot=T)
 
 
 # 25 km
 comparison_25km <- div_comparison(plant_cellRichness_25km, mammal_cellRichness_25km, bird_cellRichness_25km, 25)
 
 comparison_25km_plot <- comparison_25km$plot
-comparison_25km_plot <- comparison_25km_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank(), axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) + annotate("text", x = 900, y = 350, label = paste('Bird D² =', round(comparison_25km$r2_df$dev_expl[2], 3)), size=5) + annotate("text", x = 900, y = 80, label = paste('Mammal D² =', round(comparison_25km$r2_df$dev_expl[1], 3)), size=5)+ theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))
+(comparison_25km_plot <- comparison_25km_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank(), axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) + annotate("text", x = 900, y = 350, label = paste('Bird R² =', round(comparison_25km$r2_df$r2[2], 3)), size=5) + annotate("text", x = 900, y = 80, label = paste('Mammal R² =', round(comparison_25km$r2_df$r2[1], 3)), size=5)+ theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
+
+simulateResiduals(comparison_25km$m1, plot=T)
+simulateResiduals(comparison_25km$m2, plot=T)
 
 
 # 10 km
 comparison_10km <- div_comparison(plant_cellRichness_10km, mammal_cellRichness_10km, bird_cellRichness_10km, 10)
 
 comparison_10km_plot <- comparison_10km$plot
-comparison_10km_plot <- comparison_10km_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank(), axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) + annotate("text", x = 700, y = 300, label = paste('Bird D² =', round(comparison_10km$r2_df$dev_expl[2], 3)), size=5) + annotate("text", x = 700, y = 50, label = paste('Mammal D² =', round(comparison_10km$r2_df$dev_expl[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))
+(comparison_10km_plot <- comparison_10km_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank(), axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) + annotate("text", x = 660, y = 300, label = paste('Bird R² =', round(comparison_10km$r2_df$r2[2], 3)), size=5) + annotate("text", x = 700, y = 50, label = paste('Mammal R² =', round(comparison_10km$r2_df$r2[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
+
+simulateResiduals(comparison_10km$m1, plot=T)
+simulateResiduals(comparison_10km$m2, plot=T)
 
 
 # 5 km
 comparison_5km <- div_comparison(plant_cellRichness_5km, mammal_cellRichness_5km, bird_cellRichness_5km, 5)
 
 comparison_5km_plot <- comparison_5km$plot
-comparison_5km_plot <- comparison_5km_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank()) + annotate("text", x = 570, y = 280, label = paste('Bird D² =', round(comparison_5km$r2_df$dev_expl[2], 3)), size=5) + annotate("text", x = 570, y = 50, label = paste('Mammal D² =', round(comparison_5km$r2_df$dev_expl[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))
+((comparison_5km_plot <- comparison_5km_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank()) + annotate("text", x = 570, y = 280, label = paste('Bird R² =', round(comparison_5km$r2_df$r2[2], 3)), size=5) + annotate("text", x = 570, y = 50, label = paste('Mammal R² =', round(comparison_5km$r2_df$r2[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))))
+
+simulateResiduals(comparison_5km$m1, plot=T)
+simulateResiduals(comparison_5km$m2, plot=T)
 
 
 # combined plot
-all_taxa_richness_plots <- wrap_plots(comparison_5km_plot, comparison_10km_plot, comparison_25km_plot, comparison_50km_plot, comparison_75km_plot, comparison_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 15, 15, 15),legend.position='bottom')
+(all_taxa_richness_plots <- wrap_plots(comparison_5km_plot, comparison_10km_plot, comparison_25km_plot, comparison_50km_plot, comparison_75km_plot, comparison_100km_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 15, 15, 15),legend.position='bottom'))
 
-all_taxa_richness_plots
-
-ggsave('all_taxa_richness_plots2.png', all_taxa_richness_plots, path = figure_path, width = 13, height = 8, units = "in", dpi=1000)
+ggsave('all_taxa_richness_plots.png', all_taxa_richness_plots, path = figure_path, width = 13, height = 8, units = "in", dpi=1000)
 
 
-#### poster plots ####
-library(glmmTMB)
-library(performance)
+#### GAMs ####
 
-# mammals - 100km
-coords <- as.data.frame(st_coordinates(st_centroid(plant_cellRichness_100km)))
+# 100km
+comparison_100km_gam <- div_comparison_gam(plant_cellRichness_100km, mammal_cellRichness_100km, bird_cellRichness_100km, 100)
 
-mammal_plant <- data.frame(cell_id=plant_cellRichness_100km$cellid, x=coords$X, y=coords$Y, plant_div = plant_cellRichness_100km$num_species, frug_div=mammal_cellRichness_100km$num_species, taxa=c(rep('Mammal', nrow(mammal_cellRichness_100km)))) %>% 
-  dplyr::filter(plant_div > 0 & frug_div > 0)
+comparison_100km_gam_plot <- comparison_100km_gam$plot
+(comparison_100km_gam_plot <- comparison_100km_gam_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +   annotate("text", x = 1200, y = 360, label = paste('Bird D² =', round(comparison_100km_gam$r2_df$dev_expl[2], 3)), size=5) + annotate("text", x = 1200, y = 120, label = paste('Mammal D² =', round(comparison_100km_gam$r2_df$dev_expl[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
 
-m1 <- lm(
-  frug_div ~ plant_div,
-  data = mammal_plant)
-
-rng <- range(plant_cellRichness_100km$num_species, na.rm = TRUE)
-
-newdata <- data.frame(
-  plant_div = seq(rng[1], rng[2], length.out = 100),
-  x = mean(coords$X, na.rm = TRUE),
-  y = mean(coords$Y, na.rm = TRUE)
-)
-
-newdata$frug_div <- predict(m1, newdata = newdata, type = "response")
-
-(mammal_richness_plot <- ggplot(data = mammal_plant, aes(x = plant_div, y = frug_div)) +
-    geom_point(alpha = 0.8, size = 3, color = 'burlywood3') +
-    geom_line(data = newdata, aes(x = plant_div, y = frug_div), size = 2, color = 'burlywood3') +
-    scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
-    scale_y_continuous(expand=c(0,0), limits=c(0,100))+
-    annotate("text", x = Inf, y = Inf, hjust = "inward", vjust = "inward", label = paste('R² =', round(summary(m1)$adj.r.squared, 3)), size=5) +
-    labs(x='Plant richness by cell', y='Mammal richness by cell', title='[100km]')+
-    theme_classic()+
-    theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16), plot.margin = margin(4, 15, 4, 4, "pt")))
-
-ggsave('mammal_richness_plot.png', mammal_richness_plot, path = figure_path, width = 5, height = 4, units = "in", dpi=1000)
+simulateResiduals(comparison_100km_gam$m1, plot=T)
+simulateResiduals(comparison_100km_gam$m2, plot=T)
 
 
-# birds - 100km
-coords <- as.data.frame(st_coordinates(st_centroid(plant_cellRichness_100km)))
+# 75 km
+comparison_75km_gam <- div_comparison_gam(plant_cellRichness_75km, mammal_cellRichness_75km, bird_cellRichness_75km, 75)
 
-bird_plant <- data.frame(cell_id=plant_cellRichness_100km$cellid, x=coords$X, y=coords$Y, plant_div = plant_cellRichness_100km$num_species, frug_div=bird_cellRichness_100km$num_species, taxa=c(rep('Bird', nrow(bird_cellRichness_100km)))) %>% 
-  dplyr::filter(plant_div > 0 & frug_div > 0)
+comparison_75km_gam_plot <- comparison_75km_gam$plot
+(comparison_75km_gam_plot <- comparison_75km_gam_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +   annotate("text", x = 1200, y = 380, label = paste('Bird D² =', round(comparison_75km_gam$r2_df$dev_expl[2], 3)), size=5) + annotate("text", x = 1200, y = 120, label = paste('Mammal D² =', round(comparison_75km_gam$r2_df$dev_expl[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
 
-m2 <- lm(
-  frug_div ~ plant_div,
-  data = bird_plant)
+simulateResiduals(comparison_75km_gam$m1, plot=T)
+simulateResiduals(comparison_75km_gam$m2, plot=T)
 
-rng <- range(plant_cellRichness_100km$num_species, na.rm = TRUE)
 
-newdata <- data.frame(
-  plant_div = seq(rng[1], rng[2], length.out = 100),
-  x = mean(coords$X, na.rm = TRUE),
-  y = mean(coords$Y, na.rm = TRUE)
-)
+# 50 km
+comparison_50km_gam <- div_comparison_gam(plant_cellRichness_50km, mammal_cellRichness_50km, bird_cellRichness_50km, 50)
 
-newdata$frug_div <- predict(m2, newdata = newdata, type = "response")
+comparison_50km_gam_plot <- comparison_50km_gam$plot
+(comparison_50km_gam_plot <- comparison_50km_gam_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + annotate("text", x = 1200, y = 350, label = paste('Bird D² =', round(comparison_50km_gam$r2_df$dev_expl[2], 3)), size=5) + annotate("text", x = 1200, y = 100, label = paste('Mammal D² =', round(comparison_50km_gam$r2_df$dev_expl[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
 
-(bird_richness_plot <- ggplot(data = bird_plant, aes(x = plant_div, y = frug_div)) +
-    geom_point(alpha = 0.8, size = 3, color = 'lightsteelblue2') +
-    geom_line(data = newdata, aes(x = plant_div, y = frug_div), size = 2, color = 'lightsteelblue2') +
-    scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
-    scale_y_continuous(expand=c(0,0), limits=c(0,400))+
-    labs(x='Plant richness by cell', y='Bird richness by cell', title='[100km]')+
-  annotate("text", x = Inf, y = Inf, hjust = "inward", vjust = "inward", label = paste('R² =', round(summary(m1)$adj.r.squared, 3)), size=5) +
-  theme_classic()+
-  theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16), plot.margin = margin(4, 15, 4, 4, "pt")))
+simulateResiduals(comparison_50km_gam$m1, plot=T)
+simulateResiduals(comparison_50km_gam$m2, plot=T)
 
-ggsave('bird_richness_plot.png', bird_richness_plot, path = figure_path, width = 5, height = 4, units = "in", dpi=1000)
+
+# 25 km
+comparison_25km_gam <- div_comparison_gam(plant_cellRichness_25km, mammal_cellRichness_25km, bird_cellRichness_25km, 25)
+
+comparison_25km_gam_plot <- comparison_25km_gam$plot
+(comparison_25km_gam_plot <- comparison_25km_gam_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank(), axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) + annotate("text", x = 900, y = 300, label = paste('Bird D² =', round(comparison_25km_gam$r2_df$dev_expl[2], 3)), size=5) + annotate("text", x = 900, y = 80, label = paste('Mammal D² =', round(comparison_25km_gam$r2_df$dev_expl[1], 3)), size=5)+ theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
+
+simulateResiduals(comparison_25km_gam$m1, plot=T)
+simulateResiduals(comparison_25km_gam$m2, plot=T)
+
+
+# 10 km
+comparison_10km_gam <- div_comparison_gam(plant_cellRichness_10km, mammal_cellRichness_10km, bird_cellRichness_10km, 10)
+
+comparison_10km_gam_plot <- comparison_10km_gam$plot
+(comparison_10km_gam_plot <- comparison_10km_gam_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank(), axis.title.y = element_blank(),axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) + annotate("text", x = 660, y = 270, label = paste('Bird D² =', round(comparison_10km_gam$r2_df$dev_expl[2], 3)), size=5) + annotate("text", x = 700, y = 50, label = paste('Mammal R² =', round(comparison_10km_gam$r2_df$dev_expl[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
+
+simulateResiduals(comparison_10km_gam$m1, plot=T)
+simulateResiduals(comparison_10km_gam$m2, plot=T)
+
+
+# 5 km
+comparison_5km_gam <- div_comparison_gam(plant_cellRichness_5km, mammal_cellRichness_5km, bird_cellRichness_5km, 5)
+
+comparison_5km_gam_plot <- comparison_5km_gam$plot
+((comparison_5km_gam_plot <- comparison_5km_gam_plot + ylab('Frugivore richness by cell') + xlab('Plant richness by cell') + theme(axis.title.x = element_blank(),axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.line.x = element_blank()) + annotate("text", x = 570, y = 230, label = paste('Bird D² =', round(comparison_5km_gam$r2_df$dev_expl[2], 3)), size=5) + annotate("text", x = 570, y = 50, label = paste('Mammal D² =', round(comparison_5km_gam$r2_df$dev_expl[1], 3)), size=5) + theme(plot.title = element_text(face = "bold", hjust=0.5, size=16))))
+
+simulateResiduals(comparison_5km_gam$m1, plot=T)
+simulateResiduals(comparison_5km_gam$m2, plot=T)
+
+
+# combined plot
+(all_taxa_richness_gam_plots <- wrap_plots(comparison_5km_gam_plot, comparison_10km_gam_plot, comparison_25km_gam_plot, comparison_50km_gam_plot, comparison_75km_gam_plot, comparison_100km_gam_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 15, 15, 15),legend.position='bottom'))
+
+ggsave('all_taxa_richness_gam_plots.png', all_taxa_richness_plots, path = figure_path, width = 13, height = 8, units = "in", dpi=1000)

@@ -935,6 +935,117 @@ div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
     mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$num_species, frug_div=mammal_div$num_species, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
       dplyr::filter(plant_div > 0 & frug_div > 0)
     
+    m1 <- lm(frug_div ~ plant_div, data = mammal_plant)
+    
+    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$num_species, frug_div=bird_div$num_species, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
+      dplyr::filter(plant_div > 0 & frug_div > 0)
+    
+    m2 <- lm(frug_div ~ plant_div, data = bird_plant)
+    
+    rng <- range(plant_div$num_species, na.rm = TRUE)
+    
+    newdata <- data.frame(
+      plant_div = seq(rng[1], rng[2], length.out = 100),
+      x = mean(coords$X, na.rm = TRUE),
+      y = mean(coords$Y, na.rm = TRUE)
+    )
+    
+    newdata$Mammal <- predict(m1, newdata = newdata, type = "response")
+    newdata$Bird   <- predict(m2, newdata = newdata, type = "response")
+    
+    plot_df <- newdata %>%
+      pivot_longer(cols = c(Mammal, Bird),
+                   names_to = "taxa",
+                   values_to = "frug_div")
+    
+    plot_points <- dplyr::bind_rows(mammal_plant, bird_plant)
+    
+    r2_df <- data.frame(
+      taxa = c("Mammal", "Bird"),
+      r2   = c(summary(m1)$adj.r.squared, summary(m2)$adj.r.squared)
+    )
+    
+    (plot <- ggplot(data = plot_points, aes(x = plant_div, y = frug_div, color = taxa)) +
+        geom_point(alpha = 0.5, size = 3) +
+        geom_line(data = plot_df, aes(x = plant_div, y = frug_div, color = taxa), size = 1.2) +
+        scale_color_manual(values=c('lightsteelblue2','burlywood3'))+
+        scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
+        scale_y_continuous(expand=c(0,0), limits=c(0,400))+
+        labs(x='Plant richness by cell', y='Frugivore richness by cell', color='Taxa', title=paste0('[',resolution,'km]'))+
+        theme_classic()+
+        theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))) 
+    
+  } else {
+    coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
+    
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$fdis_value, frug_div=mammal_div$fdis_value, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
+      dplyr::filter(plant_div > 0 & frug_div > 0)
+    
+    m1 <- lm(frug_div ~ plant_div, data = mammal_plant)
+    
+    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$fdis_value, frug_div=bird_div$fdis_value, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
+      dplyr::filter(plant_div > 0 & frug_div > 0)
+    
+    m2 <- lm(frug_div ~ plant_div, data = bird_plant)
+    
+    rng <- range(plant_div$fdis_value, na.rm = TRUE)
+    
+    newdata <- data.frame(
+      plant_div = seq(rng[1], rng[2], length.out = 100),
+      x = mean(coords$X, na.rm = TRUE),
+      y = mean(coords$Y, na.rm = TRUE)
+    )
+    
+    newdata$Mammal <- predict(m1, newdata = newdata, type = "response")
+    newdata$Bird   <- predict(m2, newdata = newdata, type = "response")
+    
+    plot_df <- newdata %>%
+      pivot_longer(cols = c(Mammal, Bird),
+                   names_to = "taxa",
+                   values_to = "frug_div")
+    
+    plot_points <- dplyr::bind_rows(mammal_plant, bird_plant)
+    
+    r2_df <- data.frame(
+      taxa = c("Mammal", "Bird"),
+      r2   = c(summary(m1)$adj.r.squared, summary(m2)$adj.r.squared)
+    )
+    
+    (plot <- ggplot(data = plot_points, aes(x = plant_div, y = frug_div, color = taxa)) +
+        geom_point(alpha = 0.5, size = 3) +
+        geom_line(data = plot_df, aes(x = plant_div, y = frug_div, color = taxa), size = 1.2) +
+        scale_color_manual(values=c('lightsteelblue2','burlywood3'))+
+        scale_x_continuous(expand=c(0,0), limits=c(0,0.8))+
+        scale_y_continuous(expand=c(0,0), limits=c(0,0.8))+
+        labs(x='Plant richness by cell', y='Frugivore richness by cell', color='Taxa', title=paste0('[',resolution,'km]'))+
+        theme_classic()+
+        theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))) 
+  }
+  
+  result <- list(
+    plot   = plot,
+    r2_df = r2_df,
+    m1 = m1,
+    m2 = m2
+  )
+  
+  return(result)
+}
+
+
+# TD-TD or FD-FD (GAM)
+div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution){
+  
+  set.seed(123)
+  
+  metric <- if ("num_species" %in% colnames(plant_div)) "richness" else "fdis"
+  
+  if('num_species' %in% colnames(plant_div)){
+    coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
+    
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$num_species, frug_div=mammal_div$num_species, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
+      dplyr::filter(plant_div > 0 & frug_div > 0)
+    
     m1 <- gam(
       frug_div ~ s(plant_div) + s(x, y, bs = 'gp', k = 50),
       data = mammal_plant,
@@ -977,14 +1088,14 @@ div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
     r2_df$dev_expl <- c(summary(m1)$dev.expl, summary(m2)$dev.expl)
     
     (plot <- ggplot(data = plot_points, aes(x = plant_div, y = frug_div, color = taxa)) +
-      geom_point(alpha = 0.6, size = 2) +
-      geom_line(data = plot_df, aes(x = plant_div, y = frug_div, color = taxa), size = 1.2) +
-      scale_color_manual(values=c('lightsteelblue2','burlywood3'))+
-      scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
-      scale_y_continuous(expand=c(0,0), limits=c(0,400))+
+        geom_point(alpha = 0.5, size = 3) +
+        geom_line(data = plot_df, aes(x = plant_div, y = frug_div, color = taxa), size = 1.2) +
+        scale_color_manual(values=c('lightsteelblue2','burlywood3'))+
+        scale_x_continuous(expand=c(0,0), limits=c(0,1600))+
+        scale_y_continuous(expand=c(0,0), limits=c(0,400))+
         labs(x='Plant richness by cell', y='Frugivore richness by cell', color='Taxa', title=paste0('[',resolution,'km]'))+
-      theme_classic()+
-      theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))) 
+        theme_classic()+
+        theme(axis.title = element_text(size = 18), axis.text = element_text(size = 12), legend.title = element_text(size = 18), legend.text = element_text(size = 16))) 
     
   } else {
     coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
@@ -994,7 +1105,7 @@ div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
     
     m1 <- gam(
       frug_div ~ s(plant_div),
-      data = bird_plant,
+      data = mammal_plant,
       family = betar(link = "logit"),
       method = "REML")
     
@@ -1036,7 +1147,7 @@ div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
     r2_df$dev_expl <- c(summary(m1)$dev.expl, summary(m2)$dev.expl)
     
     (plot <- ggplot(data = plot_points, aes(x = plant_div, y = frug_div, color = taxa)) +
-        geom_point(alpha = 0.6, size = 2) +
+        geom_point(alpha = 0.5, size = 3) +
         geom_line(data = plot_df, aes(x = plant_div, y = frug_div, color = taxa), size = 1.2) +
         scale_color_manual(values=c('lightsteelblue2','burlywood3'))+
         scale_x_continuous(expand=c(0,0), limits=c(0,0.8))+
@@ -1048,11 +1159,14 @@ div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
   
   result <- list(
     plot   = plot,
-    r2_df = r2_df
+    r2_df = r2_df,
+    m1 = m1,
+    m2 = m2
   )
   
   return(result)
 }
+
 
 # TD-FD within same taxa
 div_comparison2 <- function(TD, FD, guild, resolution){
