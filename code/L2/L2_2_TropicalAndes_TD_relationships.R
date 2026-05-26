@@ -199,4 +199,4 @@ simulateResiduals(comparison_5km_gam$m2, plot=T)
 # combined plot
 (all_taxa_richness_gam_plots <- wrap_plots(comparison_5km_gam_plot, comparison_10km_gam_plot, comparison_25km_gam_plot, comparison_50km_gam_plot, comparison_75km_gam_plot, comparison_100km_gam_plot, ncol=3, nrow=2) + plot_layout(guides='collect', axis_titles = 'collect') & theme(plot.margin = margin(5, 15, 15, 15),legend.position='bottom'))
 
-ggsave('all_taxa_richness_gam_plots.png', all_taxa_richness_plots, path = figure_path, width = 13, height = 8, units = "in", dpi=1000)
+ggsave('all_taxa_richness_gam_plots.png', all_taxa_richness_gam_plots, path = figure_path, width = 13, height = 8, units = "in", dpi=1000)
