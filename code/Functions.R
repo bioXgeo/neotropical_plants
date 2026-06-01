@@ -880,47 +880,6 @@ FD_map <- function(loc_key, PAM, resolution_meters, fdis, guild){
   list(gridFDisTA = gridFDisTA, spatial_fdis_grid = spatial_fdis_grid)
 }
 
-# Comparisons of diversity measurements
-#fit_model <- function(df) {
-#  mgcv::gam(
-#    frug_div ~ s(plant_div) + s(x, y, bs = 'gp'),
-#    data = df,
-#    method = "REML"
-#  )
-#}
-
-#run_iter_models <- function(df, n_iter = 1000, n_sub = 130) {
-  
-#  coef_list <- vector("list", n_iter)
-  
-#  for (i in seq_len(n_iter)) {
-    
-#    coef_list[[i]] <- tryCatch({
-      
-#      sub_df <- subsample_df(df, n_sub)
-      
-#      if (nrow(sub_df) < 10) return(NULL)
-      
-#      m <- fit_model(sub_df)
-      
-#     as.data.frame(summary(m)$p.table) |>
-#        tibble::rownames_to_column("term") |>
-#        dplyr::mutate(iter = i)
-      
-#   }, error = function(e) {
-#      message(paste("Iteration", i, "failed:", e$message))
-#      NULL
-#    })
-#  }
-  
-#  dplyr::bind_rows(coef_list)
-#}
-
-#subsample_df <- function(df, n) {
-#  df %>%
-#    dplyr::slice_sample(n = min(n, nrow(df)), replace = FALSE)
-#}
-
 
 # TD-TD or FD-FD
 div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
