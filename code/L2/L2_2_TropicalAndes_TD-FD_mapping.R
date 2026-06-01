@@ -26,7 +26,7 @@ figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figu
 
 
 # load functions
-source("C:/GitHub_projects/plant-frugivore diversity/neotropical_plants/code/Functions.R")
+source("C:/GitHub_projects/neotropical_plants/code/Functions.R")
 
 ## HPCC
 #source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
