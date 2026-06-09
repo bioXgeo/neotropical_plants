@@ -80,20 +80,16 @@ st_crs(TropicalAndes_IUCNHabitat_Forest)
 
 # group by species
 plants_sf_species <- plants.sf %>%
-  group_by(species) %>%
-  summarise()
+  select(species)
 
 frugivores_sf_species <- frugivores.sf %>%
-  group_by(species) %>%
-  summarise()
+  select(species)
 
 mammals_sf_species <- mammals.sf %>%
-  group_by(species) %>%
-  summarise()
+  select(species)
 
 birds_sf_species <- birds.sf %>%
-  group_by(species) %>%
-  summarise()
+  select(species) 
 
 # data (if already saved)
 Americas <- readRDS(file.path(data_path_L1, "Americas.rds"))
@@ -532,7 +528,7 @@ str(plant_traits_df_subset)
 
 # sf objects
 saveRDS(plants_sf_species, file = file.path(data_path_L1,"plants_sf_species.rds"))
-#saveRDS(frugivores_sf_species, file = file.path(data_path_L1,"frugivores_sf_species.rds"))
+saveRDS(frugivores_sf_species, file = file.path(data_path_L1,"frugivores_sf_species.rds"))
 saveRDS(mammals_sf_species, file = file.path(data_path_L1,"mammals_sf_species.rds"))
 saveRDS(birds_sf_species, file = file.path(data_path_L1,"birds_sf_species.rds"))
 saveRDS(Americas, file = file.path(data_path_L1, "Americas.rds"))

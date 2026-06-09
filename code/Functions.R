@@ -376,14 +376,12 @@ create_presence_absence_matrix <- function(resolution_meters, species_sf) {
     st_sf() %>%
     mutate(cellid = row_number())
   
-  # Join with species data and filter out NA species
+  # Join with species data (JB: each row is a cell number, but each column is not an unique species)
   species_grid <- TAGrid %>%
-    st_join(species_sf) %>%
-    filter(!is.na(species)) %>%
-    dplyr::select(cellid, species, geometry)
+    st_intersects(species_sf, sparse = FALSE)
   
-  # Extract the coordinates for each grid cell
-  species_grid_coords <- species_grid %>%
+  # Extract the coordinates for each grid cell (JB changed to TAGrid 6/9/2026)
+  species_grid_coords <- TAGrid %>%
     st_centroid() %>%
     st_coordinates() %>%
     as.data.frame() %>%
@@ -392,22 +390,22 @@ create_presence_absence_matrix <- function(resolution_meters, species_sf) {
   # Combine coordinates with the species grid
   species_grid <- bind_cols(species_grid, species_grid_coords)
   
-  # Create Presence-Absence Matrix
-  presence_absence_matrix <- species_grid %>%
-    st_set_geometry(NULL) %>%
-    mutate(presence = 1) %>%
-    pivot_wider(names_from = species, values_from = presence, values_fill = list(presence = 0))
+  # # Create Presence-Absence Matrix
+  # presence_absence_matrix <- species_grid %>%
+  #   st_set_geometry(NULL) %>%
+  #   mutate(presence = 1) %>%
+  #   pivot_wider(names_from = species, values_from = presence, values_fill = list(presence = 0))
+  # 
+  # # Convert to matrix
+  # presence_absence_matrix_matrix <- as.matrix(presence_absence_matrix)
   
-  # Convert to matrix
-  presence_absence_matrix_matrix <- as.matrix(presence_absence_matrix)
+  # Set row names as "cell_rowNumber" (JB did this to species_grid 6/9/2026)
+  rownames(species_grid) <- paste0("cell_", seq_len(nrow(species_grid)))
   
-  # Set row names as "cell_rowNumber"
-  rownames(presence_absence_matrix_matrix) <- paste0("cell_", seq_len(nrow(presence_absence_matrix_matrix)))
+  # Ensure latitude and longitude are the first columns (JB changed to species_grid 6/9/2026)
+  species_grid <- species_grid[, c("Latitude", "Longitude", setdiff(colnames(species_grid), c("Latitude", "Longitude", "cellid")))]
   
-  # Ensure latitude and longitude are the first columns
-  presence_absence_matrix_matrix <- presence_absence_matrix_matrix[, c("Latitude", "Longitude", setdiff(colnames(presence_absence_matrix_matrix), c("Latitude", "Longitude", "cellid")))]
-  
-  return(presence_absence_matrix_matrix)
+  return(species_grid)
 }
 
 
