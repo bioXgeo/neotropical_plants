@@ -10,14 +10,23 @@
 
 
 # load required packages
-library(letsR); library(mFD); library(vegan); library(rnaturalearth); library(sf); library(raster); library(fasterize); library(funbiogeo); library(dplyr); library(tidyr); library(ggspatial); library(ggplot2); library(ggpubr); library(rphylopic); library(patchwork)
+library(letsR); library(mFD); library(vegan); library(rnaturalearth); library(sf); library(raster); library(fasterize); library(funbiogeo); library(dplyr); library(tidyr); library(ggspatial); library(ggplot2); library(ggpubr); library(rphylopic); library(patchwork); library(tibble); library(iNEXT)
 
 
 # set file paths
-data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
+
+# new file paths
+all_data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/all_data')
+all_output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/all_data')
+all_data_figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures/all_data')
+
+filtered_data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/filtered_data')
+filtered_output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/filtered_data')
+filtered_data_figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures/filtered_data')
 
 # # HPCC
 # data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
@@ -39,6 +48,7 @@ TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path_L1,"TropicalA
 TropicalAndes_mammal_occ_forest <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_mammal_occ_cleaned_subset.csv"))
 TropicalAndes_bird_occ_forest <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_bird_occ_cleaned_subset.csv"))
 TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
+
 frugivore_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_Frugivoria_traits_subset.csv"))
 bird_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_bird_traits_subset.csv"))
 mammal_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_mammal_traits_subset.csv"))
@@ -47,8 +57,6 @@ plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_imputed_plant_tra
 
 # convert data to spatial data
 plants.sf <- st_as_sf(TropicalAndes_plant_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
-
-frugivores.sf <- st_as_sf(TropicalAndes_frugivore_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
 
 mammals.sf <- st_as_sf(TropicalAndes_mammal_occ_forest, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
 
@@ -72,32 +80,677 @@ mammals.sf <- st_transform(mammals.sf, 32719)
 birds.sf <- st_transform(birds.sf, 32719)
 
 
-# check units
-st_crs(TApoly, parameters = TRUE)$units_gdal
-st_crs(TApoly)
-st_crs(TropicalAndes_IUCNHabitat_Forest)
-
-
-# group by species
-plants_sf_species <- plants.sf %>%
-  select(species)
-
-frugivores_sf_species <- frugivores.sf %>%
-  select(species)
-
-mammals_sf_species <- mammals.sf %>%
-  select(species)
-
-birds_sf_species <- birds.sf %>%
-  select(species) 
-
-# data (if already saved)
+# import sfs (if already saved)
 Americas <- readRDS(file.path(data_path_L1, "Americas.rds"))
 TApoly <- readRDS(file.path(data_path_L1,"TApoly.rds"))
 TropicalAndes_IUCNHabitat_Forest <- readRDS(file.path(data_path_L1,"TropicalAndes_IUCNHabitat_Forest.rds"))
+plants.sf <- readRDS(file.path(data_path_L1, "plants.sf"))
+mammals.sf <- readRDS(file.path(data_path_L1, "mammals.sf"))
+birds.sf <- readRDS(file.path(data_path_L1, "birds.sf"))
+
+
+#### filtering records by time ####
+
+hist(plants.sf$year[plants.sf$year>1970])
+hist(mammals.sf$year[mammals.sf$year>1970])
+hist(birds.sf$year[birds.sf$year>1970])
+
+# check out peak in plant observations
+obs_years <- plants.sf %>% 
+  st_drop_geometry() %>% 
+  group_by(year) %>% 
+  summarize(n = n())
+
+plants_2018 <- plants.sf %>% 
+  filter(year == 2018)
+
+plot(plants_2018$geometry)
+
+# number of species (total) x time
+mammal_sp_time <- mammals.sf %>%
+  group_by(year) %>%
+  summarize(n = length(unique(species)))
+
+ggplot(mammal_sp_time, aes(x = year, y = n)) +
+  geom_col()
+
+
+# figure out when species were first and last observed
+
+# plants
+plants_sf_species <- plants.sf %>%
+  st_drop_geometry() %>% 
+  filter(!is.na(year)) %>%
+  group_by(species) %>%
+  summarise(
+    first_obs = min(year, na.rm=T), 
+    last_obs = max(year, na.rm=T), 
+    n_obs = n()
+  ) # based on year cutoff, we can see which species are lost by any with last_obs < cutoff
+
+# mammals
+mammals_sf_species <- mammals.sf %>%
+  st_drop_geometry() %>% 
+  filter(!is.na(year)) %>%
+  group_by(species) %>%
+  summarise(
+    first_obs = min(year, na.rm=T), 
+    last_obs = max(year, na.rm=T), 
+    n_obs = n()
+  )
+
+# birds
+birds_sf_species <- birds.sf %>%
+  st_drop_geometry() %>% 
+  filter(!is.na(year)) %>%
+  group_by(species) %>%
+  summarise(
+    first_obs = min(year, na.rm=T), 
+    last_obs = max(year, na.rm=T), 
+    n_obs = n()
+  )
+
+# # total number of species based on first observation year
+# plants_first_obs_year <- plants_sf_species %>%
+#   group_by(first_obs) %>%
+#   summarize(n_species = n()) %>%
+#   rename(year = first_obs)
+# 
+# # joined by total number of observations of each year
+# plants_per_year <- plants.sf %>%
+#   st_drop_geometry() %>% 
+#   group_by(year) %>%
+#   summarize(n_obs = n()) %>%
+#   left_join(plants_first_obs_year)
+# 
+# # convert NAs to 0s
+# plants_per_year$n_species[is.na(plants_per_year$n_species)] <- 0
+# 
+# # plot number of species x number of observations
+# ggplot(plants_per_year, aes(x = log(n_obs), y = n_species, color = year)) +
+#   geom_point() +
+#   theme_classic()
+
+
+# species accumulation over time based on first obs date
+
+# plants
+sp_acc_plants <- plants_sf_species %>%
+  group_by(first_obs) %>%
+  summarize(n_species = n()) %>% 
+  mutate(acc = cumsum(n_species))
+
+ggplot(sp_acc_plants, aes(x = first_obs, y = acc))+
+  geom_line(linewidth=1)+
+  geom_vline(xintercept = 1970, color = "blue") +
+  theme_classic()
+
+
+# mammals
+sp_acc_mammals <- mammals_sf_species %>%
+  group_by(first_obs) %>%
+  summarize(n_species = n()) %>% 
+  mutate(acc = cumsum(n_species))
+
+ggplot(sp_acc_mammals, aes(x = first_obs, y = acc))+
+  geom_line(linewidth=1)+
+  geom_vline(xintercept = 1970, color = "blue") +
+  theme_classic()
+
+
+# birds
+sp_acc_birds <- birds_sf_species %>%
+  group_by(first_obs) %>%
+  summarize(n_species = n()) %>% 
+  mutate(acc = cumsum(n_species))
+
+ggplot(sp_acc_birds, aes(x = first_obs, y = acc))+
+  geom_line(linewidth=1)+
+  geom_vline(xintercept = 1970, color = "blue") +
+  theme_classic()
+
+
+# report species lost at 1970 cutoff
+
+# plants
+plant_records_1970_cutoff <- plants.sf %>%
+  st_drop_geometry() %>% 
+  filter(!is.na(year), year < 1970)
+nrow(plant_records_1970_cutoff)
+length(unique(plant_records_1970_cutoff$species))
+
+plant_sp_1970_cutoff <- plants_sf_species |> 
+  filter(last_obs < 1970)
+nrow(plant_sp_1970_cutoff)
+
+
+# mammals
+mammal_records_1970_cutoff <- mammals.sf %>%
+  st_drop_geometry() %>% 
+  filter(!is.na(year), year < 1970)
+nrow(mammal_records_1970_cutoff)
+length(unique(mammal_records_1970_cutoff$species))
+
+mammal_sp_1970_cutoff <- mammals_sf_species |> 
+  filter(last_obs < 1970)
+nrow(mammal_sp_1970_cutoff)
+
+
+# birds
+bird_records_1970_cutoff <- birds.sf %>%
+  st_drop_geometry() %>% 
+  filter(!is.na(year), year < 1970)
+nrow(bird_records_1970_cutoff)
+length(unique(bird_records_1970_cutoff$species))
+
+bird_sp_1970_cutoff <- birds_sf_species |> 
+  filter(last_obs < 1970)
+nrow(bird_sp_1970_cutoff)
+
+
+#### species observation records after 1970 ####
+
+# plants
+plants_sf_species2 <- plants.sf %>%
+  filter(year > 1970) %>% 
+  dplyr::select(species)
+
+saveRDS(plants_sf_species2, file = file.path(all_output_path_L1, "plant_sp_obs.rds"))
+
+
+# mammals
+mammals_sf_species2 <- mammals.sf %>%
+  filter(year > 1970) %>% 
+  dplyr::select(species)
+
+saveRDS(mammals_sf_species2, file = file.path(all_output_path_L1, "mammal_sp_obs.rds"))
+
+
+# birds
+birds_sf_species2 <- birds.sf %>%
+  filter(year > 1970) %>% 
+  dplyr::select(species) 
+
+saveRDS(birds_sf_species2, file = file.path(all_output_path_L1, "bird_sp_obs.rds"))
+
+
+#### species occurrence matrices ####
+
+#### 100 km #### 
+
+# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
+plant_obs_grid_100km <- obs_grid(100000, plants_sf_species2)
+mammal_obs_grid_100km <- obs_grid(100000, mammals_sf_species2)
+bird_obs_grid_100km <- obs_grid(100000, birds_sf_species2)
+
+# matrix of species presence-absence (counts total number of observations of each species in each cell)
+plant_sp_grid_100km <- sp_grid(plant_obs_grid_100km)
+mammal_sp_grid_100km <- sp_grid(mammal_obs_grid_100km)
+bird_sp_grid_100km <- sp_grid(bird_obs_grid_100km)
+
+# save data 
+saveRDS(plant_sp_grid_100km, file = file.path(all_output_path_L1, "plant_sp_grid_100km.rds"))
+saveRDS(mammal_sp_grid_100km, file = file.path(all_output_path_L1, "mammal_sp_grid_100km.rds"))
+saveRDS(bird_sp_grid_100km, file = file.path(all_output_path_L1, "bird_sp_grid_100km.rds"))
+
+# import saved data
+plant_sp_grid_100km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_100km.rds"))
+mammal_sp_grid_100km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_100km.rds"))
+bird_sp_grid_100km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_100km.rds"))
+
+
+#### 75 km #### 
+
+# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
+plant_obs_grid_75km <- obs_grid(75000, plants_sf_species2)
+mammal_obs_grid_75km <- obs_grid(75000, mammals_sf_species2)
+bird_obs_grid_75km <- obs_grid(75000, birds_sf_species2)
+
+# matrix of species presence-absence (counts total number of observations of each species in each cell)
+plant_sp_grid_75km <- sp_grid(plant_obs_grid_75km)
+mammal_sp_grid_75km <- sp_grid(mammal_obs_grid_75km)
+bird_sp_grid_75km <- sp_grid(bird_obs_grid_75km)
+
+# save data 
+saveRDS(plant_sp_grid_75km, file = file.path(all_output_path_L1, "plant_sp_grid_75km.rds"))
+saveRDS(mammal_sp_grid_75km, file = file.path(all_output_path_L1, "mammal_sp_grid_75km.rds"))
+saveRDS(bird_sp_grid_75km, file = file.path(all_output_path_L1, "bird_sp_grid_75km.rds"))
+
+# import saved data
+plant_sp_grid_75km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_75km.rds"))
+mammal_sp_grid_75km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_75km.rds"))
+bird_sp_grid_75km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_75km.rds"))
+
+
+#### 50 km #### 
+
+# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
+plant_obs_grid_50km <- obs_grid(50000, plants_sf_species2)
+mammal_obs_grid_50km <- obs_grid(50000, mammals_sf_species2)
+bird_obs_grid_50km <- obs_grid(50000, birds_sf_species2)
+
+# matrix of species presence-absence (counts total number of observations of each species in each cell)
+plant_sp_grid_50km <- sp_grid(plant_obs_grid_50km)
+mammal_sp_grid_50km <- sp_grid(mammal_obs_grid_50km)
+bird_sp_grid_50km <- sp_grid(bird_obs_grid_50km)
+
+# save data 
+saveRDS(plant_sp_grid_50km, file = file.path(all_output_path_L1, "plant_sp_grid_50km.rds"))
+saveRDS(mammal_sp_grid_50km, file = file.path(all_output_path_L1, "mammal_sp_grid_50km.rds"))
+saveRDS(bird_sp_grid_50km, file = file.path(all_output_path_L1, "bird_sp_grid_50km.rds"))
+
+# import saved data
+plant_sp_grid_50km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_50km.rds"))
+mammal_sp_grid_50km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_50km.rds"))
+bird_sp_grid_50km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_50km.rds"))
+
+
+#### 25 km #### 
+
+# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
+plant_obs_grid_25km <- obs_grid(25000, plants_sf_species2)
+mammal_obs_grid_25km <- obs_grid(25000, mammals_sf_species2)
+bird_obs_grid_25km <- obs_grid(25000, birds_sf_species2)
+
+# matrix of species presence-absence (counts total number of observations of each species in each cell)
+plant_sp_grid_25km <- sp_grid(plant_obs_grid_25km)
+mammal_sp_grid_25km <- sp_grid(mammal_obs_grid_25km)
+bird_sp_grid_25km <- sp_grid(bird_obs_grid_25km)
+
+# save data 
+saveRDS(plant_sp_grid_25km, file = file.path(all_output_path_L1, "plant_sp_grid_25km.rds"))
+saveRDS(mammal_sp_grid_25km, file = file.path(all_output_path_L1, "mammal_sp_grid_25km.rds"))
+saveRDS(bird_sp_grid_25km, file = file.path(all_output_path_L1, "bird_sp_grid_25km.rds"))
+
+# import saved data
+plant_sp_grid_25km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_25km.rds"))
+mammal_sp_grid_25km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_25km.rds"))
+bird_sp_grid_25km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_25km.rds"))
+
+
+#### 10 km #### 
+
+# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
+plant_obs_grid_10km <- obs_grid(10000, plants_sf_species2)
+mammal_obs_grid_10km <- obs_grid(10000, mammals_sf_species2)
+bird_obs_grid_10km <- obs_grid(10000, birds_sf_species2)
+
+# matrix of species presence-absence (counts total number of observations of each species in each cell)
+plant_sp_grid_10km <- sp_grid(plant_obs_grid_10km)
+mammal_sp_grid_10km <- sp_grid(mammal_obs_grid_10km)
+bird_sp_grid_10km <- sp_grid(bird_obs_grid_10km)
+
+# save data 
+saveRDS(plant_sp_grid_10km, file = file.path(all_output_path_L1, "plant_sp_grid_10km.rds"))
+saveRDS(mammal_sp_grid_10km, file = file.path(all_output_path_L1, "mammal_sp_grid_10km.rds"))
+saveRDS(bird_sp_grid_10km, file = file.path(all_output_path_L1, "bird_sp_grid_10km.rds"))
+
+# import saved data
+plant_sp_grid_10km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_10km.rds"))
+mammal_sp_grid_10km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_10km.rds"))
+bird_sp_grid_10km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_10km.rds"))
+
+
+#### 5 km #### 
+
+# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
+plant_obs_grid_5km <- obs_grid(5000, plants_sf_species2)
+mammal_obs_grid_5km <- obs_grid(5000, mammals_sf_species2)
+bird_obs_grid_5km <- obs_grid(5000, birds_sf_species2)
+
+# matrix of species presence-absence (counts total number of observations of each species in each cell)
+plant_sp_grid_5km <- sp_grid(plant_obs_grid_5km)
+mammal_sp_grid_5km <- sp_grid(mammal_obs_grid_5km)
+bird_sp_grid_5km <- sp_grid(bird_obs_grid_5km)
+
+# save data 
+saveRDS(plant_sp_grid_5km, file = file.path(all_output_path_L1, "plant_sp_grid_5km.rds"))
+saveRDS(mammal_sp_grid_5km, file = file.path(all_output_path_L1, "mammal_sp_grid_5km.rds"))
+saveRDS(bird_sp_grid_5km, file = file.path(all_output_path_L1, "bird_sp_grid_5km.rds"))
+
+# import saved data
+plant_sp_grid_5km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_5km.rds"))
+mammal_sp_grid_5km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_5km.rds"))
+bird_sp_grid_5km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_5km.rds"))
+
+
+#### species accumulation curves at 5km ####
+
+# plants
+cell_summary_plants <- data.frame( cell = rownames(plant_sp_grid_5km), observations = rowSums(plant_sp_grid_5km), richness = specnumber(plant_sp_grid_5km))
+
+plot(richness ~ observations, data = cell_summary_plants[cell_summary_plants$observations < 1000,], xlab = "Observations per cell", ylab = "Species richness per cell")
+abline(v=20, col="blue")
+
+# look at relationship between number of observations and sample coverage
+iNEXT_plant <- calc_coverage(plant_sp_grid_5km)
+iNEXT_plant$coverage_by_obs + geom_vline(xintercept = 20, color = "blue", linewidth = 1.5)
+
+# save richness - move to TD code!!!!!
+iNEXT_plant_calcs <- iNEXT_plant$iNEXT_calcs |> 
+  rename(richness_raw = S.obs)
+
+
+# mammals
+cell_summary_mammals <- data.frame( cell = rownames(mammal_sp_grid_5km), observations = rowSums(mammal_sp_grid_5km), richness = specnumber(mammal_sp_grid_5km))
+
+plot(richness ~ observations, data = cell_summary_mammals, xlab = "Observations per cell", ylab = "Species richness per cell")
+abline(v=20, col="blue")
+
+# look at relationship between number of observations and sample coverage
+iNEXT_mammal <- calc_coverage(mammal_sp_grid_5km)
+iNEXT_mammal$coverage_by_obs + geom_vline(xintercept = 20, color = "blue", linewidth = 1.5)
+
+
+# birds
+cell_summary_birds <- data.frame( cell = rownames(bird_sp_grid_5km), observations = rowSums(bird_sp_grid_5km), richness = specnumber(bird_sp_grid_5km))
+
+plot(richness ~ observations, data = cell_summary_birds, xlab = "Observations per cell", ylab = "Species richness per cell")
+abline(v=20, col="blue")
+
+# look at relationship between number of observations and sample coverage
+iNEXT_bird <- calc_coverage(bird_sp_grid_5km)
+iNEXT_bird$coverage_by_obs + geom_vline(xintercept = 20, color = "blue", linewidth = 1.5)
+
+
+#### run through previous code with low-end cutoff ####
+
+#### species observation records after 1970 and specified cutoff ####
+
+cutoff_obs <- 20
+
+# plants
+plants_sf_species3 <- plants.sf |> 
+  filter(year > 1970) |> 
+  add_count(species) |> 
+  filter(n >= cutoff_obs) |> 
+  dplyr::select(species)
+
+saveRDS(plants_sf_species3, file = file.path(filtered_output_path_L1, paste0("plant_sp_", cutoff_obs, "obs.rds")))
+plants_sf_species3 <- readRDS(file.path(filtered_output_path_L1, paste0("plant_sp_", cutoff_obs, "obs.rds")))
+
+# report what is lost
+nrow(plants_sf_species2) - nrow(plants_sf_species3)
+length(unique(plants_sf_species2$species)) - length(unique(plants_sf_species3$species))
+
+
+# mammals
+mammals_sf_species3 <- mammals.sf |> 
+  filter(year > 1970) |> 
+  add_count(species) |> 
+  filter(n >= cutoff_obs) |> 
+  dplyr::select(species)
+
+saveRDS(mammals_sf_species3, file = file.path(filtered_output_path_L1, paste0("mammal_sp_", cutoff_obs, "obs.rds")))
+mammals_sf_species3 <- readRDS(file.path(filtered_output_path_L1, paste0("mammal_sp_", cutoff_obs, "obs.rds")))
+
+# report what is lost
+nrow(mammals_sf_species2) - nrow(mammals_sf_species3)
+length(unique(mammals_sf_species2$species)) - length(unique(mammals_sf_species3$species))
+
+
+# birds
+birds_sf_species3 <- birds.sf |> 
+  filter(year > 1970) |> 
+  add_count(species) |> 
+  filter(n >= cutoff_obs) |> 
+  dplyr::select(species) 
+
+saveRDS(birds_sf_species3, file = file.path(filtered_output_path_L1, paste0("bird_sp_", cutoff_obs, "obs.rds")))
+birds_sf_species3 <- readRDS(file.path(filtered_output_path_L1, paste0("bird_sp_", cutoff_obs, "obs.rds")))
+
+# report what is lost
+nrow(birds_sf_species2) - nrow(birds_sf_species3)
+length(unique(birds_sf_species2$species)) - length(unique(birds_sf_species3$species))
+
+
+#### species occurrence matrices ####
+
+#### 100 km #### 
+
+# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
+plant_cutoff_obs_grid_100km <- obs_grid(100000, plants_sf_species3)
+mammal_cutoff_obs_grid_100km <- obs_grid(100000, mammals_sf_species3)
+bird_cutoff_obs_grid_100km <- obs_grid(100000, birds_sf_species3)
+
+# matrix of species presence-absence (counts total number of observations of each species in each cell)
+plant_cutoff_sp_grid_100km <- sp_grid(plant_cutoff_obs_grid_100km)
+mammal_cutoff_sp_grid_100km <- sp_grid(mammal_cutoff_obs_grid_100km)
+bird_cutoff_sp_grid_100km <- sp_grid(bird_cutoff_obs_grid_100km)
+
+# save data 
+saveRDS(plant_cutoff_sp_grid_100km, file = file.path(filtered_output_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_100km.rds")))
+saveRDS(mammal_cutoff_sp_grid_100km, file = file.path(filtered_output_path_L1, paste0("mammal_", cutoff_obs, "_sp_grid_100km.rds")))
+saveRDS(bird_cutoff_sp_grid_100km, file = file.path(filtered_output_path_L1, paste0("bird_", cutoff_obs, "_sp_grid_100km.rds")))
+
+# import saved data
+plant_cutoff_sp_grid_100km <- readRDS(file.path(filtered_data_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_100km.rds")))
+mammal_cutoff_sp_grid_100km <- readRDS(file.path(filtered_data_path_L1, paste0("mammal_", cutoff_obs, "_sp_grid_100km.rds")))
+bird_cutoff_sp_grid_100km <- readRDS(file.path(filtered_data_path_L1, paste0("bird_", cutoff_obs, "_sp_grid_100km.rds")))
+
+
+#### 75 km #### 
+
+# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
+plant_cutoff_obs_grid_75km <- obs_grid(75000, plants_sf_species3)
+mammal_cutoff_obs_grid_75km <- obs_grid(75000, mammals_sf_species3)
+bird_cutoff_obs_grid_75km <- obs_grid(75000, birds_sf_species3)
+
+# matrix of species presence-absence (counts total number of observations of each species in each cell)
+plant_cutoff_sp_grid_75km <- sp_grid(plant_cutoff_obs_grid_75km)
+mammal_cutoff_sp_grid_75km <- sp_grid(mammal_cutoff_obs_grid_75km)
+bird_cutoff_sp_grid_75km <- sp_grid(bird_cutoff_obs_grid_75km)
+
+# save data 
+saveRDS(plant_cutoff_sp_grid_75km, file = file.path(filtered_output_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_75km.rds")))
+saveRDS(mammal_cutoff_sp_grid_75km, file = file.path(filtered_output_path_L1, paste0("mammal_", cutoff_obs, "_sp_grid_75km.rds")))
+saveRDS(bird_cutoff_sp_grid_75km, file = file.path(filtered_output_path_L1, paste0("bird_", cutoff_obs, "_sp_grid_75km.rds")))
+
+# import saved data
+plant_cutoff_sp_grid_75km <- readRDS(file.path(filtered_data_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_75km.rds")))
+mammal_cutoff_sp_grid_75km <- readRDS(file.path(filtered_data_path_L1, paste0("mammal_", cutoff_obs, "_sp_grid_75km.rds")))
+bird_cutoff_sp_grid_75km <- readRDS(file.path(filtered_data_path_L1, paste0("bird_", cutoff_obs, "_sp_grid_75km.rds")))
+
+
+#### 50 km #### 
+
+# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
+plant_cutoff_obs_grid_50km <- obs_grid(50000, plants_sf_species3)
+mammal_cutoff_obs_grid_50km <- obs_grid(50000, mammals_sf_species3)
+bird_cutoff_obs_grid_50km <- obs_grid(50000, birds_sf_species3)
+
+# matrix of species presence-absence (counts total number of observations of each species in each cell)
+plant_cutoff_sp_grid_50km <- sp_grid(plant_cutoff_obs_grid_50km)
+mammal_cutoff_sp_grid_50km <- sp_grid(mammal_cutoff_obs_grid_50km)
+bird_cutoff_sp_grid_50km <- sp_grid(bird_cutoff_obs_grid_50km)
+
+# save data 
+saveRDS(plant_cutoff_sp_grid_50km, file = file.path(filtered_output_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_50km.rds")))
+saveRDS(mammal_cutoff_sp_grid_50km, file = file.path(filtered_output_path_L1, paste0("mammal_", cutoff_obs, "_sp_grid_50km.rds")))
+saveRDS(bird_cutoff_sp_grid_50km, file = file.path(filtered_output_path_L1, paste0("bird_", cutoff_obs, "_sp_grid_50km.rds")))
+
+# import saved data
+plant_cutoff_sp_grid_50km <- readRDS(file.path(filtered_data_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_50km.rds")))
+mammal_cutoff_sp_grid_50km <- readRDS(file.path(filtered_data_path_L1, paste0("mammal_", cutoff_obs, "_sp_grid_50km.rds")))
+bird_cutoff_sp_grid_50km <- readRDS(file.path(filtered_data_path_L1, paste0("bird_", cutoff_obs, "_sp_grid_50km.rds")))
+
+
+#### 25 km #### 
+
+# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
+plant_cutoff_obs_grid_25km <- obs_grid(25000, plants_sf_species3)
+mammal_cutoff_obs_grid_25km <- obs_grid(25000, mammals_sf_species3)
+bird_cutoff_obs_grid_25km <- obs_grid(25000, birds_sf_species3)
+
+# matrix of species presence-absence (counts total number of observations of each species in each cell)
+plant_cutoff_sp_grid_25km <- sp_grid(plant_cutoff_obs_grid_25km)
+mammal_cutoff_sp_grid_25km <- sp_grid(mammal_cutoff_obs_grid_25km)
+bird_cutoff_sp_grid_25km <- sp_grid(bird_cutoff_obs_grid_25km)
+
+# save data 
+saveRDS(plant_cutoff_sp_grid_25km, file = file.path(filtered_output_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_25km.rds")))
+saveRDS(mammal_cutoff_sp_grid_25km, file = file.path(filtered_output_path_L1, paste0("mammal_", cutoff_obs, "_sp_grid_25km.rds")))
+saveRDS(bird_cutoff_sp_grid_25km, file = file.path(filtered_output_path_L1, paste0("bird_", cutoff_obs, "_sp_grid_25km.rds")))
+
+# import saved data
+plant_cutoff_sp_grid_25km <- readRDS(file.path(filtered_data_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_25km.rds")))
+mammal_cutoff_sp_grid_25km <- readRDS(file.path(filtered_data_path_L1, paste0("mammal_", cutoff_obs, "_sp_grid_25km.rds")))
+bird_cutoff_sp_grid_25km <- readRDS(file.path(filtered_data_path_L1, paste0("bird_", cutoff_obs, "_sp_grid_25km.rds")))
+
+
+#### 10 km #### 
+
+# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
+plant_cutoff_obs_grid_10km <- obs_grid(10000, plants_sf_species3)
+mammal_cutoff_obs_grid_10km <- obs_grid(10000, mammals_sf_species3)
+bird_cutoff_obs_grid_10km <- obs_grid(10000, birds_sf_species3)
+
+# matrix of species presence-absence (counts total number of observations of each species in each cell)
+plant_cutoff_sp_grid_10km <- sp_grid(plant_cutoff_obs_grid_10km)
+mammal_cutoff_sp_grid_10km <- sp_grid(mammal_cutoff_obs_grid_10km)
+bird_cutoff_sp_grid_10km <- sp_grid(bird_cutoff_obs_grid_10km)
+
+# save data 
+saveRDS(plant_cutoff_sp_grid_10km, file = file.path(filtered_output_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_10km.rds")))
+saveRDS(mammal_cutoff_sp_grid_10km, file = file.path(filtered_output_path_L1, paste0("mammal_", cutoff_obs, "_sp_grid_10km.rds")))
+saveRDS(bird_cutoff_sp_grid_10km, file = file.path(filtered_output_path_L1, paste0("bird_", cutoff_obs, "_sp_grid_10km.rds")))
+
+# import saved data
+plant_cutoff_sp_grid_10km <- readRDS(file.path(filtered_data_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_10km.rds")))
+mammal_cutoff_sp_grid_10km <- readRDS(file.path(filtered_data_path_L1, paste0("mammal_", cutoff_obs, "_sp_grid_10km.rds")))
+bird_cutoff_sp_grid_10km <- readRDS(file.path(filtered_data_path_L1, paste0("bird_", cutoff_obs, "_sp_grid_10km.rds")))
+
+
+#### 5 km #### 
+
+# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
+plant_cutoff_obs_grid_5km <- obs_grid(5000, plants_sf_species3)
+mammal_cutoff_obs_grid_5km <- obs_grid(5000, mammals_sf_species3)
+bird_cutoff_obs_grid_5km <- obs_grid(5000, birds_sf_species3)
+
+# matrix of species presence-absence (counts total number of observations of each species in each cell)
+plant_cutoff_sp_grid_5km <- sp_grid(plant_cutoff_obs_grid_5km)
+mammal_cutoff_sp_grid_5km <- sp_grid(mammal_cutoff_obs_grid_5km)
+bird_cutoff_sp_grid_5km <- sp_grid(bird_cutoff_obs_grid_5km)
+
+# save data 
+saveRDS(plant_cutoff_sp_grid_5km, file = file.path(filtered_output_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_5km.rds")))
+saveRDS(mammal_cutoff_sp_grid_5km, file = file.path(filtered_output_path_L1, paste0("mammal_", cutoff_obs, "_sp_grid_5km.rds")))
+saveRDS(bird_cutoff_sp_grid_5km, file = file.path(filtered_output_path_L1, paste0("bird_", cutoff_obs, "_sp_grid_5km.rds")))
+
+# import saved data
+plant_cutoff_sp_grid_5km <- readRDS(file.path(filtered_data_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_5km.rds")))
+mammal_cutoff_sp_grid_5km <- readRDS(file.path(filtered_data_path_L1, paste0("mammal_", cutoff_obs, "_sp_grid_5km.rds")))
+bird_cutoff_sp_grid_5km <- readRDS(file.path(filtered_data_path_L1, paste0("bird_", cutoff_obs, "_sp_grid_5km.rds")))
+
+
+#### adjust trait data ####
+
+# 1970 cutoff
+
+# remove species names from trait matrix not included in matrix
+plant_traits_df_subset <- plant_traits %>%
+  filter(species %in% colnames(plant_sp_grid_100km)) %>%
+  distinct(species, .keep_all = TRUE)
+
+mammal_traits_df_subset <- mammal_traits %>%
+  filter(IUCN_species_name %in% colnames(mammal_sp_grid_100km)) %>%
+  distinct(IUCN_species_name, .keep_all = TRUE)
+
+bird_traits_df_subset <- bird_traits %>%
+  filter(IUCN_species_name %in% colnames(bird_sp_grid_100km)) %>%
+  distinct(IUCN_species_name, .keep_all = TRUE)
+
+dim(plant_traits)
+dim(plant_traits_df_subset)
+
+dim(mammal_traits)
+dim(mammal_traits_df_subset)
+
+dim(bird_traits)
+dim(bird_traits_df_subset)
+
+# define row names as species names
+row_names_plant <- plant_traits_df_subset$species
+row_names_mammal <- mammal_traits_df_subset$IUCN_species_name
+row_names_bird <- bird_traits_df_subset$IUCN_species_name
+
+# assign row names to the matrix
+rownames(plant_traits_df_subset) <- row_names_plant
+rownames(mammal_traits_df_subset) <- row_names_mammal
+rownames(bird_traits_df_subset) <- row_names_bird
+
+plant_traits_df_subset$X <-NULL
+mammal_traits_df_subset$X <- NULL
+bird_traits_df_subset$X <- NULL
+
+# remove duplicate species name column
+plant_traits_df_subset$species <- NULL
+mammal_traits_df_subset <- mammal_traits_df_subset[, c("body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
+bird_traits_df_subset <- bird_traits_df_subset[, c("body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
+
+# save new trait data
+saveRDS(plant_traits_df_subset, file = file.path(all_output_path_L1,"plant_traits_df_final.rds"))
+saveRDS(bird_traits_df_subset, file = file.path(all_output_path_L1,"bird_traits_df_final.rds"))
+saveRDS(mammal_traits_df_subset, file = file.path(all_output_path_L1,"mammal_traits_df_final.rds"))
+
+
+# 1970 and specified cutoff
+
+# remove species names from trait matrix not included in matrix
+plant_cutoff_traits_df_subset <- plant_traits %>%
+  filter(species %in% colnames(plant_cutoff_sp_grid_100km)) %>%
+  distinct(species, .keep_all = TRUE)
+
+mammal_cutoff_traits_df_subset <- mammal_traits %>%
+  filter(IUCN_species_name %in% colnames(mammal_cutoff_sp_grid_100km)) %>%
+  distinct(IUCN_species_name, .keep_all = TRUE)
+
+bird_cutoff_traits_df_subset <- bird_traits %>%
+  filter(IUCN_species_name %in% colnames(bird_cutoff_sp_grid_100km)) %>%
+  distinct(IUCN_species_name, .keep_all = TRUE)
+
+dim(plant_traits)
+dim(plant_traits_df_subset)
+dim(plant_cutoff_traits_df_subset)
+
+dim(mammal_traits)
+dim(mammal_traits_df_subset)
+dim(mammal_cutoff_traits_df_subset)
+
+dim(bird_traits)
+dim(bird_traits_df_subset)
+dim(bird_cutoff_traits_df_subset)
+
+# define row names as species names
+row_names_plant <- plant_cutoff_traits_df_subset$species
+row_names_mammal <- mammal_cutoff_traits_df_subset$IUCN_species_name
+row_names_bird <- bird_cutoff_traits_df_subset$IUCN_species_name
+
+# assign row names to the matrix
+rownames(plant_cutoff_traits_df_subset) <- row_names_plant
+rownames(mammal_cutoff_traits_df_subset) <- row_names_mammal
+rownames(bird_cutoff_traits_df_subset) <- row_names_bird
+
+plant_cutoff_traits_df_subset$X <-NULL
+mammal_cutoff_traits_df_subset$X <- NULL
+bird_cutoff_traits_df_subset$X <- NULL
+
+# remove duplicate species name column
+plant_cutoff_traits_df_subset$species <- NULL
+mammal_cutoff_traits_df_subset <- mammal_cutoff_traits_df_subset[, c("body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
+bird_cutoff_traits_df_subset <- bird_cutoff_traits_df_subset[, c("body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
+
+# save new trait data
+saveRDS(plant_cutoff_traits_df_subset, file = file.path(filtered_output_path_L1, paste0("plant_", cutoff_obs, "_traits_df_subset.rds")))
+saveRDS(mammal_cutoff_traits_df_subset, file = file.path(filtered_output_path_L1, paste0("mammal_", cutoff_obs, "_traits_df_subset.rds")))
+saveRDS(bird_cutoff_traits_df_subset, file = file.path(filtered_output_path_L1, paste0("bird_", cutoff_obs, "_traits_df_subset.rds")))
+
+
+#### maps #### 
 
 # plot base map
-basePlot <-
+(basePlot <-
   ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
@@ -107,25 +760,20 @@ basePlot <-
   annotation_scale(location = "bl", width_hint = 0.3, style = "ticks") +
   annotation_north_arrow(location = "bl", which_north = "true", 
                          pad_x = unit(0.3, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) +
-  theme(panel.background = element_rect(fill = "lightblue"))
+  theme(panel.background = element_rect(fill = "lightblue")))
 
-basePlot
-ggsave("tropical_andes_forest_map.png", plot = last_plot(), path = figure_path)
-
-
-# data (if already saved)
-plants_sf_species <- readRDS(file.path(data_path_L1,"plants_sf_species.rds"))
+# plants
 
 # plant picture
 plant <- pick_phylopic(name='Coffea alleizettei')
 
-# plot points
-plantsPointsPlot <-
+# map of data filtered by 1970
+(plantsPointsPlot <-
   ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
   geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50") + 
-  geom_sf(data = plants_sf_species, pch = 16, size = 0.05, color='darkseagreen3') +
+  geom_sf(data = plants_sf_species2, pch = 16, size = 0.05, color='darkseagreen3') +
   labs(title = "Fruiting plants") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
   scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
@@ -138,47 +786,47 @@ plantsPointsPlot <-
                          style = north_arrow_fancy_orienteering) +
   theme(panel.background = element_rect(fill = "lightblue"), plot.title=element_text(hjust=0.5))+
   xlab('')+ 
-  ylab('Longitude')
+  ylab('Longitude'))
 
-plantsPointsPlot
-ggsave("plant_occurrence_points_map2.png", plot = last_plot(), path = figure_path)
-
-
-frugivoresPointsPlot <-
-  ggplot() +
-  geom_sf(data = Americas, fill = "white") +
-  geom_sf(data = TApoly) +
-  geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50") +
-  geom_sf(data = frugivores_sf_species, pch = 16, size = 0.01, color='salmon') +
-  labs(title = "Frugivore Occurrences") +
-  coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-  scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
-  scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
-  annotation_scale(location = "bl",width_hint = 0.3, style = "bar") +
-  annotation_north_arrow(location = "bl", which_north = "true",
-                         height = unit(0.5, "in"), width = unit(0.5, "in"),
-                         pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
-                         style = north_arrow_fancy_orienteering) +
-  theme(panel.background = element_rect(fill = "lightblue"))+
-  xlab('Latitude')+ 
-  ylab('Longitude')
-
-frugivoresPointsPlot
-ggsave("frugivore_occurrence_points_map2.png", plot = last_plot(), path = figure_path)
+ggsave("plant_occurrence_points_map.png", plot = last_plot(), path = all_data_figure_path)
 
 
-# data (if already saved)
-mammals_sf_species <- readRDS(file.path(data_path_L1,"mammals_sf_species.rds"))
+# map of data filtered by 1970 and specified cutoff
+(plantsPointsPlot2 <-
+    ggplot() +
+    geom_sf(data = Americas, fill = "white") +
+    geom_sf(data = TApoly) +
+    geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50") + 
+    geom_sf(data = plants_sf_species3, pch = 16, size = 0.05, color='darkseagreen3') +
+    labs(title = "Fruiting plants") +
+    coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+    scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+    scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+    add_phylopic(img=plant, x=-82, y=17, height=5)+
+    annotation_scale(location = "bl",width_hint = 0.2, style = "bar") +
+    annotation_north_arrow(location = "bl", which_north = "true",
+                           height = unit(0.3, "in"), width = unit(0.3, "in"),
+                           pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
+                           style = north_arrow_fancy_orienteering) +
+    theme(panel.background = element_rect(fill = "lightblue"), plot.title=element_text(hjust=0.5))+
+    xlab('')+ 
+    ylab('Longitude'))
+
+ggsave(paste0("plant_", cutoff_obs, "obs_occurrence_points_map.png"), plot = last_plot(), path = filtered_data_figure_path)
+
+
+# mammals
 
 # mammal picture
 mammal <- pick_phylopic(name='Potos flavus', n=2, auto=2)
 
-mammalsPointsPlot <-
+# map of data filtered by 1970
+(mammalsPointsPlot <-
   ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
   geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50") +
-  geom_sf(data = mammals_sf_species, pch = 16, size = 0.01, color='burlywood3') +
+  geom_sf(data = mammals_sf_species2, pch = 16, size = 0.01, color='burlywood3') +
   labs(title = "Mammals") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
   scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
@@ -191,23 +839,47 @@ mammalsPointsPlot <-
   #                        style = north_arrow_fancy_orienteering) +
   theme(panel.background = element_rect(fill = "lightblue"), plot.title=element_text(hjust=0.5))+
   xlab('Latitude')+ 
-  ylab('')
-mammalsPointsPlot
-ggsave("mammal_occurrence_points_map2.png", plot = last_plot(), path = figure_path)
+  ylab(''))
+
+ggsave("mammal_occurrence_points_map.png", plot = last_plot(), path = all_data_figure_path)
 
 
-# data (if already saved)
-birds_sf_species <- readRDS(file.path(data_path_L1,"birds_sf_species.rds"))
+# map of data filtered by 1970 and specified cutoff
+(mammalsPointsPlot2 <-
+    ggplot() +
+    geom_sf(data = Americas, fill = "white") +
+    geom_sf(data = TApoly) +
+    geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50") +
+    geom_sf(data = mammals_sf_species3, pch = 16, size = 0.01, color='burlywood3') +
+    labs(title = "Mammals") +
+    coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+    scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+    scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+    add_phylopic(img=mammal, x=-78, y=16, height=6)+
+    # annotation_scale(location = "bl",width_hint = 0.3, style = "bar") +
+    # annotation_north_arrow(location = "bl", which_north = "true",
+    #                        height = unit(0.5, "in"), width = unit(0.5, "in"),
+    #                        pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
+    #                        style = north_arrow_fancy_orienteering) +
+    theme(panel.background = element_rect(fill = "lightblue"), plot.title=element_text(hjust=0.5))+
+    xlab('Latitude')+ 
+    ylab(''))
+
+ggsave(paste0("mammal_", cutoff_obs, "obs_occurrence_points_map.png"), plot = last_plot(), path = filtered_data_figure_path)
+
+
+# birds
 
 # bird picture
 bird <- pick_phylopic(name='Ramphastos sulfuratus', n=2, auto=1)
 
-birdsPointsPlot <-
+# map of data filtered by 1970
+(birdsPointsPlot <-
   ggplot() +
   geom_sf(data = Americas, fill = "white") +
   geom_sf(data = TApoly) +
   geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50")+
-  geom_sf(data = birds_sf_species, pch = 16, size = 0.01, color='lightsteelblue2') +
+  geom_sf(data = birds_sf_species2, pch = 16, size = 0.01, color='lightsteelblue2') +
   labs(title = "Birds") +
   coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
   scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
@@ -220,423 +892,43 @@ birdsPointsPlot <-
   #                        style = north_arrow_fancy_orienteering) +
   theme(panel.background = element_rect(fill = "lightblue"), plot.title=element_text(hjust=0.5))+
   xlab('')+ 
-  ylab('')
-birdsPointsPlot 
-ggsave("bird_occurrence_points2_map.png", plot = last_plot(), path = figure_path)
+  ylab(''))
 
+ggsave("bird_occurrence_points_map.png", plot = last_plot(), path = all_data_figure_path)
 
-all_points_maps <- wrap_plots(plantsPointsPlot, mammalsPointsPlot, birdsPointsPlot, ncol = 3, nrow = 1) + plot_annotation(tag_levels=list(c('(a)','(b)','(c)')))
-all_points_maps
-ggsave("all_points_maps2.png", all_points_maps, path = figure_path, height =  7, width = 8, units = "in", dpi=1000)
 
+# map of data filtered by 1970 and specified cutoff
+(birdsPointsPlot2 <-
+    ggplot() +
+    geom_sf(data = Americas, fill = "white") +
+    geom_sf(data = TApoly) +
+    geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50")+
+    geom_sf(data = birds_sf_species3, pch = 16, size = 0.01, color='lightsteelblue2') +
+    labs(title = "Birds") +
+    coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+    scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+    scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+    add_phylopic(img=bird, x=-76, y=17, height=6)+
+    # annotation_scale(location = "bl",width_hint = 0.3, style = "bar") +
+    # annotation_north_arrow(location = "bl", which_north = "true",
+    #                        height = unit(0.5, "in"), width = unit(0.5, "in"),
+    #                        pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
+    #                        style = north_arrow_fancy_orienteering) +
+    theme(panel.background = element_rect(fill = "lightblue"), plot.title=element_text(hjust=0.5))+
+    xlab('')+ 
+    ylab(''))
 
-#### presence-absence matrices ####
+ggsave(paste0("bird_", cutoff_obs, "obs_occurrence_points_map.png"), plot = last_plot(), path = filtered_data_figure_path)
 
-#### 100 km #### 
-plant_PAM_100km <- create_presence_absence_matrix(100000, plants_sf_species)
-#frugivore_PAM_100km <- create_presence_absence_matrix(100000, frugivores_sf_species)
-mammal_PAM_100km <- create_presence_absence_matrix(100000, mammals_sf_species)
-bird_PAM_100km <- create_presence_absence_matrix(100000, birds_sf_species)
 
-# check str 
-plant_PAM_100km[1:4, 1:4]
-#frugivore_PAM_100km[1:4, 1:4]
+# plot all three maps
 
-# remove the species from PAM that have no occurrences
-# remove columns with sum equal to zero
-PAM_plant_site_final_100km <- plant_PAM_100km[, colSums(plant_PAM_100km) != 0]
-#PAM_frugivore_site_final_100km <- frugivore_PAM_100km[, colSums(frugivore_PAM_100km) != 0]
-PAM_mammal_site_final_100km <- mammal_PAM_100km[, colSums(mammal_PAM_100km) != 0]
-PAM_bird_site_final_100km <- bird_PAM_100km[, colSums(bird_PAM_100km) != 0]
+# data filtered by 1970
+(all_points_maps <- wrap_plots(plantsPointsPlot, mammalsPointsPlot, birdsPointsPlot, ncol = 3, nrow = 1) + plot_annotation(tag_levels=list(c('(a)','(b)','(c)'))))
 
-# save coordinates for later
-site_loc_key_plant_100km <- PAM_plant_site_final_100km[,1:2]
-#site_loc_key_frugivore_100km <- PAM_frugivore_site_final_100km[,1:2]
-site_loc_key_mammal_100km <- PAM_mammal_site_final_100km[,1:2]
-site_loc_key_bird_100km <- PAM_bird_site_final_100km[,1:2]
+ggsave("all_points_maps.png", all_points_maps, path = all_data_figure_path, height =  7, width = 8, units = "in", dpi=1000)
 
-PAM_plant_site_final_100km <- PAM_plant_site_final_100km[,-c(1:2)]
-#PAM_frugivore_site_final_100km <- PAM_frugivore_site_final_100km[,-(1:2)]
-PAM_mammal_site_final_100km <- PAM_mammal_site_final_100km[,-(1:2)]
-PAM_bird_site_final_100km <- PAM_bird_site_final_100km[,-(1:2)]
+# data filtered by 1970 and specified cutoff
+(all_points_maps2 <- wrap_plots(plantsPointsPlot2, mammalsPointsPlot2, birdsPointsPlot2, ncol = 3, nrow = 1) + plot_annotation(tag_levels=list(c('(a)','(b)','(c)'))))
 
-colnames_plant_100km <- colnames(PAM_plant_site_final_100km)
-#colnames_frugivore_100km <- colnames(PAM_frugivore_site_final_100km)
-colnames_mammal_100km <- colnames(PAM_mammal_site_final_100km)
-colnames_bird_100km <- colnames(PAM_bird_site_final_100km)
-
-str(PAM_plant_site_final_100km)
-#str(PAM_frugivore_site_final_100km)
-str(PAM_mammal_site_final_100km)
-str(PAM_bird_site_final_100km)
-
-
-#### 75 km #### 
-plant_PAM_75km <- create_presence_absence_matrix(75000, plants_sf_species)
-#frugivore_PAM_75km <- create_presence_absence_matrix(75000, frugivores_sf_species)
-mammal_PAM_75km <- create_presence_absence_matrix(75000, mammals_sf_species)
-bird_PAM_75km <- create_presence_absence_matrix(75000, birds_sf_species)
-
-# check str 
-plant_PAM_75km[1:4, 1:4]
-#frugivore_PAM_75km[1:4, 1:4]
-
-# remove the species from PAM that have no occurrences
-# remove columns with sum equal to zero
-PAM_plant_site_final_75km <- plant_PAM_75km[, colSums(plant_PAM_75km) != 0]
-#PAM_frugivore_site_final_75km <- frugivore_PAM_75km[, colSums(frugivore_PAM_75km) != 0]
-PAM_mammal_site_final_75km <- mammal_PAM_75km[, colSums(mammal_PAM_75km) != 0]
-PAM_bird_site_final_75km <- bird_PAM_75km[, colSums(bird_PAM_75km) != 0]
-
-# save coordinates for later
-site_loc_key_plant_75km <- PAM_plant_site_final_75km[,1:2]
-#site_loc_key_frugivore_75km <- PAM_frugivore_site_final_75km[,1:2]
-site_loc_key_mammal_75km <- PAM_mammal_site_final_75km[,1:2]
-site_loc_key_bird_75km <- PAM_bird_site_final_75km[,1:2]
-
-PAM_plant_site_final_75km <- PAM_plant_site_final_75km[,-c(1:2)]
-#PAM_frugivore_site_final_75km <- PAM_frugivore_site_final_75km[,-(1:2)]
-PAM_mammal_site_final_75km <- PAM_mammal_site_final_75km[,-(1:2)]
-PAM_bird_site_final_75km <- PAM_bird_site_final_75km[,-(1:2)]
-
-colnames_plant_75km <- colnames(PAM_plant_site_final_75km)
-#colnames_frugivore_75km <- colnames(PAM_frugivore_site_final_75km)
-colnames_mammal_75km <- colnames(PAM_mammal_site_final_75km)
-colnames_bird_75km <- colnames(PAM_bird_site_final_75km)
-
-str(PAM_plant_site_final_75km)
-#str(PAM_frugivore_site_final_75km)
-str(PAM_mammal_site_final_75km)
-str(PAM_bird_site_final_75km)
-
-
-#### 50 km #### 
-plant_PAM_50km <- create_presence_absence_matrix(50000, plants_sf_species)
-#frugivore_PAM_50km <- create_presence_absence_matrix(50000, frugivores_sf_species)
-mammal_PAM_50km <- create_presence_absence_matrix(50000, mammals_sf_species)
-bird_PAM_50km <- create_presence_absence_matrix(50000, birds_sf_species)
-
-# check str 
-plant_PAM_50km[1:4, 1:4]
-#frugivore_PAM_50km[1:4, 1:4]
-
-# remove the species from PAM that have no occurrences
-# remove columns with sum equal to zero
-PAM_plant_site_final_50km <- plant_PAM_50km[, colSums(plant_PAM_50km) != 0]
-#PAM_frugivore_site_final_50km <- frugivore_PAM_50km[, colSums(frugivore_PAM_50km) != 0]
-PAM_mammal_site_final_50km <- mammal_PAM_50km[, colSums(mammal_PAM_50km) != 0]
-PAM_bird_site_final_50km <- bird_PAM_50km[, colSums(bird_PAM_50km) != 0]
-
-# save coordinates for later
-site_loc_key_plant_50km <- PAM_plant_site_final_50km[,1:2]
-#site_loc_key_frugivore_50km <- PAM_frugivore_site_final_50km[,1:2]
-site_loc_key_mammal_50km <- PAM_mammal_site_final_50km[,1:2]
-site_loc_key_bird_50km <- PAM_bird_site_final_50km[,1:2]
-
-PAM_plant_site_final_50km <- PAM_plant_site_final_50km[,-c(1:2)]
-#PAM_frugivore_site_final_50km <- PAM_frugivore_site_final_50km[,-(1:2)]
-PAM_mammal_site_final_50km <- PAM_mammal_site_final_50km[,-(1:2)]
-PAM_bird_site_final_50km <- PAM_bird_site_final_50km[,-(1:2)]
-
-colnames_plant_50km <- colnames(PAM_plant_site_final_50km)
-#colnames_frugivore_50km <- colnames(PAM_frugivore_site_final_50km)
-colnames_mammal_50km <- colnames(PAM_mammal_site_final_50km)
-colnames_bird_50km <- colnames(PAM_bird_site_final_50km)
-
-str(PAM_plant_site_final_50km)
-#str(PAM_frugivore_site_final_50km)
-str(PAM_mammal_site_final_50km)
-str(PAM_bird_site_final_50km)
-
-
-#### 25 km #### 
-plant_PAM_25km <- create_presence_absence_matrix(25000, plants_sf_species)
-#frugivore_PAM_25km <- create_presence_absence_matrix(25000, frugivores_sf_species)
-mammal_PAM_25km <- create_presence_absence_matrix(25000, mammals_sf_species)
-bird_PAM_25km <- create_presence_absence_matrix(25000, birds_sf_species)
-
-# check str 
-plant_PAM_25km[1:4, 1:4]
-#frugivore_PAM_25km[1:4, 1:4]
-
-
-# remove the species from PAM that have no occurrences
-# remove columns with sum equal to zero
-PAM_plant_site_final_25km <- plant_PAM_25km[, colSums(plant_PAM_25km) != 0]
-#PAM_frugivore_site_final_25km <- frugivore_PAM_25km[, colSums(frugivore_PAM_25km) != 0]
-PAM_mammal_site_final_25km <- mammal_PAM_25km[, colSums(mammal_PAM_25km) != 0]
-PAM_bird_site_final_25km <- bird_PAM_25km[, colSums(bird_PAM_25km) != 0]
-
-# save coordinates for later
-site_loc_key_plant_25km <- PAM_plant_site_final_25km[,1:2]
-#site_loc_key_frugivore_25km <- PAM_frugivore_site_final_25km[,1:2]
-site_loc_key_mammal_25km <- PAM_mammal_site_final_25km[,1:2]
-site_loc_key_bird_25km <- PAM_bird_site_final_25km[,1:2]
-
-PAM_plant_site_final_25km <- PAM_plant_site_final_25km[,-c(1:2)]
-#PAM_frugivore_site_final_25km <- PAM_frugivore_site_final_25km[,-(1:2)]
-PAM_mammal_site_final_25km <- PAM_mammal_site_final_25km[,-(1:2)]
-PAM_bird_site_final_25km <- PAM_bird_site_final_25km[,-(1:2)]
-
-colnames_plant_25km <- colnames(PAM_plant_site_final_25km)
-#colnames_frugivore_25km <- colnames(PAM_frugivore_site_final_25km)
-colnames_mammal_25km <- colnames(PAM_mammal_site_final_25km)
-colnames_bird_25km <- colnames(PAM_bird_site_final_25km)
-
-str(PAM_plant_site_final_25km)
-#str(PAM_frugivore_site_final_25km)
-str(PAM_mammal_site_final_25km)
-str(PAM_bird_site_final_25km)
-
-
-#### 10 km #### 
-plant_PAM_10km <- create_presence_absence_matrix(10000, plants_sf_species)
-#frugivore_PAM_10km <- create_presence_absence_matrix(10000, frugivores_sf_species)
-mammal_PAM_10km <- create_presence_absence_matrix(10000, mammals_sf_species)
-bird_PAM_10km <- create_presence_absence_matrix(10000, birds_sf_species)
-
-# check str 
-plant_PAM_10km[1:4, 1:4]
-#frugivore_PAM_10km[1:4, 1:4]
-
-# remove the species from PAM that have no occurrences
-# remove columns with sum equal to zero
-PAM_plant_site_final_10km <- plant_PAM_10km[, colSums(plant_PAM_10km) != 0]
-#PAM_frugivore_site_final_10km <- frugivore_PAM_10km[, colSums(frugivore_PAM_10km) != 0]
-PAM_mammal_site_final_10km <- mammal_PAM_10km[, colSums(mammal_PAM_10km) != 0]
-PAM_bird_site_final_10km <- bird_PAM_10km[, colSums(bird_PAM_10km) != 0]
-
-# save coordinates for later
-site_loc_key_plant_10km <- PAM_plant_site_final_10km[,1:2]
-#site_loc_key_frugivore_10km <- PAM_frugivore_site_final_10km[,1:2]
-site_loc_key_mammal_10km <- PAM_mammal_site_final_10km[,1:2]
-site_loc_key_bird_10km <- PAM_bird_site_final_10km[,1:2]
-
-PAM_plant_site_final_10km <- PAM_plant_site_final_10km[,-c(1:2)]
-#PAM_frugivore_site_final_10km <- PAM_frugivore_site_final_10km[,-(1:2)]
-PAM_mammal_site_final_10km <- PAM_mammal_site_final_10km[,-(1:2)]
-PAM_bird_site_final_10km <- PAM_bird_site_final_10km[,-(1:2)]
-
-colnames_plant_10km <- colnames(PAM_plant_site_final_10km)
-#colnames_frugivore_10km <- colnames(PAM_frugivore_site_final_10km)
-colnames_mammal_10km <- colnames(PAM_mammal_site_final_10km)
-colnames_bird_10km <- colnames(PAM_bird_site_final_10km)
-
-str(PAM_plant_site_final_10km)
-#str(PAM_frugivore_site_final_10km)
-str(PAM_mammal_site_final_10km)
-str(PAM_bird_site_final_10km)
-
-
-#### 5 km #### 
-plant_PAM_5km <- create_presence_absence_matrix(5000, plants_sf_species)
-#frugivore_PAM_5km <- create_presence_absence_matrix(5000, frugivores_sf_species)
-mammal_PAM_5km <- create_presence_absence_matrix(5000, mammals_sf_species)
-bird_PAM_5km <- create_presence_absence_matrix(5000, birds_sf_species)
-
-# check str 
-plant_PAM_5km[1:4, 1:4]
-#frugivore_PAM_5km[1:4, 1:4]
-
-# remove the species from PAM that have no occurrences
-# remove columns with sum equal to zero
-PAM_plant_site_final_5km <- plant_PAM_5km[, colSums(plant_PAM_5km) != 0]
-#PAM_frugivore_site_final_5km <- frugivore_PAM_5km[, colSums(frugivore_PAM_5km) != 0]
-PAM_mammal_site_final_5km <- mammal_PAM_5km[, colSums(mammal_PAM_5km) != 0]
-PAM_bird_site_final_5km <- bird_PAM_5km[, colSums(bird_PAM_5km) != 0]
-
-# save coordinates for later
-site_loc_key_plant_5km <- PAM_plant_site_final_5km[,1:2]
-#site_loc_key_frugivore_5km <- PAM_frugivore_site_final_5km[,1:2]
-site_loc_key_mammal_5km <- PAM_mammal_site_final_5km[,1:2]
-site_loc_key_bird_5km <- PAM_bird_site_final_5km[,1:2]
-
-PAM_plant_site_final_5km <- PAM_plant_site_final_5km[,-c(1:2)]
-#PAM_frugivore_site_final_5km <- PAM_frugivore_site_final_5km[,-(1:2)]
-PAM_mammal_site_final_5km <- PAM_mammal_site_final_5km[,-(1:2)]
-PAM_bird_site_final_5km <- PAM_bird_site_final_5km[,-(1:2)]
-
-colnames_plant_5km <- colnames(PAM_plant_site_final_5km)
-#colnames_frugivore_5km <- colnames(PAM_frugivore_site_final_5km)
-colnames_mammal_5km <- colnames(PAM_mammal_site_final_5km)
-colnames_bird_5km <- colnames(PAM_bird_site_final_5km)
-
-str(PAM_plant_site_final_5km)
-#str(PAM_frugivore_site_final_5km)
-str(PAM_mammal_site_final_5km)
-str(PAM_bird_site_final_5km)
-
-
-# remove species names from trait matrix not in the PAM
-plant_traits_df_subset <- plant_traits %>%
-  filter(species %in% colnames_plant_100km) %>%
-  distinct(species, .keep_all = TRUE)
-
-#frugivore_traits_df_subset <- frugivore_traits %>%
-#  filter(IUCN_species_name %in% colnames_frugivore_100km) %>%
-#  distinct(IUCN_species_name, .keep_all = TRUE)
-
-mammal_traits_df_subset <- mammal_traits %>%
-  filter(IUCN_species_name %in% colnames_mammal_100km) %>%
-  distinct(IUCN_species_name, .keep_all = TRUE)
-
-bird_traits_df_subset <- bird_traits %>%
-  filter(IUCN_species_name %in% colnames_bird_100km) %>%
-  distinct(IUCN_species_name, .keep_all = TRUE)
-
-dim(plant_traits)
-dim(plant_traits_df_subset)
-
-#dim(frugivore_traits)
-#dim(frugivore_traits_df_subset)
-
-dim(mammal_traits)
-dim(mammal_traits_df_subset)
-
-dim(bird_traits)
-dim(bird_traits_df_subset)
-
-# define row names as species names
-row_names_plant <- plant_traits_df_subset$species
-#row_names_frugivore <- frugivore_traits_df_subset$IUCN_species_name
-row_names_mammal <- mammal_traits_df_subset$IUCN_species_name
-row_names_bird <- bird_traits_df_subset$IUCN_species_name
-
-# assign row names to the matrix
-rownames(plant_traits_df_subset) <- row_names_plant
-#rownames(frugivore_traits_df_subset) <- row_names_frugivore
-rownames(mammal_traits_df_subset) <- row_names_mammal
-rownames(bird_traits_df_subset) <- row_names_bird
-
-plant_traits_df_subset$X <-NULL
-#frugivore_traits_df_subset$X <-NULL
-mammal_traits_df_subset$X <- NULL
-bird_traits_df_subset$X <- NULL
-
-# remove duplicate species name column
-plant_traits_df_subset$species <- NULL
-
-#frugivore_traits_df_subset <- frugivore_traits_df_subset[, c("body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
-mammal_traits_df_subset <- mammal_traits_df_subset[, c("body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
-bird_traits_df_subset <- bird_traits_df_subset[, c("body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")]
-
-str(plant_traits_df_subset)
-#str(frugivore_traits_df_subset)
-
-
-# export data
-
-# sf objects
-saveRDS(plants_sf_species, file = file.path(data_path_L1,"plants_sf_species.rds"))
-saveRDS(frugivores_sf_species, file = file.path(data_path_L1,"frugivores_sf_species.rds"))
-saveRDS(mammals_sf_species, file = file.path(data_path_L1,"mammals_sf_species.rds"))
-saveRDS(birds_sf_species, file = file.path(data_path_L1,"birds_sf_species.rds"))
-saveRDS(Americas, file = file.path(data_path_L1, "Americas.rds"))
-saveRDS(TApoly, file = file.path(data_path_L1,"TApoly.rds"))
-saveRDS(TropicalAndes_IUCNHabitat_Forest, file = file.path(data_path_L1,"TropicalAndes_IUCNHabitat_Forest.rds"))
-
-
-# PAM objects
-saveRDS(plant_PAM_100km, file = file.path(data_path_L1,"plant_PAM_100km.rds"))
-#saveRDS(frugivore_PAM_100km, file = file.path(data_path_L1,"frugivore_PAM_100km.rds"))
-saveRDS(mammal_PAM_100km, file = file.path(data_path_L1,"mammal_PAM_100km.rds"))
-saveRDS(bird_PAM_100km, file = file.path(data_path_L1,"bird_PAM_100km.rds"))
-
-saveRDS(plant_PAM_75km, file = file.path(data_path_L1,"plant_PAM_75km.rds"))
-#saveRDS(frugivore_PAM_75km, file = file.path(data_path_L1,"frugivore_PAM_75km.rds"))
-saveRDS(mammal_PAM_75km, file = file.path(data_path_L1,"mammal_PAM_75km.rds"))
-saveRDS(bird_PAM_75km, file = file.path(data_path_L1,"bird_PAM_75km.rds"))
-
-saveRDS(plant_PAM_50km, file = file.path(data_path_L1,"plant_PAM_50km.rds"))
-#saveRDS(frugivore_PAM_50km, file = file.path(data_path_L1,"frugivore_PAM_50km.rds"))
-saveRDS(mammal_PAM_50km, file = file.path(data_path_L1,"mammal_PAM_50km.rds"))
-saveRDS(bird_PAM_50km, file = file.path(data_path_L1,"bird_PAM_50km.rds"))
-
-saveRDS(plant_PAM_25km, file = file.path(data_path_L1,"plant_PAM_25km.rds"))
-#saveRDS(frugivore_PAM_25km, file = file.path(data_path_L1,"frugivore_PAM_25km.rds"))
-saveRDS(mammal_PAM_25km, file = file.path(data_path_L1,"mammal_PAM_25km.rds"))
-saveRDS(bird_PAM_25km, file = file.path(data_path_L1,"bird_PAM_25km.rds"))
-
-saveRDS(plant_PAM_10km, file = file.path(data_path_L1,"plant_PAM_10km.rds"))
-#saveRDS(frugivore_PAM_10km, file = file.path(data_path_L1,"frugivore_PAM_10km.rds"))
-saveRDS(mammal_PAM_10km, file = file.path(data_path_L1,"mammal_PAM_10km.rds"))
-saveRDS(bird_PAM_10km, file = file.path(data_path_L1,"bird_PAM_10km.rds"))
-
-saveRDS(plant_PAM_5km, file = file.path(data_path_L1,"plant_PAM_5km.rds"))
-#saveRDS(frugivore_PAM_5km, file = file.path(data_path_L1,"frugivore_PAM_5km.rds"))
-saveRDS(mammal_PAM_5km, file = file.path(data_path_L1,"mammal_PAM_5km.rds"))
-saveRDS(bird_PAM_5km, file = file.path(data_path_L1,"bird_PAM_5km.rds"))
-
-
-# objects for functional diversity
-# traits
-saveRDS(plant_traits_df_subset, file = file.path(data_path_L1,"plant_traits_df_final.rds"))
-#saveRDS(frugivore_traits_df_subset, file = file.path(data_path_L1,"frugivore_traits_df_final.rds"))
-saveRDS(bird_traits_df_subset, file = file.path(data_path_L1,"bird_traits_df_final.rds"))
-saveRDS(mammal_traits_df_subset, file = file.path(data_path_L1,"mammal_traits_df_final.rds"))
-
-# 100km
-saveRDS(site_loc_key_plant_100km, file = file.path(data_path_L1,"site_loc_key_plant_100km.rds"))
-#saveRDS(site_loc_key_frugivore_100km, file = file.path(data_path_L1,"site_loc_key_frugivore_100km.rds"))
-saveRDS(site_loc_key_mammal_100km, file = file.path(data_path_L1,"site_loc_key_mammal_100km.rds"))
-saveRDS(site_loc_key_bird_100km, file = file.path(data_path_L1,"site_loc_key_bird_100km.rds"))
-
-saveRDS(PAM_plant_site_final_100km, file = file.path(data_path_L1,"PAM_plant_site_final_100km.rds"))
-#saveRDS(PAM_frugivore_site_final_100km, file = file.path(data_path_L1,"PAM_frugivore_site_final_100km.rds"))
-saveRDS(PAM_mammal_site_final_100km, file = file.path(data_path_L1,"PAM_mammal_site_final_100km.rds"))
-saveRDS(PAM_bird_site_final_100km, file = file.path(data_path_L1,"PAM_bird_site_final_100km.rds"))
-
-# 75km
-saveRDS(site_loc_key_plant_75km, file = file.path(data_path_L1,"site_loc_key_plant_75km.rds"))
-#saveRDS(site_loc_key_frugivore_75km, file = file.path(data_path_L1,"site_loc_key_frugivore_75km.rds"))
-saveRDS(site_loc_key_mammal_75km, file = file.path(data_path_L1,"site_loc_key_mammal_75km.rds"))
-saveRDS(site_loc_key_bird_75km, file = file.path(data_path_L1,"site_loc_key_bird_75km.rds"))
-
-saveRDS(PAM_plant_site_final_75km, file = file.path(data_path_L1,"PAM_plant_site_final_75km.rds"))
-#saveRDS(PAM_frugivore_site_final_75km, file = file.path(data_path_L1,"PAM_frugivore_site_final_75km.rds"))
-saveRDS(PAM_mammal_site_final_75km, file = file.path(data_path_L1,"PAM_mammal_site_final_75km.rds"))
-saveRDS(PAM_bird_site_final_75km, file = file.path(data_path_L1,"PAM_bird_site_final_75km.rds"))
-
-# 50km
-saveRDS(site_loc_key_plant_50km, file = file.path(data_path_L1,"site_loc_key_plant_50km.rds"))
-#saveRDS(site_loc_key_frugivore_50km, file = file.path(data_path_L1,"site_loc_key_frugivore_50km.rds"))
-saveRDS(site_loc_key_mammal_50km, file = file.path(data_path_L1,"site_loc_key_mammal_50km.rds"))
-saveRDS(site_loc_key_bird_50km, file = file.path(data_path_L1,"site_loc_key_bird_50km.rds"))
-
-saveRDS(PAM_plant_site_final_50km, file = file.path(data_path_L1,"PAM_plant_site_final_50km.rds"))
-#saveRDS(PAM_frugivore_site_final_50km, file = file.path(data_path_L1,"PAM_frugivore_site_final_50km.rds"))
-saveRDS(PAM_mammal_site_final_50km, file = file.path(data_path_L1,"PAM_mammal_site_final_50km.rds"))
-saveRDS(PAM_bird_site_final_50km, file = file.path(data_path_L1,"PAM_bird_site_final_50km.rds"))
-
-# 25km
-saveRDS(site_loc_key_plant_25km, file = file.path(data_path_L1,"site_loc_key_plant_25km.rds"))
-#saveRDS(site_loc_key_frugivore_25km, file = file.path(data_path_L1,"site_loc_key_frugivore_25km.rds"))
-saveRDS(site_loc_key_mammal_25km, file = file.path(data_path_L1,"site_loc_key_mammal_25km.rds"))
-saveRDS(site_loc_key_bird_25km, file = file.path(data_path_L1,"site_loc_key_bird_25km.rds"))
-
-saveRDS(PAM_plant_site_final_25km, file = file.path(data_path_L1,"PAM_plant_site_final_25km.rds"))
-#saveRDS(PAM_frugivore_site_final_25km, file = file.path(data_path_L1,"PAM_frugivore_site_final_25km.rds"))
-saveRDS(PAM_mammal_site_final_25km, file = file.path(data_path_L1,"PAM_mammal_site_final_25km.rds"))
-saveRDS(PAM_bird_site_final_25km, file = file.path(data_path_L1,"PAM_bird_site_final_25km.rds"))
-
-# 10km
-saveRDS(site_loc_key_plant_10km, file = file.path(data_path_L1,"site_loc_key_plant_10km.rds"))
-#saveRDS(site_loc_key_frugivore_10km, file = file.path(data_path_L1,"site_loc_key_frugivore_10km.rds"))
-saveRDS(site_loc_key_mammal_10km, file = file.path(data_path_L1,"site_loc_key_mammal_10km.rds"))
-saveRDS(site_loc_key_bird_10km, file = file.path(data_path_L1,"site_loc_key_bird_10km.rds"))
-
-saveRDS(PAM_plant_site_final_10km, file = file.path(data_path_L1,"PAM_plant_site_final_10km.rds"))
-#saveRDS(PAM_frugivore_site_final_10km, file = file.path(data_path_L1,"PAM_frugivore_site_final_10km.rds"))
-saveRDS(PAM_mammal_site_final_10km, file = file.path(data_path_L1,"PAM_mammal_site_final_10km.rds"))
-saveRDS(PAM_bird_site_final_10km, file = file.path(data_path_L1,"PAM_bird_site_final_10km.rds"))
-
-# 5km
-saveRDS(site_loc_key_plant_5km, file = file.path(data_path_L1,"site_loc_key_plant_5km.rds"))
-#saveRDS(site_loc_key_frugivore_5km, file = file.path(data_path_L1,"site_loc_key_frugivore_5km.rds"))
-saveRDS(site_loc_key_mammal_5km, file = file.path(data_path_L1,"site_loc_key_mammal_5km.rds"))
-saveRDS(site_loc_key_bird_5km, file = file.path(data_path_L1,"site_loc_key_bird_5km.rds"))
-
-saveRDS(PAM_plant_site_final_5km, file = file.path(data_path_L1,"PAM_plant_site_final_5km.rds"))
-#saveRDS(PAM_frugivore_site_final_5km, file = file.path(data_path_L1,"PAM_frugivore_site_final_5km.rds"))
-saveRDS(PAM_mammal_site_final_5km, file = file.path(data_path_L1,"PAM_mammal_site_final_5km.rds"))
-saveRDS(PAM_bird_site_final_5km, file = file.path(data_path_L1,"PAM_bird_site_final_5km.rds"))
+ggsave(paste0("all_", cutoff_obs, "obs_points_maps.png"), all_points_maps2, path = filtered_data_figure_path, height =  7, width = 8, units = "in", dpi=1000)
