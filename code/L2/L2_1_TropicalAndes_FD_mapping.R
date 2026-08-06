@@ -18,601 +18,1101 @@ data_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1'
 output_path_L2 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2')
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 
-# #HPCC
-# data_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
-# output_path_L2 <- file.path('/mnt/research/nasabio/data_2025/plants/L2')
-# figure_path <- file.path('/mnt/research/nasabio/data_2025/plants/figures')
-
 
 # load functions
 source("C:/GitHub_projects/neotropical_plants/code/Functions.R")
-
-## HPCC
-# source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
 
 
 # read in Data
 
 # projected sf objects
-plants_sf_species <- readRDS(file = file.path(data_path_L1,"plants_sf_species.rds"))
-frugivores_sf_species <- readRDS(file = file.path(data_path_L1,"frugivores_sf_species.rds"))
 Americas <- readRDS(file = file.path(data_path_L1, "Americas.rds"))
 TApoly <- readRDS(file = file.path(data_path_L1,"TApoly.rds"))
 TropicalAndes_IUCNHabitat_Forest <- readRDS(file = file.path(data_path_L1,"TropicalAndes_IUCNHabitat_Forest.rds"))
 
+
+#### FD of data filtered by 1970 ####
+
+# set file paths
+all_data_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/all_data')
+all_output_path_L2 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2/all_data')
+all_data_figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures/all_data')
+
+
 # trait data
-plant_traits_df_final <- readRDS(file = file.path(data_path_L1,"plant_traits_df_final.rds"))
-frugivore_traits_df_final <- readRDS(file = file.path(data_path_L1,"frugivore_traits_df_final.rds"))
-mammal_traits_df_final <- readRDS(file=file.path(data_path_L1, 'mammal_traits_df_final.rds'))
-bird_traits_df_final <- readRDS(file=file.path(data_path_L1, 'bird_traits_df_final.rds'))
+plant_traits_df_final <- readRDS(file = file.path(all_data_path_L1,"plant_traits_df_final.rds"))
+mammal_traits_df_final <- readRDS(file=file.path(all_data_path_L1, 'mammal_traits_df_final.rds'))
+bird_traits_df_final <- readRDS(file=file.path(all_data_path_L1, 'bird_traits_df_final.rds'))
 
-# 100km
-site_loc_key_plant_100km <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant_100km.rds"))
-site_loc_key_frugivore_100km <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore_100km.rds"))
-site_loc_key_mammal_100km <- readRDS(file = file.path(data_path_L1,"site_loc_key_mammal_100km.rds"))
-site_loc_key_bird_100km <- readRDS(file = file.path(data_path_L1,"site_loc_key_bird_100km.rds"))
-PAM_plant_site_final_100km <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final_100km.rds"))
-PAM_frugivore_site_final_100km <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final_100km.rds"))
-PAM_mammal_site_final_100km <- readRDS(file = file.path(data_path_L1,"PAM_mammal_site_final_100km.rds"))
-PAM_bird_site_final_100km <- readRDS(file = file.path(data_path_L1,"PAM_bird_site_final_100km.rds"))
 
-# 75km
-site_loc_key_plant_75km <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant_75km.rds"))
-site_loc_key_frugivore_75km <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore_75km.rds"))
-site_loc_key_mammal_75km <- readRDS(file = file.path(data_path_L1,"site_loc_key_mammal_75km.rds"))
-site_loc_key_bird_75km <- readRDS(file = file.path(data_path_L1,"site_loc_key_bird_75km.rds"))
-PAM_plant_site_final_75km <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final_75km.rds"))
-PAM_frugivore_site_final_75km <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final_75km.rds"))
-PAM_mammal_site_final_75km <- readRDS(file = file.path(data_path_L1,"PAM_mammal_site_final_75km.rds"))
-PAM_bird_site_final_75km <- readRDS(file = file.path(data_path_L1,"PAM_bird_site_final_75km.rds"))
+# mammals
+#### 100 km ####
 
-# 50km
-site_loc_key_plant_50km <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant_50km.rds"))
-site_loc_key_mammal_50km <- readRDS(file = file.path(data_path_L1,"site_loc_key_mammal_50km.rds"))
-site_loc_key_bird_50km <- readRDS(file = file.path(data_path_L1,"site_loc_key_bird_50km.rds"))
-site_loc_key_frugivore_50km <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore_50km.rds"))
-PAM_plant_site_final_50km <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final_50km.rds"))
-PAM_frugivore_site_final_50km <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final_50km.rds"))
-PAM_mammal_site_final_50km <- readRDS(file = file.path(data_path_L1,"PAM_mammal_site_final_50km.rds"))
-PAM_bird_site_final_50km <- readRDS(file = file.path(data_path_L1,"PAM_bird_site_final_50km.rds"))
-
-# 25km
-site_loc_key_plant_25km <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant_25km.rds"))
-site_loc_key_frugivore_25km <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore_25km.rds"))
-site_loc_key_mammal_25km <- readRDS(file = file.path(data_path_L1,"site_loc_key_mammal_25km.rds"))
-site_loc_key_bird_25km <- readRDS(file = file.path(data_path_L1,"site_loc_key_bird_25km.rds"))
-PAM_plant_site_final_25km <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final_25km.rds"))
-PAM_frugivore_site_final_25km <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final_25km.rds"))
-PAM_mammal_site_final_25km <- readRDS(file = file.path(data_path_L1,"PAM_mammal_site_final_25km.rds"))
-PAM_bird_site_final_25km <- readRDS(file = file.path(data_path_L1,"PAM_bird_site_final_25km.rds"))
-
-# 10km
-site_loc_key_plant_10km <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant_10km.rds"))
-site_loc_key_frugivore_10km <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore_10km.rds"))
-site_loc_key_mammal_10km <- readRDS(file = file.path(data_path_L1,"site_loc_key_mammal_10km.rds"))
-site_loc_key_bird_10km <- readRDS(file = file.path(data_path_L1,"site_loc_key_bird_10km.rds"))
-PAM_plant_site_final_10km <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final_10km.rds"))
-PAM_frugivore_site_final_10km <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final_10km.rds"))
-PAM_mammal_site_final_10km <- readRDS(file = file.path(data_path_L1,"PAM_mammal_site_final_10km.rds"))
-PAM_bird_site_final_10km <- readRDS(file = file.path(data_path_L1,"PAM_bird_site_final_10km.rds"))
-
-# 5km
-site_loc_key_plant_5km <- readRDS(file = file.path(data_path_L1,"site_loc_key_plant_5km.rds"))
-site_loc_key_frugivore_5km <- readRDS(file = file.path(data_path_L1,"site_loc_key_frugivore_5km.rds"))
-site_loc_key_mammal_5km <- readRDS(file = file.path(data_path_L1,"site_loc_key_mammal_5km.rds"))
-site_loc_key_bird_5km <- readRDS(file = file.path(data_path_L1,"site_loc_key_bird_5km.rds"))
-PAM_plant_site_final_5km <- readRDS(file = file.path(data_path_L1,"PAM_plant_site_final_5km.rds"))
-PAM_frugivore_site_final_5km <- readRDS(file = file.path(data_path_L1,"PAM_frugivore_site_final_5km.rds"))
-PAM_mammal_site_final_5km <- readRDS(file = file.path(data_path_L1,"PAM_mammal_site_final_5km.rds"))
-PAM_bird_site_final_5km <- readRDS(file = file.path(data_path_L1,"PAM_bird_site_final_5km.rds"))
-
+# species occurrence data
+mammal_sp_grid_100km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_100km.rds"))
 
 # quality of functional spaces
-fspaces_quality(PAM_frugivore_site_final_100km, frugivore_traits_df_final, 'frugivore')
-fspaces_quality(PAM_mammal_site_final_100km, mammal_traits_df_final, 'mammal')
-fspaces_quality(PAM_bird_site_final_100km, bird_traits_df_final, 'bird')
-fspaces_quality(PAM_plant_site_final_100km, plant_traits_df_final, 'plant')
+fspaces_quality2(mammal_sp_grid_100km, mammal_traits_df_final, 'mammal')
+
+fspace_quality_plot(fspaces_quality2_mammal)
+
+pc_coords2(fspaces_quality2_mammal, mammal_traits_df_final, 'mammal')
+fspace_corr_plots(sp_faxes2_coord_mammal, tr_faxes2_mammal)
+saveRDS(sp_faxes2_coord_mammal, file = file.path(all_output_path_L2, "sp_faxes2_coord_mammal.rds"))
+sp_faxes2_coord_mammal <- readRDS(file.path(all_output_path_L2, "sp_faxes2_coord_mammal.rds"))
 
 
-# plots
-fspace_quality_plot(fspaces_quality_frugivore)
-fspace_quality_plot(fspaces_quality_mammal)
-fspace_quality_plot(fspaces_quality_bird)
-fspace_quality_plot(fspaces_quality_plant)
+# FDis calculation
+fdis_mammal2_100km <- FDis2(mammal_sp_grid_100km, sp_faxes2_coord_mammal)
+saveRDS(fdis_mammal2_100km, file.path(all_output_path_L2,"fdis_mammal_100km.rds"))
 
+# mapping
+mammal_FD_map_100km <- FD_map2(fdis_mammal2_100km, 100000, 'mammal')
+saveRDS(mammal_FD_map_100km, file = file.path(all_output_path_L2,"mammal_FD_map_100km.rds"))
 
-# correlation between functional axes and traits, functional space plots
-pc_coords(fspaces_quality_frugivore, frugivore_traits_df_final, 'frugivore')
-fspace_corr_plots(sp_faxes_coord_frugivore, tr_faxes_frugivore)
-
-pc_coords(fspaces_quality_mammal, mammal_traits_df_final, 'mammal')
-fspace_corr_plots(sp_faxes_coord_mammal, tr_faxes_mammal)
-
-pc_coords(fspaces_quality_bird, bird_traits_df_final, 'bird')
-fspace_corr_plots(sp_faxes_coord_bird, tr_faxes_bird)
-
-pc_coords(fspaces_quality_plant, plant_traits_df_final, 'plant')
-fspace_corr_plots(sp_faxes_coord_plant, tr_faxes_plant)
-
-
-sp_faxes_coord_frugivore <- readRDS(file = file.path(output_path_L2,"sp_faxes_coord_frugivore.rds"))
-sp_faxes_coord_mammal <- readRDS(file = file.path(output_path_L2,"sp_faxes_coord_mammal.rds"))
-sp_faxes_coord_bird <- readRDS(file = file.path(output_path_L2,"sp_faxes_coord_bird.rds"))
-sp_faxes_coord_plant <- readRDS(file = file.path(output_path_L2,"sp_faxes_coord_plant.rds"))
-
-
-# functional dispersion calculation
-
-# 100 km
-fdis_frugivore_100km <- FDis(PAM_frugivore_site_final_100km, sp_faxes_coord_frugivore)
-fdis_mammal_100km <- FDis(PAM_mammal_site_final_100km, sp_faxes_coord_mammal)
-fdis_bird_100km <- FDis(PAM_bird_site_final_100km, sp_faxes_coord_bird)
-fdis_plant_100km <- FDis(PAM_plant_site_final_100km, sp_faxes_coord_plant)
+(mammal_FD_plot_100km <- mammal_FD_map_100km$gridFDisTA)
+mammal_cell_FD_100km <- mammal_FD_map_100km$spatial_fdis_grid
 
 # save data
-saveRDS(fdis_frugivore_100km, file = file.path(output_path_L2,"fdis_frugivore_100km.rds"))
-saveRDS(fdis_mammal_100km, file = file.path(output_path_L2,"fdis_mammal_100km.rds"))
-saveRDS(fdis_bird_100km, file = file.path(output_path_L2,"fdis_bird_100km.rds"))
-saveRDS(fdis_plant_100km, file = file.path(output_path_L2,"fdis_plant_100km.rds"))
-
-# read saved data
-fdis_frugivore_100km <- readRDS(file = file.path(output_path_L2,"fdis_frugivore_100km.rds"))
-fdis_mammal_100km <- readRDS(file = file.path(output_path_L2,"fdis_mammal_100km.rds"))
-fdis_bird_100km <- readRDS(file = file.path(output_path_L2,"fdis_bird_100km.rds"))
-fdis_plant_100km <- readRDS(file = file.path(output_path_L2,"fdis_plant_100km.rds"))
+saveRDS(mammal_cell_FD_100km, file.path(all_output_path_L2,"mammal_cell_FD_100km.rds"))
+ggsave('mammal_FD_plot_100km.png', mammal_FD_plot_100km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
 
 
-# 75km
-fdis_frugivore_75km <- FDis(PAM_frugivore_site_final_75km, sp_faxes_coord_frugivore)
-fdis_mammal_75km <- FDis(PAM_mammal_site_final_75km, sp_faxes_coord_mammal)
-fdis_bird_75km <- FDis(PAM_bird_site_final_75km, sp_faxes_coord_bird)
-fdis_plant_75km <- FDis(PAM_plant_site_final_75km, sp_faxes_coord_plant)
+#### 75km ####
 
-# save data
-saveRDS(fdis_frugivore_75km, file = file.path(output_path_L2,"fdis_frugivore_75km.rds"))
-saveRDS(fdis_mammal_75km, file = file.path(output_path_L2,"fdis_mammal_75km.rds"))
-saveRDS(fdis_bird_75km, file = file.path(output_path_L2,"fdis_bird_75km.rds"))
-saveRDS(fdis_plant_75km, file = file.path(output_path_L2,"fdis_plant_75km.rds"))
+# species occurrence data
+mammal_sp_grid_75km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_75km.rds"))
 
-# read saved data
-fdis_frugivore_75km <- readRDS(file = file.path(output_path_L2,"fdis_frugivore_75km.rds"))
-fdis_mammal_75km <- readRDS(file = file.path(output_path_L2,"fdis_mammal_75km.rds"))
-fdis_bird_75km <- readRDS(file = file.path(output_path_L2,"fdis_bird_75km.rds"))
-fdis_plant_75km <- readRDS(file = file.path(output_path_L2,"fdis_plant_75km.rds"))
+# FDis calculation
+fdis_mammal2_75km <- FDis2(mammal_sp_grid_75km, sp_faxes2_coord_mammal)
+saveRDS(fdis_mammal2_75km, file.path(all_output_path_L2,"fdis_mammal_75km.rds"))
 
+# mapping
+mammal_FD_map_75km <- FD_map2(fdis_mammal2_75km, 75000, 'mammal')
+saveRDS(mammal_FD_map_75km, file = file.path(all_output_path_L2,"mammal_FD_map_75km.rds"))
 
-# 50 km
-fdis_frugivore_50km <- FDis(PAM_frugivore_site_final_50km, sp_faxes_coord_frugivore)
-fdis_mammal_50km <- FDis(PAM_mammal_site_final_50km, sp_faxes_coord_mammal)
-fdis_bird_50km <- FDis(PAM_bird_site_final_50km, sp_faxes_coord_bird)
-fdis_plant_50km <- FDis(PAM_plant_site_final_50km, sp_faxes_coord_plant)
+(mammal_FD_plot_75km <- mammal_FD_map_75km$gridFDisTA)
+mammal_cell_FD_75km <- mammal_FD_map_75km$spatial_fdis_grid
 
 # save data
-saveRDS(fdis_frugivore_50km, file = file.path(output_path_L2,"fdis_frugivore_50km.rds"))
-saveRDS(fdis_mammal_50km, file = file.path(output_path_L2,"fdis_mammal_50km.rds"))
-saveRDS(fdis_bird_50km, file = file.path(output_path_L2,"fdis_bird_50km.rds"))
-saveRDS(fdis_plant_50km, file = file.path(output_path_L2,"fdis_plant_50km.rds"))
-
-# read saved data
-fdis_frugivore_50km <- readRDS(file = file.path(output_path_L2,"fdis_frugivore_50km.rds"))
-fdis_mammal_50km <- readRDS(file = file.path(output_path_L2,"fdis_mammal_50km.rds"))
-fdis_bird_50km <- readRDS(file = file.path(output_path_L2,"fdis_bird_50km.rds"))
-fdis_plant_50km <- readRDS(file = file.path(output_path_L2,"fdis_plant_50km.rds"))
+saveRDS(mammal_cell_FD_75km, file.path(all_output_path_L2,"mammal_cell_FD_75km.rds"))
+ggsave('mammal_FD_plot_75km.png', mammal_FD_plot_75km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
 
 
-# 25km
-fdis_frugivore_25km <- FDis(PAM_frugivore_site_final_25km, sp_faxes_coord_frugivore)
-fdis_mammal_25km <- FDis(PAM_mammal_site_final_25km, sp_faxes_coord_mammal)
-fdis_bird_25km <- FDis(PAM_bird_site_final_25km, sp_faxes_coord_bird)
-fdis_plant_25km <- FDis(PAM_plant_site_final_25km, sp_faxes_coord_plant)
+#### 50km ####
 
-# save data
-saveRDS(fdis_frugivore_25km, file = file.path(output_path_L2,"fdis_frugivore_25km.rds"))
-saveRDS(fdis_mammal_25km, file = file.path(output_path_L2,"fdis_mammal_25km.rds"))
-saveRDS(fdis_bird_25km, file = file.path(output_path_L2,"fdis_bird_25km.rds"))
-saveRDS(fdis_plant_25km, file = file.path(output_path_L2,"fdis_plant_25km.rds"))
+# species occurrence data
+mammal_sp_grid_50km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_50km.rds"))
 
-# read saved data
-fdis_frugivore_25km <- readRDS(file = file.path(output_path_L2,"fdis_frugivore_25km.rds"))
-fdis_mammal_25km <- readRDS(file = file.path(output_path_L2,"fdis_mammal_25km.rds"))
-fdis_bird_25km <- readRDS(file = file.path(output_path_L2,"fdis_bird_25km.rds"))
-fdis_plant_25km <- readRDS(file = file.path(output_path_L2,"fdis_plant_25km.rds"))
+# FDis calculation
+fdis_mammal2_50km <- FDis2(mammal_sp_grid_50km, sp_faxes2_coord_mammal)
+saveRDS(fdis_mammal2_50km, file.path(all_output_path_L2,"fdis_mammal_50km.rds"))
 
+# mapping 
+mammal_FD_map_50km <- FD_map2(fdis_mammal2_50km, 50000, 'mammal')
+saveRDS(mammal_FD_map_50km, file = file.path(all_output_path_L2,"mammal_FD_map_50km.rds"))
 
-# 10km
-fdis_frugivore_10km <- FDis(PAM_frugivore_site_final_10km, sp_faxes_coord_frugivore)
-fdis_mammal_10km <- FDis(PAM_mammal_site_final_10km, sp_faxes_coord_mammal)
-fdis_bird_10km <- FDis(PAM_bird_site_final_10km, sp_faxes_coord_bird)
-fdis_plant_10km <- FDis(PAM_plant_site_final_10km, sp_faxes_coord_plant)
+(mammal_FD_plot_50km <- mammal_FD_map_50km$gridFDisTA)
+mammal_cell_FD_50km <- mammal_FD_map_50km$spatial_fdis_grid
 
 # save data
-saveRDS(fdis_frugivore_10km, file = file.path(output_path_L2,"fdis_frugivore_10km.rds"))
-saveRDS(fdis_mammal_10km, file = file.path(output_path_L2,"fdis_mammal_10km.rds"))
-saveRDS(fdis_bird_10km, file = file.path(output_path_L2,"fdis_bird_10km.rds"))
-saveRDS(fdis_plant_10km, file = file.path(output_path_L2,"fdis_plant_10km.rds"))
-
-# read saved data
-fdis_frugivore_10km <- readRDS(file = file.path(output_path_L2,"fdis_frugivore_10km.rds"))
-fdis_mammal_10km <- readRDS(file = file.path(output_path_L2,"fdis_mammal_10km.rds"))
-fdis_bird_10km <- readRDS(file = file.path(output_path_L2,"fdis_bird_10km.rds"))
-fdis_plant_10km <- readRDS(file = file.path(output_path_L2,"fdis_plant_10km.rds"))
+saveRDS(mammal_cell_FD_50km, file.path(all_output_path_L2,"mammal_cell_FD_50km.rds"))
+ggsave('mammal_FD_plot_50km.png', mammal_FD_plot_50km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
 
 
-# 5km
-fdis_frugivore_5km <- FDis(PAM_frugivore_site_final_5km, sp_faxes_coord_frugivore)
-fdis_mammal_5km <- FDis(PAM_mammal_site_final_5km, sp_faxes_coord_mammal)
-fdis_bird_5km <- FDis(PAM_bird_site_final_5km, sp_faxes_coord_bird)
-fdis_plant_5km <- FDis(PAM_plant_site_final_5km, sp_faxes_coord_plant)
+#### 25km ####
 
-# save data
-saveRDS(fdis_frugivore_5km, file = file.path(output_path_L2,"fdis_frugivore_5km.rds"))
-saveRDS(fdis_mammal_5km, file = file.path(output_path_L2,"fdis_mammal_5km.rds"))
-saveRDS(fdis_bird_5km, file = file.path(output_path_L2,"fdis_bird_5km.rds"))
-saveRDS(fdis_plant_5km, file = file.path(output_path_L2,"fdis_plant_5km.rds"))
+# species occurrence data
+mammal_sp_grid_25km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_25km.rds"))
 
-# read saved data
-fdis_frugivore_5km <- readRDS(file = file.path(output_path_L2,"fdis_frugivore_5km.rds"))
-fdis_mammal_5km <- readRDS(file = file.path(output_path_L2,"fdis_mammal_5km.rds"))
-fdis_bird_5km <- readRDS(file = file.path(output_path_L2,"fdis_bird_5km.rds"))
-fdis_plant_5km <- readRDS(file = file.path(output_path_L2,"fdis_plant_5km.rds"))
+# FDis calculation
+fdis_mammal2_25km <- FDis2(mammal_sp_grid_25km, sp_faxes2_coord_mammal)
+saveRDS(fdis_mammal2_25km, file.path(all_output_path_L2,"fdis_mammal_25km.rds"))
 
+# mapping
+mammal_FD_map_25km <- FD_map2(fdis_mammal2_25km, 25000, 'mammal')
+saveRDS(mammal_FD_map_25km, file = file.path(all_output_path_L2,"mammal_FD_map_25km.rds"))
 
-#### Mapping ####
-
-# 100 km
-F100 <- FD_map(site_loc_key_frugivore_100km, PAM_frugivore_site_final_100km, 100000, fdis_frugivore_100km, 'frugivore')
-saveRDS(F100, file = file.path(output_path_L2,"F100.rds"))
-
-FgridFDisTA_100km <- F100$gridFDisTA
-FcellFDis_100km <- F100$spatial_fdis_grid
+(mammal_FD_plot_25km <- mammal_FD_map_25km$gridFDisTA)
+mammal_cell_FD_25km <- mammal_FD_map_25km$spatial_fdis_grid
 
 # save data
-saveRDS(FcellFDis_100km, file.path(output_path_L2,"FcellFDis_100km.rds"))
+saveRDS(mammal_cell_FD_25km, file.path(all_output_path_L2,"mammal_cell_FD_25km.rds"))
+ggsave('mammal_FD_plot_25km.png', mammal_FD_plot_25km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
 
 
-# mammals
-M100 <- FD_map(site_loc_key_mammal_100km, PAM_mammal_site_final_100km, 100000, fdis_mammal_100km, 'mammal')
-saveRDS(M100, file = file.path(output_path_L2,"M100.rds"))
+#### 10km ####
 
-MgridFDisTA_100km <- M100$gridFDisTA
-McellFDis_100km <- M100$spatial_fdis_grid
+# species occurrence data
+mammal_sp_grid_10km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_10km.rds"))
+
+# FDis calculation
+fdis_mammal2_10km <- FDis2(mammal_sp_grid_10km, sp_faxes2_coord_mammal)
+saveRDS(fdis_mammal2_10km, file.path(all_output_path_L2,"fdis_mammal_10km.rds"))
+
+# mapping
+mammal_FD_map_10km <- FD_map2(fdis_mammal2_10km, 10000, 'mammal')
+saveRDS(mammal_FD_map_10km, file = file.path(all_output_path_L2,"mammal_FD_map_10km.rds"))
+
+(mammal_FD_plot_10km <- mammal_FD_map_10km$gridFDisTA)
+mammal_cell_FD_10km <- mammal_FD_map_10km$spatial_fdis_grid
 
 # save data
-saveRDS(McellFDis_100km, file.path(output_path_L2,"McellFDis_100km.rds"))
+saveRDS(mammal_cell_FD_10km, file.path(all_output_path_L2,"mammal_cell_FD_10km.rds"))
+ggsave('mammal_FD_plot_10km.png', mammal_FD_plot_10km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
 
 
-# birds
-B100 <- FD_map(site_loc_key_bird_100km, PAM_bird_site_final_100km, 100000, fdis_bird_100km, 'bird')
-saveRDS(B100, file = file.path(output_path_L2,"B100.rds"))
+#### 5km ####
 
-BgridFDisTA_100km <- B100$gridFDisTA
-BcellFDis_100km <- B100$spatial_fdis_grid
+# species occurrence data
+mammal_sp_grid_5km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_5km.rds"))
+
+# FDis calculation 
+fdis_mammal2_5km <- FDis2(mammal_sp_grid_5km, sp_faxes2_coord_mammal)
+saveRDS(fdis_mammal2_5km, file.path(all_output_path_L2,"fdis_mammal_5km.rds"))
+
+# mapping
+mammal_FD_map_5km <- FD_map2(fdis_mammal2_5km, 5000, 'mammal')
+saveRDS(mammal_FD_map_5km, file = file.path(all_output_path_L2,"mammal_FD_map_5km.rds"))
+
+(mammal_FD_plot_5km <- mammal_FD_map_5km$gridFDisTA)
+mammal_cell_FD_5km <- mammal_FD_map_5km$spatial_fdis_grid
 
 # save data
-saveRDS(BcellFDis_100km, file.path(output_path_L2,"BcellFDis_100km.rds"))
+saveRDS(mammal_cell_FD_5km, file.path(all_output_path_L2,"mammal_cell_FD_5km.rds"))
+ggsave('mammal_FD_plot_5km.png', mammal_FD_plot_5km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
 
 
 # plants
-P100 <- FD_map(site_loc_key_plant_100km, PAM_plant_site_final_100km, 100000, fdis_plant_100km, 'plant')
-saveRDS(P100, file = file.path(output_path_L2,"P100.rds"))
+#### 100 km ####
 
-PgridFDisTA_100km <- P100$gridFDisTA
-PcellFDis_100km <- P100$spatial_fdis_grid
+# species occurrence data
+plant_sp_grid_100km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_100km.rds"))
 
-# save data
-saveRDS(PcellFDis_100km, file.path(output_path_L2,"PcellFDis_100km.rds"))
+# quality of functional spaces
+fspaces_quality2(plant_sp_grid_100km, plant_traits_df_final, 'plant')
 
+fspace_quality_plot(fspaces_quality2_plant)
 
-# 75km 
-
-# frugivores
-F75 <- FD_map(site_loc_key_frugivore_75km, PAM_frugivore_site_final_75km, 75000, fdis_frugivore_75km, 'frugivore')
-saveRDS(F75, file = file.path(output_path_L2,"F75.rds"))
-
-FgridFDisTA_75km <- F75$gridFDisTA
-FcellFDis_75km <- F75$spatial_fdis_grid
-
-# save data
-saveRDS(FcellFDis_75km, file.path(output_path_L2,"FcellFDis_75km.rds"))
+pc_coords2(fspaces_quality2_plant, plant_traits_df_final, 'plant')
+fspace_corr_plots(sp_faxes2_coord_plant, tr_faxes2_plant)
+saveRDS(sp_faxes2_coord_plant, file = file.path(all_output_path_L2, "sp_faxes2_coord_plant.rds"))
+sp_faxes2_coord_plant <- readRDS(file.path(all_output_path_L2, "sp_faxes2_coord_plant.rds"))
 
 
-# mammals
-M75 <- FD_map(site_loc_key_mammal_75km, PAM_mammal_site_final_75km, 75000, fdis_mammal_75km, 'mammal')
-saveRDS(M75, file = file.path(output_path_L2,"M75.rds"))
+# FDis calculation
+fdis_plant2_100km <- FDis2(plant_sp_grid_100km, sp_faxes2_coord_plant)
+saveRDS(fdis_plant2_100km, file.path(all_output_path_L2,"fdis_plant_100km.rds"))
 
-MgridFDisTA_75km <- M75$gridFDisTA
-McellFDis_75km <- M75$spatial_fdis_grid
+# mapping
+plant_FD_map_100km <- FD_map2(fdis_plant2_100km, 100000, 'plant')
+saveRDS(plant_FD_map_100km, file = file.path(all_output_path_L2,"plant_FD_map_100km.rds"))
+
+(plant_FD_plot_100km <- plant_FD_map_100km$gridFDisTA)
+plant_cell_FD_100km <- plant_FD_map_100km$spatial_fdis_grid
 
 # save data
-saveRDS(McellFDis_75km, file.path(output_path_L2,"McellFDis_75km.rds"))
+saveRDS(plant_cell_FD_100km, file.path(all_output_path_L2,"plant_cell_FD_100km.rds"))
+ggsave('plant_FD_plot_100km.png', plant_FD_plot_100km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 75km ####
+
+# species occurrence data
+plant_sp_grid_75km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_75km.rds"))
+
+# FDis calculation
+fdis_plant2_75km <- FDis2(plant_sp_grid_75km, sp_faxes2_coord_plant)
+saveRDS(fdis_plant2_75km, file.path(all_output_path_L2,"fdis_plant_75km.rds"))
+
+# mapping
+plant_FD_map_75km <- FD_map2(fdis_plant2_75km, 75000, 'plant')
+saveRDS(plant_FD_map_75km, file = file.path(all_output_path_L2,"plant_FD_map_75km.rds"))
+
+(plant_FD_plot_75km <- plant_FD_map_75km$gridFDisTA)
+plant_cell_FD_75km <- plant_FD_map_75km$spatial_fdis_grid
+
+# save data
+saveRDS(plant_cell_FD_75km, file.path(all_output_path_L2,"plant_cell_FD_75km.rds"))
+ggsave('plant_FD_plot_75km.png', plant_FD_plot_75km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 50km ####
+
+# species occurrence data
+plant_sp_grid_50km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_50km.rds"))
+
+# FDis calculation
+fdis_plant2_50km <- FDis2(plant_sp_grid_50km, sp_faxes2_coord_plant)
+saveRDS(fdis_plant2_50km, file.path(all_output_path_L2,"fdis_plant_50km.rds"))
+
+# mapping 
+plant_FD_map_50km <- FD_map2(fdis_plant2_50km, 50000, 'plant')
+saveRDS(plant_FD_map_50km, file = file.path(all_output_path_L2,"plant_FD_map_50km.rds"))
+
+(plant_FD_plot_50km <- plant_FD_map_50km$gridFDisTA)
+plant_cell_FD_50km <- plant_FD_map_50km$spatial_fdis_grid
+
+# save data
+saveRDS(plant_cell_FD_50km, file.path(all_output_path_L2,"plant_cell_FD_50km.rds"))
+ggsave('plant_FD_plot_50km.png', plant_FD_plot_50km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 25km ####
+
+# species occurrence data
+plant_sp_grid_25km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_25km.rds"))
+
+# FDis calculation
+fdis_plant2_25km <- FDis2(plant_sp_grid_25km, sp_faxes2_coord_plant)
+saveRDS(fdis_plant2_25km, file.path(all_output_path_L2,"fdis_plant_25km.rds"))
+
+# mapping
+plant_FD_map_25km <- FD_map2(fdis_plant2_25km, 25000, 'plant')
+saveRDS(plant_FD_map_25km, file = file.path(all_output_path_L2,"plant_FD_map_25km.rds"))
+
+(plant_FD_plot_25km <- plant_FD_map_25km$gridFDisTA)
+plant_cell_FD_25km <- plant_FD_map_25km$spatial_fdis_grid
+
+# save data
+saveRDS(plant_cell_FD_25km, file.path(all_output_path_L2,"plant_cell_FD_25km.rds"))
+ggsave('plant_FD_plot_25km.png', plant_FD_plot_25km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 10km ####
+
+# species occurrence data
+plant_sp_grid_10km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_10km.rds"))
+
+# FDis calculation
+fdis_plant2_10km <- FDis2(plant_sp_grid_10km, sp_faxes2_coord_plant)
+saveRDS(fdis_plant2_10km, file.path(all_output_path_L2,"fdis_plant_10km.rds"))
+
+# mapping
+plant_FD_map_10km <- FD_map2(fdis_plant2_10km, 10000, 'plant')
+saveRDS(plant_FD_map_10km, file = file.path(all_output_path_L2,"plant_FD_map_10km.rds"))
+
+(plant_FD_plot_10km <- plant_FD_map_10km$gridFDisTA)
+plant_cell_FD_10km <- plant_FD_map_10km$spatial_fdis_grid
+
+# save data
+saveRDS(plant_cell_FD_10km, file.path(all_output_path_L2,"plant_cell_FD_10km.rds"))
+ggsave('plant_FD_plot_10km.png', plant_FD_plot_10km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 5km ####
+
+# species occurrence data
+plant_sp_grid_5km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_5km.rds"))
+
+# FDis calculation 
+fdis_plant2_5km <- FDis2(plant_sp_grid_5km, sp_faxes2_coord_plant)
+saveRDS(fdis_plant2_5km, file.path(all_output_path_L2,"fdis_plant_5km.rds"))
+
+# mapping
+plant_FD_map_5km <- FD_map2(fdis_plant2_5km, 5000, 'plant')
+saveRDS(plant_FD_map_5km, file = file.path(all_output_path_L2,"plant_FD_map_5km.rds"))
+
+(plant_FD_plot_5km <- plant_FD_map_5km$gridFDisTA)
+plant_cell_FD_5km <- plant_FD_map_5km$spatial_fdis_grid
+
+# save data
+saveRDS(plant_cell_FD_5km, file.path(all_output_path_L2,"plant_cell_FD_5km.rds"))
+ggsave('plant_FD_plot_5km.png', plant_FD_plot_5km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
 
 
 # birds
-B75 <- FD_map(site_loc_key_bird_75km, PAM_bird_site_final_75km, 75000, fdis_bird_75km, 'bird')
-saveRDS(B75, file = file.path(output_path_L2,"B75.rds"))
+#### 100 km ####
 
-BgridFDisTA_75km <- B75$gridFDisTA
-BcellFDis_75km <- B75$spatial_fdis_grid
+# species occurrence data
+bird_sp_grid_100km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_100km.rds"))
 
-# save data
-saveRDS(BcellFDis_75km, file.path(output_path_L2,"BcellFDis_75km.rds"))
+# quality of functional spaces
+fspaces_quality2(bird_sp_grid_100km, bird_traits_df_final, 'bird')
 
+fspace_quality_plot(fspaces_quality2_bird)
 
-# plants
-P75 <- FD_map(site_loc_key_plant_75km, PAM_plant_site_final_75km, 75000, fdis_plant_75km, 'plant')
-saveRDS(P75, file = file.path(output_path_L2,"P75.rds"))
-
-PgridFDisTA_75km <- P75$gridFDisTA
-PcellFDis_75km <- P75$spatial_fdis_grid
-
-# save data
-saveRDS(PcellFDis_75km, file.path(output_path_L2,"PcellFDis_75km.rds"))
+pc_coords2(fspaces_quality2_bird, bird_traits_df_final, 'bird')
+fspace_corr_plots(sp_faxes2_coord_bird, tr_faxes2_bird)
+saveRDS(fspaces_quality2_bird, file = file.path(all_output_path_L2, "fspaces_quality2_bird.rds"))
+fspaces_quality2_bird <- readRDS(file.path(all_output_path_L2, "fspaces_quality2_bird.rds"))
 
 
-# 50km 
+# FDis calculation
+fdis_bird2_100km <- FDis2(bird_sp_grid_100km, sp_faxes2_coord_bird)
+saveRDS(fdis_bird2_100km, file.path(all_output_path_L2,"fdis_bird_100km.rds"))
 
-# frugivores
-F50 <- FD_map(site_loc_key_frugivore_50km, PAM_frugivore_site_final_50km, 50000, fdis_frugivore_50km, 'frugivore')
-saveRDS(F50, file = file.path(output_path_L2,"F50.rds"))
+# mapping
+bird_FD_map_100km <- FD_map2(fdis_bird2_100km, 100000, 'bird')
+saveRDS(bird_FD_map_100km, file = file.path(all_output_path_L2,"bird_FD_map_100km.rds"))
 
-FgridFDisTA_50km <- F50$gridFDisTA
-FcellFDis_50km <- F50$spatial_fdis_grid
+(bird_FD_plot_100km <- bird_FD_map_100km$gridFDisTA)
+bird_cell_FD_100km <- bird_FD_map_100km$spatial_fdis_grid
 
 # save data
-saveRDS(FcellFDis_50km, file.path(output_path_L2,"FcellFDis_50km.rds"))
+saveRDS(bird_cell_FD_100km, file.path(all_output_path_L2,"bird_cell_FD_100km.rds"))
+ggsave('bird_FD_plot_100km.png', bird_FD_plot_100km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
 
 
-# mammals
-M50 <- FD_map(site_loc_key_mammal_50km, PAM_mammal_site_final_50km, 50000, fdis_mammal_50km, 'mammal')
-saveRDS(M50, file = file.path(output_path_L2,"M50.rds"))
+#### 75km ####
 
-MgridFDisTA_50km <- M50$gridFDisTA
-McellFDis_50km <- M50$spatial_fdis_grid
+# species occurrence data
+bird_sp_grid_75km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_75km.rds"))
 
-# save data
-saveRDS(McellFDis_50km, file.path(output_path_L2,"McellFDis_50km.rds"))
+# FDis calculation
+fdis_bird2_75km <- FDis2(bird_sp_grid_75km, sp_faxes2_coord_bird)
+saveRDS(fdis_bird2_75km, file.path(all_output_path_L2,"fdis_bird_75km.rds"))
 
+# mapping
+bird_FD_map_75km <- FD_map2(fdis_bird2_75km, 75000, 'bird')
+saveRDS(bird_FD_map_75km, file = file.path(all_output_path_L2,"bird_FD_map_75km.rds"))
 
-# birds
-B50 <- FD_map(site_loc_key_bird_50km, PAM_bird_site_final_50km, 50000, fdis_bird_50km, 'bird')
-saveRDS(B50, file = file.path(output_path_L2,"B50.rds"))
-
-BgridFDisTA_50km <- B50$gridFDisTA
-BcellFDis_50km <- B50$spatial_fdis_grid
-
-# save data
-saveRDS(BcellFDis_50km, file.path(output_path_L2,"BcellFDis_50km.rds"))
-
-
-# plants
-P50 <- FD_map(site_loc_key_plant_50km, PAM_plant_site_final_50km, 50000, fdis_plant_50km, 'plant')
-saveRDS(P50, file = file.path(output_path_L2,"P50.rds"))
-
-PgridFDisTA_50km <- P50$gridFDisTA
-PcellFDis_50km <- P50$spatial_fdis_grid
+(bird_FD_plot_75km <- bird_FD_map_75km$gridFDisTA)
+bird_cell_FD_75km <- bird_FD_map_75km$spatial_fdis_grid
 
 # save data
-saveRDS(PcellFDis_50km, file.path(output_path_L2,"PcellFDis_50km.rds"))
+saveRDS(bird_cell_FD_75km, file.path(all_output_path_L2,"bird_cell_FD_75km.rds"))
+ggsave('bird_FD_plot_75km.png', bird_FD_plot_75km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
 
 
-# 25km
+#### 50km ####
 
-# frugivores
-F25 <- FD_map(site_loc_key_frugivore_25km, PAM_frugivore_site_final_25km, 25000, fdis_frugivore_25km, 'frugivore')
-saveRDS(F25, file = file.path(output_path_L2,"F25.rds"))
+# species occurrence data
+bird_sp_grid_50km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_50km.rds"))
 
-FgridFDisTA_25km <- F25$gridFDisTA
-FcellFDis_25km <- F25$spatial_fdis_grid
+# FDis calculation
+fdis_bird2_50km <- FDis2(bird_sp_grid_50km, sp_faxes2_coord_bird)
+saveRDS(fdis_bird2_50km, file.path(all_output_path_L2,"fdis_bird_50km.rds"))
 
-# save data
-saveRDS(FcellFDis_25km, file.path(output_path_L2,"FcellFDis_25km.rds"))
+# mapping 
+bird_FD_map_50km <- FD_map2(fdis_bird2_50km, 50000, 'bird')
+saveRDS(bird_FD_map_50km, file = file.path(all_output_path_L2,"bird_FD_map_50km.rds"))
 
-
-# mammals
-M25 <- FD_map(site_loc_key_mammal_25km, PAM_mammal_site_final_25km, 25000, fdis_mammal_25km, 'mammal')
-saveRDS(M25, file = file.path(output_path_L2,"M25.rds"))
-
-MgridFDisTA_25km <- M25$gridFDisTA
-McellFDis_25km <- M25$spatial_fdis_grid
+(bird_FD_plot_50km <- bird_FD_map_50km$gridFDisTA)
+bird_cell_FD_50km <- bird_FD_map_50km$spatial_fdis_grid
 
 # save data
-saveRDS(McellFDis_25km, file.path(output_path_L2,"McellFDis_25km.rds"))
+saveRDS(bird_cell_FD_50km, file.path(all_output_path_L2,"bird_cell_FD_50km.rds"))
+ggsave('bird_FD_plot_50km.png', bird_FD_plot_50km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
 
 
-# birds
-B25 <- FD_map(site_loc_key_bird_25km, PAM_bird_site_final_25km, 25000, fdis_bird_25km, 'bird')
-saveRDS(B25, file = file.path(output_path_L2,"B25.rds"))
+#### 25km ####
 
-BgridFDisTA_25km <- B25$gridFDisTA
-BcellFDis_25km <- B25$spatial_fdis_grid
+# species occurrence data
+bird_sp_grid_25km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_25km.rds"))
 
-# save data
-saveRDS(BcellFDis_25km, file.path(output_path_L2,"BcellFDis_25km.rds"))
+# FDis calculation
+fdis_bird2_25km <- FDis2(bird_sp_grid_25km, sp_faxes2_coord_bird)
+saveRDS(fdis_bird2_25km, file.path(all_output_path_L2,"fdis_bird_25km.rds"))
 
+# mapping
+bird_FD_map_25km <- FD_map2(fdis_bird2_25km, 25000, 'bird')
+saveRDS(bird_FD_map_25km, file = file.path(all_output_path_L2,"bird_FD_map_25km.rds"))
 
-# plants
-P25 <- FD_map(site_loc_key_plant_25km, PAM_plant_site_final_25km, 25000, fdis_plant_25km, 'plant')
-saveRDS(P25, file = file.path(output_path_L2,"P25.rds"))
-
-PgridFDisTA_25km <- P25$gridFDisTA
-PcellFDis_25km <- P25$spatial_fdis_grid
-
-# save data
-saveRDS(PcellFDis_25km, file.path(output_path_L2,"PcellFDis_25km.rds"))
-
-
-# 10km
-
-# frugivores
-F10 <- FD_map(site_loc_key_frugivore_10km, PAM_frugivore_site_final_10km, 10000, fdis_frugivore_10km, 'frugivore')
-saveRDS(F10, file = file.path(output_path_L2,"F10.rds"))
-
-FgridFDisTA_10km <- F10$gridFDisTA
-FcellFDis_10km <- F10$spatial_fdis_grid
+(bird_FD_plot_25km <- bird_FD_map_25km$gridFDisTA)
+bird_cell_FD_25km <- bird_FD_map_25km$spatial_fdis_grid
 
 # save data
-saveRDS(FcellFDis_10km, file.path(output_path_L2,"FcellFDis_10km.rds"))
+saveRDS(bird_cell_FD_25km, file.path(all_output_path_L2,"bird_cell_FD_25km.rds"))
+ggsave('bird_FD_plot_25km.png', bird_FD_plot_25km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
 
 
-# mammals
-M10 <- FD_map(site_loc_key_mammal_10km, PAM_mammal_site_final_10km, 10000, fdis_mammal_10km, 'mammal')
-saveRDS(M10, file = file.path(output_path_L2,"M10.rds"))
+#### 10km ####
 
-MgridFDisTA_10km <- M10$gridFDisTA
-McellFDis_10km <- M10$spatial_fdis_grid
+# species occurrence data
+bird_sp_grid_10km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_10km.rds"))
 
-# save data
-saveRDS(McellFDis_10km, file.path(output_path_L2,"McellFDis_10km.rds"))
+# FDis calculation
+fdis_bird2_10km <- FDis2(bird_sp_grid_10km, sp_faxes2_coord_bird)
+saveRDS(fdis_bird2_10km, file.path(all_output_path_L2,"fdis_bird_10km.rds"))
 
+# mapping
+bird_FD_map_10km <- FD_map2(fdis_bird2_10km, 10000, 'bird')
+saveRDS(bird_FD_map_10km, file = file.path(all_output_path_L2,"bird_FD_map_10km.rds"))
 
-# birds
-B10 <- FD_map(site_loc_key_bird_10km, PAM_bird_site_final_10km, 10000, fdis_bird_10km, 'bird')
-saveRDS(B10, file = file.path(output_path_L2,"B10.rds"))
-
-BgridFDisTA_10km <- B10$gridFDisTA
-BcellFDis_10km <- B10$spatial_fdis_grid
-
-# save data
-saveRDS(BcellFDis_10km, file.path(output_path_L2,"BcellFDis_10km.rds"))
-
-
-#  plants
-P10 <- FD_map(site_loc_key_plant_10km, PAM_plant_site_final_10km, 10000, fdis_plant_10km, 'plant')
-saveRDS(P10, file = file.path(output_path_L2,"P10.rds"))
-
-PgridFDisTA_10km <- P10$gridFDisTA
-PcellFDis_10km <- P10$spatial_fdis_grid
+(bird_FD_plot_10km <- bird_FD_map_10km$gridFDisTA)
+bird_cell_FD_10km <- bird_FD_map_10km$spatial_fdis_grid
 
 # save data
-saveRDS(PcellFDis_10km, file.path(output_path_L2,"PcellFDis_10km.rds"))
+saveRDS(bird_cell_FD_10km, file.path(all_output_path_L2,"bird_cell_FD_10km.rds"))
+ggsave('bird_FD_plot_10km.png', bird_FD_plot_10km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
 
 
-# 5km
+#### 5km ####
 
-# frugivores
-F5 <- FD_map(site_loc_key_frugivore_5km, PAM_frugivore_site_final_5km, 5000, fdis_frugivore_5km, 'frugivore')
-saveRDS(F5, file = file.path(output_path_L2,"F5.rds"))
+# species occurrence data
+bird_sp_grid_5km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_5km.rds"))
 
-FgridFDisTA_5km <- F5$gridFDisTA
-FcellFDis_5km <- F5$spatial_fdis_grid
+# FDis calculation 
+fdis_bird2_5km <- FDis2(bird_sp_grid_5km, sp_faxes2_coord_bird)
+saveRDS(fdis_bird2_5km, file.path(all_output_path_L2,"fdis_bird_5km.rds"))
 
-# save data
-saveRDS(FcellFDis_5km, file.path(output_path_L2,"FcellFDis_5km.rds"))
+# mapping
+bird_FD_map_5km <- FD_map2(fdis_bird2_5km, 5000, 'bird')
+saveRDS(bird_FD_map_5km, file = file.path(all_output_path_L2,"bird_FD_map_5km.rds"))
 
-
-# mammals
-M5 <- FD_map(site_loc_key_mammal_5km, PAM_mammal_site_final_5km, 5000, fdis_mammal_5km, 'mammal')
-saveRDS(M5, file = file.path(output_path_L2,"M5.rds"))
-
-MgridFDisTA_5km <- M5$gridFDisTA
-McellFDis_5km <- M5$spatial_fdis_grid
+(bird_FD_plot_5km <- bird_FD_map_5km$gridFDisTA)
+bird_cell_FD_5km <- bird_FD_map_5km$spatial_fdis_grid
 
 # save data
-saveRDS(McellFDis_5km, file.path(output_path_L2,"McellFDis_5km.rds"))
+saveRDS(bird_cell_FD_5km, file.path(all_output_path_L2,"bird_cell_FD_5km.rds"))
+ggsave('bird_FD_plot_5km.png', bird_FD_plot_5km, path = all_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
 
 
-# birds
-B5 <- FD_map(site_loc_key_bird_5km, PAM_bird_site_final_5km, 5000, fdis_bird_5km, 'bird')
-saveRDS(B5, file = file.path(output_path_L2,"B5.rds"))
+#### final figure ####
 
-BgridFDisTA_5km <- B5$gridFDisTA
-BcellFDis_5km <- B5$spatial_fdis_grid
+# all map data
+plant_FD_map_100km <- readRDS(file.path(all_output_path_L2, "plant_FD_map_100km.rds"))
+plant_FD_plot_100km <- plant_FD_map_100km$gridFDisTA
 
-# save data
-saveRDS(BcellFDis_5km, file.path(output_path_L2,"BcellFDis_5km.rds"))
+plant_FD_map_75km <- readRDS(file.path(all_output_path_L2, "plant_FD_map_75km.rds"))
+plant_FD_plot_75km <- plant_FD_map_75km$gridFDisTA
 
+plant_FD_map_50km <- readRDS(file.path(all_output_path_L2, "plant_FD_map_50km.rds"))
+plant_FD_plot_50km <- plant_FD_map_50km$gridFDisTA
 
-# plants
-P5 <- FD_map(site_loc_key_plant_5km, PAM_plant_site_final_5km, 5000, fdis_plant_5km, 'plant')
-saveRDS(P5, file = file.path(output_path_L2,"P5.rds"))
+plant_FD_map_25km <- readRDS(file.path(all_output_path_L2, "plant_FD_map_25km.rds"))
+plant_FD_plot_25km <- plant_FD_map_25km$gridFDisTA
 
-PgridFDisTA_5km <- P5$gridFDisTA
-PcellFDis_5km <- P5$spatial_fdis_grid
+plant_FD_map_10km <- readRDS(file.path(all_output_path_L2, "plant_FD_map_10km.rds"))
+plant_FD_plot_10km <- plant_FD_map_10km$gridFDisTA
 
-# save data
-saveRDS(PcellFDis_5km, file.path(output_path_L2,"PcellFDis_5km.rds"))
+plant_FD_map_5km <- readRDS(file.path(all_output_path_L2, "plant_FD_map_5km.rds"))
+plant_FD_plot_5km <- plant_FD_map_5km$gridFDisTA
 
+mammal_FD_map_100km <- readRDS(file.path(all_output_path_L2, "mammal_FD_map_100km.rds"))
+mammal_FD_plot_100km <- mammal_FD_map_100km$gridFDisTA
 
-# load saved data
-P100 <- readRDS(file = file.path(output_path_L2,"P100.rds"))
-P75 <- readRDS(file = file.path(output_path_L2,"P75.rds"))
-P50 <- readRDS(file = file.path(output_path_L2,"P50.rds"))
-P25 <- readRDS(file = file.path(output_path_L2,"P25.rds"))
-P10 <- readRDS(file = file.path(output_path_L2,"P10.rds"))
-P5 <- readRDS(file = file.path(output_path_L2,"P5.rds"))
+mammal_FD_map_75km <- readRDS(file.path(all_output_path_L2, "mammal_FD_map_75km.rds"))
+mammal_FD_plot_75km <- mammal_FD_map_75km$gridFDisTA
 
-M100 <- readRDS(file = file.path(output_path_L2,"M100.rds"))
-M75 <- readRDS(file = file.path(output_path_L2,"M75.rds"))
-M50 <- readRDS(file = file.path(output_path_L2,"M50.rds"))
-M25 <- readRDS(file = file.path(output_path_L2,"M25.rds"))
-M10 <- readRDS(file = file.path(output_path_L2,"M10.rds"))
-M5 <- readRDS(file = file.path(output_path_L2,"M5.rds"))
+mammal_FD_map_50km <- readRDS(file.path(all_output_path_L2, "mammal_FD_map_50km.rds"))
+mammal_FD_plot_50km <- mammal_FD_map_50km$gridFDisTA
 
-B100 <- readRDS(file = file.path(output_path_L2,"B100.rds"))
-B75 <- readRDS(file = file.path(output_path_L2,"B75.rds"))
-B50 <- readRDS(file = file.path(output_path_L2,"B50.rds"))
-B25 <- readRDS(file = file.path(output_path_L2,"B25.rds"))
-B10 <- readRDS(file = file.path(output_path_L2,"B10.rds"))
-B5 <- readRDS(file = file.path(output_path_L2,"B5.rds"))
+mammal_FD_map_25km <- readRDS(file.path(all_output_path_L2, "mammal_FD_map_25km.rds"))
+mammal_FD_plot_25km <- mammal_FD_map_25km$gridFDisTA
 
+mammal_FD_map_10km <- readRDS(file.path(all_output_path_L2, "mammal_FD_map_10km.rds"))
+mammal_FD_plot_10km <- mammal_FD_map_10km$gridFDisTA
 
-# combine all plots 
+mammal_FD_map_5km <- readRDS(file.path(all_output_path_L2, "mammal_FD_map_5km.rds"))
+mammal_FD_plot_5km <- mammal_FD_map_5km$gridFDisTA
+
+bird_FD_map_100km <- readRDS(file.path(all_output_path_L2, "bird_FD_map_100km.rds"))
+bird_FD_plot_100km <- bird_FD_map_100km$gridFDisTA
+
+bird_FD_map_75km <- readRDS(file.path(all_output_path_L2, "bird_FD_map_75km.rds"))
+bird_FD_plot_75km <- bird_FD_map_75km$gridFDisTA
+
+bird_FD_map_50km <- readRDS(file.path(all_output_path_L2, "bird_FD_map_50km.rds"))
+bird_FD_plot_50km <- bird_FD_map_50km$gridFDisTA
+
+bird_FD_map_25km <- readRDS(file.path(all_output_path_L2, "bird_FD_map_25km.rds"))
+bird_FD_plot_25km <- bird_FD_map_25km$gridFDisTA
+
+bird_FD_map_10km <- readRDS(file.path(all_output_path_L2, "bird_FD_map_10km.rds"))
+bird_FD_plot_10km <- bird_FD_map_10km$gridFDisTA
+
+bird_FD_map_5km <- readRDS(file.path(all_output_path_L2, "bird_FD_map_5km.rds"))
+bird_FD_plot_5km <- bird_FD_map_5km$gridFDisTA
+
 
 # individual plot edits
-PgridFDisTA_100km <- PgridFDisTA_100km + labs(title='[100km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20)) 
+plant_FD_plot_100km <- plant_FD_plot_100km + labs(title='[100km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20)) 
 
-MgridFDisTA_100km <- MgridFDisTA_100km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+mammal_FD_plot_100km <- mammal_FD_plot_100km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
-BgridFDisTA_100km <- BgridFDisTA_100km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
-
-
-PgridFDisTA_75km <- PgridFDisTA_75km + labs(title='[75km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
-
-MgridFDisTA_75km <- MgridFDisTA_75km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
-
-BgridFDisTA_75km <- BgridFDisTA_75km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
+bird_FD_plot_100km <- bird_FD_plot_100km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
 
 
-PgridFDisTA_50km <- PgridFDisTA_50km + labs(title='[50km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
+plant_FD_plot_75km <- plant_FD_plot_75km + labs(title='[75km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
 
-MgridFDisTA_50km <- MgridFDisTA_50km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+mammal_FD_plot_75km <- mammal_FD_plot_75km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
-BgridFDisTA_50km <- BgridFDisTA_50km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
-
-
-PgridFDisTA_25km <- PgridFDisTA_25km + labs(title='[25km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
-
-MgridFDisTA_25km <- MgridFDisTA_25km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
-
-BgridFDisTA_25km <- BgridFDisTA_25km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16)) + labs(x = "Longitude")
+bird_FD_plot_75km <- bird_FD_plot_75km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
 
 
-PgridFDisTA_10km <- PgridFDisTA_10km + labs(title='[10km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
+plant_FD_plot_50km <- plant_FD_plot_50km + labs(title='[50km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
 
-MgridFDisTA_10km <- MgridFDisTA_10km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+mammal_FD_plot_50km <- mammal_FD_plot_50km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
-BgridFDisTA_10km <- BgridFDisTA_10km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
+bird_FD_plot_50km <- bird_FD_plot_50km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
+
+
+plant_FD_plot_25km <- plant_FD_plot_25km + labs(title='[25km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
+
+mammal_FD_plot_25km <- mammal_FD_plot_25km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+
+bird_FD_plot_25km <- bird_FD_plot_25km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16)) + labs(x = "Longitude")
+
+
+plant_FD_plot_10km <- plant_FD_plot_10km + labs(title='[10km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
+
+mammal_FD_plot_10km <- mammal_FD_plot_10km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+
+bird_FD_plot_10km <- bird_FD_plot_10km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
 
 
 # plant picture
 plant <- pick_phylopic(name='Coffea alleizettei')
 
-PgridFDisTA_5km <- PgridFDisTA_5km + labs(title='[5km]') + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20), axis.text = element_text(size=16)) + add_phylopic(img=plant, x=-79, y=12, height=8)
+plant_FD_plot_5km <- plant_FD_plot_5km + labs(title='[5km]') + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20), axis.text = element_text(size=16)) + add_phylopic(img=plant, x=-79, y=12, height=8)
 
 # mammal picture
 mammal <- pick_phylopic(name='Potos flavus', n=2, auto=2)
 
-MgridFDisTA_5km <- MgridFDisTA_5km + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16)) + labs(y = "Latitude") + add_phylopic(img=mammal, x=-79, y=12, height=8)
+mammal_FD_plot_5km <- mammal_FD_plot_5km + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16)) + labs(y = "Latitude") + add_phylopic(img=mammal, x=-79, y=12, height=8)
 
 # bird picture
 bird <- pick_phylopic(name='Ramphastos sulfuratus', n=2, auto=1)
 
-BgridFDisTA_5km <- BgridFDisTA_5km + annotation_scale(location = "bl",width_hint = 0.4, style = "bar") + annotation_north_arrow(location = "bl", which_north = "true", height = unit(0.5, "in"), width = unit(0.5, "in"), pad_x = unit(0.05, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) + theme(plot.margin = margin(0,0,0,0), axis.text = element_text(size=16)) + add_phylopic(img=bird, x=-79, y=12, height=8)
+bird_FD_plot_5km <- bird_FD_plot_5km + annotation_scale(location = "bl",width_hint = 0.4, style = "bar") + annotation_north_arrow(location = "bl", which_north = "true", height = unit(0.5, "in"), width = unit(0.5, "in"), pad_x = unit(0.05, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) + theme(plot.margin = margin(0,0,0,0), axis.text = element_text(size=16)) + add_phylopic(img=bird, x=-79, y=12, height=8)
 
-
-# arrange
-all_fdis_plots <- PgridFDisTA_5km + PgridFDisTA_10km + PgridFDisTA_25km + PgridFDisTA_50km + PgridFDisTA_75km + PgridFDisTA_100km + MgridFDisTA_5km + MgridFDisTA_10km + MgridFDisTA_25km + MgridFDisTA_50km + MgridFDisTA_75km + MgridFDisTA_100km + BgridFDisTA_5km + BgridFDisTA_10km + BgridFDisTA_25km + BgridFDisTA_50km + BgridFDisTA_75km + BgridFDisTA_100km + plot_layout(ncol = 6, nrow = 3, guides = 'collect', axis_titles = 'collect', heights = c(1, 1, 1)) & theme(legend.position = 'left', axis.title = element_text(size=20), legend.title = element_text(size=20), legend.text = element_text(size=16)) & plot_annotation(title='FDis', theme = theme(plot.title = element_text(hjust = 0.5, size=30, face='bold')))
+# combine all plots
+all_fdis_plots <- plant_FD_plot_5km + plant_FD_plot_10km + plant_FD_plot_25km + plant_FD_plot_50km + plant_FD_plot_75km + plant_FD_plot_100km + mammal_FD_plot_5km + mammal_FD_plot_10km + mammal_FD_plot_25km + mammal_FD_plot_50km + mammal_FD_plot_75km + mammal_FD_plot_100km + bird_FD_plot_5km + bird_FD_plot_10km + bird_FD_plot_25km + bird_FD_plot_50km + bird_FD_plot_75km + bird_FD_plot_100km + plot_layout(ncol = 6, nrow = 3, guides = 'collect', axis_titles = 'collect', heights = c(1, 1, 1)) & theme(legend.position = 'left', axis.title = element_text(size=20), legend.title = element_text(size=20), legend.text = element_text(size=16)) & plot_annotation(title='FDis', theme = theme(plot.title = element_text(hjust = 0.5, size=30, face='bold')))
 
 all_fdis_plots
 
-ggsave('all_fdis_plots.png', all_fdis_plots, path = figure_path, width = 14, height = 11.8, units = "in", dpi=1000)
+ggsave('all_fdis_plots.png', all_fdis_plots, path = all_data_figure_path, width = 14, height = 11.8, units = "in", dpi=1000)
+
+
+#### repeat FD calculations and mapping with obs cutoff ####
+
+# set file paths
+filtered_data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/filtered_data')
+filtered_output_path_L2 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2/filtered_data')
+filtered_data_figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures/filtered_data')
+
+
+# set cutoff
+cutoff_obs <- 20
+
+
+# trait data at cutoff
+plant_traits_df_final_cutoff <- readRDS(file = file.path(filtered_data_path_L1, paste0("plant_", cutoff_obs,"_traits_df_subset.rds")))
+mammal_traits_df_final_cutoff <- readRDS(file=file.path(filtered_data_path_L1, paste0("mammal_", cutoff_obs,"_traits_df_subset.rds")))
+bird_traits_df_final_cutoff <- readRDS(file=file.path(filtered_data_path_L1, paste0("bird_", cutoff_obs,"_traits_df_subset.rds")))
+
+
+# mammals
+#### 100 km ####
+
+# secies occurrence data
+mammal_cutoff_sp_grid_100km <- readRDS(file.path(filtered_data_path_L1,paste0("mammal_", cutoff_obs, "_sp_grid_100km.rds")))
+
+# quality of functional spaces
+fspaces_quality2(mammal_cutoff_sp_grid_100km, mammal_traits_df_final_cutoff, 'mammal')
+
+pc_coords2(fspaces_quality2_mammal, mammal_traits_df_final_cutoff, 'mammal')
+fspace_corr_plots(sp_faxes2_coord_mammal, tr_faxes2_mammal)
+
+saveRDS(sp_faxes2_coord_mammal, file = file.path(filtered_output_path_L2, paste0("sp_faxes2_coord_mammal_", cutoff_obs, ".rds")))
+
+# FDis calculation
+fdis_mammal2_100km_cutoff <- FDis2(mammal_cutoff_sp_grid_100km, sp_faxes2_coord_mammal)
+saveRDS(fdis_mammal2_100km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_mammal_", cutoff_obs, "_100km.rds")))
+
+# mapping
+mammal_cutoff_FD_map_100km <- FD_map2(fdis_mammal2_100km_cutoff, 100000, 'mammal')
+saveRDS(mammal_cutoff_FD_map_100km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_FD_map_100km.rds")))
+
+(mammal_cutoff_FD_plot_100km <- mammal_cutoff_FD_map_100km$gridFDisTA)
+mammal_cutoff_cell_FD_100km <- mammal_cutoff_FD_map_100km$spatial_fdis_grid
+
+# save data
+saveRDS(mammal_cutoff_cell_FD_100km, file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_cell_FD_100km.rds")))
+ggsave(paste0('mammal_', cutoff_obs, '_FD_plot_100km.png'), mammal_cutoff_FD_plot_100km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 75 km ####
+
+# species occurrence data
+mammal_cutoff_sp_grid_75km <- readRDS(file.path(filtered_data_path_L1,paste0("mammal_", cutoff_obs, "_sp_grid_75km.rds")))
+
+# FDis calculation
+fdis_mammal2_75km_cutoff <- FDis2(mammal_cutoff_sp_grid_75km, sp_faxes2_coord_mammal)
+saveRDS(fdis_mammal2_75km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_mammal_", cutoff_obs, "_75km.rds")))
+
+# mapping
+mammal_cutoff_FD_map_75km <- FD_map2(fdis_mammal2_75km_cutoff, 75000, 'mammal')
+saveRDS(mammal_cutoff_FD_map_75km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_FD_map_75km.rds")))
+
+(mammal_cutoff_FD_plot_75km <- mammal_cutoff_FD_map_75km$gridFDisTA)
+mammal_cutoff_cell_FD_75km <- mammal_cutoff_FD_map_75km$spatial_fdis_grid
+
+# save data
+saveRDS(mammal_cutoff_cell_FD_75km, file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_cell_FD_75km.rds")))
+ggsave(paste0('mammal_', cutoff_obs, '_FD_plot_75km.png'), mammal_cutoff_FD_plot_75km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 50 km ####
+
+# species occurrence data
+mammal_cutoff_sp_grid_50km <- readRDS(file.path(filtered_data_path_L1,paste0("mammal_", cutoff_obs, "_sp_grid_50km.rds")))
+
+# FDis calculation
+fdis_mammal2_50km_cutoff <- FDis2(mammal_cutoff_sp_grid_50km, sp_faxes2_coord_mammal)
+saveRDS(fdis_mammal2_50km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_mammal_", cutoff_obs, "_50km.rds")))
+
+# mapping
+mammal_cutoff_FD_map_50km <- FD_map2(fdis_mammal2_50km_cutoff, 50000, 'mammal')
+saveRDS(mammal_cutoff_FD_map_50km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_FD_map_50km.rds")))
+
+(mammal_cutoff_FD_plot_50km <- mammal_cutoff_FD_map_50km$gridFDisTA)
+mammal_cutoff_cell_FD_50km <- mammal_cutoff_FD_map_50km$spatial_fdis_grid
+
+# save data
+saveRDS(mammal_cutoff_cell_FD_50km, file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_cell_FD_50km.rds")))
+ggsave(paste0('mammal_', cutoff_obs, '_FD_plot_50km.png'), mammal_cutoff_FD_plot_50km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 25 km ####
+
+# species occurrence data
+mammal_cutoff_sp_grid_25km <- readRDS(file.path(filtered_data_path_L1,paste0("mammal_", cutoff_obs, "_sp_grid_25km.rds")))
+
+# FDis calculation
+fdis_mammal2_25km_cutoff <- FDis2(mammal_cutoff_sp_grid_25km, sp_faxes2_coord_mammal)
+saveRDS(fdis_mammal2_25km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_mammal_", cutoff_obs, "_25km.rds")))
+
+# mapping
+mammal_cutoff_FD_map_25km <- FD_map2(fdis_mammal2_25km_cutoff, 25000, 'mammal')
+saveRDS(mammal_cutoff_FD_map_25km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_FD_map_25km.rds")))
+
+(mammal_cutoff_FD_plot_25km <- mammal_cutoff_FD_map_25km$gridFDisTA)
+mammal_cutoff_cell_FD_25km <- mammal_cutoff_FD_map_25km$spatial_fdis_grid
+
+# save data
+saveRDS(mammal_cutoff_cell_FD_25km, file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_cell_FD_25km.rds")))
+ggsave(paste0('mammal_', cutoff_obs, '_FD_plot_25km.png'), mammal_cutoff_FD_plot_25km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 10 km ####
+
+# species occurrence data
+mammal_cutoff_sp_grid_10km <- readRDS(file.path(filtered_data_path_L1,paste0("mammal_", cutoff_obs, "_sp_grid_10km.rds")))
+
+# FDis calculation
+fdis_mammal2_10km_cutoff <- FDis2(mammal_cutoff_sp_grid_10km, sp_faxes2_coord_mammal)
+saveRDS(fdis_mammal2_10km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_mammal_", cutoff_obs, "_10km.rds")))
+
+# mapping
+mammal_cutoff_FD_map_10km <- FD_map2(fdis_mammal2_10km_cutoff, 10000, 'mammal')
+saveRDS(mammal_cutoff_FD_map_10km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_FD_map_10km.rds")))
+
+(mammal_cutoff_FD_plot_10km <- mammal_cutoff_FD_map_10km$gridFDisTA)
+mammal_cutoff_cell_FD_10km <- mammal_cutoff_FD_map_10km$spatial_fdis_grid
+
+# save data
+saveRDS(mammal_cutoff_cell_FD_10km, file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_cell_FD_10km.rds")))
+ggsave(paste0('mammal_', cutoff_obs, '_FD_plot_10km.png'), mammal_cutoff_FD_plot_10km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 5 km ####
+
+# species occurrence data
+mammal_cutoff_sp_grid_5km <- readRDS(file.path(filtered_data_path_L1,paste0("mammal_", cutoff_obs, "_sp_grid_5km.rds")))
+
+# FDis calculation
+fdis_mammal2_5km_cutoff <- FDis2(mammal_cutoff_sp_grid_5km, sp_faxes2_coord_mammal)
+saveRDS(fdis_mammal2_5km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_mammal_", cutoff_obs, "_5km.rds")))
+
+# mapping
+mammal_cutoff_FD_map_5km <- FD_map2(fdis_mammal2_5km_cutoff, 5000, 'mammal')
+saveRDS(mammal_cutoff_FD_map_5km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_FD_map_5km.rds")))
+
+(mammal_cutoff_FD_plot_5km <- mammal_cutoff_FD_map_5km$gridFDisTA)
+mammal_cutoff_cell_FD_5km <- mammal_cutoff_FD_map_5km$spatial_fdis_grid
+
+# save data
+saveRDS(mammal_cutoff_cell_FD_5km, file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_cell_FD_5km.rds")))
+ggsave(paste0('mammal_', cutoff_obs, '_FD_plot_5km.png'), mammal_cutoff_FD_plot_5km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+# plants
+#### 100 km ####
+
+# secies occurrence data
+plant_cutoff_sp_grid_100km <- readRDS(file.path(filtered_data_path_L1,paste0("plant_", cutoff_obs, "_sp_grid_100km.rds")))
+
+# quality of functional spaces
+fspaces_quality2(plant_cutoff_sp_grid_100km, plant_traits_df_final_cutoff, 'plant')
+
+pc_coords2(fspaces_quality2_plant, plant_traits_df_final_cutoff, 'plant')
+fspace_corr_plots(sp_faxes2_coord_plant, tr_faxes2_plant)
+
+saveRDS(sp_faxes2_coord_plant, file = file.path(filtered_output_path_L2, paste0("sp_faxes2_coord_plant_", cutoff_obs, ".rds")))
+
+# FDis calculation
+fdis_plant2_100km_cutoff <- FDis2(plant_cutoff_sp_grid_100km, sp_faxes2_coord_plant)
+saveRDS(fdis_plant2_100km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_plant_", cutoff_obs, "_100km.rds")))
+
+# mapping
+plant_cutoff_FD_map_100km <- FD_map2(fdis_plant2_100km_cutoff, 100000, 'plant')
+saveRDS(plant_cutoff_FD_map_100km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_FD_map_100km.rds")))
+
+(plant_cutoff_FD_plot_100km <- plant_cutoff_FD_map_100km$gridFDisTA)
+plant_cutoff_cell_FD_100km <- plant_cutoff_FD_map_100km$spatial_fdis_grid
+
+# save data
+saveRDS(plant_cutoff_cell_FD_100km, file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_cell_FD_100km.rds")))
+ggsave(paste0('plant_', cutoff_obs, '_FD_plot_100km.png'), plant_cutoff_FD_plot_100km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 75 km ####
+
+# species occurrence data
+plant_cutoff_sp_grid_75km <- readRDS(file.path(filtered_data_path_L1,paste0("plant_", cutoff_obs, "_sp_grid_75km.rds")))
+
+# FDis calculation
+fdis_plant2_75km_cutoff <- FDis2(plant_cutoff_sp_grid_75km, sp_faxes2_coord_plant)
+saveRDS(fdis_plant2_75km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_plant_", cutoff_obs, "_75km.rds")))
+
+# mapping
+plant_cutoff_FD_map_75km <- FD_map2(fdis_plant2_75km_cutoff, 75000, 'plant')
+saveRDS(plant_cutoff_FD_map_75km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_FD_map_75km.rds")))
+
+(plant_cutoff_FD_plot_75km <- plant_cutoff_FD_map_75km$gridFDisTA)
+plant_cutoff_cell_FD_75km <- plant_cutoff_FD_map_75km$spatial_fdis_grid
+
+# save data
+saveRDS(plant_cutoff_cell_FD_75km, file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_cell_FD_75km.rds")))
+ggsave(paste0('plant_', cutoff_obs, '_FD_plot_75km.png'), plant_cutoff_FD_plot_75km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 50 km ####
+
+# species occurrence data
+plant_cutoff_sp_grid_50km <- readRDS(file.path(filtered_data_path_L1,paste0("plant_", cutoff_obs, "_sp_grid_50km.rds")))
+
+# FDis calculation
+fdis_plant2_50km_cutoff <- FDis2(plant_cutoff_sp_grid_50km, sp_faxes2_coord_plant)
+saveRDS(fdis_plant2_50km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_plant_", cutoff_obs, "_50km.rds")))
+
+# mapping
+plant_cutoff_FD_map_50km <- FD_map2(fdis_plant2_50km_cutoff, 50000, 'plant')
+saveRDS(plant_cutoff_FD_map_50km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_FD_map_50km.rds")))
+
+(plant_cutoff_FD_plot_50km <- plant_cutoff_FD_map_50km$gridFDisTA)
+plant_cutoff_cell_FD_50km <- plant_cutoff_FD_map_50km$spatial_fdis_grid
+
+# save data
+saveRDS(plant_cutoff_cell_FD_50km, file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_cell_FD_50km.rds")))
+ggsave(paste0('plant_', cutoff_obs, '_FD_plot_50km.png'), plant_cutoff_FD_plot_50km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 25 km ####
+
+# species occurrence data
+plant_cutoff_sp_grid_25km <- readRDS(file.path(filtered_data_path_L1,paste0("plant_", cutoff_obs, "_sp_grid_25km.rds")))
+
+# FDis calculation
+fdis_plant2_25km_cutoff <- FDis2(plant_cutoff_sp_grid_25km, sp_faxes2_coord_plant)
+saveRDS(fdis_plant2_25km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_plant_", cutoff_obs, "_25km.rds")))
+
+# mapping
+plant_cutoff_FD_map_25km <- FD_map2(fdis_plant2_25km_cutoff, 25000, 'plant')
+saveRDS(plant_cutoff_FD_map_25km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_FD_map_25km.rds")))
+
+(plant_cutoff_FD_plot_25km <- plant_cutoff_FD_map_25km$gridFDisTA)
+plant_cutoff_cell_FD_25km <- plant_cutoff_FD_map_25km$spatial_fdis_grid
+
+# save data
+saveRDS(plant_cutoff_cell_FD_25km, file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_cell_FD_25km.rds")))
+ggsave(paste0('plant_', cutoff_obs, '_FD_plot_25km.png'), plant_cutoff_FD_plot_25km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 10 km ####
+
+# species occurrence data
+plant_cutoff_sp_grid_10km <- readRDS(file.path(filtered_data_path_L1,paste0("plant_", cutoff_obs, "_sp_grid_10km.rds")))
+
+# FDis calculation
+fdis_plant2_10km_cutoff <- FDis2(plant_cutoff_sp_grid_10km, sp_faxes2_coord_plant)
+saveRDS(fdis_plant2_10km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_plant_", cutoff_obs, "_10km.rds")))
+
+# mapping
+plant_cutoff_FD_map_10km <- FD_map2(fdis_plant2_10km_cutoff, 10000, 'plant')
+saveRDS(plant_cutoff_FD_map_10km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_FD_map_10km.rds")))
+
+(plant_cutoff_FD_plot_10km <- plant_cutoff_FD_map_10km$gridFDisTA)
+plant_cutoff_cell_FD_10km <- plant_cutoff_FD_map_10km$spatial_fdis_grid
+
+# save data
+saveRDS(plant_cutoff_cell_FD_10km, file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_cell_FD_10km.rds")))
+ggsave(paste0('plant_', cutoff_obs, '_FD_plot_10km.png'), plant_cutoff_FD_plot_10km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 5 km ####
+
+# species occurrence data
+plant_cutoff_sp_grid_5km <- readRDS(file.path(filtered_data_path_L1,paste0("plant_", cutoff_obs, "_sp_grid_5km.rds")))
+
+# FDis calculation
+fdis_plant2_5km_cutoff <- FDis2(plant_cutoff_sp_grid_5km, sp_faxes2_coord_plant)
+saveRDS(fdis_plant2_5km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_plant_", cutoff_obs, "_5km.rds")))
+
+# mapping
+plant_cutoff_FD_map_5km <- FD_map2(fdis_plant2_5km_cutoff, 5000, 'plant')
+saveRDS(plant_cutoff_FD_map_5km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_FD_map_5km.rds")))
+
+(plant_cutoff_FD_plot_5km <- plant_cutoff_FD_map_5km$gridFDisTA)
+plant_cutoff_cell_FD_5km <- plant_cutoff_FD_map_5km$spatial_fdis_grid
+
+# save data
+saveRDS(plant_cutoff_cell_FD_5km, file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_cell_FD_5km.rds")))
+ggsave(paste0('plant_', cutoff_obs, '_FD_plot_5km.png'), plant_cutoff_FD_plot_5km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+# birds
+#### 100 km ####
+
+# secies occurrence data
+bird_cutoff_sp_grid_100km <- readRDS(file.path(filtered_data_path_L1,paste0("bird_", cutoff_obs, "_sp_grid_100km.rds")))
+
+# quality of functional spaces
+fspaces_quality2(bird_cutoff_sp_grid_100km, bird_traits_df_final_cutoff, 'bird')
+
+pc_coords2(fspaces_quality2_bird, bird_traits_df_final_cutoff, 'bird')
+fspace_corr_plots(sp_faxes2_coord_bird, tr_faxes2_bird)
+
+saveRDS(sp_faxes2_coord_bird, file = file.path(filtered_output_path_L2, paste0("sp_faxes2_coord_bird_", cutoff_obs, ".rds")))
+
+# FDis calculation
+fdis_bird2_100km_cutoff <- FDis2(bird_cutoff_sp_grid_100km, sp_faxes2_coord_bird)
+saveRDS(fdis_bird2_100km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_bird_", cutoff_obs, "_100km.rds")))
+
+# mapping
+bird_cutoff_FD_map_100km <- FD_map2(fdis_bird2_100km_cutoff, 100000, 'bird')
+saveRDS(bird_cutoff_FD_map_100km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_FD_map_100km.rds")))
+
+(bird_cutoff_FD_plot_100km <- bird_cutoff_FD_map_100km$gridFDisTA)
+bird_cutoff_cell_FD_100km <- bird_cutoff_FD_map_100km$spatial_fdis_grid
+
+# save data
+saveRDS(bird_cutoff_cell_FD_100km, file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_cell_FD_100km.rds")))
+ggsave(paste0('bird_', cutoff_obs, '_FD_plot_100km.png'), bird_cutoff_FD_plot_100km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 75 km ####
+
+# species occurrence data
+bird_cutoff_sp_grid_75km <- readRDS(file.path(filtered_data_path_L1,paste0("bird_", cutoff_obs, "_sp_grid_75km.rds")))
+
+# FDis calculation
+fdis_bird2_75km_cutoff <- FDis2(bird_cutoff_sp_grid_75km, sp_faxes2_coord_bird)
+saveRDS(fdis_bird2_75km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_bird_", cutoff_obs, "_75km.rds")))
+
+# mapping
+bird_cutoff_FD_map_75km <- FD_map2(fdis_bird2_75km_cutoff, 75000, 'bird')
+saveRDS(bird_cutoff_FD_map_75km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_FD_map_75km.rds")))
+
+(bird_cutoff_FD_plot_75km <- bird_cutoff_FD_map_75km$gridFDisTA)
+bird_cutoff_cell_FD_75km <- bird_cutoff_FD_map_75km$spatial_fdis_grid
+
+# save data
+saveRDS(bird_cutoff_cell_FD_75km, file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_cell_FD_75km.rds")))
+ggsave(paste0('bird_', cutoff_obs, '_FD_plot_75km.png'), bird_cutoff_FD_plot_75km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+
+#### 50 km ####
+
+# species occurrence data
+bird_cutoff_sp_grid_50km <- readRDS(file.path(filtered_data_path_L1,paste0("bird_", cutoff_obs, "_sp_grid_50km.rds")))
+
+# FDis calculation
+fdis_bird2_50km_cutoff <- FDis2(bird_cutoff_sp_grid_50km, sp_faxes2_coord_bird)
+saveRDS(fdis_bird2_50km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_bird_", cutoff_obs, "_50km.rds")))
+
+# mapping
+bird_cutoff_FD_map_50km <- FD_map2(fdis_bird2_50km_cutoff, 50000, 'bird')
+saveRDS(bird_cutoff_FD_map_50km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_FD_map_50km.rds")))
+
+(bird_cutoff_FD_plot_50km <- bird_cutoff_FD_map_50km$gridFDisTA)
+bird_cutoff_cell_FD_50km <- bird_cutoff_FD_map_50km$spatial_fdis_grid
+
+# save data
+saveRDS(bird_cutoff_cell_FD_50km, file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_cell_FD_50km.rds")))
+ggsave(paste0('bird_', cutoff_obs, '_FD_plot_50km.png'), bird_cutoff_FD_plot_50km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 25 km ####
+
+# species occurrence data
+bird_cutoff_sp_grid_25km <- readRDS(file.path(filtered_data_path_L1,paste0("bird_", cutoff_obs, "_sp_grid_25km.rds")))
+
+# FDis calculation
+fdis_bird2_25km_cutoff <- FDis2(bird_cutoff_sp_grid_25km, sp_faxes2_coord_bird)
+saveRDS(fdis_bird2_25km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_bird_", cutoff_obs, "_25km.rds")))
+
+# mapping
+bird_cutoff_FD_map_25km <- FD_map2(fdis_bird2_25km_cutoff, 25000, 'bird')
+saveRDS(bird_cutoff_FD_map_25km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_FD_map_25km.rds")))
+
+(bird_cutoff_FD_plot_25km <- bird_cutoff_FD_map_25km$gridFDisTA)
+bird_cutoff_cell_FD_25km <- bird_cutoff_FD_map_25km$spatial_fdis_grid
+
+# save data
+saveRDS(bird_cutoff_cell_FD_25km, file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_cell_FD_25km.rds")))
+ggsave(paste0('bird_', cutoff_obs, '_FD_plot_25km.png'), bird_cutoff_FD_plot_25km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 10 km ####
+
+# species occurrence data
+bird_cutoff_sp_grid_10km <- readRDS(file.path(filtered_data_path_L1,paste0("bird_", cutoff_obs, "_sp_grid_10km.rds")))
+
+# FDis calculation
+fdis_bird2_10km_cutoff <- FDis2(bird_cutoff_sp_grid_10km, sp_faxes2_coord_bird)
+saveRDS(fdis_bird2_10km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_bird_", cutoff_obs, "_10km.rds")))
+
+# mapping
+bird_cutoff_FD_map_10km <- FD_map2(fdis_bird2_10km_cutoff, 10000, 'bird')
+saveRDS(bird_cutoff_FD_map_10km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_FD_map_10km.rds")))
+
+(bird_cutoff_FD_plot_10km <- bird_cutoff_FD_map_10km$gridFDisTA)
+bird_cutoff_cell_FD_10km <- bird_cutoff_FD_map_10km$spatial_fdis_grid
+
+# save data
+saveRDS(bird_cutoff_cell_FD_10km, file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_cell_FD_10km.rds")))
+ggsave(paste0('bird_', cutoff_obs, '_FD_plot_10km.png'), bird_cutoff_FD_plot_10km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### 5 km ####
+
+# species occurrence data
+bird_cutoff_sp_grid_5km <- readRDS(file.path(filtered_data_path_L1,paste0("bird_", cutoff_obs, "_sp_grid_5km.rds")))
+
+# FDis calculation
+fdis_bird2_5km_cutoff <- FDis2(bird_cutoff_sp_grid_5km, sp_faxes2_coord_bird)
+saveRDS(fdis_bird2_5km_cutoff, file.path(filtered_output_path_L2, paste0("fdis_bird_", cutoff_obs, "_5km.rds")))
+
+# mapping
+bird_cutoff_FD_map_5km <- FD_map2(fdis_bird2_5km_cutoff, 5000, 'bird')
+saveRDS(bird_cutoff_FD_map_5km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_FD_map_5km.rds")))
+
+(bird_cutoff_FD_plot_5km <- bird_cutoff_FD_map_5km$gridFDisTA)
+bird_cutoff_cell_FD_5km <- bird_cutoff_FD_map_5km$spatial_fdis_grid
+
+# save data
+saveRDS(bird_cutoff_cell_FD_5km, file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_cell_FD_5km.rds")))
+ggsave(paste0('bird_', cutoff_obs, '_FD_plot_5km.png'), bird_cutoff_FD_plot_5km, path = filtered_data_figure_path, width = 6, height = 8, units = "in", dpi=1000)
+
+
+#### final figure ####
+
+# all map data
+plant_cutoff_FD_map_100km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_FD_map_100km.rds")))
+plant_cutoff_FD_plot_100km <- plant_cutoff_FD_map_100km$gridFDisTA
+
+plant_cutoff_FD_map_75km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_FD_map_75km.rds")))
+plant_cutoff_FD_plot_75km <- plant_cutoff_FD_map_75km$gridFDisTA
+
+plant_cutoff_FD_map_50km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_FD_map_50km.rds")))
+plant_cutoff_FD_plot_50km <- plant_cutoff_FD_map_50km$gridFDisTA
+
+plant_cutoff_FD_map_25km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_FD_map_25km.rds")))
+plant_cutoff_FD_plot_25km <- plant_cutoff_FD_map_25km$gridFDisTA
+
+plant_cutoff_FD_map_10km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_FD_map_10km.rds")))
+plant_cutoff_FD_plot_10km <- plant_cutoff_FD_map_10km$gridFDisTA
+
+plant_cutoff_FD_map_5km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_FD_map_5km.rds")))
+plant_cutoff_FD_plot_5km <- plant_cutoff_FD_map_5km$gridFDisTA
+
+mammal_cutoff_FD_map_100km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_FD_map_100km.rds")))
+mammal_cutoff_FD_plot_100km <- mammal_cutoff_FD_map_100km$gridFDisTA
+
+mammal_cutoff_FD_map_75km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_FD_map_75km.rds")))
+mammal_cutoff_FD_plot_75km <- mammal_cutoff_FD_map_75km$gridFDisTA
+
+mammal_cutoff_FD_map_50km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_FD_map_50km.rds")))
+mammal_cutoff_FD_plot_50km <- mammal_cutoff_FD_map_50km$gridFDisTA
+
+mammal_cutoff_FD_map_25km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_FD_map_25km.rds")))
+mammal_cutoff_FD_plot_25km <- mammal_cutoff_FD_map_25km$gridFDisTA
+
+mammal_cutoff_FD_map_10km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_FD_map_10km.rds")))
+mammal_cutoff_FD_plot_10km <- mammal_cutoff_FD_map_10km$gridFDisTA
+
+mammal_cutoff_FD_map_5km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_FD_map_5km.rds")))
+mammal_cutoff_FD_plot_5km <- mammal_cutoff_FD_map_5km$gridFDisTA
+
+bird_cutoff_FD_map_100km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_FD_map_100km.rds")))
+bird_cutoff_FD_plot_100km <- bird_cutoff_FD_map_100km$gridFDisTA
+
+bird_cutoff_FD_map_75km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_FD_map_75km.rds")))
+bird_cutoff_FD_plot_75km <- bird_cutoff_FD_map_75km$gridFDisTA
+
+bird_cutoff_FD_map_50km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_FD_map_50km.rds")))
+bird_cutoff_FD_plot_50km <- bird_cutoff_FD_map_50km$gridFDisTA
+
+bird_cutoff_FD_map_25km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_FD_map_25km.rds")))
+bird_cutoff_FD_plot_25km <- bird_cutoff_FD_map_25km$gridFDisTA
+
+bird_cutoff_FD_map_10km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_FD_map_10km.rds")))
+bird_cutoff_FD_plot_10km <- bird_cutoff_FD_map_10km$gridFDisTA
+
+bird_cutoff_FD_map_5km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_FD_map_5km.rds")))
+bird_cutoff_FD_plot_5km <- bird_cutoff_FD_map_5km$gridFDisTA
+
+
+# individual plot edits
+plant_cutoff_FD_plot_100km <- plant_cutoff_FD_plot_100km + labs(title='[100km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
+
+mammal_cutoff_FD_plot_100km <- mammal_cutoff_FD_plot_100km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+
+bird_cutoff_FD_plot_100km <- bird_cutoff_FD_plot_100km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size = 16))
+
+
+plant_cutoff_FD_plot_75km <- plant_cutoff_FD_plot_75km + labs(title='[75km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
+
+mammal_cutoff_FD_plot_75km <- mammal_cutoff_FD_plot_75km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+
+bird_cutoff_FD_plot_75km <- bird_cutoff_FD_plot_75km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.text = element_text(size = 16)) + theme(plot.margin = margin(0,0,0,0))
+
+
+plant_cutoff_FD_plot_50km <- plant_cutoff_FD_plot_50km + labs(title='[50km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
+
+mammal_cutoff_FD_plot_50km <- mammal_cutoff_FD_plot_50km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+
+bird_cutoff_FD_plot_50km <- bird_cutoff_FD_plot_50km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + theme(plot.margin = margin(0,0,0,0), axis.text = element_text(size = 16))
+
+
+plant_cutoff_FD_plot_25km <- plant_cutoff_FD_plot_25km + labs(title='[25km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
+
+mammal_cutoff_FD_plot_25km <- mammal_cutoff_FD_plot_25km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+
+bird_cutoff_FD_plot_25km <- bird_cutoff_FD_plot_25km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size = 16))+ labs(x = "Longitude")
+
+
+plant_cutoff_FD_plot_10km <- plant_cutoff_FD_plot_10km + labs(title='[10km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
+
+mammal_cutoff_FD_plot_10km <- mammal_cutoff_FD_plot_10km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+
+bird_cutoff_FD_plot_10km <- bird_cutoff_FD_plot_10km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size = 16))
+
+
+# plant picture
+plant <- pick_phylopic(name='Coffea alleizettei')
+
+plant_cutoff_FD_plot_5km <- plant_cutoff_FD_plot_5km + labs(title='[5km]') + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20)) + add_phylopic(img=plant, x=-79.5, y=13, height=8)
+
+# mammal picture
+mammal <- pick_phylopic(name='Potos flavus', n=2, auto=2)
+
+mammal_cutoff_FD_plot_5km <- mammal_cutoff_FD_plot_5km + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size = 16)) + labs(y = "Latitude") + add_phylopic(img=mammal, x=-79, y=12, height=8)
+
+# bird picture
+bird <- pick_phylopic(name='Ramphastos sulfuratus', n=2, auto=1)
+
+bird_cutoff_FD_plot_5km <- bird_cutoff_FD_plot_5km + annotation_scale(location = "bl",width_hint = 0.4, style = "bar") + annotation_north_arrow(location = "bl", which_north = "true", height = unit(0.5, "in"), width = unit(0.5, "in"), pad_x = unit(0.05, "in"), pad_y = unit(0.3, "in"), style = north_arrow_fancy_orienteering) + add_phylopic(img=bird, x=-80, y=12.5, height=8) + theme(plot.margin = margin(0,0,0,0), axis.text = element_text(size = 16))
+
+
+# arrange
+all_cutoff_fdis_plots <- plant_cutoff_FD_plot_5km + plant_cutoff_FD_plot_10km + plant_cutoff_FD_plot_25km + plant_cutoff_FD_plot_50km + plant_cutoff_FD_plot_75km + plant_cutoff_FD_plot_100km + mammal_cutoff_FD_plot_5km + mammal_cutoff_FD_plot_10km + mammal_cutoff_FD_plot_25km + mammal_cutoff_FD_plot_50km + mammal_cutoff_FD_plot_75km + mammal_cutoff_FD_plot_100km + bird_cutoff_FD_plot_5km + bird_cutoff_FD_plot_10km + bird_cutoff_FD_plot_25km + bird_cutoff_FD_plot_50km + bird_cutoff_FD_plot_75km + bird_cutoff_FD_plot_100km + plot_layout(ncol = 6, nrow = 3, guides = 'collect', axis_titles = 'collect', heights = c(1, 1, 1)) & theme(legend.position = 'left', axis.title = element_text(size = 20)) & plot_annotation(title='FDis', theme = theme(plot.title = element_text(hjust = 0.5, size=30, face='bold')))
+
+all_cutoff_fdis_plots
+
+ggsave(paste0('all_fdis', cutoff_obs, '_plots.png'), all_cutoff_fdis_plots, path = filtered_data_figure_path, width = 14, height = 12, units = "in", dpi=1000)
