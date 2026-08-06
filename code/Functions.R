@@ -366,7 +366,6 @@ get_taxonomic_info_chunk <- function(chunk_species_names) {
 
 
 #### Presence-absence matrix ####
-
 create_presence_absence_matrix <- function(resolution_meters, species_sf) {
   # Make Grid
   TAGrid <- TApoly %>%
@@ -376,12 +375,14 @@ create_presence_absence_matrix <- function(resolution_meters, species_sf) {
     st_sf() %>%
     mutate(cellid = row_number())
   
-  # Join with species data (JB: each row is a cell number, but each column is not an unique species)
+  # Join with species data and filter out NA species
   species_grid <- TAGrid %>%
-    st_intersects(species_sf, sparse = FALSE)
+    st_join(species_sf) %>%
+    filter(!is.na(species)) %>%
+    dplyr::select(cellid, species, geometry)
   
-  # Extract the coordinates for each grid cell (JB changed to TAGrid 6/9/2026)
-  species_grid_coords <- TAGrid %>%
+  # Extract the coordinates for each grid cell
+  species_grid_coords <- species_grid %>%
     st_centroid() %>%
     st_coordinates() %>%
     as.data.frame() %>%
@@ -390,22 +391,90 @@ create_presence_absence_matrix <- function(resolution_meters, species_sf) {
   # Combine coordinates with the species grid
   species_grid <- bind_cols(species_grid, species_grid_coords)
   
-  # # Create Presence-Absence Matrix
-  # presence_absence_matrix <- species_grid %>%
-  #   st_set_geometry(NULL) %>%
-  #   mutate(presence = 1) %>%
-  #   pivot_wider(names_from = species, values_from = presence, values_fill = list(presence = 0))
-  # 
-  # # Convert to matrix
-  # presence_absence_matrix_matrix <- as.matrix(presence_absence_matrix)
+  # Create Presence-Absence Matrix
+  presence_absence_matrix <- species_grid %>%
+    st_set_geometry(NULL) %>%
+    mutate(presence = 1) %>%
+    pivot_wider(names_from = species, values_from = presence, values_fill = list(presence = 0))
   
-  # Set row names as "cell_rowNumber" (JB did this to species_grid 6/9/2026)
-  rownames(species_grid) <- paste0("cell_", seq_len(nrow(species_grid)))
+  # Convert to matrix
+  presence_absence_matrix_matrix <- as.matrix(presence_absence_matrix)
   
-  # Ensure latitude and longitude are the first columns (JB changed to species_grid 6/9/2026)
-  species_grid <- species_grid[, c("Latitude", "Longitude", setdiff(colnames(species_grid), c("Latitude", "Longitude", "cellid")))]
+  # Set row names as "cell_rowNumber"
+  rownames(presence_absence_matrix_matrix) <- paste0("cell_", seq_len(nrow(presence_absence_matrix_matrix)))
   
-  return(species_grid)
+  # Ensure latitude and longitude are the first columns
+  presence_absence_matrix_matrix <- presence_absence_matrix_matrix[, c("Latitude", "Longitude", setdiff(colnames(presence_absence_matrix_matrix), c("Latitude", "Longitude", "cellid")))]
+  
+  return(presence_absence_matrix_matrix)
+}
+
+obs_grid <- function(resolution_meters, species_sf) {
+  # Make Grid
+  TAGrid <- TApoly %>%
+    st_make_grid(cellsize = c(resolution_meters)) %>%
+    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = paste0("cell_", row_number()))
+  
+  # Join with species data
+  obs_grid <- TAGrid %>%
+    st_intersects(species_sf, ., sparse = FALSE) %>% 
+    as.data.frame()
+  
+  colnames(obs_grid) <- st_drop_geometry(paste0(TAGrid$cellid))
+  
+  obs_grid <- obs_grid %>% 
+    bind_cols(species_sf, .) %>% 
+    st_drop_geometry()
+  
+  # get to one row per species with TRUE in any cell in which that species occurs
+  obs_grid_clean <- obs_grid %>% 
+    group_by(species) %>%
+    select(where(~ any(., na.rm = TRUE)))
+  
+  return(obs_grid_clean)
+}
+
+sp_grid <- function(obs_grid_clean){
+
+  comm <- obs_grid_clean %>%
+    group_by(species) %>%
+    summarise(across(everything(), ~ sum(., na.rm = TRUE)), .groups = "drop") %>%
+    column_to_rownames("species") %>%
+    t() %>%
+    as.matrix()
+  
+  return(comm)
+}
+
+# using iNEXT
+calc_coverage <- function(sp_grid){
+  cell_list <- apply(sp_grid, 1, c)
+  
+  # out <- iNEXT(cell_list, q = 0, datatype = 'abundance')
+  
+  # DataInfo contains number of observations (n), observed species richness (S.obs), sample coverage (SC), number of singletons (f1), number of doubletons (f2)
+  info <- DataInfo(cell_list)
+  
+  # distribution of sample coverage across data
+  coverage_dist <- ggplot(info[info$n>1,], aes(SC)) +
+    geom_histogram(bins = 30) +
+    theme_classic()
+  
+  # relationship between sample coverage and number of observations
+  coverage_by_obs <- ggplot(info, aes(n, SC)) +
+    geom_point() +
+    scale_x_log10() +
+    theme_classic()
+  
+  return(list(
+    #iNEXT_output = out,
+    iNEXT_calcs = info,
+    coverage_dist = coverage_dist,
+    coverage_by_obs = coverage_by_obs
+  ))
 }
 
 
@@ -560,6 +629,61 @@ create_rich_plots <- function(resolution_meters) {
        bird_richness_hist = bird_richness_hist)
 }
 
+TD_map <- function(richness, resolution_meters, guild){
+  
+  if(guild=='plant'){
+    mpt=900
+    lims=c(1, 1800)
+  } else {
+    if (guild=='mammal'){
+      mpt=52
+      lims=c(1,104)
+    } else {if (guild=='bird'){
+      mpt=200
+      lims=c(1,400)
+    }
+    }
+  }
+  
+  # generate coordinates, filter by cells with fdis values
+  TAGrid_TD <- TApoly %>%
+    st_make_grid(cellsize = c(resolution_meters)) %>%
+    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = paste0("cell_", row_number())) %>%
+    left_join(richness) 
+  
+  if(guild=='plant'){
+    gridTDTA <-
+      ggplot() +
+      geom_sf(data = Americas, fill = "white")+
+      geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
+      geom_sf(data = TAGrid_TD, aes(fill = richness_raw), color = 'NA') +
+      labs(fill = "Plants") +
+      scale_fill_viridis_c(limits=lims, na.value = 'gray53', option='magma') +
+      coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+      scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+      scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+      theme(panel.background = element_rect(fill = "lightblue"), axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12), plot.title = element_text(hjust = 0.5, size=12))
+    
+  }else{
+    gridTDTA <-
+      ggplot() +
+      geom_sf(data = Americas, fill = "white")+
+      geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
+      geom_sf(data = TAGrid_TD, aes(fill = richness_raw), color = 'NA') +
+      labs(fill = paste0(str_to_title(guild),"s")) +
+      scale_fill_viridis_c(limits=lims, na.value = 'gray53') +
+      coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+      scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+      scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+      theme(panel.background = element_rect(fill = "lightblue"), axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12), plot.title = element_text(hjust = 0.5, size=12))
+  }
+  
+  list(gridTDTA = gridTDTA, spatial_TA_grid = TAGrid_TD)
+}
+
 
 #### Functional Diversity Calculation & Mapping ####
 
@@ -600,6 +724,43 @@ fspaces_quality <- function(PAM, traits, guild){
   assign(x=paste0('fspaces_quality_',guild), value=fspaces_quality, envir=.GlobalEnv)
 }
 
+fspaces_quality2 <- function(sp_grid, traits, guild){
+  
+  if(guild %in% c('frugivore', 'mammal', 'bird')){
+    # create trait type table
+    trait_name <- c("body_mass_e",  "diet_cat", "diet_breadth", "habitat_breadth", "generation_time")
+    trait_type <- c("Q", "N", "Q", "Q","Q")
+    trait_cat <- as.data.frame(cbind(trait_name, trait_type))
+    
+    # fix nominal traits as factor
+    traits$diet_cat <- as.factor(traits$diet_cat)
+    
+  } else {
+    trait_name <- c("PlantHeight_m", "FruitType", "PlantLifespan_years", "SeedMass_g", "FruitLength_mm", "GrowthForm", "SeedLength_mm", "DispersalSyndrome")
+    trait_type <- c("Q", "N", "Q", "Q", "Q", "N", "Q", "N") 
+    trait_cat <- as.data.frame(cbind(trait_name, trait_type))
+    
+    traits$GrowthForm <- as.factor(traits$GrowthForm)
+    traits$FruitType <- as.factor(traits$FruitType)
+    traits$DispersalSyndrome <- as.factor(traits$DispersalSyndrome) 
+  }
+  
+  # summary of the assemblages * species dataframe
+  asb_sp_summ <- asb.sp.summary(asb_sp_w = sp_grid)
+  
+  # species traits summary
+  traits_summ <- sp.tr.summary(tr_cat = trait_cat, sp_tr = traits)
+  
+  # estimate functional trait-based distances between species
+  sp_dist <- funct.dist(sp_tr = traits, tr_cat = trait_cat, metric = "gower", scale_euclid = "scale_center", ordinal_var = "classic", weight_type = "equal", stop_if_NA = TRUE)
+  
+  # generate a multidimensional space
+  fspaces_quality <- quality.fspaces(sp_dist = sp_dist, maxdim_pcoa = 10, deviation_weighting = "absolute", fdist_scaling = FALSE, fdendro = "average")
+  
+  assign(x=paste0('fspaces_quality2_',guild), value=fspaces_quality, envir=.GlobalEnv)
+}
+
+
 fspace_quality_plot <- function(fspaces_quality){
   
   # look at the quality spaces only (MAD index looks at the mean absolute deviation from the dissimilarity matrix; want the deviation to be low meaning that the true distances have been retained in the PCA)
@@ -633,6 +794,22 @@ pc_coords <- function(fspaces_quality, traits, guild){
   assign(x=paste0('sp_faxes_coord_',guild), value=sp_faxes_coord, envir=.GlobalEnv)
 }
 
+pc_coords2 <- function(fspaces_quality, traits, guild){
+  
+  # testing correlation between functional axes and traits
+  sp_faxes_coord <- fspaces_quality$"details_fspaces"$"sp_pc_coord"
+  
+  # computes linear model for continuous traits and Kruskall-Wallis tests for other types. 
+  tr_faxes <- traits.faxes.cor(sp_tr = traits, sp_faxes_coord = sp_faxes_coord[ , c("PC1", "PC2", "PC3", "PC4")], plot = TRUE)
+  
+  # print traits with significant effect:
+  tr_faxes$"tr_faxes_stat"[which(tr_faxes$"tr_faxes_stat"$"p.value" < 0.05), ]
+  
+  sp_faxes_coord <- fspaces_quality$"details_fspaces"$"sp_pc_coord"
+  
+  assign(x=paste0('tr_faxes2_',guild), value=tr_faxes, envir=.GlobalEnv)
+  assign(x=paste0('sp_faxes2_coord_',guild), value=sp_faxes_coord, envir=.GlobalEnv)
+}
 
 # Correlation between functional axes and traits
 fspace_corr_plots <- function(sp_faxes_coord, tr_faxes){
@@ -742,36 +919,105 @@ FDis <- function(PAM, sp_faxes_coord){
   
 }
 
-# FDis cleaning (fixing cells and including 0s)
-clean_fdis <- function(df, resolution){
-  colnames(df) <- c('cellid','fdis')
-  df$cellid <- substring(df$cellid,6)
-  df$cellid <- as.numeric(df$cellid)
+
+FDis2 <- function(sp_grid, sp_faxes_coord){
   
-  if(resolution==100){
-    total=181
-  }else{
-    if (resolution==75){
-      total=283
-    }else{
-      if(resolution==50){
-        total=559
-      }else{
-        if(resolution==25){
-          total=1830
-        }else{
-          if(resolution==10){
-            total=9591
-          }else{
-            total=35036
-          }
-        }
-      }
-    }
+  # convert sp_grid to PAM
+  sp_grid[sp_grid > 0] <- 1
+    
+  # need to remove parts of the PAM that have values less than or equal to the number of dimensions (4)
+  
+  # calculate row sums
+  row_sums <- rowSums(sp_grid)
+  subset_matrix <- sp_grid[row_sums >= 4, ]
+  
+  # match frugivore names
+  sp_faxes_coord_sub <- sp_faxes_coord[ , c("PC1", "PC2", "PC3", "PC4")]
+  summary(sp_faxes_coord_sub)
+  
+  # extract names
+  subset_matrix_names <- colnames(subset_matrix)
+  sp_faxes_coord_sub_names <- row.names(sp_faxes_coord_sub)
+  
+  # create df
+  sp_faxes_coord_sub <- as.data.frame(sp_faxes_coord_sub)
+  row.names(sp_faxes_coord_sub) <- sp_faxes_coord_sub_names
+  
+  # remove names removed from matrix
+  names <- intersect(sp_faxes_coord_sub_names, subset_matrix_names)
+  names <- na.omit(names)
+  
+  sp_faxes_coord_sub <- sp_faxes_coord_sub[ which((row.names(sp_faxes_coord_sub) %in% names)==TRUE), ]
+  
+  subset_matrix <- as.data.frame(subset_matrix)
+  subset_matrix <- subset_matrix[ ,which((colnames(subset_matrix) %in% names)==TRUE)]
+  
+  sp_faxes_coord_sub <- na.omit(sp_faxes_coord_sub)
+  subset_matrix <- na.omit(subset_matrix)
+  
+  message(paste0('nrows subset:', nrow(sp_faxes_coord_sub), ', ncols matrix:', ncol(subset_matrix)))
+  
+  if (nrow(sp_faxes_coord_sub) != ncol(subset_matrix)) {
+    stop("Number of rows in sp_faxes_coord_sub does not match number of columns in subset_matrix")
   }
-  df_full <- df %>%
-    complete(cellid=1:total, fill=list(fdis=0))
-  return(df_full)
+  
+  sp_faxes_coord_sub <- as.matrix(sp_faxes_coord_sub)
+  subset_matrix <- as.matrix(subset_matrix)
+  
+  
+  # computing FDis
+  
+  # the number of species per assemblage has to be higher or equal to the number of traits
+  
+  # Use three fewer cores than available
+  #num_cores <- parallel::detectCores() - 3
+  
+  # HPCC
+  num_cores <- as.integer(Sys.getenv("SLURM_CPUS_PER_TASK", "1"))
+  
+  # Set up parallel backend
+  cl <- makeCluster(num_cores)
+  registerDoParallel(cl)
+  
+  tryCatch({
+    # Define chunk size
+    chunk_size <- ceiling(nrow(subset_matrix) / num_cores)
+    
+    # Split data into chunks for parallel processing
+    chunks <- split(seq_len(nrow(subset_matrix)), ceiling(seq_len(nrow(subset_matrix)) / chunk_size))
+    
+    # Process chunks in parallel
+    results_list <- foreach(chunk_indices = chunks, .combine = rbind, .packages = "mFD") %dopar% {
+      subset_matrix_chunk <- subset_matrix[chunk_indices, , drop = FALSE]
+      
+      alpha_fd_indices <- alpha.fd.multidim(sp_faxes_coord = sp_faxes_coord_sub, asb_sp_w = subset_matrix, 
+                                            ind_vect = "fdis", details_returned = TRUE)
+      
+      details_list <- alpha_fd_indices$"details" # see if this is needed
+      
+      # get functional dispersion
+      fdis_values <- alpha_fd_indices$functional_diversity_indices$fdis
+      
+      # match with corresponding cell numbers
+      cell_numbers <- rownames(subset_matrix)[chunk_indices]
+      
+      # Create a data frame for this chunk
+      chunk_results <- data.frame(cellid = cell_numbers, fdis = fdis_values)
+      
+      chunk_results
+    }
+    # # Combine all chunk results into a single data frame
+    # all_results <- do.call(rbind, results_list)
+    
+    # Stop the parallel backend
+    stopCluster(cl)
+    
+    return(results_list)
+    
+  }, error = function(e) {
+    stop("Error in parallel processing: ", conditionMessage(e))
+  })
+  
 }
 
 
@@ -798,7 +1044,7 @@ FD_map <- function(loc_key, PAM, resolution_meters, fdis, guild){
   
   # generate coordinates
   subset_coords <- loc_key[rowSums(PAM) >= 4,]
-  subset_coords_sp <-subset_coords[,1:2]
+  subset_coords_sp <- subset_coords[,1:2]
   
   subset_coords_sp <- as.data.frame(subset_coords_sp)
   
@@ -877,6 +1123,103 @@ FD_map <- function(loc_key, PAM, resolution_meters, fdis, guild){
   
   list(gridFDisTA = gridFDisTA, spatial_fdis_grid = spatial_fdis_grid)
 }
+
+
+# Mapping FDis
+FD_map2 <- function(fdis, resolution_meters, guild){
+  
+  if(guild=='plant'){
+    mpt=0.4
+    lims=c(0.2,0.7)
+  } else {
+    if (guild=='mammal'){
+      mpt=0.3
+      lims=c(0,0.85)
+    } else {if (guild=='bird'){
+      mpt=0.3
+      lims=c(0,0.55)
+    } else {if (guild=='frugivore'){
+      mpt=0.3
+      lims=c(0,0.75)
+    } 
+    }
+    }
+  }
+  
+  # generate coordinates, filter by cells with fdis values
+  TAGrid_fdis <- TApoly %>%
+    st_make_grid(cellsize = c(resolution_meters)) %>%
+    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
+    st_cast("MULTIPOLYGON") %>%
+    st_sf() %>%
+    mutate(cellid = paste0("cell_", row_number())) %>%
+    left_join(fdis) 
+  
+  if(guild=='plant'){
+    gridFDisTA <-
+      ggplot() +
+      geom_sf(data = Americas, fill = "white")+
+      geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
+      geom_sf(data = TAGrid_fdis, aes(fill = fdis), color = 'NA') +
+      labs(fill = "Plants") +
+      scale_fill_viridis_c(limits=lims, na.value = 'gray53', option='magma') +
+      coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+      scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+      scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+      theme(panel.background = element_rect(fill = "lightblue"), axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12), plot.title = element_text(hjust = 0.5, size=12))
+    
+  }else{
+    gridFDisTA <-
+      ggplot() +
+      geom_sf(data = Americas, fill = "white")+
+      geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
+      geom_sf(data = TAGrid_fdis, aes(fill = fdis), color = 'NA') +
+      labs(fill = paste0(str_to_title(guild),"s")) +
+      scale_fill_viridis_c(limits=lims, na.value = 'gray53') +
+      coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
+      scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
+      scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
+      theme(panel.background = element_rect(fill = "lightblue"), axis.title = element_text(size = 16), axis.text = element_text(size = 12), legend.title = element_text(size = 16), legend.text = element_text(size = 12), plot.title = element_text(hjust = 0.5, size=12))
+  }
+  
+  list(gridFDisTA = gridFDisTA, spatial_fdis_grid = TAGrid_fdis)
+}
+
+
+
+# FDis cleaning (fixing cells and including 0s) - not sure if we need this anymore, just fills in missing cells with 0s
+clean_fdis <- function(df, resolution){
+  colnames(df) <- c('cellid','fdis')
+  df$cellid <- substring(df$cellid,6)
+  df$cellid <- as.numeric(df$cellid)
+  
+  if(resolution==100){
+    total=181
+  }else{
+    if (resolution==75){
+      total=283
+    }else{
+      if(resolution==50){
+        total=559
+      }else{
+        if(resolution==25){
+          total=1830
+        }else{
+          if(resolution==10){
+            total=9591
+          }else{
+            total=35036
+          }
+        }
+      }
+    }
+  }
+  df_full <- df %>%
+    complete(cellid=1:total, fill=list(fdis=0))
+  return(df_full)
+}
+
+
 
 
 # TD-TD or FD-FD
