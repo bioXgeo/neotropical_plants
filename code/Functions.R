@@ -645,7 +645,7 @@ TD_map <- function(richness, resolution_meters, guild){
     }
   }
   
-  # generate coordinates, filter by cells with fdis values
+  # generate coordinates, filter by cells with TD values
   TAGrid_TD <- TApoly %>%
     st_make_grid(cellsize = c(resolution_meters)) %>%
     st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
@@ -1227,22 +1227,22 @@ div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
   
   set.seed(123)
   
-  metric <- if ("num_species" %in% colnames(plant_div)) "richness" else "fdis"
+  metric <- if ("richness_raw" %in% colnames(plant_div)) "richness" else "fdis"
   
-  if('num_species' %in% colnames(plant_div)){
+  if('richness_raw' %in% colnames(plant_div)){
     coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
     
-    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$num_species, frug_div=mammal_div$num_species, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$richness_raw, frug_div=mammal_div$richness_raw, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
       dplyr::filter(plant_div > 0 & frug_div > 0)
     
     m1 <- lm(frug_div ~ plant_div, data = mammal_plant)
     
-    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$num_species, frug_div=bird_div$num_species, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
+    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$richness_raw, frug_div=bird_div$richness_raw, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
       dplyr::filter(plant_div > 0 & frug_div > 0)
     
     m2 <- lm(frug_div ~ plant_div, data = bird_plant)
     
-    rng <- range(plant_div$num_species, na.rm = TRUE)
+    rng <- range(plant_div$richness_raw, na.rm = TRUE)
     
     newdata <- data.frame(
       plant_div = seq(rng[1], rng[2], length.out = 100),
@@ -1278,17 +1278,17 @@ div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
   } else {
     coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
     
-    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$fdis_value, frug_div=mammal_div$fdis_value, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$fdis, frug_div=mammal_div$fdis, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
       dplyr::filter(plant_div > 0 & frug_div > 0)
     
     m1 <- lm(frug_div ~ plant_div, data = mammal_plant)
     
-    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$fdis_value, frug_div=bird_div$fdis_value, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
+    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$fdis, frug_div=bird_div$fdis, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
       dplyr::filter(plant_div > 0 & frug_div > 0)
     
     m2 <- lm(frug_div ~ plant_div, data = bird_plant)
     
-    rng <- range(plant_div$fdis_value, na.rm = TRUE)
+    rng <- range(plant_div$fdis, na.rm = TRUE)
     
     newdata <- data.frame(
       plant_div = seq(rng[1], rng[2], length.out = 100),
@@ -1338,12 +1338,12 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution){
   
   set.seed(123)
   
-  metric <- if ("num_species" %in% colnames(plant_div)) "richness" else "fdis"
+  metric <- if ("richness_raw" %in% colnames(plant_div)) "richness" else "fdis"
   
-  if('num_species' %in% colnames(plant_div)){
+  if('richness_raw' %in% colnames(plant_div)){
     coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
     
-    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$num_species, frug_div=mammal_div$num_species, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$richness_raw, frug_div=mammal_div$richness_raw, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
       dplyr::filter(plant_div > 0 & frug_div > 0)
     
     m1 <- gam(
@@ -1351,7 +1351,7 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution){
       data = mammal_plant,
       method = "REML")
     
-    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$num_species, frug_div=bird_div$num_species, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
+    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$richness_raw, frug_div=bird_div$richness_raw, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
       dplyr::filter(plant_div > 0 & frug_div > 0)
     
     m2 <- gam(
@@ -1359,7 +1359,7 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution){
       data = bird_plant,
       method = "REML")
     
-    rng <- range(plant_div$num_species, na.rm = TRUE)
+    rng <- range(plant_div$richness_raw, na.rm = TRUE)
     
     newdata <- data.frame(
       plant_div = seq(rng[1], rng[2], length.out = 100),
@@ -1400,7 +1400,7 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution){
   } else {
     coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
     
-    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$fdis_value, frug_div=mammal_div$fdis_value, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$fdis, frug_div=mammal_div$fdis, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
       dplyr::filter(plant_div > 0 & frug_div > 0)
     
     m1 <- gam(
@@ -1409,7 +1409,7 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution){
       family = betar(link = "logit"),
       method = "REML")
     
-    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$fdis_value, frug_div=bird_div$fdis_value, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
+    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$fdis, frug_div=bird_div$fdis, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
       dplyr::filter(plant_div > 0 & frug_div > 0)
     
     m2 <- gam(
@@ -1418,7 +1418,7 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution){
       family = betar(link = "logit"),
       method = "REML")
     
-    rng <- range(plant_div$fdis_value, na.rm = TRUE)
+    rng <- range(plant_div$fdis, na.rm = TRUE)
     
     newdata <- data.frame(
       plant_div = seq(rng[1], rng[2], length.out = 100),
