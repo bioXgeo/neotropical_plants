@@ -67,6 +67,11 @@ fdis_mammal2_100km <- FDis2(mammal_sp_grid_100km, sp_faxes2_coord_mammal)
 saveRDS(fdis_mammal2_100km, file.path(all_output_path_L2,"fdis_mammal_100km.rds"))
 
 # mapping
+
+# set limits for all mammal maps based off of 100 km
+lims <- c(0, max(fdis_mammal2_100km$fdis))
+mpt <- max(fdis_mammal2_100km$fdis)/2
+
 mammal_FD_map_100km <- FD_map2(fdis_mammal2_100km, 100000, 'mammal')
 saveRDS(mammal_FD_map_100km, file = file.path(all_output_path_L2,"mammal_FD_map_100km.rds"))
 
@@ -205,6 +210,11 @@ fdis_plant2_100km <- FDis2(plant_sp_grid_100km, sp_faxes2_coord_plant)
 saveRDS(fdis_plant2_100km, file.path(all_output_path_L2,"fdis_plant_100km.rds"))
 
 # mapping
+
+# set limits for all plant maps based off of 100 km
+lims <- c(0, max(fdis_plant2_100km$fdis))
+mpt <- max(fdis_plant2_100km$fdis)/2
+
 plant_FD_map_100km <- FD_map2(fdis_plant2_100km, 100000, 'plant')
 saveRDS(plant_FD_map_100km, file = file.path(all_output_path_L2,"plant_FD_map_100km.rds"))
 
@@ -343,6 +353,12 @@ fdis_bird2_100km <- FDis2(bird_sp_grid_100km, sp_faxes2_coord_bird)
 saveRDS(fdis_bird2_100km, file.path(all_output_path_L2,"fdis_bird_100km.rds"))
 
 # mapping
+
+# set limits for all bird maps based off of 100 km
+lims <- c(0, max(fdis_bird2_100km$fdis))
+mpt <- max(fdis_bird2_100km$fdis)/2
+
+
 bird_FD_map_100km <- FD_map2(fdis_bird2_100km, 100000, 'bird')
 saveRDS(bird_FD_map_100km, file = file.path(all_output_path_L2,"bird_FD_map_100km.rds"))
 

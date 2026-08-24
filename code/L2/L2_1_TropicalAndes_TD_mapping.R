@@ -10,15 +10,10 @@
 
 
 # load required packages
-library(sf); library(dplyr); library(ggplot2); library(parallel); library(foreach); library(doParallel); library(ggspatial); library(ggpubr); library(patchwork); library(rphylopic); library(iNEXT); library(stringr)
+library(sf); library(dplyr); library(ggplot2); library(parallel); library(foreach); library(doParallel); library(ggspatial); library(ggpubr); library(patchwork); library(rphylopic); library(iNEXT); library(stringr); library(vegan)
 
+# set file path
 data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
-
-# set file paths
-all_data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/all_data')
-all_output_path_L2 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2/all_data')
-all_data_figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures/all_data')
-
 
 # load functions
 source("C:/GitHub_projects/neotropical_plants/code/Functions.R")
@@ -35,9 +30,9 @@ TropicalAndes_IUCNHabitat_Forest <- readRDS(file = file.path(data_path_L1,"Tropi
 #### TD of data filtered by 1970 ####
 
 # set file paths 
-filtered_data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/filtered_data')
-filtered_output_path_L2 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2/filtered_data')
-filtered_data_figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures/filtered_data')
+all_data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/all_data')
+all_output_path_L2 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L2/all_data')
+all_data_figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures/all_data')
 
 
 # mammals
@@ -47,12 +42,25 @@ filtered_data_figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/da
 mammal_sp_grid_100km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_100km.rds"))
 
 # richness calculation
-iNEXT_mammal_100km <- calc_coverage(mammal_sp_grid_100km)
-mammal_TD_100km <- iNEXT_mammal_100km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+mammal_TD_100km <- calculate_richness2(mammal_sp_grid_100km)
+saveRDS(mammal_TD_100km, file = file.path(all_output_path_L2,"mammal_TD_100km.rds"))
+mammal_TD_100km <- readRDS(file.path(all_output_path_L2,"mammal_TD_100km.rds"))
+
+# after assessing relationships between sample coverage and richness using all richness estimates, we decided to eliminate data with coverage <0.3 and use the Chao1 estimator
+mammal_TD_100km <- mammal_TD_100km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage,) |> 
+  select(cellid, richness)
+saveRDS(mammal_TD_100km, file = file.path(all_output_path_L2,"mammal_TD_100km_Chao.rds"))
+mammal_TD_100km <- readRDS(file.path(all_output_path_L2,"mammal_TD_100km_Chao.rds"))
 
 # mapping
+
+# set limits for all mammal maps based off of 100 km
+lims <- c(0, max(mammal_TD_100km$richness))
+mpt <- max(mammal_TD_100km$richness)/2
+
 mammal_TD_map_100km <- TD_map(mammal_TD_100km, 100000, 'mammal')
 saveRDS(mammal_TD_map_100km, file = file.path(all_output_path_L2,"mammal_TD_map_100km.rds"))
 
@@ -70,10 +78,18 @@ ggsave('mammal_TD_plot_100km.png', mammal_TD_plot_100km, path = all_data_figure_
 mammal_sp_grid_75km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_75km.rds"))
 
 # richness calculation
-iNEXT_mammal_75km <- calc_coverage(mammal_sp_grid_75km)
-mammal_TD_75km <- iNEXT_mammal_75km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+mammal_TD_75km <- calculate_richness2(mammal_sp_grid_75km)
+saveRDS(mammal_TD_75km, file = file.path(all_output_path_L2,"mammal_TD_75km.rds"))
+mammal_TD_75km <- readRDS(file.path(all_output_path_L2,"mammal_TD_75km.rds"))
+
+# filter data as mentioned on line 49
+mammal_TD_75km <- mammal_TD_75km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1,
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(mammal_TD_75km, file = file.path(all_output_path_L2,"mammal_TD_75km_Chao.rds"))
+mammal_TD_75km <- readRDS(file.path(all_output_path_L2,"mammal_TD_75km_Chao.rds"))
 
 # mapping
 mammal_TD_map_75km <- TD_map(mammal_TD_75km, 75000, 'mammal')
@@ -93,10 +109,18 @@ ggsave('mammal_TD_plot_75km.png', mammal_TD_plot_75km, path = all_data_figure_pa
 mammal_sp_grid_50km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_50km.rds"))
 
 # richness calculation
-iNEXT_mammal_50km <- calc_coverage(mammal_sp_grid_50km)
-mammal_TD_50km <- iNEXT_mammal_50km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+mammal_TD_50km <- calculate_richness2(mammal_sp_grid_50km)
+saveRDS(mammal_TD_50km, file = file.path(all_output_path_L2,"mammal_TD_50km.rds"))
+mammal_TD_50km <- readRDS(file.path(all_output_path_L2,"mammal_TD_50km.rds"))
+
+# filter data as mentioned on line 49
+mammal_TD_50km <- mammal_TD_50km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(mammal_TD_50km, file = file.path(all_output_path_L2,"mammal_TD_50km_Chao.rds"))
+mammal_TD_50km <- readRDS(file.path(all_output_path_L2,"mammal_TD_50km_Chao.rds"))
 
 # mapping
 mammal_TD_map_50km <- TD_map(mammal_TD_50km, 50000, 'mammal')
@@ -116,10 +140,17 @@ ggsave('mammal_TD_plot_50km.png', mammal_TD_plot_50km, path = all_data_figure_pa
 mammal_sp_grid_25km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_25km.rds"))
 
 # richness calculation
-iNEXT_mammal_25km <- calc_coverage(mammal_sp_grid_25km)
-mammal_TD_25km <- iNEXT_mammal_25km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+mammal_TD_25km <- calculate_richness2(mammal_sp_grid_25km)
+saveRDS(mammal_TD_25km, file = file.path(all_output_path_L2,"mammal_TD_25km.rds"))
+mammal_TD_25km <- readRDS(file.path(all_output_path_L2,"mammal_TD_25km.rds"))
+
+# filter data as mentioned on line 49
+mammal_TD_25km <- mammal_TD_25km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(mammal_TD_25km, file = file.path(all_output_path_L2,"mammal_TD_25km_Chao.rds"))
+mammal_TD_25km <- readRDS(file.path(all_output_path_L2,"mammal_TD_25km_Chao.rds"))
 
 # mapping
 mammal_TD_map_25km <- TD_map(mammal_TD_25km, 25000, 'mammal')
@@ -139,10 +170,18 @@ ggsave('mammal_TD_plot_25km.png', mammal_TD_plot_25km, path = all_data_figure_pa
 mammal_sp_grid_10km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_10km.rds"))
 
 # richness calculation
-iNEXT_mammal_10km <- calc_coverage(mammal_sp_grid_10km)
-mammal_TD_10km <- iNEXT_mammal_10km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+mammal_TD_10km <- calculate_richness2(mammal_sp_grid_10km)
+saveRDS(mammal_TD_10km, file = file.path(all_output_path_L2,"mammal_TD_10km.rds"))
+mammal_TD_10km <- readRDS(file.path(all_output_path_L2,"mammal_TD_10km.rds"))
+
+# filter data as mentioned on line 49
+mammal_TD_10km <- mammal_TD_10km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(mammal_TD_10km, file = file.path(all_output_path_L2,"mammal_TD_10km_Chao.rds"))
+mammal_TD_10km <- readRDS(file.path(all_output_path_L2,"mammal_TD_10km_Chao.rds"))
 
 # mapping
 mammal_TD_map_10km <- TD_map(mammal_TD_10km, 10000, 'mammal')
@@ -162,10 +201,84 @@ ggsave('mammal_TD_plot_10km.png', mammal_TD_plot_10km, path = all_data_figure_pa
 mammal_sp_grid_5km <- readRDS(file.path(all_data_path_L1,"mammal_sp_grid_5km.rds"))
 
 # richness calculation
-iNEXT_mammal_5km <- calc_coverage(mammal_sp_grid_5km)
-mammal_TD_5km <- iNEXT_mammal_5km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+mammal_TD_5km <- calculate_richness2(mammal_sp_grid_5km)
+saveRDS(mammal_TD_5km, file = file.path(all_output_path_L2,"mammal_TD_5km.rds"))
+mammal_TD_5km <- readRDS(file.path(all_output_path_L2,"mammal_TD_5km.rds"))
+
+ggplot(mammal_TD_5km, aes(x = SC, y = S.obs))+
+  geom_point(alpha = 0.5) +
+  theme_classic()
+
+mammal_plot_5km <- mammal_TD_5km |>
+  select(SC, richness_Chao1,
+         richness_coverage_0.4,
+         richness_coverage_0.5,
+         richness_coverage_0.6) |>
+  pivot_longer(
+    cols = -SC,
+    names_to = "method",
+    values_to = "richness"
+  )
+
+ggplot(mammal_plot_5km, aes(x = SC, y = richness)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~method, scales = "free_y") +
+  theme_classic() +
+  labs(
+    x = "Sample coverage",
+    y = "Estimated species richness"
+  )
+
+ggplot(mammal_plot_5km[mammal_plot_5km$SC >= 0.3, ], aes(x = SC, y = richness)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~method, scales = "free_y") +
+  theme_classic() +
+  labs(
+    x = "Sample coverage",
+    y = "Estimated species richness"
+  )
+
+ggplot(mammal_TD_5km,
+       aes(x = SC,
+           y = richness_coverage_0.4 - S.obs)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 1, linetype = "dashed") +
+  theme_classic() +
+  labs(
+    x = "Sample coverage",
+    y = "Estimated - observed richness"
+  )
+
+ggplot(mammal_TD_5km,
+       aes(x = SC,
+           y = richness_coverage_0.6 - S.obs)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 1, linetype = "dashed") +
+  theme_classic() +
+  labs(
+    x = "Sample coverage",
+    y = "Estimated - observed richness"
+  )
+
+ggplot(mammal_TD_5km,
+       aes(x = SC,
+           y = richness_Chao1 - S.obs)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 1, linetype = "dashed") +
+  theme_classic() +
+  labs(
+    x = "Sample coverage",
+    y = "Estimated - observed richness"
+  )
+
+# filter data as mentioned on line 49
+mammal_TD_5km <- mammal_TD_5km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(mammal_TD_5km, file = file.path(all_output_path_L2,"mammal_TD_5km_Chao.rds"))
+mammal_TD_5km <- readRDS(file.path(all_output_path_L2,"mammal_TD_5km_Chao.rds"))
 
 # mapping
 mammal_TD_map_5km <- TD_map(mammal_TD_5km, 5000, 'mammal')
@@ -186,12 +299,25 @@ ggsave('mammal_TD_plot_5km.png', mammal_TD_plot_5km, path = all_data_figure_path
 plant_sp_grid_100km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_100km.rds"))
 
 # richness calculation
-iNEXT_plant_100km <- calc_coverage(plant_sp_grid_100km)
-plant_TD_100km <- iNEXT_plant_100km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+plant_TD_100km <- calculate_richness2(plant_sp_grid_100km)
+saveRDS(plant_TD_100km, file = file.path(all_output_path_L2,"plant_TD_100km.rds"))
+plant_TD_100km <- readRDS(file.path(all_output_path_L2,"plant_TD_100km.rds"))
+
+# filter data as mentioned on line 49
+plant_TD_100km <- plant_TD_100km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(plant_TD_100km, file = file.path(all_output_path_L2,"plant_TD_100km_Chao.rds"))
+plant_TD_100km <- readRDS(file.path(all_output_path_L2,"plant_TD_100km_Chao.rds"))
 
 # mapping
+
+# set limits for all plant maps based off of 100 km
+lims <- c(0, max(plant_TD_100km$richness))
+mpt <- max(plant_TD_100km$richness)/2
+
 plant_TD_map_100km <- TD_map(plant_TD_100km, 100000, 'plant')
 saveRDS(plant_TD_map_100km, file = file.path(all_output_path_L2,"plant_TD_map_100km.rds"))
 
@@ -209,10 +335,18 @@ ggsave('plant_TD_plot_100km.png', plant_TD_plot_100km, path = all_data_figure_pa
 plant_sp_grid_75km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_75km.rds"))
 
 # richness calculation
-iNEXT_plant_75km <- calc_coverage(plant_sp_grid_75km)
-plant_TD_75km <- iNEXT_plant_75km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+plant_TD_75km <- calculate_richness2(plant_sp_grid_75km)
+saveRDS(plant_TD_75km, file = file.path(all_output_path_L2,"plant_TD_75km.rds"))
+plant_TD_75km <- readRDS(file.path(all_output_path_L2,"plant_TD_75km.rds"))
+
+# filter data as mentioned on line 49
+plant_TD_75km <- plant_TD_75km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(plant_TD_75km, file = file.path(all_output_path_L2,"plant_TD_75km_Chao.rds"))
+plant_TD_75km <- readRDS(file.path(all_output_path_L2,"plant_TD_75km_Chao.rds"))
 
 # mapping
 plant_TD_map_75km <- TD_map(plant_TD_75km, 75000, 'plant')
@@ -232,10 +366,18 @@ ggsave('plant_TD_plot_75km.png', plant_TD_plot_75km, path = all_data_figure_path
 plant_sp_grid_50km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_50km.rds"))
 
 # richness calculation
-iNEXT_plant_50km <- calc_coverage(plant_sp_grid_50km)
-plant_TD_50km <- iNEXT_plant_50km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+plant_TD_50km <- calculate_richness2(plant_sp_grid_50km)
+saveRDS(plant_TD_50km, file = file.path(all_output_path_L2,"plant_TD_50km.rds"))
+plant_TD_50km <- readRDS(file.path(all_output_path_L2,"plant_TD_50km.rds"))
+
+# filter data as mentioned on line 49
+plant_TD_50km <- plant_TD_50km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(plant_TD_50km, file = file.path(all_output_path_L2,"plant_TD_50km_Chao.rds"))
+plant_TD_50km <- readRDS(file.path(all_output_path_L2,"plant_TD_50km_Chao.rds"))
 
 # mapping
 plant_TD_map_50km <- TD_map(plant_TD_50km, 50000, 'plant')
@@ -255,10 +397,18 @@ ggsave('plant_TD_plot_50km.png', plant_TD_plot_50km, path = all_data_figure_path
 plant_sp_grid_25km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_25km.rds"))
 
 # richness calculation
-iNEXT_plant_25km <- calc_coverage(plant_sp_grid_25km)
-plant_TD_25km <- iNEXT_plant_25km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+plant_TD_25km <- calculate_richness2(plant_sp_grid_25km)
+saveRDS(plant_TD_25km, file = file.path(all_output_path_L2,"plant_TD_25km.rds"))
+plant_TD_25km <- readRDS(file.path(all_output_path_L2,"plant_TD_25km.rds"))
+
+# filter data as mentioned on line 49
+plant_TD_25km <- plant_TD_25km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(plant_TD_25km, file = file.path(all_output_path_L2,"plant_TD_25km_Chao.rds"))
+plant_TD_25km <- readRDS(file.path(all_output_path_L2,"plant_TD_25km_Chao.rds"))
 
 # mapping
 plant_TD_map_25km <- TD_map(plant_TD_25km, 25000, 'plant')
@@ -278,10 +428,18 @@ ggsave('plant_TD_plot_25km.png', plant_TD_plot_25km, path = all_data_figure_path
 plant_sp_grid_10km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_10km.rds"))
 
 # richness calculation
-iNEXT_plant_10km <- calc_coverage(plant_sp_grid_10km)
-plant_TD_10km <- iNEXT_plant_10km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+plant_TD_10km <- calculate_richness2(plant_sp_grid_10km)
+saveRDS(plant_TD_10km, file = file.path(all_output_path_L2,"plant_TD_10km.rds"))
+plant_TD_10km <- readRDS(file.path(all_output_path_L2,"plant_TD_10km.rds"))
+
+# filter data as mentioned on line 49
+plant_TD_10km <- plant_TD_10km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(plant_TD_10km, file = file.path(all_output_path_L2,"plant_TD_10km_Chao.rds"))
+plant_TD_10km <- readRDS(file.path(all_output_path_L2,"plant_TD_10km_Chao.rds"))
 
 # mapping
 plant_TD_map_10km <- TD_map(plant_TD_10km, 10000, 'plant')
@@ -301,10 +459,51 @@ ggsave('plant_TD_plot_10km.png', plant_TD_plot_10km, path = all_data_figure_path
 plant_sp_grid_5km <- readRDS(file.path(all_data_path_L1,"plant_sp_grid_5km.rds"))
 
 # richness calculation
-iNEXT_plant_5km <- calc_coverage(plant_sp_grid_5km)
-plant_TD_5km <- iNEXT_plant_5km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+plant_TD_5km <- calculate_richness2(plant_sp_grid_5km)
+saveRDS(plant_TD_5km, file = file.path(all_output_path_L2,"plant_TD_5km.rds"))
+plant_TD_5km <- readRDS(file.path(all_output_path_L2,"plant_TD_5km.rds"))
+
+ggplot(plant_TD_5km, aes(x = SC, y = S.obs))+
+  geom_point(alpha = 0.5) +
+  theme_classic()
+
+plant_plot <- plant_TD_5km |>
+  select(SC, richness_Chao1,
+         richness_coverage_0.4,
+         richness_coverage_0.5,
+         richness_coverage_0.6) |>
+  pivot_longer(
+    cols = -SC,
+    names_to = "method",
+    values_to = "richness"
+  )
+
+ggplot(plant_plot, aes(x = SC, y = richness)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~method, scales = "free_y") +
+  theme_classic() +
+  labs(
+    x = "Sample coverage",
+    y = "Estimated species richness"
+  )
+
+ggplot(plant_plot[plant_plot$SC >= 0.3, ], aes(x = SC, y = richness)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~method, scales = "free_y") +
+  theme_classic() +
+  labs(
+    x = "Sample coverage",
+    y = "Estimated species richness"
+  )
+
+# filter data as mentioned on line 49
+plant_TD_5km <- plant_TD_5km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(plant_TD_5km, file = file.path(all_output_path_L2,"plant_TD_5km_Chao.rds"))
+plant_TD_5km <- readRDS(file.path(all_output_path_L2,"plant_TD_5km_Chao.rds"))
 
 # mapping
 plant_TD_map_5km <- TD_map(plant_TD_5km, 5000, 'plant')
@@ -325,12 +524,25 @@ ggsave('plant_TD_plot_5km.png', plant_TD_plot_5km, path = all_data_figure_path, 
 bird_sp_grid_100km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_100km.rds"))
 
 # richness calculation
-iNEXT_bird_100km <- calc_coverage(bird_sp_grid_100km)
-bird_TD_100km <- iNEXT_bird_100km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+bird_TD_100km <- calculate_richness2(bird_sp_grid_100km)
+saveRDS(bird_TD_100km, file = file.path(all_output_path_L2,"bird_TD_100km.rds"))
+bird_TD_100km <- readRDS(file.path(all_output_path_L2,"bird_TD_100km.rds"))
+
+# filter data as mentioned on line 49
+bird_TD_100km <- bird_TD_100km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(bird_TD_100km, file = file.path(all_output_path_L2,"bird_TD_100km_Chao.rds"))
+bird_TD_100km <- readRDS(file.path(all_output_path_L2,"bird_TD_100km_Chao.rds"))
 
 # mapping
+
+# set limits for all bird maps based off of 100 km
+lims <- c(0, max(bird_TD_100km$richness))
+mpt <- max(bird_TD_100km$richness)/2
+
 bird_TD_map_100km <- TD_map(bird_TD_100km, 100000, 'bird')
 saveRDS(bird_TD_map_100km, file = file.path(all_output_path_L2,"bird_TD_map_100km.rds"))
 
@@ -348,10 +560,18 @@ ggsave('bird_TD_plot_100km.png', bird_TD_plot_100km, path = all_data_figure_path
 bird_sp_grid_75km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_75km.rds"))
 
 # richness calculation
-iNEXT_bird_75km <- calc_coverage(bird_sp_grid_75km)
-bird_TD_75km <- iNEXT_bird_75km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+bird_TD_75km <- calculate_richness2(bird_sp_grid_75km)
+saveRDS(bird_TD_75km, file = file.path(all_output_path_L2,"bird_TD_75km.rds"))
+bird_TD_75km <- readRDS(file.path(all_output_path_L2,"bird_TD_75km.rds"))
+
+# filter data as mentioned on line 49
+bird_TD_75km <- bird_TD_75km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(bird_TD_75km, file = file.path(all_output_path_L2,"bird_TD_75km_Chao.rds"))
+bird_TD_75km <- readRDS(file.path(all_output_path_L2,"bird_TD_75km_Chao.rds"))
 
 # mapping
 bird_TD_map_75km <- TD_map(bird_TD_75km, 75000, 'bird')
@@ -371,10 +591,18 @@ ggsave('bird_TD_plot_75km.png', bird_TD_plot_75km, path = all_data_figure_path, 
 bird_sp_grid_50km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_50km.rds"))
 
 # richness calculation
-iNEXT_bird_50km <- calc_coverage(bird_sp_grid_50km)
-bird_TD_50km <- iNEXT_bird_50km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+bird_TD_50km <- calculate_richness2(bird_sp_grid_50km)
+saveRDS(bird_TD_50km, file = file.path(all_output_path_L2,"bird_TD_50km.rds"))
+bird_TD_50km <- readRDS(file.path(all_output_path_L2,"bird_TD_50km.rds"))
+
+# filter data as mentioned on line 49
+bird_TD_50km <- bird_TD_50km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(bird_TD_50km, file = file.path(all_output_path_L2,"bird_TD_50km_Chao.rds"))
+bird_TD_50km <- readRDS(file.path(all_output_path_L2,"bird_TD_50km_Chao.rds"))
 
 # mapping
 bird_TD_map_50km <- TD_map(bird_TD_50km, 50000, 'bird')
@@ -394,10 +622,18 @@ ggsave('bird_TD_plot_50km.png', bird_TD_plot_50km, path = all_data_figure_path, 
 bird_sp_grid_25km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_25km.rds"))
 
 # richness calculation
-iNEXT_bird_25km <- calc_coverage(bird_sp_grid_25km)
-bird_TD_25km <- iNEXT_bird_25km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+bird_TD_25km <- calculate_richness2(bird_sp_grid_25km)
+saveRDS(bird_TD_25km, file = file.path(all_output_path_L2,"bird_TD_25km.rds"))
+bird_TD_25km <- readRDS(file.path(all_output_path_L2,"bird_TD_25km.rds"))
+
+# filter data as mentioned on line 49
+bird_TD_25km <- bird_TD_25km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(bird_TD_25km, file = file.path(all_output_path_L2,"bird_TD_25km_Chao.rds"))
+bird_TD_25km <- readRDS(file.path(all_output_path_L2,"bird_TD_25km_Chao.rds"))
 
 # mapping
 bird_TD_map_25km <- TD_map(bird_TD_25km, 25000, 'bird')
@@ -417,10 +653,18 @@ ggsave('bird_TD_plot_25km.png', bird_TD_plot_25km, path = all_data_figure_path, 
 bird_sp_grid_10km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_10km.rds"))
 
 # richness calculation
-iNEXT_bird_10km <- calc_coverage(bird_sp_grid_10km)
-bird_TD_10km <- iNEXT_bird_10km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+bird_TD_10km <- calculate_richness2(bird_sp_grid_10km)
+saveRDS(bird_TD_10km, file = file.path(all_output_path_L2,"bird_TD_10km.rds"))
+bird_TD_10km <- readRDS(file.path(all_output_path_L2,"bird_TD_10km.rds"))
+
+# filter data as mentioned on line 49
+bird_TD_10km <- bird_TD_10km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(bird_TD_10km, file = file.path(all_output_path_L2,"bird_TD_10km_Chao.rds"))
+bird_TD_10km <- readRDS(file.path(all_output_path_L2,"bird_TD_10km_Chao.rds"))
 
 # mapping
 bird_TD_map_10km <- TD_map(bird_TD_10km, 10000, 'bird')
@@ -440,10 +684,51 @@ ggsave('bird_TD_plot_10km.png', bird_TD_plot_10km, path = all_data_figure_path, 
 bird_sp_grid_5km <- readRDS(file.path(all_data_path_L1,"bird_sp_grid_5km.rds"))
 
 # richness calculation
-iNEXT_bird_5km <- calc_coverage(bird_sp_grid_5km)
-bird_TD_5km <- iNEXT_bird_5km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+bird_TD_5km <- calculate_richness2(bird_sp_grid_5km)
+saveRDS(bird_TD_5km, file = file.path(all_output_path_L2,"bird_TD_5km.rds"))
+bird_TD_5km <- readRDS(file.path(all_output_path_L2,"bird_TD_5km.rds"))
+
+ggplot(bird_TD_5km, aes(x = SC, y = S.obs))+
+  geom_point(alpha = 0.5) +
+  theme_classic()
+
+bird_plot <- bird_TD_5km |>
+  select(SC, richness_Chao1,
+         richness_coverage_0.4,
+         richness_coverage_0.5,
+         richness_coverage_0.6) |>
+  pivot_longer(
+    cols = -SC,
+    names_to = "method",
+    values_to = "richness"
+  )
+
+ggplot(bird_plot, aes(x = SC, y = richness)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~method, scales = "free_y") +
+  theme_classic() +
+  labs(
+    x = "Sample coverage",
+    y = "Estimated species richness"
+  )
+
+ggplot(bird_plot[bird_plot$SC >= 0.3, ], aes(x = SC, y = richness)) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(~method, scales = "free_y") +
+  theme_classic() +
+  labs(
+    x = "Sample coverage",
+    y = "Estimated species richness"
+  )
+
+# filter data as mentioned on line 49
+bird_TD_5km <- bird_TD_5km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(bird_TD_5km, file = file.path(all_output_path_L2,"bird_TD_5km_Chao.rds"))
+bird_TD_5km <- readRDS(file.path(all_output_path_L2,"bird_TD_5km_Chao.rds"))
 
 # mapping
 bird_TD_map_5km <- TD_map(bird_TD_5km, 5000, 'bird')
@@ -593,12 +878,25 @@ cutoff_obs <- 20
 mammal_cutoff_sp_grid_100km <- readRDS(file.path(filtered_data_path_L1,paste0("mammal_", cutoff_obs, "_sp_grid_100km.rds")))
 
 # richness calculation
-iNEXT_mammal_cutoff_100km <- calc_coverage(mammal_cutoff_sp_grid_100km)
-mammal_cutoff_TD_100km <- iNEXT_mammal_cutoff_100km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+mammal_cutoff_TD_100km <- calculate_richness2(mammal_cutoff_sp_grid_100km)
+saveRDS(mammal_cutoff_TD_100km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_100km.rds")))
+mammal_cutoff_TD_100km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_100km.rds")))
+
+# filter data as mentioned on line 49
+mammal_cutoff_TD_100km <- mammal_cutoff_TD_100km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(mammal_cutoff_TD_100km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_100km_Chao.rds")))
+mammal_cutoff_TD_100km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_100km_Chao.rds")))
 
 # mapping
+
+# set limits for all mammal maps based off of 100 km
+lims <- c(0, max(mammal_cutoff_TD_100km$richness))
+mpt <- max(mammal_cutoff_TD_100km$richness)/2
+
 mammal_cutoff_TD_map_100km <- TD_map(mammal_cutoff_TD_100km, 100000, 'mammal')
 saveRDS(mammal_cutoff_TD_map_100km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_map_100km.rds")))
 
@@ -616,10 +914,18 @@ ggsave(paste0('mammal_', cutoff_obs, '_TD_plot_100km.png'), mammal_TD_plot_100km
 mammal_cutoff_sp_grid_75km <- readRDS(file.path(filtered_data_path_L1,paste0("mammal_", cutoff_obs, "_sp_grid_75km.rds")))
 
 # richness calculation
-iNEXT_mammal_cutoff_75km <- calc_coverage(mammal_cutoff_sp_grid_75km)
-mammal_cutoff_TD_75km <- iNEXT_mammal_cutoff_75km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+mammal_cutoff_TD_75km <- calculate_richness2(mammal_cutoff_sp_grid_75km)
+saveRDS(mammal_cutoff_TD_75km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_75km.rds")))
+mammal_cutoff_TD_75km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_75km.rds")))
+
+# filter data as mentioned on line 49
+mammal_cutoff_TD_75km <- mammal_cutoff_TD_75km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(mammal_cutoff_TD_75km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_75km_Chao.rds")))
+mammal_cutoff_TD_75km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_75km_Chao.rds")))
 
 # mapping
 mammal_cutoff_TD_map_75km <- TD_map(mammal_cutoff_TD_75km, 75000, 'mammal')
@@ -639,10 +945,18 @@ ggsave(paste0('mammal_', cutoff_obs, '_TD_plot_75km.png'), mammal_TD_plot_75km, 
 mammal_cutoff_sp_grid_50km <- readRDS(file.path(filtered_data_path_L1,paste0("mammal_", cutoff_obs, "_sp_grid_50km.rds")))
 
 # richness calculation
-iNEXT_mammal_cutoff_50km <- calc_coverage(mammal_cutoff_sp_grid_50km)
-mammal_cutoff_TD_50km <- iNEXT_mammal_cutoff_50km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+mammal_cutoff_TD_50km <- calculate_richness2(mammal_cutoff_sp_grid_50km)
+saveRDS(mammal_cutoff_TD_50km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_50km.rds")))
+mammal_cutoff_TD_50km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_50km.rds")))
+
+# filter data as mentioned on line 49
+mammal_cutoff_TD_50km <- mammal_cutoff_TD_50km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(mammal_cutoff_TD_50km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_50km_Chao.rds")))
+mammal_cutoff_TD_50km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_50km_Chao.rds")))
 
 # mapping
 mammal_cutoff_TD_map_50km <- TD_map(mammal_cutoff_TD_50km, 50000, 'mammal')
@@ -662,10 +976,17 @@ ggsave(paste0('mammal_', cutoff_obs, '_TD_plot_50km.png'), mammal_TD_plot_50km, 
 mammal_cutoff_sp_grid_25km <- readRDS(file.path(filtered_data_path_L1,paste0("mammal_", cutoff_obs, "_sp_grid_25km.rds")))
 
 # richness calculation
-iNEXT_mammal_cutoff_25km <- calc_coverage(mammal_cutoff_sp_grid_25km)
-mammal_cutoff_TD_25km <- iNEXT_mammal_cutoff_25km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+mammal_cutoff_TD_25km <- calculate_richness2(mammal_cutoff_sp_grid_25km)
+saveRDS(mammal_cutoff_TD_25km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_25km.rds")))
+mammal_cutoff_TD_25km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_25km.rds")))
+
+# filter data as mentioned on line 49
+mammal_cutoff_TD_25km <- mammal_cutoff_TD_25km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(mammal_cutoff_TD_25km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_25km_Chao.rds")))
+mammal_cutoff_TD_25km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_25km_Chao.rds")))
 
 # mapping
 mammal_cutoff_TD_map_25km <- TD_map(mammal_cutoff_TD_25km, 25000, 'mammal')
@@ -685,10 +1006,18 @@ ggsave(paste0('mammal_', cutoff_obs, '_TD_plot_25km.png'), mammal_TD_plot_25km, 
 mammal_cutoff_sp_grid_10km <- readRDS(file.path(filtered_data_path_L1,paste0("mammal_", cutoff_obs, "_sp_grid_10km.rds")))
 
 # richness calculation
-iNEXT_mammal_cutoff_10km <- calc_coverage(mammal_cutoff_sp_grid_10km)
-mammal_cutoff_TD_10km <- iNEXT_mammal_cutoff_10km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+mammal_cutoff_TD_10km <- calculate_richness2(mammal_cutoff_sp_grid_10km)
+saveRDS(mammal_cutoff_TD_10km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_10km.rds")))
+mammal_cutoff_TD_10km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_10km.rds")))
+
+# filter data as mentioned on line 49
+mammal_cutoff_TD_10km <- mammal_cutoff_TD_10km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(mammal_cutoff_TD_10km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_10km_Chao.rds")))
+mammal_cutoff_TD_10km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_10km_Chao.rds")))
 
 # mapping
 mammal_cutoff_TD_map_10km <- TD_map(mammal_cutoff_TD_10km, 10000, 'mammal')
@@ -708,10 +1037,18 @@ ggsave(paste0('mammal_', cutoff_obs, '_TD_plot_10km.png'), mammal_TD_plot_10km, 
 mammal_cutoff_sp_grid_5km <- readRDS(file.path(filtered_data_path_L1,paste0("mammal_", cutoff_obs, "_sp_grid_5km.rds")))
 
 # richness calculation
-iNEXT_mammal_cutoff_5km <- calc_coverage(mammal_cutoff_sp_grid_5km)
-mammal_cutoff_TD_5km <- iNEXT_mammal_cutoff_5km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+mammal_cutoff_TD_5km <- calculate_richness2(mammal_cutoff_sp_grid_5km)
+saveRDS(mammal_cutoff_TD_5km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_5km.rds")))
+mammal_cutoff_TD_5km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_5km.rds")))
+
+# filter data as mentioned on line 49
+mammal_cutoff_TD_5km <- mammal_cutoff_TD_5km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(mammal_cutoff_TD_5km, file = file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_5km_Chao.rds")))
+mammal_cutoff_TD_5km <- readRDS(file.path(filtered_output_path_L2, paste0("mammal_", cutoff_obs, "_TD_5km_Chao.rds")))
 
 # mapping
 mammal_cutoff_TD_map_5km <- TD_map(mammal_cutoff_TD_5km, 5000, 'mammal')
@@ -732,12 +1069,25 @@ ggsave(paste0('mammal_', cutoff_obs, '_TD_plot_5km.png'), mammal_TD_plot_5km, pa
 plant_cutoff_sp_grid_100km <- readRDS(file.path(filtered_data_path_L1,paste0("plant_", cutoff_obs, "_sp_grid_100km.rds")))
 
 # richness calculation
-iNEXT_plant_cutoff_100km <- calc_coverage(plant_cutoff_sp_grid_100km)
-plant_cutoff_TD_100km <- iNEXT_plant_cutoff_100km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+plant_cutoff_TD_100km <- calculate_richness2(plant_cutoff_sp_grid_100km)
+saveRDS(plant_cutoff_TD_100km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_100km.rds")))
+plant_cutoff_TD_100km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_100km.rds")))
+
+# filter data as mentioned on line 49
+plant_cutoff_TD_100km <- plant_cutoff_TD_100km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(plant_cutoff_TD_100km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_100km_Chao.rds")))
+plant_cutoff_TD_100km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_100km_Chao.rds")))
 
 # mapping
+
+# set limits for all plant maps based off of 100 km
+lims <- c(0, max(plant_cutoff_TD_100km$richness))
+mpt <- max(plant_cutoff_TD_100km$richness)/2
+
 plant_cutoff_TD_map_100km <- TD_map(plant_cutoff_TD_100km, 100000, 'plant')
 saveRDS(plant_cutoff_TD_map_100km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_map_100km.rds")))
 
@@ -755,10 +1105,18 @@ ggsave(paste0('plant_', cutoff_obs, '_TD_plot_100km.png'), plant_TD_plot_100km, 
 plant_cutoff_sp_grid_75km <- readRDS(file.path(filtered_data_path_L1,paste0("plant_", cutoff_obs, "_sp_grid_75km.rds")))
 
 # richness calculation
-iNEXT_plant_cutoff_75km <- calc_coverage(plant_cutoff_sp_grid_75km)
-plant_cutoff_TD_75km <- iNEXT_plant_cutoff_75km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+plant_cutoff_TD_75km <- calculate_richness2(plant_cutoff_sp_grid_75km)
+saveRDS(plant_cutoff_TD_75km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_75km.rds")))
+plant_cutoff_TD_75km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_75km.rds")))
+
+# filter data as mentioned on line 49
+plant_cutoff_TD_75km <- plant_cutoff_TD_75km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(plant_cutoff_TD_75km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_75km_Chao.rds")))
+plant_cutoff_TD_75km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_75km_Chao.rds")))
 
 # mapping
 plant_cutoff_TD_map_75km <- TD_map(plant_cutoff_TD_75km, 75000, 'plant')
@@ -778,10 +1136,18 @@ ggsave(paste0('plant_', cutoff_obs, '_TD_plot_75km.png'), plant_TD_plot_75km, pa
 plant_cutoff_sp_grid_50km <- readRDS(file.path(filtered_data_path_L1,paste0("plant_", cutoff_obs, "_sp_grid_50km.rds")))
 
 # richness calculation
-iNEXT_plant_cutoff_50km <- calc_coverage(plant_cutoff_sp_grid_50km)
-plant_cutoff_TD_50km <- iNEXT_plant_cutoff_50km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+plant_cutoff_TD_50km <- calculate_richness2(plant_cutoff_sp_grid_50km)
+saveRDS(plant_cutoff_TD_50km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_50km.rds")))
+plant_cutoff_TD_50km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_50km.rds")))
+
+# filter data as mentioned on line 49
+plant_cutoff_TD_50km <- plant_cutoff_TD_50km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(plant_cutoff_TD_50km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_50km_Chao.rds")))
+plant_cutoff_TD_50km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_50km_Chao.rds")))
 
 # mapping
 plant_cutoff_TD_map_50km <- TD_map(plant_cutoff_TD_50km, 50000, 'plant')
@@ -801,10 +1167,18 @@ ggsave(paste0('plant_', cutoff_obs, '_TD_plot_50km.png'), plant_TD_plot_50km, pa
 plant_cutoff_sp_grid_25km <- readRDS(file.path(filtered_data_path_L1,paste0("plant_", cutoff_obs, "_sp_grid_25km.rds")))
 
 # richness calculation
-iNEXT_plant_cutoff_25km <- calc_coverage(plant_cutoff_sp_grid_25km)
-plant_cutoff_TD_25km <- iNEXT_plant_cutoff_25km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+plant_cutoff_TD_25km <- calculate_richness2(plant_cutoff_sp_grid_25km)
+saveRDS(plant_cutoff_TD_25km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_25km.rds")))
+plant_cutoff_TD_25km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_25km.rds")))
+
+# filter data as mentioned on line 49
+plant_cutoff_TD_25km <- plant_cutoff_TD_25km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(plant_cutoff_TD_25km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_25km_Chao.rds")))
+plant_cutoff_TD_25km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_25km_Chao.rds")))
 
 # mapping
 plant_cutoff_TD_map_25km <- TD_map(plant_cutoff_TD_25km, 25000, 'plant')
@@ -824,10 +1198,18 @@ ggsave(paste0('plant_', cutoff_obs, '_TD_plot_25km.png'), plant_TD_plot_25km, pa
 plant_cutoff_sp_grid_10km <- readRDS(file.path(filtered_data_path_L1,paste0("plant_", cutoff_obs, "_sp_grid_10km.rds")))
 
 # richness calculation
-iNEXT_plant_cutoff_10km <- calc_coverage(plant_cutoff_sp_grid_10km)
-plant_cutoff_TD_10km <- iNEXT_plant_cutoff_10km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+plant_cutoff_TD_10km <- calculate_richness2(plant_cutoff_sp_grid_10km)
+saveRDS(plant_cutoff_TD_10km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_10km.rds")))
+plant_cutoff_TD_10km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_10km.rds")))
+
+# filter data as mentioned on line 49
+plant_cutoff_TD_10km <- plant_cutoff_TD_10km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(plant_cutoff_TD_10km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_10km_Chao.rds")))
+plant_cutoff_TD_10km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_10km_Chao.rds")))
 
 # mapping
 plant_cutoff_TD_map_10km <- TD_map(plant_cutoff_TD_10km, 10000, 'plant')
@@ -847,10 +1229,18 @@ ggsave(paste0('plant_', cutoff_obs, '_TD_plot_10km.png'), plant_TD_plot_10km, pa
 plant_cutoff_sp_grid_5km <- readRDS(file.path(filtered_data_path_L1,paste0("plant_", cutoff_obs, "_sp_grid_5km.rds")))
 
 # richness calculation
-iNEXT_plant_cutoff_5km <- calc_coverage(plant_cutoff_sp_grid_5km)
-plant_cutoff_TD_5km <- iNEXT_plant_cutoff_5km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+plant_cutoff_TD_5km <- calculate_richness2(plant_cutoff_sp_grid_5km)
+saveRDS(plant_cutoff_TD_5km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_5km.rds")))
+plant_cutoff_TD_5km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_5km.rds")))
+
+# filter data as mentioned on line 49
+plant_cutoff_TD_5km <- plant_cutoff_TD_5km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(plant_cutoff_TD_5km, file = file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_5km_Chao.rds")))
+plant_cutoff_TD_5km <- readRDS(file.path(filtered_output_path_L2, paste0("plant_", cutoff_obs, "_TD_5km_Chao.rds")))
 
 # mapping
 plant_cutoff_TD_map_5km <- TD_map(plant_cutoff_TD_5km, 5000, 'plant')
@@ -871,12 +1261,25 @@ ggsave(paste0('plant_', cutoff_obs, '_TD_plot_5km.png'), plant_TD_plot_5km, path
 bird_cutoff_sp_grid_100km <- readRDS(file.path(filtered_data_path_L1,paste0("bird_", cutoff_obs, "_sp_grid_100km.rds")))
 
 # richness calculation
-iNEXT_bird_cutoff_100km <- calc_coverage(bird_cutoff_sp_grid_100km)
-bird_cutoff_TD_100km <- iNEXT_bird_cutoff_100km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+bird_cutoff_TD_100km <- calculate_richness2(bird_cutoff_sp_grid_100km)
+saveRDS(bird_cutoff_TD_100km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_100km.rds")))
+bird_cutoff_TD_100km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_100km.rds")))
+
+# filter data as mentioned on line 49
+bird_cutoff_TD_100km <- bird_cutoff_TD_100km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(bird_cutoff_TD_100km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_100km_Chao.rds")))
+bird_cutoff_TD_100km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_100km_Chao.rds")))
 
 # mapping
+
+# set limits for all bird maps based off of 100 km
+lims <- c(0, max(bird_cutoff_TD_100km$richness))
+mpt <- max(bird_cutoff_TD_100km$richness)/2
+
 bird_cutoff_TD_map_100km <- TD_map(bird_cutoff_TD_100km, 100000, 'bird')
 saveRDS(bird_cutoff_TD_map_100km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_map_100km.rds")))
 
@@ -894,10 +1297,18 @@ ggsave(paste0('bird_', cutoff_obs, '_TD_plot_100km.png'), bird_TD_plot_100km, pa
 bird_cutoff_sp_grid_75km <- readRDS(file.path(filtered_data_path_L1,paste0("bird_", cutoff_obs, "_sp_grid_75km.rds")))
 
 # richness calculation
-iNEXT_bird_cutoff_75km <- calc_coverage(bird_cutoff_sp_grid_75km)
-bird_cutoff_TD_75km <- iNEXT_bird_cutoff_75km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+bird_cutoff_TD_75km <- calculate_richness2(bird_cutoff_sp_grid_75km)
+saveRDS(bird_cutoff_TD_75km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_75km.rds")))
+bird_cutoff_TD_75km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_75km.rds")))
+
+# filter data as mentioned on line 49
+bird_cutoff_TD_75km <- bird_cutoff_TD_75km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(bird_cutoff_TD_75km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_75km_Chao.rds")))
+bird_cutoff_TD_75km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_75km_Chao.rds")))
 
 # mapping
 bird_cutoff_TD_map_75km <- TD_map(bird_cutoff_TD_75km, 75000, 'bird')
@@ -917,10 +1328,18 @@ ggsave(paste0('bird_', cutoff_obs, '_TD_plot_75km.png'), bird_TD_plot_75km, path
 bird_cutoff_sp_grid_50km <- readRDS(file.path(filtered_data_path_L1,paste0("bird_", cutoff_obs, "_sp_grid_50km.rds")))
 
 # richness calculation
-iNEXT_bird_cutoff_50km <- calc_coverage(bird_cutoff_sp_grid_50km)
-bird_cutoff_TD_50km <- iNEXT_bird_cutoff_50km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+bird_cutoff_TD_50km <- calculate_richness2(bird_cutoff_sp_grid_50km)
+saveRDS(bird_cutoff_TD_50km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_50km.rds")))
+bird_cutoff_TD_50km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_50km.rds")))
+
+# filter data as mentioned on line 49
+bird_cutoff_TD_50km <- bird_cutoff_TD_50km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(bird_cutoff_TD_50km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_50km_Chao.rds")))
+bird_cutoff_TD_50km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_50km_Chao.rds")))
 
 # mapping
 bird_cutoff_TD_map_50km <- TD_map(bird_cutoff_TD_50km, 50000, 'bird')
@@ -940,10 +1359,18 @@ ggsave(paste0('bird_', cutoff_obs, '_TD_plot_50km.png'), bird_TD_plot_50km, path
 bird_cutoff_sp_grid_25km <- readRDS(file.path(filtered_data_path_L1,paste0("bird_", cutoff_obs, "_sp_grid_25km.rds")))
 
 # richness calculation
-iNEXT_bird_cutoff_25km <- calc_coverage(bird_cutoff_sp_grid_25km)
-bird_cutoff_TD_25km <- iNEXT_bird_cutoff_25km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+bird_cutoff_TD_25km <- calculate_richness2(bird_cutoff_sp_grid_25km)
+saveRDS(bird_cutoff_TD_25km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_25km.rds")))
+bird_cutoff_TD_25km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_25km.rds")))
+
+# filter data as mentioned on line 49
+bird_cutoff_TD_25km <- bird_cutoff_TD_25km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(bird_cutoff_TD_25km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_25km_Chao.rds")))
+bird_cutoff_TD_25km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_25km_Chao.rds")))
 
 # mapping
 bird_cutoff_TD_map_25km <- TD_map(bird_cutoff_TD_25km, 25000, 'bird')
@@ -963,10 +1390,18 @@ ggsave(paste0('bird_', cutoff_obs, '_TD_plot_25km.png'), bird_TD_plot_25km, path
 bird_cutoff_sp_grid_10km <- readRDS(file.path(filtered_data_path_L1,paste0("bird_", cutoff_obs, "_sp_grid_10km.rds")))
 
 # richness calculation
-iNEXT_bird_cutoff_10km <- calc_coverage(bird_cutoff_sp_grid_10km)
-bird_cutoff_TD_10km <- iNEXT_bird_cutoff_10km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+bird_cutoff_TD_10km <- calculate_richness2(bird_cutoff_sp_grid_10km)
+saveRDS(bird_cutoff_TD_10km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_10km.rds")))
+bird_cutoff_TD_10km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_10km.rds")))
+
+# filter data as mentioned on line 49
+bird_cutoff_TD_10km <- bird_cutoff_TD_10km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(bird_cutoff_TD_10km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_10km_Chao.rds")))
+bird_cutoff_TD_10km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_10km_Chao.rds")))
 
 # mapping
 bird_cutoff_TD_map_10km <- TD_map(bird_cutoff_TD_10km, 10000, 'bird')
@@ -986,10 +1421,18 @@ ggsave(paste0('bird_', cutoff_obs, '_TD_plot_10km.png'), bird_TD_plot_10km, path
 bird_cutoff_sp_grid_5km <- readRDS(file.path(filtered_data_path_L1,paste0("bird_", cutoff_obs, "_sp_grid_5km.rds")))
 
 # richness calculation
-iNEXT_bird_cutoff_5km <- calc_coverage(bird_cutoff_sp_grid_5km)
-bird_cutoff_TD_5km <- iNEXT_bird_cutoff_5km$iNEXT_calcs |> 
-  rename(richness_raw = S.obs, cellid = Assemblage) |> 
-  select(cellid, richness_raw)
+bird_cutoff_TD_5km <- calculate_richness2(bird_cutoff_sp_grid_5km)
+saveRDS(bird_cutoff_TD_5km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_5km.rds")))
+bird_cutoff_TD_5km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_5km.rds")))
+
+# filter data as mentioned on line 49
+bird_cutoff_TD_5km <- bird_cutoff_TD_5km |> 
+  filter(SC >= 0.3) |> 
+  rename(richness = richness_Chao1, 
+         cellid = Assemblage) |> 
+  select(cellid, richness)
+saveRDS(bird_cutoff_TD_5km, file = file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_5km_Chao.rds")))
+bird_cutoff_TD_5km <- readRDS(file.path(filtered_output_path_L2, paste0("bird_", cutoff_obs, "_TD_5km_Chao.rds")))
 
 # mapping
 bird_cutoff_TD_map_5km <- TD_map(bird_cutoff_TD_5km, 5000, 'bird')

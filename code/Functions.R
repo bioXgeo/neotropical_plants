@@ -451,6 +451,7 @@ sp_grid <- function(obs_grid_clean){
 
 # using iNEXT
 calc_coverage <- function(sp_grid){
+  
   cell_list <- apply(sp_grid, 1, c)
   
   # out <- iNEXT(cell_list, q = 0, datatype = 'abundance')
@@ -490,6 +491,64 @@ calculate_richness <- function(data_sf, species_sf) {
     ungroup()%>%
     mutate(num_species = na_if(num_species, 0))
   return(result)
+}
+
+calculate_richness2 <- function(sp_grid){
+  
+  cell_list <- apply(sp_grid, 1, c)
+  
+  # DataInfo contains number of observations (n), observed species richness (S.obs), sample coverage (SC), number of singletons (f1), number of doubletons (f2)
+  info <- DataInfo(cell_list) |> 
+    mutate(
+      richness_Chao1 = S.obs + (f1 * (f1 - 1)) / (2 * (f2 + 1))
+    )
+  
+  coverage_est_0.4 <- estimateD(
+    cell_list,
+    q = 0,
+    datatype = "abundance",
+    base = "coverage",
+    level = 0.4
+  )|>
+    select(Assemblage, qD) |>
+    rename(richness_coverage_0.4 = qD)
+  
+  coverage_est_0.5 <- estimateD(
+    cell_list,
+    q = 0,
+    datatype = "abundance",
+    base = "coverage",
+    level = 0.5
+  )|>
+    select(Assemblage, qD) |>
+    rename(richness_coverage_0.5 = qD)
+  
+  coverage_est_0.6 <- estimateD(
+    cell_list,
+    q = 0,
+    datatype = "abundance",
+    base = "coverage",
+    level = 0.6
+  )|>
+    select(Assemblage, qD) |>
+    rename(richness_coverage_0.6 = qD)
+  
+  
+  info <- info |>
+    left_join(
+      coverage_est_0.4,
+      by = "Assemblage"
+    ) |> 
+    left_join(
+      coverage_est_0.5,
+      by = "Assemblage"
+    ) |> 
+    left_join(
+      coverage_est_0.6,
+      by = "Assemblage"
+    ) 
+  
+  return(info)
 }
 
 # Plot richness
@@ -631,20 +690,6 @@ create_rich_plots <- function(resolution_meters) {
 
 TD_map <- function(richness, resolution_meters, guild){
   
-  if(guild=='plant'){
-    mpt=900
-    lims=c(1, 1800)
-  } else {
-    if (guild=='mammal'){
-      mpt=52
-      lims=c(1,104)
-    } else {if (guild=='bird'){
-      mpt=200
-      lims=c(1,400)
-    }
-    }
-  }
-  
   # generate coordinates, filter by cells with TD values
   TAGrid_TD <- TApoly %>%
     st_make_grid(cellsize = c(resolution_meters)) %>%
@@ -659,7 +704,7 @@ TD_map <- function(richness, resolution_meters, guild){
       ggplot() +
       geom_sf(data = Americas, fill = "white")+
       geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
-      geom_sf(data = TAGrid_TD, aes(fill = richness_raw), color = 'NA') +
+      geom_sf(data = TAGrid_TD, aes(fill = richness), color = 'NA') +
       labs(fill = "Plants") +
       scale_fill_viridis_c(limits=lims, na.value = 'gray53', option='magma') +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
@@ -672,7 +717,7 @@ TD_map <- function(richness, resolution_meters, guild){
       ggplot() +
       geom_sf(data = Americas, fill = "white")+
       geom_sf(data = TApoly, fill = "lightgrey", size = 0.1) +
-      geom_sf(data = TAGrid_TD, aes(fill = richness_raw), color = 'NA') +
+      geom_sf(data = TAGrid_TD, aes(fill = richness), color = 'NA') +
       labs(fill = paste0(str_to_title(guild),"s")) +
       scale_fill_viridis_c(limits=lims, na.value = 'gray53') +
       coord_sf(xlim = c(-82, -60), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
@@ -990,8 +1035,7 @@ FDis2 <- function(sp_grid, sp_faxes_coord){
     results_list <- foreach(chunk_indices = chunks, .combine = rbind, .packages = "mFD") %dopar% {
       subset_matrix_chunk <- subset_matrix[chunk_indices, , drop = FALSE]
       
-      alpha_fd_indices <- alpha.fd.multidim(sp_faxes_coord = sp_faxes_coord_sub, asb_sp_w = subset_matrix, 
-                                            ind_vect = "fdis", details_returned = TRUE)
+      alpha_fd_indices <- alpha.fd.multidim(sp_faxes_coord = sp_faxes_coord_sub, asb_sp_w = subset_matrix, ind_vect = "fdis", details_returned = TRUE)
       
       details_list <- alpha_fd_indices$"details" # see if this is needed
       
@@ -1128,24 +1172,6 @@ FD_map <- function(loc_key, PAM, resolution_meters, fdis, guild){
 # Mapping FDis
 FD_map2 <- function(fdis, resolution_meters, guild){
   
-  if(guild=='plant'){
-    mpt=0.4
-    lims=c(0.2,0.7)
-  } else {
-    if (guild=='mammal'){
-      mpt=0.3
-      lims=c(0,0.85)
-    } else {if (guild=='bird'){
-      mpt=0.3
-      lims=c(0,0.55)
-    } else {if (guild=='frugivore'){
-      mpt=0.3
-      lims=c(0,0.75)
-    } 
-    }
-    }
-  }
-  
   # generate coordinates, filter by cells with fdis values
   TAGrid_fdis <- TApoly %>%
     st_make_grid(cellsize = c(resolution_meters)) %>%
@@ -1227,22 +1253,22 @@ div_comparison <- function(plant_div, mammal_div, bird_div, resolution){
   
   set.seed(123)
   
-  metric <- if ("richness_raw" %in% colnames(plant_div)) "richness" else "fdis"
+  metric <- if ("richness" %in% colnames(plant_div)) "richness" else "fdis"
   
-  if('richness_raw' %in% colnames(plant_div)){
+  if('richness' %in% colnames(plant_div)){
     coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
     
-    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$richness_raw, frug_div=mammal_div$richness_raw, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$richness, frug_div=mammal_div$richness, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
       dplyr::filter(plant_div > 0 & frug_div > 0)
     
     m1 <- lm(frug_div ~ plant_div, data = mammal_plant)
     
-    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$richness_raw, frug_div=bird_div$richness_raw, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
+    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$richness, frug_div=bird_div$richness, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
       dplyr::filter(plant_div > 0 & frug_div > 0)
     
     m2 <- lm(frug_div ~ plant_div, data = bird_plant)
     
-    rng <- range(plant_div$richness_raw, na.rm = TRUE)
+    rng <- range(plant_div$richness, na.rm = TRUE)
     
     newdata <- data.frame(
       plant_div = seq(rng[1], rng[2], length.out = 100),
@@ -1338,12 +1364,12 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution){
   
   set.seed(123)
   
-  metric <- if ("richness_raw" %in% colnames(plant_div)) "richness" else "fdis"
+  metric <- if ("richness" %in% colnames(plant_div)) "richness" else "fdis"
   
-  if('richness_raw' %in% colnames(plant_div)){
+  if('richness' %in% colnames(plant_div)){
     coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
     
-    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$richness_raw, frug_div=mammal_div$richness_raw, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
+    mammal_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$richness, frug_div=mammal_div$richness, taxa=c(rep('Mammal', nrow(mammal_div)))) %>% 
       dplyr::filter(plant_div > 0 & frug_div > 0)
     
     m1 <- gam(
@@ -1351,7 +1377,7 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution){
       data = mammal_plant,
       method = "REML")
     
-    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$richness_raw, frug_div=bird_div$richness_raw, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
+    bird_plant <- data.frame(cell_id=plant_div$cellid, x=coords$X, y=coords$Y, plant_div = plant_div$richness, frug_div=bird_div$richness, taxa=c(rep('Bird', nrow(bird_div)))) %>% 
       dplyr::filter(plant_div > 0 & frug_div > 0)
     
     m2 <- gam(
@@ -1359,7 +1385,7 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution){
       data = bird_plant,
       method = "REML")
     
-    rng <- range(plant_div$richness_raw, na.rm = TRUE)
+    rng <- range(plant_div$richness, na.rm = TRUE)
     
     newdata <- data.frame(
       plant_div = seq(rng[1], rng[2], length.out = 100),

@@ -43,13 +43,15 @@ source("C:/GitHub_projects/neotropical_plants/code/Functions.R")
 
 
 # read in data
+
+# occurrence records
 TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv"))
 TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_frugivore_occ_cleaned_subset.csv"))
 TropicalAndes_mammal_occ_forest <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_mammal_occ_cleaned_subset.csv"))
 TropicalAndes_bird_occ_forest <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_bird_occ_cleaned_subset.csv"))
 TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
 
-frugivore_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_Frugivoria_traits_subset.csv"))
+# traits
 bird_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_bird_traits_subset.csv"))
 mammal_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_mammal_traits_subset.csv"))
 plant_traits <- read.csv(file.path(data_path_L1,"TropicalAndes_imputed_plant_traits2.csv"))
@@ -426,10 +428,6 @@ abline(v=20, col="blue")
 iNEXT_plant <- calc_coverage(plant_sp_grid_5km)
 iNEXT_plant$coverage_by_obs + geom_vline(xintercept = 20, color = "blue", linewidth = 1.5)
 
-# save richness - move to TD code!!!!!
-iNEXT_plant_calcs <- iNEXT_plant$iNEXT_calcs |> 
-  rename(richness_raw = S.obs)
-
 
 # mammals
 cell_summary_mammals <- data.frame( cell = rownames(mammal_sp_grid_5km), observations = rowSums(mammal_sp_grid_5km), richness = specnumber(mammal_sp_grid_5km))
@@ -459,64 +457,14 @@ iNEXT_bird$coverage_by_obs + geom_vline(xintercept = 20, color = "blue", linewid
 
 cutoff_obs <- 20
 
-# plants
-plants_sf_species3 <- plants.sf |> 
-  filter(year > 1970) |> 
-  add_count(species) |> 
-  filter(n >= cutoff_obs) |> 
-  dplyr::select(species)
-
-saveRDS(plants_sf_species3, file = file.path(filtered_output_path_L1, paste0("plant_sp_", cutoff_obs, "obs.rds")))
-plants_sf_species3 <- readRDS(file.path(filtered_output_path_L1, paste0("plant_sp_", cutoff_obs, "obs.rds")))
-
-# report what is lost
-nrow(plants_sf_species2) - nrow(plants_sf_species3)
-length(unique(plants_sf_species2$species)) - length(unique(plants_sf_species3$species))
-
-
-# mammals
-mammals_sf_species3 <- mammals.sf |> 
-  filter(year > 1970) |> 
-  add_count(species) |> 
-  filter(n >= cutoff_obs) |> 
-  dplyr::select(species)
-
-saveRDS(mammals_sf_species3, file = file.path(filtered_output_path_L1, paste0("mammal_sp_", cutoff_obs, "obs.rds")))
-mammals_sf_species3 <- readRDS(file.path(filtered_output_path_L1, paste0("mammal_sp_", cutoff_obs, "obs.rds")))
-
-# report what is lost
-nrow(mammals_sf_species2) - nrow(mammals_sf_species3)
-length(unique(mammals_sf_species2$species)) - length(unique(mammals_sf_species3$species))
-
-
-# birds
-birds_sf_species3 <- birds.sf |> 
-  filter(year > 1970) |> 
-  add_count(species) |> 
-  filter(n >= cutoff_obs) |> 
-  dplyr::select(species) 
-
-saveRDS(birds_sf_species3, file = file.path(filtered_output_path_L1, paste0("bird_sp_", cutoff_obs, "obs.rds")))
-birds_sf_species3 <- readRDS(file.path(filtered_output_path_L1, paste0("bird_sp_", cutoff_obs, "obs.rds")))
-
-# report what is lost
-nrow(birds_sf_species2) - nrow(birds_sf_species3)
-length(unique(birds_sf_species2$species)) - length(unique(birds_sf_species3$species))
-
-
 #### species occurrence matrices ####
 
 #### 100 km #### 
 
-# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
-plant_cutoff_obs_grid_100km <- obs_grid(100000, plants_sf_species3)
-mammal_cutoff_obs_grid_100km <- obs_grid(100000, mammals_sf_species3)
-bird_cutoff_obs_grid_100km <- obs_grid(100000, birds_sf_species3)
-
 # matrix of species presence-absence (counts total number of observations of each species in each cell)
-plant_cutoff_sp_grid_100km <- sp_grid(plant_cutoff_obs_grid_100km)
-mammal_cutoff_sp_grid_100km <- sp_grid(mammal_cutoff_obs_grid_100km)
-bird_cutoff_sp_grid_100km <- sp_grid(bird_cutoff_obs_grid_100km)
+plant_cutoff_sp_grid_100km <- plant_sp_grid_100km[rowSums(plant_sp_grid_100km > 0) >= cutoff_obs,]
+mammal_cutoff_sp_grid_100km <- mammal_sp_grid_100km[rowSums(mammal_sp_grid_100km > 0) >= cutoff_obs, ]
+bird_cutoff_sp_grid_100km <- bird_sp_grid_100km[rowSums(bird_sp_grid_100km > 0) >= cutoff_obs, ]
 
 # save data 
 saveRDS(plant_cutoff_sp_grid_100km, file = file.path(filtered_output_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_100km.rds")))
@@ -531,15 +479,10 @@ bird_cutoff_sp_grid_100km <- readRDS(file.path(filtered_data_path_L1, paste0("bi
 
 #### 75 km #### 
 
-# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
-plant_cutoff_obs_grid_75km <- obs_grid(75000, plants_sf_species3)
-mammal_cutoff_obs_grid_75km <- obs_grid(75000, mammals_sf_species3)
-bird_cutoff_obs_grid_75km <- obs_grid(75000, birds_sf_species3)
-
 # matrix of species presence-absence (counts total number of observations of each species in each cell)
-plant_cutoff_sp_grid_75km <- sp_grid(plant_cutoff_obs_grid_75km)
-mammal_cutoff_sp_grid_75km <- sp_grid(mammal_cutoff_obs_grid_75km)
-bird_cutoff_sp_grid_75km <- sp_grid(bird_cutoff_obs_grid_75km)
+plant_cutoff_sp_grid_75km <- plant_sp_grid_75km[rowSums(plant_sp_grid_75km > 0) >= cutoff_obs,]
+mammal_cutoff_sp_grid_75km <- mammal_sp_grid_75km[rowSums(mammal_sp_grid_75km > 0) >= cutoff_obs, ]
+bird_cutoff_sp_grid_75km <- bird_sp_grid_75km[rowSums(bird_sp_grid_75km > 0) >= cutoff_obs, ]
 
 # save data 
 saveRDS(plant_cutoff_sp_grid_75km, file = file.path(filtered_output_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_75km.rds")))
@@ -554,15 +497,10 @@ bird_cutoff_sp_grid_75km <- readRDS(file.path(filtered_data_path_L1, paste0("bir
 
 #### 50 km #### 
 
-# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
-plant_cutoff_obs_grid_50km <- obs_grid(50000, plants_sf_species3)
-mammal_cutoff_obs_grid_50km <- obs_grid(50000, mammals_sf_species3)
-bird_cutoff_obs_grid_50km <- obs_grid(50000, birds_sf_species3)
-
 # matrix of species presence-absence (counts total number of observations of each species in each cell)
-plant_cutoff_sp_grid_50km <- sp_grid(plant_cutoff_obs_grid_50km)
-mammal_cutoff_sp_grid_50km <- sp_grid(mammal_cutoff_obs_grid_50km)
-bird_cutoff_sp_grid_50km <- sp_grid(bird_cutoff_obs_grid_50km)
+plant_cutoff_sp_grid_50km <- plant_sp_grid_50km[rowSums(plant_sp_grid_50km > 0) >= cutoff_obs,]
+mammal_cutoff_sp_grid_50km <- mammal_sp_grid_50km[rowSums(mammal_sp_grid_50km > 0) >= cutoff_obs, ]
+bird_cutoff_sp_grid_50km <- bird_sp_grid_50km[rowSums(bird_sp_grid_50km > 0) >= cutoff_obs, ]
 
 # save data 
 saveRDS(plant_cutoff_sp_grid_50km, file = file.path(filtered_output_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_50km.rds")))
@@ -577,15 +515,10 @@ bird_cutoff_sp_grid_50km <- readRDS(file.path(filtered_data_path_L1, paste0("bir
 
 #### 25 km #### 
 
-# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
-plant_cutoff_obs_grid_25km <- obs_grid(25000, plants_sf_species3)
-mammal_cutoff_obs_grid_25km <- obs_grid(25000, mammals_sf_species3)
-bird_cutoff_obs_grid_25km <- obs_grid(25000, birds_sf_species3)
-
 # matrix of species presence-absence (counts total number of observations of each species in each cell)
-plant_cutoff_sp_grid_25km <- sp_grid(plant_cutoff_obs_grid_25km)
-mammal_cutoff_sp_grid_25km <- sp_grid(mammal_cutoff_obs_grid_25km)
-bird_cutoff_sp_grid_25km <- sp_grid(bird_cutoff_obs_grid_25km)
+plant_cutoff_sp_grid_25km <- plant_sp_grid_25km[rowSums(plant_sp_grid_25km > 0) >= cutoff_obs,]
+mammal_cutoff_sp_grid_25km <- mammal_sp_grid_25km[rowSums(mammal_sp_grid_25km > 0) >= cutoff_obs, ]
+bird_cutoff_sp_grid_25km <- bird_sp_grid_25km[rowSums(bird_sp_grid_25km > 0) >= cutoff_obs, ]
 
 # save data 
 saveRDS(plant_cutoff_sp_grid_25km, file = file.path(filtered_output_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_25km.rds")))
@@ -600,15 +533,10 @@ bird_cutoff_sp_grid_25km <- readRDS(file.path(filtered_data_path_L1, paste0("bir
 
 #### 10 km #### 
 
-# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
-plant_cutoff_obs_grid_10km <- obs_grid(10000, plants_sf_species3)
-mammal_cutoff_obs_grid_10km <- obs_grid(10000, mammals_sf_species3)
-bird_cutoff_obs_grid_10km <- obs_grid(10000, birds_sf_species3)
-
 # matrix of species presence-absence (counts total number of observations of each species in each cell)
-plant_cutoff_sp_grid_10km <- sp_grid(plant_cutoff_obs_grid_10km)
-mammal_cutoff_sp_grid_10km <- sp_grid(mammal_cutoff_obs_grid_10km)
-bird_cutoff_sp_grid_10km <- sp_grid(bird_cutoff_obs_grid_10km)
+plant_cutoff_sp_grid_10km <- plant_sp_grid_10km[rowSums(plant_sp_grid_10km > 0) >= cutoff_obs,]
+mammal_cutoff_sp_grid_10km <- mammal_sp_grid_10km[rowSums(mammal_sp_grid_10km > 0) >= cutoff_obs, ]
+bird_cutoff_sp_grid_10km <- bird_sp_grid_10km[rowSums(bird_sp_grid_10km > 0) >= cutoff_obs, ]
 
 # save data 
 saveRDS(plant_cutoff_sp_grid_10km, file = file.path(filtered_output_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_10km.rds")))
@@ -623,15 +551,10 @@ bird_cutoff_sp_grid_10km <- readRDS(file.path(filtered_data_path_L1, paste0("bir
 
 #### 5 km #### 
 
-# matrix of observations (species (includes duplicates if observed more than once) x cell), cells with 0 observations removed
-plant_cutoff_obs_grid_5km <- obs_grid(5000, plants_sf_species3)
-mammal_cutoff_obs_grid_5km <- obs_grid(5000, mammals_sf_species3)
-bird_cutoff_obs_grid_5km <- obs_grid(5000, birds_sf_species3)
-
 # matrix of species presence-absence (counts total number of observations of each species in each cell)
-plant_cutoff_sp_grid_5km <- sp_grid(plant_cutoff_obs_grid_5km)
-mammal_cutoff_sp_grid_5km <- sp_grid(mammal_cutoff_obs_grid_5km)
-bird_cutoff_sp_grid_5km <- sp_grid(bird_cutoff_obs_grid_5km)
+plant_cutoff_sp_grid_5km <- plant_sp_grid_5km[rowSums(plant_sp_grid_5km > 0) >= cutoff_obs,]
+mammal_cutoff_sp_grid_5km <- mammal_sp_grid_5km[rowSums(mammal_sp_grid_5km > 0) >= cutoff_obs, ]
+bird_cutoff_sp_grid_5km <- bird_sp_grid_5km[rowSums(bird_sp_grid_5km > 0) >= cutoff_obs, ]
 
 # save data 
 saveRDS(plant_cutoff_sp_grid_5km, file = file.path(filtered_output_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_5km.rds")))
@@ -642,6 +565,37 @@ saveRDS(bird_cutoff_sp_grid_5km, file = file.path(filtered_output_path_L1, paste
 plant_cutoff_sp_grid_5km <- readRDS(file.path(filtered_data_path_L1, paste0("plant_", cutoff_obs, "_sp_grid_5km.rds")))
 mammal_cutoff_sp_grid_5km <- readRDS(file.path(filtered_data_path_L1, paste0("mammal_", cutoff_obs, "_sp_grid_5km.rds")))
 bird_cutoff_sp_grid_5km <- readRDS(file.path(filtered_data_path_L1, paste0("bird_", cutoff_obs, "_sp_grid_5km.rds")))
+
+iNEXT_plant_cutoff <- calc_coverage(plant_cutoff_sp_grid_5km)
+iNEXT_plant_cutoff$coverage_by_obs
+
+iNEXT_mammal_cutoff <- calc_coverage(mammal_cutoff_sp_grid_5km)
+iNEXT_mammal_cutoff$coverage_by_obs
+
+iNEXT_bird_cutoff <- calc_coverage(bird_cutoff_sp_grid_5km)
+iNEXT_bird_cutoff$coverage_by_obs
+
+# report which species were lost
+plants_lost <- setdiff(colnames(plant_sp_grid_5km), colnames(plant_cutoff_sp_grid_5km))
+length(setdiff(colnames(plant_sp_grid_5km), colnames(plant_cutoff_sp_grid_5km)))
+
+mammals_lost <- setdiff(colnames(mammal_sp_grid_5km), colnames(mammal_cutoff_sp_grid_5km))
+length(setdiff(colnames(mammal_sp_grid_5km), colnames(mammal_cutoff_sp_grid_5km)))
+
+birds_lost <- setdiff(colnames(bird_sp_grid_5km), colnames(bird_cutoff_sp_grid_5km))
+length(setdiff(colnames(plant_sp_grid_5km), colnames(plant_cutoff_sp_grid_5km)))
+
+# no species lost
+
+# report number of cells lost at 5km
+plant_cells_lost <- setdiff(rownames(plant_sp_grid_5km), rownames(plant_cutoff_sp_grid_5km))
+length(setdiff(rownames(plant_sp_grid_5km), rownames(plant_cutoff_sp_grid_5km)))
+
+mammal_cells_lost <- setdiff(rownames(mammal_sp_grid_5km), rownames(mammal_cutoff_sp_grid_5km))
+length(setdiff(rownames(mammal_sp_grid_5km), rownames(mammal_cutoff_sp_grid_5km)))
+
+bird_cells_lost <- setdiff(rownames(bird_sp_grid_5km), rownames(bird_cutoff_sp_grid_5km))
+length(setdiff(rownames(bird_sp_grid_5km), rownames(bird_cutoff_sp_grid_5km)))
 
 
 #### adjust trait data ####
