@@ -1876,6 +1876,8 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution) {
       method = "REML"
     )
 
+    m1_vario <- create_variogram(mammal_plant, m1)
+
     bird_plant <- data.frame(
       cell_id = plant_div$cellid,
       x = coords$X,
@@ -1891,6 +1893,8 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution) {
       data = bird_plant,
       method = "REML"
     )
+
+    m2_vario <- create_variogram(bird_plant, m2)
 
     rng <- range(plant_div$richness, na.rm = TRUE)
 
@@ -1968,6 +1972,8 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution) {
       method = "REML"
     )
 
+    m1_vario <- create_variogram(mammal_plant, m1)
+
     bird_plant <- data.frame(
       cell_id = plant_div$cellid,
       x = coords$X,
@@ -1984,6 +1990,8 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution) {
       family = betar(link = "logit"),
       method = "REML"
     )
+
+    m2_vario <- create_variogram(bird_plant, m2)
 
     rng <- range(plant_div$fdis, na.rm = TRUE)
 
@@ -2047,10 +2055,19 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution) {
     plot = plot,
     r2_df = r2_df,
     m1 = m1,
-    m2 = m2
+    m2 = m2,
+    m1_vario = m1_vario,
+    m2_vario = m2_vario
   )
 
   return(result)
+}
+
+# A function to examine spatial autocorrelation in the residuals of the model
+create_variogram <- function(df, mod) {
+  df$res <- residuals(mod, type = "working")
+  coordinates(df) <- ~ x + y
+  variogram(res ~ 1, data = df)
 }
 
 

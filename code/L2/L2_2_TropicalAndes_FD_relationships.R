@@ -20,6 +20,7 @@ library(patchwork)
 library(mgcv)
 library(DHARMa)
 library(sf)
+library(gstat)
 
 
 # set file paths
