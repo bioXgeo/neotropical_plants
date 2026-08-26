@@ -1,10 +1,10 @@
 #title: "Subsetting plant species list by fruiting species"
 #author: "Hazel J. Anderson, Jenna B. Baljunas"
 #project: "Plant-Frugivore Diversity"
-#collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+#collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Kelly Kaspar"
 #overview: "This script subsets plant occurrence and trait data by fruiting plant species."
 #data input: "TropicalAndes_GBIF_plant_occ_harmonized.csv", "TropicalAndes_TRY_plant_traits_harmonized.csv", "TropicalAndes_BIEN_plant_traits_harmonized.csv", "TropicalAndes_GIFT_plant_traits_harmonized.csv"
-#data output: "TropicalAndes_GBIF_plant_occ_harmonized_subset.csv", "TropicalAndes_all_plant_traits_harmonized_subset.csv"
+#data output: "TRY_references.csv", "BIEN_references.csv", "TropicalAndes_GBIF_plant_occ_harmonized_subset.csv", "TropicalAndes_all_plant_traits_harmonized_subset.csv"
 #date: "2023-07-25; 2025-10-03"
 #output: html_document
 #notes: JB used HPCC
@@ -20,12 +20,6 @@ data_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1'
 output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
 
-##HPCC
-#data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
-#data_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
-#output_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
-#figure_path <- file.path('/mnt/research/nasabio/data_2025/plants/figures')
-
 
 # read in harmonized data
 plant_occ <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_plant_occ_harmonized.csv"))
@@ -39,7 +33,8 @@ plant_species <- unique(plant_occ$Accepted_species)
 length(plant_species)
 
 
-# subset TRY, BIEN, and GIFT by species list
+#### subset TRY, BIEN, and GIFT by species list ####
+
 # TRY
 nrow(TRY_traits)
 TRY_filtered <- TRY_traits %>%
@@ -79,7 +74,7 @@ GIFT_traits %>%
   count(trait_name)
 
 
-# combine trait information from TRY, BIEN, GIFT
+#### combine trait information from TRY, BIEN, GIFT ####
 
 # TRY
 TRYTraitTypes <- TRY_filtered %>%
@@ -149,7 +144,7 @@ BIEN_filtered_subset$DatabaseSource <- "BIEN"
 GIFT_filtered_subset$DatabaseSource <- "GIFT"
 
 
-# combine all subsets into one dataframe
+#### combine all subsets into one dataframe ####
 traits <- rbind(TRY_filtered_subset, BIEN_filtered_subset, GIFT_filtered_subset)
 traits$Unit <- ifelse(traits$Unit=='',NA,traits$Unit)
 dim(traits)
@@ -168,11 +163,12 @@ traits_clean %>%
   count(TraitName)
 
 
-# create a species list of species with fruiting traits
+#### create a species list of species with fruiting traits ####
+
 fruit_traits <- c("Dispersal syndrome","Dispersal_syndrome_1","Dispersal_syndrome_2","Fruit dry mass", "Fruit length", "Fruit type", "Fruit/seed color", "Fruit/seed conspicuous", "Fruit_colour", "Fruit_dryness_1", "Fruit_length_max", "Fruit_length_mean", "Fruit_length_min", "Fruit_type_1", "Fruiting_end","Fruiting_start","fruit type","maximum fruit length", "minimum fruit length","plant fruiting duration", "whole plant dispersal syndrome")
 
 
-# filter the dataframe for fruiting traits
+#### filter data by fruiting traits ####
 fruiting_df <- traits_clean %>%
   filter(TraitName %in% fruit_traits)
 dim(fruiting_df)
