@@ -16,37 +16,16 @@ library(letsR); library(mFD); library(vegan); library(rnaturalearth); library(sf
 # set file paths
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 data_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
-output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
-figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures')
-
-# new file paths
-all_data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/all_data')
-all_output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/all_data')
-all_data_figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures/all_data')
-
-filtered_data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/filtered_data')
-filtered_output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/filtered_data')
-filtered_data_figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures/filtered_data')
-
-# # HPCC
-# data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
-# data_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
-# output_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
-# figure_path <- file.path('/mnt/research/nasabio/data_2025/plants/figures')
 
 
 # load functions
 source("C:/GitHub_projects/neotropical_plants/code/Functions.R")
-
-# # HPCC
-# source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
 
 
 # read in data
 
 # occurrence records
 TropicalAndes_plant_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv"))
-TropicalAndes_frugivore_occ_forest <- read.csv(file.path(data_path_L1,"TropicalAndes_GBIF_frugivore_occ_cleaned_subset.csv"))
 TropicalAndes_mammal_occ_forest <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_mammal_occ_cleaned_subset.csv"))
 TropicalAndes_bird_occ_forest <- read.csv(file.path(data_path_L1, "TropicalAndes_GBIF_bird_occ_cleaned_subset.csv"))
 TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
@@ -91,7 +70,12 @@ mammals.sf <- readRDS(file.path(data_path_L1, "mammals.sf"))
 birds.sf <- readRDS(file.path(data_path_L1, "birds.sf"))
 
 
-#### filtering records by time ####
+#### filtering records by time (called all_data) ####
+
+# set separate file paths for these data
+all_data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/all_data')
+all_output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/all_data')
+all_data_figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures/all_data')
 
 hist(plants.sf$year[plants.sf$year>1970])
 hist(mammals.sf$year[mammals.sf$year>1970])
@@ -453,8 +437,14 @@ iNEXT_bird$coverage_by_obs + geom_vline(xintercept = 20, color = "blue", linewid
 
 #### run through previous code with low-end cutoff ####
 
-#### species observation records after 1970 and specified cutoff ####
+#### species observation records after 1970 and specified cutoff (called filtered_data) ####
 
+# file paths for these data
+filtered_data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/filtered_data')
+filtered_output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1/filtered_data')
+filtered_data_figure_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/figures/filtered_data')
+
+# set specified cutoff of minimum observations in grid cells
 cutoff_obs <- 20
 
 #### species occurrence matrices ####
