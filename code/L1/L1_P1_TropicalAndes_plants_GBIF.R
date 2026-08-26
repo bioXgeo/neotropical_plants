@@ -1,7 +1,7 @@
 # title: "Cleaning Tropical Andes plant GBIF occurrence records"
 # author: "Hazel J. Anderson"
 # project: "Plant-Frugivore Diversity"
-# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas"
+# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas, Kelly Kaspar"
 # overview: "Uses CoordinateCleaner to flag and remove problematic records from GBIF plant occurrence records."
 # data input: "TropicalAndes_GBIF_plant_occ.csv"
 # data output: "TropicalAndes_GBIF_plant_occ_cleaned.csv", "TropicalAndes_GBIF_plant_occ_flagged.csv"
@@ -18,16 +18,9 @@ library(countrycode); library(CoordinateCleaner); library(dplyr)
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 
-## HPCC
-# data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
-# output_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
-
 
 # load functions
 source("C:/GitHub_projects/neotropical_plants/code/Functions.R")
-
-## HPCC
-# source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
 
 
 # read in data
