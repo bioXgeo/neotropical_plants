@@ -1,7 +1,7 @@
 #title: "Plant trait cleaning and combining"
 # author: "Hazel J. Anderson, Jenna B. Baljunas"
 # project: "Plant-Frugivore Diversity"
-# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Kelly Kaspar"
 # overview: "This script cleans synonymous categorical plant traits and standardizes units for numeric plant traits"
 # data input: "TropicalAndes_all_plant_traits_harmonized_subset.csv"
 # data output: "TropicalAndes_all_plant_traits_standardized.csv", "TropicalAndes_all_plant_traits_standardized_with_recordCount.csv", "TropicalAndes_all_plant_traits_cleaned_unaveraged.csv"
