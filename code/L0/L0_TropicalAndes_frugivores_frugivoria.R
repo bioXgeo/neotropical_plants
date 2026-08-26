@@ -1,10 +1,10 @@
 # title: "Tropical Andes frugivore trait data Frugivoria"
 # authors: "Hazel J. Anderson, Jenna B. Baljunas"
 # project: "Plant-Frugivore Diversity"
-# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
-# overview: "This script retrived the Frugivoria database from EDI."
-# data input: "None"
-# data output: "TropicalAndes_Frugivoria_frugivore_traits.csv, TropicalAndes_Frugivoria_frugivore_traits_species.csv, TropicalAndes_frugivore_LookupTable.csv, TropicalAndes_Frugivoria_mammal_traits.csv, TropicalAndes_Frugivoria_bird_traits.csv, TropicalAndes_mammal_LookupTable.csv, TropicalAndes_bird_LookupTable.csv"
+# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Kelly Kaspar"
+# overview: "This script retrieved the Frugivoria database from EDI."
+# data input: None
+# data output: "TropicalAndes_Frugivoria_frugivore_traits.csv", "TropicalAndes_Frugivoria_frugivore_traits_species.csv", "TropicalAndes_frugivore_LookupTable.csv", "TropicalAndes_Frugivoria_mammal_traits.csv", "TropicalAndes_Frugivoria_bird_traits.csv", "TropicalAndes_mammal_LookupTable.csv", "TropicalAndes_bird_LookupTable.csv"
 # date: "2023-07-18; 2025-09-22"
 
 
@@ -21,13 +21,10 @@ output_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L
 # load functions
 source("C:/GitHub_projects/neotropical_plants/code/Functions.R")
 
-# # HPCC
-# source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
-
 
 # retrieve Frugivoria data
 
-#Using r code provided at https://portal.edirepository.org/nis/codeGeneration?packageId=edi.1220.6&statisticalFileType=r
+# Using r code provided at https://portal.edirepository.org/nis/codeGeneration?packageId=edi.1220.6&statisticalFileType=r
 # Package ID: edi.1220.6 Cataloging System:https://pasta.edirepository.org.
 # Data set title: Frugivoria: A trait database for birds and mammals exhibiting frugivory across contiguous Neotropical moist forests.
 # Data set creator:  Beth Gerstner - Michigan State University 
