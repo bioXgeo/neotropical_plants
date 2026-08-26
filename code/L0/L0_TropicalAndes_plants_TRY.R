@@ -23,9 +23,6 @@ output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 #Data was obtained from https://www.try-db.org/TryWeb/Prop0.php on 2025-09-23
 try_data <- rtry_import("G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0/TRY/44066_23092025231532/44066.txt")
 
-##HPCC
-#try_data <- rtry_import('/mnt/research/nasabio/data_2025/plants/L0/44066.txt')
-
 
 # Summary
 glimpse(try_data)
