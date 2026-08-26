@@ -3,8 +3,24 @@
 # project: "Plant-Frugivore Diversity"
 # collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
 # overview: "Projecting occurrence data and creating presence-absence matrix for plants and frugivores. "
-# data input: "TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv", "TropicalAndes_GBIF_frugivore_occ_cleaned_subset.csv", "TropicalAndes_GBIF_mammal_occ_cleaned_subset.csv", "TropicalAndes_GBIF_bird_occ_cleaned_subset.csv", "Forest_sf.shp", "TropicalAndes_Frugivoria_traits_subset.csv", "TropicalAndes_bird_traits_subset.csv", "TropicalAndes_mammal_traits_subset.csv", "TropicalAndes_imputed_plant_traits2.csv"
-# data output: "all_points_maps.png", "plants_sf_species.rds", "frugivores_sf_species.rds", "mammals_sf_species.rds", "birds_sf_species.rds", "Americas.rds", "TApoly.rds", "TropicalAndes_IUCNHabitat_Forest.rds", "plant_PAM_100km.rds", "frugivore_PAM_100km.rds", "mammal_PAM_100km.rds", "bird_PAM_100km.rds", "plant_PAM_75km.rds", "frugivore_PAM_75km.rds", "mammal_PAM_75km.rds", "bird_PAM_75km.rds", "plant_PAM_50km.rds", "frugivore_PAM_50km.rds", "mammal_PAM_50km.rds", "bird_PAM_50km.rds", "plant_PAM_25km.rds", "frugivore_PAM_25km.rds", "mammal_PAM_25km.rds", "bird_PAM_25km.rds", "plant_PAM_10km.rds", "frugivore_PAM_10km.rds", "mammal_PAM_10km.rds", "bird_PAM_10km.rds", "plant_PAM_5km.rds", "frugivore_PAM_5km.rds", "mammal_PAM_5km.rds", "bird_PAM_5km.rds", "plant_traits_df_final.rds", "frugivore_traits_df_final.rds", "bird_traits_df_final.rds", "mammal_traits_df_final.rds", "site_loc_key_plant_100km.rds", "site_loc_key_frugivore_100km.rds", "site_loc_key_mammal_100km.rds", "site_loc_key_bird_100km.rds", "PAM_plant_site_final_100km.rds", "PAM_frugivore_site_final_100km.rds", "PAM_mammal_site_final_100km.rds", "PAM_bird_site_final_100km.rds", "site_loc_key_plant_75km.rds", "site_loc_key_frugivore_75km.rds", "site_loc_key_mammal_75km.rds", "site_loc_key_bird_75km.rds", "PAM_plant_site_final_75km.rds", "PAM_frugivore_site_final_75km.rds", "PAM_mammal_site_final_75km.rds", "PAM_bird_site_final_75km.rds", "site_loc_key_plant_50km.rds", "site_loc_key_frugivore_50km.rds", "site_loc_key_mammal_50km.rds", "site_loc_key_bird_50km.rds", "PAM_plant_site_final_50km.rds", "PAM_frugivore_site_final_50km.rds", "PAM_mammal_site_final_50km.rds", "PAM_bird_site_final_50km.rds", "site_loc_key_plant_25km.rds", "site_loc_key_frugivore_25km.rds", "site_loc_key_mammal_25km.rds", "site_loc_key_bird_25km.rds", "PAM_plant_site_final_25km.rds", "PAM_frugivore_site_final_25km.rds", "PAM_mammal_site_final_25km.rds", "PAM_bird_site_final_25km.rds", "site_loc_key_plant_10km.rds", "site_loc_key_frugivore_10km.rds", "site_loc_key_mammal_10km.rds", "site_loc_key_bird_10km.rds", "PAM_plant_site_final_10km.rds", "PAM_frugivore_site_final_10km.rds", "PAM_mammal_site_final_10km.rds", "PAM_bird_site_final_10km.rds", "site_loc_key_plant_5km.rds", "site_loc_key_frugivore_5km.rds", "site_loc_key_mammal_5km.rds", "site_loc_key_bird_5km.rds", "PAM_plant_site_final_5km.rds", "PAM_frugivore_site_final_5km.rds", "PAM_mammal_site_final_5km.rds", "PAM_bird_site_final_5km.rds"
+# data input: "TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv", "TropicalAndes_GBIF_mammal_occ_cleaned_subset.csv", "TropicalAndes_GBIF_bird_occ_cleaned_subset.csv", "Forest_sf.shp", "TropicalAndes_bird_traits_subset.csv", "TropicalAndes_mammal_traits_subset.csv", "TropicalAndes_imputed_plant_traits2.csv", "Americas.rds", "TApoly.rds", "TropicalAndes_IUCNHabitat_Forest.rds"
+# data output: "plants.sf", "mammals.sf", "birds.sf", 
+#              "plant_sp_obs.rds", "mammal_sp_obs.rds", "bird_sp_obs.rds", 
+#              "plant_sp_grid_100km.rds", "mammal_sp_grid_100km.rds", "bird_sp_grid_100km.rds"
+#              "plant_sp_grid_75km.rds", "mammal_sp_grid_75km.rds", "bird_sp_grid_75km.rds"
+#              "plant_sp_grid_50km.rds", "mammal_sp_grid_50km.rds", "bird_sp_grid_50km.rds"
+#              "plant_sp_grid_25km.rds", "mammal_sp_grid_25km.rds", "bird_sp_grid_25km.rds"
+#              "plant_sp_grid_10km.rds", "mammal_sp_grid_10km.rds", "bird_sp_grid_10km.rds"
+#              "plant_sp_grid_5km.rds", "mammal_sp_grid_5km.rds", "bird_sp_grid_5km.rds"
+#              "plant_20_sp_grid_100km.rds", "mammal_20_sp_grid_100km.rds", "bird_20_sp_grid_100km.rds"
+#              "plant_20_sp_grid_75km.rds", "mammal_20_sp_grid_75km.rds", "bird_20_sp_grid_75km.rds"
+#              "plant_20_sp_grid_50km.rds", "mammal_20_sp_grid_50km.rds", "bird_20_sp_grid_50km.rds"
+#              "plant_20_sp_grid_25km.rds", "mammal_20_sp_grid_25km.rds", "bird_20_sp_grid_25km.rds"
+#              "plant_20_sp_grid_10km.rds", "mammal_20_sp_grid_10km.rds", "bird_20_sp_grid_10km.rds"
+#              "plant_20_sp_grid_5km.rds", "mammal_20_sp_grid_5km.rds", "bird_20_sp_grid_5km.rds"
+#              "plant_traits_df_final.rds", "mammal_traits_df_final.rds", "bird_traits_df_final.rds"
+#              "plant_20_traits_df_subset.rds", "mammal_20_traits_df_subset.rds", "bird_20_traits_df_subset.rds"
+#              "plant_occurrence_points_map.png", "mammal_occurrence_points_map.png", "bird_occurrence_points_map.png", "all_points_maps.png"
 # date: "2024-05-13; 2025-10-21"
 # notes: JB used HPCC
 
@@ -735,30 +751,6 @@ plant <- pick_phylopic(name='Coffea alleizettei')
 ggsave("plant_occurrence_points_map.png", plot = last_plot(), path = all_data_figure_path)
 
 
-# map of data filtered by 1970 and specified cutoff
-(plantsPointsPlot2 <-
-    ggplot() +
-    geom_sf(data = Americas, fill = "white") +
-    geom_sf(data = TApoly) +
-    geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50") + 
-    geom_sf(data = plants_sf_species3, pch = 16, size = 0.05, color='darkseagreen3') +
-    labs(title = "Fruiting plants") +
-    coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-    scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
-    scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
-    add_phylopic(img=plant, x=-82, y=17, height=5)+
-    annotation_scale(location = "bl",width_hint = 0.2, style = "bar") +
-    annotation_north_arrow(location = "bl", which_north = "true",
-                           height = unit(0.3, "in"), width = unit(0.3, "in"),
-                           pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
-                           style = north_arrow_fancy_orienteering) +
-    theme(panel.background = element_rect(fill = "lightblue"), plot.title=element_text(hjust=0.5))+
-    xlab('')+ 
-    ylab('Longitude'))
-
-ggsave(paste0("plant_", cutoff_obs, "obs_occurrence_points_map.png"), plot = last_plot(), path = filtered_data_figure_path)
-
-
 # mammals
 
 # mammal picture
@@ -786,30 +778,6 @@ mammal <- pick_phylopic(name='Potos flavus', n=2, auto=2)
   ylab(''))
 
 ggsave("mammal_occurrence_points_map.png", plot = last_plot(), path = all_data_figure_path)
-
-
-# map of data filtered by 1970 and specified cutoff
-(mammalsPointsPlot2 <-
-    ggplot() +
-    geom_sf(data = Americas, fill = "white") +
-    geom_sf(data = TApoly) +
-    geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50") +
-    geom_sf(data = mammals_sf_species3, pch = 16, size = 0.01, color='burlywood3') +
-    labs(title = "Mammals") +
-    coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-    scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
-    scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
-    add_phylopic(img=mammal, x=-78, y=16, height=6)+
-    # annotation_scale(location = "bl",width_hint = 0.3, style = "bar") +
-    # annotation_north_arrow(location = "bl", which_north = "true",
-    #                        height = unit(0.5, "in"), width = unit(0.5, "in"),
-    #                        pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
-    #                        style = north_arrow_fancy_orienteering) +
-    theme(panel.background = element_rect(fill = "lightblue"), plot.title=element_text(hjust=0.5))+
-    xlab('Latitude')+ 
-    ylab(''))
-
-ggsave(paste0("mammal_", cutoff_obs, "obs_occurrence_points_map.png"), plot = last_plot(), path = filtered_data_figure_path)
 
 
 # birds
@@ -841,38 +809,8 @@ bird <- pick_phylopic(name='Ramphastos sulfuratus', n=2, auto=1)
 ggsave("bird_occurrence_points_map.png", plot = last_plot(), path = all_data_figure_path)
 
 
-# map of data filtered by 1970 and specified cutoff
-(birdsPointsPlot2 <-
-    ggplot() +
-    geom_sf(data = Americas, fill = "white") +
-    geom_sf(data = TApoly) +
-    geom_sf(data = TropicalAndes_IUCNHabitat_Forest, fill = "gray50")+
-    geom_sf(data = birds_sf_species3, pch = 16, size = 0.01, color='lightsteelblue2') +
-    labs(title = "Birds") +
-    coord_sf(xlim = c(-85, -54), ylim = c(-24, 14), expand = FALSE, crs = 4326) +
-    scale_x_continuous(breaks = seq(-85, -54, by = 10)) + 
-    scale_y_continuous(breaks = seq(-24, 14, by = 10)) +
-    add_phylopic(img=bird, x=-76, y=17, height=6)+
-    # annotation_scale(location = "bl",width_hint = 0.3, style = "bar") +
-    # annotation_north_arrow(location = "bl", which_north = "true",
-    #                        height = unit(0.5, "in"), width = unit(0.5, "in"),
-    #                        pad_x = unit(0.1, "in"), pad_y = unit(0.3, "in"),
-    #                        style = north_arrow_fancy_orienteering) +
-    theme(panel.background = element_rect(fill = "lightblue"), plot.title=element_text(hjust=0.5))+
-    xlab('')+ 
-    ylab(''))
-
-ggsave(paste0("bird_", cutoff_obs, "obs_occurrence_points_map.png"), plot = last_plot(), path = filtered_data_figure_path)
-
-
 # plot all three maps
 
-# data filtered by 1970
 (all_points_maps <- wrap_plots(plantsPointsPlot, mammalsPointsPlot, birdsPointsPlot, ncol = 3, nrow = 1) + plot_annotation(tag_levels=list(c('(a)','(b)','(c)'))))
 
 ggsave("all_points_maps.png", all_points_maps, path = all_data_figure_path, height =  7, width = 8, units = "in", dpi=1000)
-
-# data filtered by 1970 and specified cutoff
-(all_points_maps2 <- wrap_plots(plantsPointsPlot2, mammalsPointsPlot2, birdsPointsPlot2, ncol = 3, nrow = 1) + plot_annotation(tag_levels=list(c('(a)','(b)','(c)'))))
-
-ggsave(paste0("all_", cutoff_obs, "obs_points_maps.png"), all_points_maps2, path = filtered_data_figure_path, height =  7, width = 8, units = "in", dpi=1000)
