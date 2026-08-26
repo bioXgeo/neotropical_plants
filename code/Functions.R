@@ -1,4 +1,19 @@
-# Frugivoria: fix any interval or ratio columns mistakenly read in as nominal and nominal columns read as numeric or dates read as strings
+# Functions used for "The Scale-Dependent Relationships of Fruiting Plants and Frugivores in Tropical Andes Forests"
+
+
+#### Data summary function used throughout scripts ####
+
+data_summary <- function(records, species, genera, families){
+  num_records <- nrow(records)
+  num_species <- length(unique(species))
+  num_genera <- length(unique(genera))
+  num_families <- length(unique(families))
+  return(cat("The number of records is", num_records, "\n", "The number of species is", num_species, "\n","The number of genera is", num_genera, "\n", "The number of families is", num_families))
+}
+
+
+#### L0_TropicalAndes_frugivores_frugivoria.R ####
+# fix column classes for some columns in Frugivoria
 
 col_class <- function(x){
   
@@ -35,17 +50,8 @@ col_class <- function(x){
 }
 
 
-# Data summary
-data_summary <- function(records, species, genera, families){
-  num_records <- nrow(records)
-  num_species <- length(unique(species))
-  num_genera <- length(unique(genera))
-  num_families <- length(unique(families))
-  return(cat("The number of records is", num_records, "\n", "The number of species is", num_species, "\n","The number of genera is", num_genera, "\n", "The number of families is", num_families))
-}
-
-
-#### Standardize trait measurements ####
+#### L1_P4_TropicalAndes_plant_traits.R ####
+# standardize trait measurements
 
 numeric_data_average <- function(data, unit, traitname) {
   # Remove rows if TraitValue is non-numeric and convert to numeric
@@ -186,7 +192,9 @@ combine_matching_columns <- function(df_list) {
   return(combined_df)
 }
 
-# Function to retrieve taxonomic information for a chunk of species names
+
+#### L1_P5_TropicalAndes_plant_imputetraits.R ####
+# function to retrieve taxonomic information for a chunk of species names
 get_taxonomic_info_chunk_names <- function(chunk_species_names) {
   # Initialize an empty list to store taxonomic information for each chunk
   chunk_taxonomic_info <- list()
@@ -331,8 +339,8 @@ cat_traits_combined <- function(df, level, traitname){
   }
 }
 
-
-#### use taxize for species with no family and genus info ####
+#### is this function used?? ####
+# use taxize for species with no family and genus info
 library(taxize)
 
 # function to retrieve taxonomic information for a chunk of species names
@@ -365,49 +373,8 @@ get_taxonomic_info_chunk <- function(chunk_species_names) {
 }
 
 
-#### Presence-absence matrix ####
-create_presence_absence_matrix <- function(resolution_meters, species_sf) {
-  # Make Grid
-  TAGrid <- TApoly %>%
-    st_make_grid(cellsize = c(resolution_meters)) %>%
-    st_intersection(TropicalAndes_IUCNHabitat_Forest) %>%
-    st_cast("MULTIPOLYGON") %>%
-    st_sf() %>%
-    mutate(cellid = row_number())
-  
-  # Join with species data and filter out NA species
-  species_grid <- TAGrid %>%
-    st_join(species_sf) %>%
-    filter(!is.na(species)) %>%
-    dplyr::select(cellid, species, geometry)
-  
-  # Extract the coordinates for each grid cell
-  species_grid_coords <- species_grid %>%
-    st_centroid() %>%
-    st_coordinates() %>%
-    as.data.frame() %>%
-    rename(Longitude = X, Latitude = Y)
-  
-  # Combine coordinates with the species grid
-  species_grid <- bind_cols(species_grid, species_grid_coords)
-  
-  # Create Presence-Absence Matrix
-  presence_absence_matrix <- species_grid %>%
-    st_set_geometry(NULL) %>%
-    mutate(presence = 1) %>%
-    pivot_wider(names_from = species, values_from = presence, values_fill = list(presence = 0))
-  
-  # Convert to matrix
-  presence_absence_matrix_matrix <- as.matrix(presence_absence_matrix)
-  
-  # Set row names as "cell_rowNumber"
-  rownames(presence_absence_matrix_matrix) <- paste0("cell_", seq_len(nrow(presence_absence_matrix_matrix)))
-  
-  # Ensure latitude and longitude are the first columns
-  presence_absence_matrix_matrix <- presence_absence_matrix_matrix[, c("Latitude", "Longitude", setdiff(colnames(presence_absence_matrix_matrix), c("Latitude", "Longitude", "cellid")))]
-  
-  return(presence_absence_matrix_matrix)
-}
+#### L1_LastStep_DiversityInputObjects.R ####
+# create cells within Tropical Andes Forest, create matrices of observations/species
 
 obs_grid <- function(resolution_meters, species_sf) {
   # Make Grid
