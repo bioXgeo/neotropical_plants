@@ -1,9 +1,9 @@
 # title: "Tropical Andes plant trait data TRY"
 # author: "Hazel J. Anderson"
 # project: "Plant-Frugivore Diversity"
-# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas"
+# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas, Kelly Kaspar"
 # overview: "This script retrieves plant trait data from the TRY database for plant species list."
-# data input: "none"
+# data input: None
 # data output: "TropicalAndes_TRY_traits.csv"
 # date: "2023-07-18; 2023-07-18"
 # output: html_document
@@ -17,10 +17,6 @@ library(rtry); library(dplyr); library(tidyr)
 # Set file paths
 data_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-
-## HPCC
-# data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
-# output_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
 
 
 # Load TRY data
