@@ -1,10 +1,10 @@
 # title: "Tropical Andes montane and lowland forest bird and mammal occurrence data from GBIF"
 # author: "Hazel J. Anderson, Jenna B. Baljunas"
 # project: "Plant-Frugivore Diversity"
-# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Kelly Kaspar"
 # overview: "This script retrieves plant occurrence data from GBIF using the species list from Frugivoria."
-# data input: "TropicalAndes_Frugivoria_frugivore_traits_species.csv, Forest_sf.shp"
-# data output: "TropicalAndes_GBIF_frugivore_occ.csv, TropicalAndes_GBIF_frugivore_occ_species.csv"
+# data input: TropicalAndes_Frugivoria_frugivore_traits_species.csv", "Forest_sf.shp"
+# data output: "TropicalAndes_GBIF_frugivore_occ.csv", "TropicalAndes_GBIF_frugivore_occ_species.csv"
 # date: "2023-07-25; 2025-09-22"
 # notes: "JB used HPCC"
 
@@ -17,16 +17,9 @@ library(dplyr); library(rgbif); library(sf)
 data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 output_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
 
-## HPCC
-#data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
-#output_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
-
 
 # load functions
 source("C:/GitHub_projects/neotropical_plants/code/Functions.R")
-
-# # HPCC
-# source("/mnt/ffs24/home/baljunas/Documents/neotropical_plants/code/Functions.R")
 
 
 # read in Frugivoria species list
