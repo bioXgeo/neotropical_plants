@@ -1,10 +1,10 @@
 #title: "Plant Trait Imputation"
 #author: "Hazel J. Anderson, Jenna B. Baljunas"
 #project: "Plant-Frugivore Diversity"
-#collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+#collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Kelly Kaspar"
 #overview: "This script fill plant trait gaps with imputation."
 #data input: "TropicalAndes_all_plant_traits_standardized.csv"
-#data output: "TropicalAndes_imputed_plant_traits2.csv"
+#data output: "TropicalAndes_all_plant_traits_filled_with_family_genus_long.csv","plant_number_species_trait_familygenus.png", "TropicalAndes_imputed_plant_traits2.csv", "plant_trait_counts_per_level.png", "plant_trait_counts_per_level_overall.png", "species_coverage_imputation.png"
 #date: "2023-10-04; 2025-10-15"
 
   
@@ -44,7 +44,7 @@ dim(na_traits)
 na_species_list <- unique(na_traits$species)
 length(na_species_list)
 
-# add genus and family information to dataframe
+#### add genus and family information to dataframe ####
 taxonomic_info <- BIEN_taxonomy_species(na_species_list)
 
 # keep only columns with family, genus, species
@@ -67,7 +67,7 @@ names(na_species_df) <- "species"
 na_species_df <- merge(na_species_df, na_species_taxonomy, by = "species", all.x = TRUE)
 
 
-# retrieve list of species without family & genus information
+#### retrieve list of species without family & genus information ####
 species_no_family <- na_species_df %>%
   filter(is.na(family) | family == "") %>%
   select(species) %>%
@@ -171,7 +171,7 @@ for (chunk_index in seq_along(chunks)) {
 }
 
 
-# combine taxonomic information from all chunks into a single list
+# combine taxonomic information from all chunks into a single list 
 all_taxonomic_info <- do.call(c, all_taxonomic_info)
 
 # combine the list of dataframes into a single dataframe
@@ -209,7 +209,8 @@ na_species_df <- na_species_df %>%
 # add genus and family info to dataframe with species and traits
 na_traits_family_genus <- merge(na_traits, na_species_df, by = "species", all.x = TRUE)
 
-# get a list for each trait of species, genus, and family to fill in gaps
+
+#### get a list for each trait of species, genus, and family to fill in gaps ####
 
 # get unique traits
 traits <- unique(na_traits_family_genus$TraitName)

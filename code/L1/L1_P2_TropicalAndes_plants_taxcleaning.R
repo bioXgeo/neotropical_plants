@@ -1,10 +1,10 @@
 # title: "Tropical Andes plant Lookup Table"
 # author: "Hazel J. Anderson"
 # project: "Plant-Frugivore Diversity"
-# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas"
+# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas, Kelly Kaspar"
 # overview: "Taxonomic harmonization across trait databases"
 # data input: "TropicalAndes_GBIF_plant_occ_cleaned.csv", "TropicalAndes_TRY_plant_traits.csv", "AllDesired_BIEN_plant_traits.csv", "TropicalAndes_GIFT_plant_traits.csv"
-# data output: "all_species_harmonized_results.csv", "TropicalAndes_GBIF_plant_occ_harmonized.csv", "TropicalAndes_TRY_plant_traits_harmonized.csv", "TropicalAndes_BIEN_plant_traits_harmonized.csv", "TropicalAndes_GIFT_plant_traits_harmonized.csv"
+# data output: "plant_lookup_table.csv", "plant_unresolved_species.csv", "all_species_harmonized_results.csv", "TropicalAndes_GBIF_plant_occ_harmonized.csv", "TropicalAndes_TRY_plant_traits_harmonized.csv", "TropicalAndes_BIEN_plant_traits_harmonized.csv", "TropicalAndes_GIFT_plant_traits_harmonized.csv"
 # date: "2023-07-25; 2025-10-21"
 # Notes: JB used HPCC (takes a long time (~12 hrs))
 
@@ -14,14 +14,9 @@ library(knitr); library(TNRS); library(bdc); library(dplyr)
 
 
 # set file paths
-data_path_L0<-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
-data_path_L1 <-file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
+data_path_L0 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L0')
+data_path_L1 <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
 output_path <- file.path('G:/Shared drives/SpaCE_Lab_FRUGIVORIA/data/plants/L1')
-
-# #HPCC
-# data_path_L0 <- file.path('/mnt/research/nasabio/data_2025/plants/L0')
-# data_path_L1 <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
-# output_path <- file.path('/mnt/research/nasabio/data_2025/plants/L1')
 
 
 # read in data
@@ -31,7 +26,7 @@ BIEN_traits <- read.csv(file.path(data_path_L0,"AllDesired_BIEN_plant_traits.csv
 GIFT_traits <- read.csv(file.path(data_path_L0,"TropicalAndes_GIFT_plant_traits.csv"))
 
 
-# generate species lists
+#### generate species lists ####
 GBIF_species <- unique(GBIF_occ$species)
 TRY_species <- unique(TRY_traits$SpeciesName)
 BIEN_species <- unique(BIEN_traits$scrubbed_species_binomial)
@@ -50,7 +45,7 @@ all_species <- unique(all_species)
 length(all_species)
 
 
-# use bdc to check scientific names 
+#### use bdc to check scientific names ####
 name_check_results <- bdc_clean_names(sci_names = all_species, save_outputs = FALSE)
 
 all_species_cleaned <- name_check_results$names_clean
@@ -65,7 +60,7 @@ all_species_cleaned <- unique(all_species_cleaned)
 length(all_species_cleaned)
 
 
-# using TNRS to get harmonize taxonomy
+#### using TNRS to get harmonize taxonomy ####
 all_species_harmonized_results <- TNRS(taxonomic_names = all_species_cleaned)
 
 
@@ -103,7 +98,7 @@ all_species_disparities <- all_species_harmonized_results %>%
 nrow(all_species_disparities)
 
 
-# use bdc to harmonize disparities
+#### use bdc to harmonize disparities ####
 # using COL database
 
 all_species_disparities_col_results <- bdc_query_names_taxadb(sci_name = all_species_disparities$Name_submitted, replace_synonyms = TRUE,suggest_names = TRUE, db = "col", rank_name = "Plantae", rank = "kingdom")
@@ -126,14 +121,14 @@ nrow(all_species_col_NA)
 unresolved_species <- all_species_col_NA$original_search
 
 
-# create lookup table
-
+#### create lookup table ####
+ 
 # from TNRS
 species_matches <- all_species_matches[ , c("Name_submitted", "Accepted_species", "Source")]
 
 species_corrected <- all_species_conflicts[ , c("Name_submitted", "Accepted_species", "Source")]
 
-#combine
+# combine
 lookup_table_TNRS <- rbind(species_matches, species_corrected)
 lookup_table_TNRS$harmonization_package <- c("TNRS")
 
@@ -193,7 +188,7 @@ write.csv(lookup_table, file.path(output_path,"plant_lookup_table.csv"), row.nam
 write.csv(unresolved_species, file.path(output_path,"plant_unresolved_species.csv"), row.names = FALSE)
 
 
-# update data files species names using lookup table
+#### update data files species names using lookup table ####
 
 # GBIF
 

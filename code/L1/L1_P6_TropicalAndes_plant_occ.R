@@ -1,10 +1,10 @@
 # title: "Plant occurrence subset by species with complete trait records"
 # author: "Hazel J. Anderson"
 # project: "Plant-Frugivore Diversity"
-# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas"
+# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas, Kelly Kaspar"
 # overview: "This script subsets plant occurrence data to species with complete trait coverage and summarizes the taxonomic coverage."
 # data input: "TropicalAndes_imputed_plant_traits.csv", "TropicalAndes_GBIF_plant_occ_harmonized_subset.csv", "Forest_sf.shp"
-# data output: "TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv"
+# data output: "plant_taxonomic_coverage.png", "TropicalAndes_GBIF_plant_occ_harmonized_subset_final.csv"
 # date: "2023-10-04; 2025-10-17"
 
 
@@ -29,7 +29,7 @@ plant_occ <- read.csv(file.path(data_path_L1, file = "TropicalAndes_GBIF_plant_o
 TropicalAndes_IUCNHabitat_Forest <- read_sf(file.path(data_path_L0, "Forest_sf.shp"), layer = "Forest_sf")
 
 
-# create list of species with complete trait records
+#### create list of species with complete trait records ####
 plant_species <- unique(plant_traits$species)
 length(plant_species)
 
@@ -69,7 +69,7 @@ data_summary(plant_occ_subset, plant_occ_subset$Accepted_species, plant_occ_subs
 data_summary(checklist_tax, checklist_tax$work_species, checklist_tax$genus, checklist_tax$family)
 
 
-# visualize taxonomic coverage
+#### visualize taxonomic coverage ####
 GBIF_occ_summary <- plant_occ_subset %>%
   summarise(
     num_species = n_distinct(Accepted_species),

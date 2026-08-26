@@ -1,10 +1,10 @@
 # title: Tropical Andes IUCN Montane and Lowland Forest
 # author: Hazel J. Anderson
 # project: Plant-Frugivore Diversity
-# collaborators: Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas
+# collaborators: Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas, Kelly Kaspar
 # overview: Create raster of IUCN habitat classification Forest-Subtropical moist montane and Forest-Subtropical moist lowland for Tropical Andes
-# data input: "iucn_habitatclassification_composite_lvl2_ver004/lvl2_frac_1km_ver004/iucn_habitatclassification_fraction_lvl2__109_Forest – Subtropical-tropical moist montane__ver004.tif, iucn_habitatclassification_composite_lvl2_ver004/lvl2_frac_1km_ver004/iucn_habitatclassification_fraction_lvl2__106_Forest – Subtropical-tropical moist lowland__ver004.tif"
-# data output: "TropicalAndes_IUCNHabitat_Forest.GTiff, TropicalAndes_IUCNHabitat_Forest_Montane.GTiff, TropicalAndes_IUCNHabitat_Forest_Lowland.GTiff"
+# data input: "iucn_habitatclassification_composite_lvl2_ver004/lvl2_frac_1km_ver004/iucn_habitatclassification_fraction_lvl2__109_Forest – Subtropical-tropical moist montane__ver004.tif", "iucn_habitatclassification_composite_lvl2_ver004/lvl2_frac_1km_ver004/iucn_habitatclassification_fraction_lvl2__106_Forest – Subtropical-tropical moist lowland__ver004.tif", TA_refined.shp"
+# data output: "TropicalAndes_IUCNHabitat_Forest.GTiff", "TropicalAndes_IUCNHabitat_Forest_Montane.GTiff", "TropicalAndes_IUCNHabitat_Forest_Lowland.GTiff", TropicalAndes_IUCNHabitat_Forest0.1.tif", Forest_sf.shp", ""Tropical Andes Forest Map.png"
 # date: "2023-07-18; 2025-09-22"
 
 
@@ -101,28 +101,32 @@ BOpoly <- worldMap %>% filter(sovereignt == "Bolivia")
 TApoly <- worldMap %>% filter(sovereignt == "Bolivia" |sovereignt == "Ecuador" | sovereignt == "Venezuela" | sovereignt == "Colombia" | sovereignt == "Peru")
 
 # set colors
-Andean_states <- "lightgrey"
-Tropical_Andes <- "grey"
+Andean_states <- "grey90"
+Tropical_Andes <- "peachpuff3"
 Forest <- "forestgreen"
 
 # plot
 ggplot() + 
   geom_sf(data = worldMap, fill = "white") +
-  geom_sf(data = ECpoly, fill = Andean_states) +
-  geom_sf(data = VEpoly, fill = Andean_states) +
-  geom_sf(data = COpoly, fill = Andean_states) +
-  geom_sf(data = PEpoly, fill = Andean_states) +
-  geom_sf(data = BOpoly, fill = Andean_states) +
-  geom_sf(data = TropicalAndes, fill = Tropical_Andes) +
-  geom_sf(data = Forest_sf, fill = Forest) +
-  labs(title = "Tropical Andes IUCN Montane and Lowland forest", x = "Latitude", y = "Longitude") +
+  geom_sf(data = ECpoly, aes(fill = "Andean states")) +
+  geom_sf(data = VEpoly, aes(fill = "Andean states")) +
+  geom_sf(data = COpoly, aes(fill = "Andean states")) +
+  geom_sf(data = PEpoly, aes(fill = "Andean states")) +
+  geom_sf(data = BOpoly, aes(fill = "Andean states")) +
+  geom_sf(data = TropicalAndes, aes(fill = "Tropical Andes")) +
+  geom_sf(data = Forest_sf, aes(fill = "Tropical Andes Forest")) +
+  scale_fill_manual(
+    name = "Region",
+    values = c("Andean states" = Andean_states, "Tropical Andes" = Tropical_Andes, "Tropical Andes Forest" = Forest)
+  ) +
+  labs(x = "Latitude", y = "Longitude") +
+  guides(fill = guide_legend(reverse = TRUE))+
   coord_sf(xlim = c(-85, -60), ylim = c(-24, 14), expand = FALSE) +
-  annotation_scale(location = "bl", width_hint = 0.5) +
-  annotation_north_arrow(location = "bl", which_north = "true", 
-                         pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"), style = north_arrow_fancy_orienteering) +
-  theme(panel.background = element_rect(fill = "lightblue"))
+  annotation_scale(location = "bl", width_hint = 0.5, height = unit(0.08, "in")) +
+  annotation_north_arrow(location = "bl", which_north = "true", pad_x = unit(0.1, "in"), pad_y = unit(0.5, "in"), style = north_arrow_fancy_orienteering) +
+  theme(panel.background = element_rect(fill = "lightblue"), panel.border = element_rect(colour = "black", fill = NA, linewidth = 1), legend.text = element_text(size = 14), legend.title = element_text(size = 16), axis.title = element_text(size = 16))
 
-ggsave(filename = "Tropical Andes Forest Map.png", dpi = 300, device="png", path = output_path_L0)
+ggsave(filename = "Tropical Andes Forest Map.png", dpi = 300, width = 8, height = 6, device="png", path = output_path_L0)
 
 # cite packages and print session info
 library(report)
