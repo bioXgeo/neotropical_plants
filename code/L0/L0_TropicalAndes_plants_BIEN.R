@@ -1,10 +1,10 @@
 # title: "Tropical Andes plant trait data BIEN"
 # author: "Hazel J. Anderson"
 # project: "Plant-Frugivore Diversity"
-# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas"
+# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Jenna B. Baljunas, Kelly Kaspar"
 # overview: "This script retrieves plant trait data from the BIEN database for Tropical Andean countries."
-# data input: "none"
-# data output: "TropicalAndes_BIEN_traits.csv, AllDesired_BIEN_plant_traits.csv"
+# data input: None
+# data output: "TropicalAndes_BIEN_traits.csv", "AllDesired_BIEN_plant_traits.csv"
 # date: "2023-10-17; 2025-09-22"
 # notes: PLZ ran, JB couldn't on laptop and HPCC
 
