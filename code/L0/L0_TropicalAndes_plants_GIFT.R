@@ -1,7 +1,7 @@
 # title: "Tropical Andes plant trait data GIFT"
 # author: "Hazel J. Anderson, Jenna B. Baljunas"
 # project: "Plant-Frugivore Diversity"
-# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske"
+# collaborators: "Beth E. Gerstner, Phoebe L. Zarnetske, Kelly Kaspar"
 # overview: "This script retrieves plant trait data from the GIFT database for plant species list."
 # data input: "none"
 # data output: "TropicalAndes_GIFT_plant_traits.csv"
