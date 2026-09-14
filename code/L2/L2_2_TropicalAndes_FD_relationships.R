@@ -21,6 +21,7 @@ library(mgcv)
 library(DHARMa)
 library(sf)
 library(gstat)
+library(sp)
 
 
 # set file paths
@@ -217,12 +218,6 @@ comparison_50km_plot <- comparison_50km$plot
 (comparison_50km_plot <- comparison_50km_plot +
   ylab('Frugivore FDis by cell') +
   xlab('Plant FDis by cell') +
-  theme(
-    axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
-  ) +
   annotate(
     "text",
     x = 0.4,
@@ -259,7 +254,11 @@ comparison_25km_plot <- comparison_25km$plot
     axis.title.y = element_blank(),
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
+    axis.line.y = element_blank(),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.line.x = element_blank()
   ) +
   annotate(
     "text",
@@ -297,7 +296,11 @@ comparison_10km_plot <- comparison_10km$plot
     axis.title.y = element_blank(),
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
+    axis.line.y = element_blank(),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.line.x = element_blank()
   ) +
   annotate(
     "text",
@@ -309,7 +312,7 @@ comparison_10km_plot <- comparison_10km$plot
   annotate(
     "text",
     x = 0.2,
-    y = 0.52,
+    y = 0.54,
     label = paste('Mammal R² =', round(comparison_10km$r2_df$r2[1], 3)),
     size = 5
   ) +
@@ -332,10 +335,10 @@ comparison_5km_plot <- comparison_5km$plot
   ylab('Frugivore FDis by cell') +
   xlab('Plant FDis by cell') +
   theme(
-    axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.line.x = element_blank()
   ) +
   annotate(
     "text",
@@ -347,7 +350,7 @@ comparison_5km_plot <- comparison_5km$plot
   annotate(
     "text",
     x = 0.2,
-    y = 0.52,
+    y = 0.55,
     label = paste('Mammal R² =', round(comparison_5km$r2_df$r2[1], 3)),
     size = 5
   ) +
@@ -392,6 +395,9 @@ comparison_100km_gam <- div_comparison_gam(
   100
 )
 
+plot(comparison_100km_gam$m1_vario)
+plot(comparison_100km_gam$m2_vario)
+
 comparison_100km_gam_plot <- comparison_100km_gam$plot
 (comparison_100km_gam_plot <- comparison_100km_gam_plot +
   ylab('Frugivore FDis by cell') +
@@ -405,7 +411,7 @@ comparison_100km_gam_plot <- comparison_100km_gam$plot
   annotate(
     "text",
     x = 0.4,
-    y = 0.55,
+    y = 0.47,
     label = paste(
       'Bird D² =',
       round(comparison_100km_gam$r2_df$dev_expl[2], 3)
@@ -436,6 +442,9 @@ comparison_75km_gam <- div_comparison_gam(
   75
 )
 
+plot(comparison_75km_gam$m1_vario)
+plot(comparison_75km_gam$m2_vario)
+
 comparison_75km_gam_plot <- comparison_75km_gam$plot
 (comparison_75km_gam_plot <- comparison_75km_gam_plot +
   ylab('Frugivore FDis by cell') +
@@ -449,14 +458,14 @@ comparison_75km_gam_plot <- comparison_75km_gam$plot
   annotate(
     "text",
     x = 0.4,
-    y = 0.47,
+    y = 0.45,
     label = paste('Bird D² =', round(comparison_75km_gam$r2_df$dev_expl[2], 3)),
     size = 5
   ) +
   annotate(
     "text",
     x = 0.4,
-    y = 0.65,
+    y = 0.67,
     label = paste(
       'Mammal D² =',
       round(comparison_75km_gam$r2_df$dev_expl[1], 3)
@@ -477,27 +486,24 @@ comparison_50km_gam <- div_comparison_gam(
   50
 )
 
+plot(comparison_50km_gam$m1_vario)
+plot(comparison_50km_gam$m2_vario)
+
 comparison_50km_gam_plot <- comparison_50km_gam$plot
 (comparison_50km_gam_plot <- comparison_50km_gam_plot +
   ylab('Frugivore FDis by cell') +
   xlab('Plant FDis by cell') +
-  theme(
-    axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
-  ) +
   annotate(
     "text",
     x = 0.38,
-    y = 0.51,
+    y = 0.52,
     label = paste('Bird D² =', round(comparison_50km_gam$r2_df$dev_expl[2], 3)),
     size = 5
   ) +
   annotate(
     "text",
     x = 0.4,
-    y = 0.7,
+    y = 0.72,
     label = paste(
       'Mammal D² =',
       round(comparison_50km_gam$r2_df$dev_expl[1], 3)
@@ -518,6 +524,9 @@ comparison_25km_gam <- div_comparison_gam(
   25
 )
 
+plot(comparison_25km_gam$m1_vario)
+plot(comparison_25km_gam$m2_vario)
+
 comparison_25km_gam_plot <- comparison_25km_gam$plot
 (comparison_25km_gam_plot <- comparison_25km_gam_plot +
   ylab('Frugivore FDis by cell') +
@@ -526,19 +535,23 @@ comparison_25km_gam_plot <- comparison_25km_gam$plot
     axis.title.y = element_blank(),
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
+    axis.line.y = element_blank(),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.line.x = element_blank()
   ) +
   annotate(
     "text",
     x = 0.25,
-    y = 0.49,
+    y = 0.50,
     label = paste('Bird D² =', round(comparison_25km_gam$r2_df$dev_expl[2], 3)),
     size = 5
   ) +
   annotate(
     "text",
     x = 0.25,
-    y = 0.63,
+    y = 0.64,
     label = paste(
       'Mammal D² =',
       round(comparison_25km_gam$r2_df$dev_expl[1], 3)
@@ -559,6 +572,9 @@ comparison_10km_gam <- div_comparison_gam(
   10
 )
 
+plot(comparison_10km_gam$m1_vario)
+plot(comparison_10km_gam$m2_vario)
+
 comparison_10km_gam_plot <- comparison_10km_gam$plot
 (comparison_10km_gam_plot <- comparison_10km_gam_plot +
   ylab('Frugivore FDis by cell') +
@@ -567,7 +583,11 @@ comparison_10km_gam_plot <- comparison_10km_gam$plot
     axis.title.y = element_blank(),
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
+    axis.line.y = element_blank(),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.line.x = element_blank()
   ) +
   annotate(
     "text",
@@ -578,7 +598,7 @@ comparison_10km_gam_plot <- comparison_10km_gam$plot
   ) +
   annotate(
     "text",
-    x = 0.15,
+    x = 0.19,
     y = 0.6,
     label = paste(
       'Mammal D² =',
@@ -600,27 +620,30 @@ comparison_5km_gam <- div_comparison_gam(
   5
 )
 
+plot(comparison_5km_gam$m1_vario)
+plot(comparison_5km_gam$m2_vario)
+
 comparison_5km_gam_plot <- comparison_5km_gam$plot
 (comparison_5km_gam_plot <- comparison_5km_gam_plot +
   ylab('Frugivore FDis by cell') +
   xlab('Plant FDis by cell') +
   theme(
-    axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.line.x = element_blank()
   ) +
   annotate(
     "text",
     x = 0.15,
-    y = 0.49,
+    y = 0.38,
     label = paste('Bird D² =', round(comparison_5km_gam$r2_df$dev_expl[2], 3)),
     size = 5
   ) +
   annotate(
     "text",
     x = 0.2,
-    y = 0.3,
+    y = 0.56,
     label = paste(
       'Mammal D² =',
       round(comparison_5km_gam$r2_df$dev_expl[1], 3)
@@ -840,8 +863,8 @@ cutoff_comparison_100km_plot <- cutoff_comparison_100km$plot
   ) +
   theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 16)))
 
-simulateResiduals(cutoff_comparison_100km_plot$m1, plot = T)
-simulateResiduals(cutoff_comparison_100km_plot$m2, plot = T)
+simulateResiduals(cutoff_comparison_100km$m1, plot = T)
+simulateResiduals(cutoff_comparison_100km$m2, plot = T)
 
 
 # 75 km
@@ -878,8 +901,8 @@ cutoff_comparison_75km_plot <- cutoff_comparison_75km$plot
   ) +
   theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 16)))
 
-simulateResiduals(cutoff_comparison_75km_plot$m1, plot = T)
-simulateResiduals(cutoff_comparison_75km_plot$m2, plot = T)
+simulateResiduals(cutoff_comparison_75km$m1, plot = T)
+simulateResiduals(cutoff_comparison_75km$m2, plot = T)
 
 
 # 50 km
@@ -894,12 +917,6 @@ cutoff_comparison_50km_plot <- cutoff_comparison_50km$plot
 (cutoff_comparison_50km_plot <- cutoff_comparison_50km_plot +
   ylab('Frugivore FDis by cell') +
   xlab('Plant FDis by cell') +
-  theme(
-    axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
-  ) +
   annotate(
     "text",
     x = 0.4,
@@ -910,14 +927,14 @@ cutoff_comparison_50km_plot <- cutoff_comparison_50km$plot
   annotate(
     "text",
     x = 0.4,
-    y = 0.65,
+    y = 0.69,
     label = paste('Mammal R² =', round(cutoff_comparison_50km$r2_df$r2[1], 3)),
     size = 5
   ) +
   theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 16)))
 
-simulateResiduals(cutoff_comparison_50km_plot$m1, plot = T)
-simulateResiduals(cutoff_comparison_50km_plot$m2, plot = T)
+simulateResiduals(cutoff_comparison_50km$m1, plot = T)
+simulateResiduals(cutoff_comparison_50km$m2, plot = T)
 
 
 # 25 km
@@ -936,26 +953,30 @@ cutoff_comparison_25km_plot <- cutoff_comparison_25km$plot
     axis.title.y = element_blank(),
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
+    axis.line.y = element_blank(),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.line.x = element_blank()
   ) +
   annotate(
     "text",
-    x = 0.4,
-    y = 0.55,
+    x = 0.35,
+    y = 0.52,
     label = paste('Bird R² =', round(cutoff_comparison_25km$r2_df$r2[2], 3)),
     size = 5
   ) +
   annotate(
     "text",
     x = 0.4,
-    y = 0.65,
+    y = 0.68,
     label = paste('Mammal R² =', round(cutoff_comparison_25km$r2_df$r2[1], 3)),
     size = 5
   ) +
   theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 16)))
 
-simulateResiduals(cutoff_comparison_25km_plot$m1, plot = T)
-simulateResiduals(cutoff_comparison_25km_plot$m2, plot = T)
+simulateResiduals(cutoff_comparison_25km$m1, plot = T)
+simulateResiduals(cutoff_comparison_25km$m2, plot = T)
 
 
 # 10 km
@@ -974,26 +995,30 @@ cutoff_comparison_10km_plot <- cutoff_comparison_10km$plot
     axis.title.y = element_blank(),
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
+    axis.line.y = element_blank(),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.line.x = element_blank()
   ) +
   annotate(
     "text",
-    x = 0.4,
-    y = 0.55,
+    x = 0.35,
+    y = 0.54,
     label = paste('Bird R² =', round(cutoff_comparison_10km$r2_df$r2[2], 3)),
     size = 5
   ) +
   annotate(
     "text",
     x = 0.4,
-    y = 0.65,
+    y = 0.67,
     label = paste('Mammal R² =', round(cutoff_comparison_10km$r2_df$r2[1], 3)),
     size = 5
   ) +
   theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 16)))
 
-simulateResiduals(cutoff_comparison_10km_plot$m1, plot = T)
-simulateResiduals(cutoff_comparison_10km_plot$m2, plot = T)
+simulateResiduals(cutoff_comparison_10km$m1, plot = T)
+simulateResiduals(cutoff_comparison_10km$m2, plot = T)
 
 
 # 5 km
@@ -1009,29 +1034,29 @@ cutoff_comparison_5km_plot <- cutoff_comparison_5km$plot
   ylab('Frugivore FDis by cell') +
   xlab('Plant FDis by cell') +
   theme(
-    axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.line.x = element_blank()
   ) +
   annotate(
     "text",
-    x = 0.4,
-    y = 0.55,
+    x = 0.3,
+    y = 0.54,
     label = paste('Bird R² =', round(cutoff_comparison_5km$r2_df$r2[2], 3)),
     size = 5
   ) +
   annotate(
     "text",
-    x = 0.4,
-    y = 0.65,
+    x = 0.35,
+    y = 0.67,
     label = paste('Mammal R² =', round(cutoff_comparison_5km$r2_df$r2[1], 3)),
     size = 5
   ) +
   theme(plot.title = element_text(face = "bold", hjust = 0.5, size = 16)))
 
-simulateResiduals(cutoff_comparison_5km_plot$m1, plot = T)
-simulateResiduals(cutoff_comparison_5km_plot$m2, plot = T)
+simulateResiduals(cutoff_comparison_5km$m1, plot = T)
+simulateResiduals(cutoff_comparison_5km$m2, plot = T)
 
 
 # combined plot
@@ -1161,16 +1186,10 @@ cutoff_comparison_50km_gam_plot <- cutoff_comparison_50km_gam$plot
 (cutoff_comparison_50km_gam_plot <- cutoff_comparison_50km_gam_plot +
   ylab('Frugivore FDis by cell') +
   xlab('Plant FDis by cell') +
-  theme(
-    axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
-  ) +
   annotate(
     "text",
     x = 0.4,
-    y = 0.55,
+    y = 0.51,
     label = paste(
       'Bird D² =',
       round(cutoff_comparison_50km_gam$r2_df$dev_expl[2], 3)
@@ -1180,7 +1199,7 @@ cutoff_comparison_50km_gam_plot <- cutoff_comparison_50km_gam$plot
   annotate(
     "text",
     x = 0.4,
-    y = 0.65,
+    y = 0.68,
     label = paste(
       'Mammal D² =',
       round(cutoff_comparison_50km_gam$r2_df$dev_expl[1], 3)
@@ -1209,12 +1228,16 @@ cutoff_comparison_25km_gam_plot <- cutoff_comparison_25km_gam$plot
     axis.title.y = element_blank(),
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
+    axis.line.y = element_blank(),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.line.x = element_blank()
   ) +
   annotate(
     "text",
-    x = 0.4,
-    y = 0.55,
+    x = 0.35,
+    y = 0.52,
     label = paste(
       'Bird D² =',
       round(cutoff_comparison_25km_gam$r2_df$dev_expl[2], 3)
@@ -1224,7 +1247,7 @@ cutoff_comparison_25km_gam_plot <- cutoff_comparison_25km_gam$plot
   annotate(
     "text",
     x = 0.4,
-    y = 0.65,
+    y = 0.69,
     label = paste(
       'Mammal D² =',
       round(cutoff_comparison_25km_gam$r2_df$dev_expl[1], 3)
@@ -1253,12 +1276,16 @@ cutoff_comparison_10km_gam_plot <- cutoff_comparison_10km_gam$plot
     axis.title.y = element_blank(),
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
+    axis.line.y = element_blank(),
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.line.x = element_blank()
   ) +
   annotate(
     "text",
-    x = 0.4,
-    y = 0.55,
+    x = 0.35,
+    y = 0.54,
     label = paste(
       'Bird D² =',
       round(cutoff_comparison_10km_gam$r2_df$dev_expl[2], 3)
@@ -1268,7 +1295,7 @@ cutoff_comparison_10km_gam_plot <- cutoff_comparison_10km_gam$plot
   annotate(
     "text",
     x = 0.4,
-    y = 0.65,
+    y = 0.66,
     label = paste(
       'Mammal D² =',
       round(cutoff_comparison_10km_gam$r2_df$dev_expl[1], 3)
@@ -1294,15 +1321,15 @@ cutoff_comparison_5km_gam_plot <- cutoff_comparison_5km_gam$plot
   ylab('Frugivore FDis by cell') +
   xlab('Plant FDis by cell') +
   theme(
-    axis.title.y = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks.y = element_blank(),
-    axis.line.y = element_blank()
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.line.x = element_blank()
   ) +
   annotate(
     "text",
-    x = 0.4,
-    y = 0.55,
+    x = 0.34,
+    y = 0.52,
     label = paste(
       'Bird D² =',
       round(cutoff_comparison_5km_gam$r2_df$dev_expl[2], 3)
@@ -1311,8 +1338,8 @@ cutoff_comparison_5km_gam_plot <- cutoff_comparison_5km_gam$plot
   ) +
   annotate(
     "text",
-    x = 0.4,
-    y = 0.65,
+    x = 0.34,
+    y = 0.63,
     label = paste(
       'Mammal D² =',
       round(cutoff_comparison_5km_gam$r2_df$dev_expl[1], 3)
