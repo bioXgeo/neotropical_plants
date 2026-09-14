@@ -259,6 +259,8 @@ plants_sf_species2 <- plants.sf %>%
 
 saveRDS(plants_sf_species2, file = file.path(all_output_path_L1, "plant_sp_obs.rds"))
 
+nrow(plants_sf_species2)
+length(unique(plants_sf_species2$species))
 
 # mammals
 mammals_sf_species2 <- mammals.sf %>%
@@ -267,6 +269,8 @@ mammals_sf_species2 <- mammals.sf %>%
 
 saveRDS(mammals_sf_species2, file = file.path(all_output_path_L1, "mammal_sp_obs.rds"))
 
+nrow(mammals_sf_species2)
+length(unique(mammals_sf_species2$species))
 
 # birds
 birds_sf_species2 <- birds.sf %>%
@@ -275,6 +279,8 @@ birds_sf_species2 <- birds.sf %>%
 
 saveRDS(birds_sf_species2, file = file.path(all_output_path_L1, "bird_sp_obs.rds"))
 
+nrow(birds_sf_species2)
+length(unique(birds_sf_species2$species))
 
 #### species occurrence matrices ####
 
