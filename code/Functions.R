@@ -1600,91 +1600,116 @@ create_variogram <- function(df, mod) {
 
 # TD-FD within same taxa 
 div_comparison2 <- function(TD, FD, guild, resolution) {
-  all_div <- data.frame(cell_id = TD$cellid, TD = TD$num_species, FD = FD$fdis)
-
-  # Filter out rows where either plant or frugivore richness is zero
-  div_filtered <- all_div %>%
-    filter(TD > 0 & FD > 0)
-
+  
+  coords <- as.data.frame(st_coordinates(st_centroid(TD)))
+  
+  all_div <- data.frame(
+    cell_id = TD$cellid,
+    x = coords$X,
+    y = coords$Y,
+    TD = TD$richness,
+    FD = FD$fdis)%>%
+    dplyr::filter(TD > 0 & FD > 0)
+  
+  m1 <- gam(FD ~ TD + s(x, y, bs = "tp", k = 30),
+            data = all_div,
+            family = betar(link = "logit"),
+            method = "REML")
+  
+  rng <- range(all_div$TD, na.rm = TRUE)
+  
+  newdata <- data.frame(
+    TD = seq(rng[1], rng[2], length.out = 100),
+    x = mean(coords$X, na.rm = TRUE),
+    y = mean(coords$Y, na.rm = TRUE)
+  )
+  
+  newdata$FD <- predict(m1, newdata = newdata, type = "response", exclude = "s(x,y)")
+  
+  r2_df <- data.frame(
+    r2 = summary(m1)$r.sq
+  )
+  
+  r2_df$dev_expl <- summary(m1)$dev.expl
+  
   if (guild == 'plant') {
-    plot <- ggplot(data = div_filtered, aes(x = TD, y = FD)) +
-      geom_point(size = 2, color = 'darkseagreen3') +
+  (plot <- ggplot(data = all_div, aes(x = TD, y = FD)) +
+    geom_point(size = 2, color = 'darkseagreen3') +
+      geom_line(
+        data = newdata,
+        aes(x = TD, y = FD),
+        color = 'darkseagreen3',
+        size = 1.2
+      ) +
       labs(
         x = 'Plant richness by cell',
         y = 'Plant FDis by cell',
         title = paste0('[', resolution, 'km]')
       ) +
-      geom_smooth(method = 'lm', se = FALSE, color = 'darkseagreen3') +
-      scale_x_continuous(expand = c(0, 0), limits = c(0, 1600)) +
-      scale_y_continuous(expand = c(0, 0), limits = c(0, .8)) +
+      scale_x_continuous(expand = c(0, 0), limits = c(0, 2500)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, 0.75)) +
       theme_classic() +
       theme(
         axis.title = element_text(size = 18),
         axis.text = element_text(size = 12),
         legend.title = element_text(size = 18),
         legend.text = element_text(size = 16)
-      )
-
-    sum_trend <- trendline_sum(
-      div_filtered$TD,
-      div_filtered$FD,
-      model = "line2P"
-    )
-  } else {
+      ))
+}
+  else {
     if (guild == 'mammal') {
-      plot <- ggplot(data = div_filtered, aes(x = TD, y = FD)) +
+      (plot <- ggplot(data = all_div, aes(x = TD, y = FD)) +
         geom_point(size = 2, color = 'burlywood3') +
+        geom_line(
+          data = newdata,
+          aes(x = TD, y = FD),
+          color = 'burlywood3',
+          size = 1.2
+        ) +
         labs(
           x = 'Mammal richness by cell',
           y = 'Mammal FDis by cell',
           title = paste0('[', resolution, 'km]')
         ) +
-        geom_smooth(method = 'lm', se = FALSE, color = 'burlywood3') +
-        scale_x_continuous(expand = c(0, 0), limits = c(0, 130)) +
-        scale_y_continuous(expand = c(0, 0), limits = c(0, .8)) +
+        scale_x_continuous(expand = c(0, 0), limits = c(20, 160)) +
+        scale_y_continuous(expand = c(0, 0), limits = c(0, 0.8)) +
         theme_classic() +
         theme(
           axis.title = element_text(size = 18),
           axis.text = element_text(size = 12),
           legend.title = element_text(size = 18),
           legend.text = element_text(size = 16)
-        )
-
-      sum_trend <- trendline_sum(
-        div_filtered$TD,
-        div_filtered$FD,
-        model = "line2P"
-      )
+        ))
     } else {
-      plot <- ggplot(data = div_filtered, aes(x = TD, y = FD)) +
-        geom_point(size = 2, color = 'lightsteelblue2') +
-        labs(
-          x = 'Bird richness by cell',
-          y = 'Bird FDis by cell',
-          title = paste0('[', resolution, 'km]')
-        ) +
-        geom_smooth(method = 'lm', se = FALSE, color = 'lightsteelblue2') +
-        scale_x_continuous(expand = c(0, 0), limits = c(0, 360)) +
-        scale_y_continuous(expand = c(0, 0), limits = c(0, .8)) +
-        theme_classic() +
-        theme(
-          axis.title = element_text(size = 18),
-          axis.text = element_text(size = 12),
-          legend.title = element_text(size = 18),
-          legend.text = element_text(size = 16)
-        )
-
-      sum_trend <- trendline_sum(
-        div_filtered$TD,
-        div_filtered$FD,
-        model = "line2P"
-      )
+      (plot <- ggplot(data = all_div, aes(x = TD, y = FD)) +
+         geom_point(size = 2, color = 'lightsteelblue2') +
+         geom_line(
+           data = newdata,
+           aes(x = TD, y = FD),
+           color = 'lightsteelblue2',
+           size = 1.2
+         ) +
+         labs(
+           x = 'Bird richness by cell',
+           y = 'Bird FDis by cell',
+           title = paste0('[', resolution, 'km]')
+         ) +
+         scale_x_continuous(expand = c(0, 0), limits = c(0, 600)) +
+         scale_y_continuous(expand = c(0, 0), limits = c(0, 0.8)) +
+         theme_classic() +
+         theme(
+           axis.title = element_text(size = 18),
+           axis.text = element_text(size = 12),
+           legend.title = element_text(size = 18),
+           legend.text = element_text(size = 16)
+         ))
     }
   }
 
   result <- list(
     plot = plot,
-    trend = sum_trend
+    r2_df = r2_df,
+    m1 = m1
   )
   return(result)
 }
@@ -1692,145 +1717,245 @@ div_comparison2 <- function(TD, FD, guild, resolution) {
 
 # TD plants-FD birds/mammals, FD plants-TD birds/mammals
 div_comparison3 <- function(plant_div, mammal_div, bird_div, resolution) {
-  if ('num_species' %in% colnames(plant_div)) {
+  
+  if ('richness' %in% colnames(plant_div)) {
+    
+    coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
+    
     mammal_plant <- data.frame(
       cell_id = plant_div$cellid,
-      plant_div = plant_div$num_species,
+      x = coords$X,
+      y = coords$Y,
+      plant_div = plant_div$richness,
       frug_div = mammal_div$fdis,
       taxa = c(rep('Mammal', nrow(mammal_div)))
+    ) %>%
+      dplyr::filter(plant_div > 0 & frug_div > 0)
+    
+    m1 <- gam(
+      frug_div ~ plant_div + s(x, y, bs = "tp", k = 30),
+      data = mammal_plant,
+      family = betar(link = "logit"),
+      method = "REML"
     )
-
-    mammal_plant <- mammal_plant %>%
-      filter(plant_div > 0 & frug_div > 0)
-
+    
+    rng <- range(mammal_plant$plant_div, na.rm = TRUE)
+    
+    newdata <- data.frame(
+      plant_div = seq(rng[1], rng[2], length.out = 100),
+      x = mean(coords$X, na.rm = TRUE),
+      y = mean(coords$Y, na.rm = TRUE)
+    )
+    
+    newdata$frug_div <- predict(m1, newdata = newdata, type = "response", exclude = "s(x,y)")
+    
+    (plot1 <- ggplot(
+      data = mammal_plant,
+      aes(x = plant_div, y = frug_div)) +
+        geom_point(size = 2, color = 'burlywood3') +
+        geom_line(
+          data = newdata,
+          aes(x = plant_div, y = frug_div),
+          color = "burlywood3",
+          size = 1.2
+        ) +
+        labs(
+          x = 'Plant richness by cell',
+          y = 'Mammal fdis by cell',
+          title = paste0('[', resolution, 'km]')
+        ) +
+        scale_x_continuous(expand = c(0, 0), limits = c(0, 2300)) +
+        scale_y_continuous(expand = c(0, 0), limits = c(0, 0.8)) +
+        theme_classic() +
+        theme(
+          axis.title = element_text(size = 18),
+          axis.text = element_text(size = 12),
+          legend.title = element_text(size = 18),
+          legend.text = element_text(size = 16)
+        ))
+    
+    
     bird_plant <- data.frame(
       cell_id = plant_div$cellid,
-      plant_div = plant_div$num_species,
+      x = coords$X,
+      y = coords$Y,
+      plant_div = plant_div$richness,
       frug_div = bird_div$fdis,
       taxa = c(rep('Bird', nrow(bird_div)))
+    ) %>%
+      dplyr::filter(plant_div > 0 & frug_div > 0)
+    
+    m2 <- gam(
+      frug_div ~ plant_div + s(x, y, bs = "tp", k = 30),
+      data = bird_plant,
+      family = betar(link = "logit"),
+      method = "REML"
     )
-
-    bird_plant <- bird_plant %>%
-      filter(plant_div > 0 & frug_div > 0)
-
-    plot1 <- ggplot(data = mammal_plant, aes(x = plant_div, y = frug_div)) +
-      geom_point(size = 2, color = 'burlywood3') +
-      labs(
-        x = 'Plant richness by cell',
-        y = 'Mammal FDis by cell',
-        title = paste0('[', resolution, 'km]')
-      ) +
-      geom_smooth(method = 'lm', se = FALSE, color = 'burlywood3') +
-      scale_x_continuous(expand = c(0, 0), limits = c(0, 1600)) +
-      scale_y_continuous(expand = c(0, 0), limits = c(0, .8)) +
-      theme_classic() +
-      theme(
-        axis.title = element_text(size = 18),
-        axis.text = element_text(size = 12),
-        legend.title = element_text(size = 18),
-        legend.text = element_text(size = 16)
-      )
-    mammal_plant_sum_trend <- trendline_sum(
-      mammal_plant$plant_div,
-      mammal_plant$frug_div,
-      model = "line2P"
+    
+    rng <- range(bird_plant$plant_div, na.rm = TRUE)
+    
+    newdata <- data.frame(
+      plant_div = seq(rng[1], rng[2], length.out = 100),
+      x = mean(coords$X, na.rm = TRUE),
+      y = mean(coords$Y, na.rm = TRUE)
     )
-
-    plot2 <- ggplot(data = bird_plant, aes(x = plant_div, y = frug_div)) +
-      geom_point(size = 2, color = 'lightsteelblue2') +
-      labs(
-        x = 'Plant richness by cell',
-        y = 'Bird FDis by cell',
-        title = paste0('[', resolution, 'km]')
-      ) +
-      geom_smooth(method = 'lm', se = FALSE, color = 'lightsteelblue2') +
-      scale_x_continuous(expand = c(0, 0), limits = c(0, 1600)) +
-      scale_y_continuous(expand = c(0, 0), limits = c(0, .8)) +
-      theme_classic() +
-      theme(
-        axis.title = element_text(size = 18),
-        axis.text = element_text(size = 12),
-        legend.title = element_text(size = 18),
-        legend.text = element_text(size = 16)
-      )
-    bird_plant_sum_trend <- trendline_sum(
-      bird_plant$plant_div,
-      bird_plant$frug_div,
-      model = "line2P"
+    
+    newdata$frug_div <- predict(m2, newdata = newdata, type = "response", exclude = "s(x,y)")
+    
+    (plot2 <- ggplot(
+      data = bird_plant,
+      aes(x = plant_div, y = frug_div)) +
+        geom_point(size = 2, color = 'lightsteelblue2') +
+        geom_line(
+          data = newdata,
+          aes(x = plant_div, y = frug_div),
+          color = "lightsteelblue2",
+          size = 1.2
+        ) +
+        labs(
+          x = 'Plant richness by cell',
+          y = 'Bird fdis by cell',
+          title = paste0('[', resolution, 'km]')
+        ) +
+        scale_x_continuous(expand = c(0, 0), limits = c(0, 3000)) +
+        scale_y_continuous(expand = c(0, 0), limits = c(0, 0.8)) +
+        theme_classic() +
+        theme(
+          axis.title = element_text(size = 18),
+          axis.text = element_text(size = 12),
+          legend.title = element_text(size = 18),
+          legend.text = element_text(size = 16)
+        ))
+    
+    r2_df <- data.frame(
+      taxa = c("Mammal", "Bird"),
+      r2 = c(summary(m1)$r.sq, summary(m2)$r.sq)
     )
+    
+    r2_df$dev_expl <- c(summary(m1)$dev.expl, summary(m2)$dev.expl)
+    
   } else {
+    coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
+    
     mammal_plant <- data.frame(
       cell_id = plant_div$cellid,
+      x = coords$X,
+      y = coords$Y,
       plant_div = plant_div$fdis,
-      frug_div = mammal_div$num_species,
+      frug_div = mammal_div$richness,
       taxa = c(rep('Mammal', nrow(mammal_div)))
+    ) %>%
+      dplyr::filter(plant_div > 0 & frug_div > 0)
+    
+    m1 <- gam(
+      plant_div ~ frug_div + s(x, y, bs = "tp", k = 30),
+      data = mammal_plant,
+      family = betar(link = "logit"),
+      method = "REML"
     )
-
-    mammal_plant <- mammal_plant %>%
-      filter(plant_div > 0 & frug_div > 0)
-
+    
+    rng <- range(mammal_plant$frug_div, na.rm = TRUE)
+    
+    newdata <- data.frame(
+      frug_div = seq(rng[1], rng[2], length.out = 100),
+      x = mean(coords$X, na.rm = TRUE),
+      y = mean(coords$Y, na.rm = TRUE)
+    )
+    
+    newdata$plant_div <- predict(m1, newdata = newdata, type = "response", exclude = "s(x,y)")
+    
+    (plot1 <- ggplot(
+      data = mammal_plant,
+      aes(x = frug_div, y = plant_div)) +
+        geom_point(size = 2, color = 'burlywood3') +
+        geom_line(
+          data = newdata,
+          aes(x = frug_div, y = plant_div),
+          color = "burlywood3",
+          size = 1.2
+        ) +
+        labs(
+          x = 'Mammal richness by cell',
+          y = 'Plant fdis by cell',
+          title = paste0('[', resolution, 'km]')
+        ) +
+        scale_x_continuous(expand = c(0, 0), limits = c(20, 180)) +
+        scale_y_continuous(expand = c(0, 0), limits = c(0, 0.8)) +
+        theme_classic() +
+        theme(
+          axis.title = element_text(size = 18),
+          axis.text = element_text(size = 12),
+          legend.title = element_text(size = 18),
+          legend.text = element_text(size = 16)
+        ))
+    
+    
     bird_plant <- data.frame(
       cell_id = plant_div$cellid,
+      x = coords$X,
+      y = coords$Y,
       plant_div = plant_div$fdis,
-      frug_div = bird_div$num_species,
+      frug_div = bird_div$richness,
       taxa = c(rep('Bird', nrow(bird_div)))
+    ) %>%
+      dplyr::filter(plant_div > 0 & frug_div > 0)
+    
+    m2 <- gam(
+      plant_div ~ frug_div + s(x, y, bs = "tp", k = 30),
+      data = bird_plant,
+      family = betar(link = "logit"),
+      method = "REML"
     )
-
-    bird_plant <- bird_plant %>%
-      filter(plant_div > 0 & frug_div > 0)
-
-    plot1 <- ggplot(data = mammal_plant, aes(x = frug_div, y = plant_div)) +
-      geom_point(size = 2, color = 'burlywood3') +
-      labs(
-        x = 'Mammal richness by cell',
-        y = 'Plant FDis by cell',
-        title = paste0('[', resolution, 'km]')
-      ) +
-      geom_smooth(method = 'lm', se = FALSE, color = 'burlywood3') +
-      scale_x_continuous(expand = c(0, 0), limits = c(0, 130)) +
-      scale_y_continuous(expand = c(0, 0), limits = c(0, .8)) +
-      theme_classic() +
-      theme(
-        axis.title = element_text(size = 18),
-        axis.text = element_text(size = 12),
-        legend.title = element_text(size = 18),
-        legend.text = element_text(size = 16)
-      )
-    mammal_plant_sum_trend <- trendline_sum(
-      mammal_plant$plant_div,
-      mammal_plant$frug_div,
-      model = "line2P"
+    
+    rng <- range(bird_plant$frug_div, na.rm = TRUE)
+    
+    newdata <- data.frame(
+      frug_div = seq(rng[1], rng[2], length.out = 100),
+      x = mean(coords$X, na.rm = TRUE),
+      y = mean(coords$Y, na.rm = TRUE)
     )
-
-    plot2 <- ggplot(data = bird_plant, aes(x = frug_div, y = plant_div)) +
-      geom_point(size = 2, color = 'lightsteelblue2') +
-      labs(
-        x = 'Bird richness by cell',
-        y = 'Plant FDis by cell',
-        title = paste0('[', resolution, 'km]')
-      ) +
-      geom_smooth(method = 'lm', se = FALSE, color = 'lightsteelblue2') +
-      scale_x_continuous(expand = c(0, 0), limits = c(0, 400)) +
-      scale_y_continuous(expand = c(0, 0), limits = c(0, .8)) +
-      theme_classic() +
-      theme(
-        axis.title = element_text(size = 18),
-        axis.text = element_text(size = 12),
-        legend.title = element_text(size = 18),
-        legend.text = element_text(size = 16)
-      )
-    bird_plant_sum_trend <- trendline_sum(
-      bird_plant$plant_div,
-      bird_plant$frug_div,
-      model = "line2P"
+    
+    newdata$plant_div <- predict(m2, newdata = newdata, type = "response", exclude = "s(x,y)")
+    
+    (plot2 <- ggplot(
+      data = bird_plant,
+      aes(x = frug_div, y = plant_div)) +
+        geom_point(size = 2, color = 'lightsteelblue2') +
+        geom_line(
+          data = newdata,
+          aes(x = frug_div, y = plant_div),
+          color = "lightsteelblue2",
+          size = 1.2
+        ) +
+        labs(
+          x = 'Bird richness by cell',
+          y = 'Plant fdis by cell',
+          title = paste0('[', resolution, 'km]')
+        ) +
+        scale_x_continuous(expand = c(0, 0), limits = c(0, 530)) +
+        scale_y_continuous(expand = c(0, 0), limits = c(0, 0.8)) +
+        theme_classic() +
+        theme(
+          axis.title = element_text(size = 18),
+          axis.text = element_text(size = 12),
+          legend.title = element_text(size = 18),
+          legend.text = element_text(size = 16)
+        ))
+    
+    r2_df <- data.frame(
+      taxa = c("Mammal", "Bird"),
+      r2 = c(summary(m1)$r.sq, summary(m2)$r.sq)
     )
+    
+    r2_df$dev_expl <- c(summary(m1)$dev.expl, summary(m2)$dev.expl)
   }
 
   result <- list(
     plot1 = plot1,
     plot2 = plot2,
-    mammal = mammal_plant_sum_trend,
-    bird = bird_plant_sum_trend
+    r2_df = r2_df,
+    m1 = m1,
+    m2 = m2
   )
 
   return(result)
