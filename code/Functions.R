@@ -1185,7 +1185,7 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution) {
       dplyr::filter(plant_div > 0 & frug_div > 0)
 
     m1 <- gam(
-      frug_div ~ s(plant_div) + s(x, y, bs = 'gp', k = 20),
+      frug_div ~ s(plant_div),
       data = mammal_plant,
       method = "REML"
     )
@@ -1203,7 +1203,7 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution) {
       dplyr::filter(plant_div > 0 & frug_div > 0)
 
     m2 <- gam(
-      frug_div ~ s(plant_div) + s(x, y, bs = 'gp', k = 20),
+      frug_div ~ s(plant_div),
       data = bird_plant,
       method = "REML"
     )
@@ -1376,6 +1376,218 @@ div_comparison_gam <- function(plant_div, mammal_div, bird_div, resolution) {
 
   return(result)
 }
+
+div_comparison_gam_sa <- function(plant_div, mammal_div, bird_div, resolution) {
+  set.seed(123)
+  
+  metric <- if ("richness" %in% colnames(plant_div)) "richness" else "fdis"
+  
+  if ('richness' %in% colnames(plant_div)) {
+    coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
+    
+    mammal_plant <- data.frame(
+      cell_id = plant_div$cellid,
+      x = coords$X,
+      y = coords$Y,
+      plant_div = plant_div$richness,
+      frug_div = mammal_div$richness,
+      taxa = c(rep('Mammal', nrow(mammal_div)))
+    ) %>%
+      dplyr::filter(plant_div > 0 & frug_div > 0)
+    
+    m1 <- gam(
+      frug_div ~ s(plant_div, k = 20) + s(x, y, bs = "tp", k = 30),
+      data = mammal_plant,
+      method = "REML"
+    )
+    
+    m1_vario <- create_variogram(mammal_plant, m1)
+    
+    bird_plant <- data.frame(
+      cell_id = plant_div$cellid,
+      x = coords$X,
+      y = coords$Y,
+      plant_div = plant_div$richness,
+      frug_div = bird_div$richness,
+      taxa = c(rep('Bird', nrow(bird_div)))
+    ) %>%
+      dplyr::filter(plant_div > 0 & frug_div > 0)
+    
+    m2 <- gam(
+      frug_div ~ s(plant_div, k = 20) + s(x, y, bs = "tp", k = 30),
+      data = bird_plant,
+      method = "REML"
+    )
+    
+    m2_vario <- create_variogram(bird_plant, m2)
+    
+    rng <- range(plant_div$richness, na.rm = TRUE)
+    
+    newdata <- data.frame(
+      plant_div = seq(rng[1], rng[2], length.out = 100),
+      x = mean(coords$X, na.rm = TRUE),
+      y = mean(coords$Y, na.rm = TRUE)
+    )
+    
+    newdata$Mammal <- predict(m1, newdata = newdata, type = "response", exclude = "s(x,y)")
+    newdata$Bird <- predict(m2, newdata = newdata, type = "response", exclude = "s(x,y)")
+    
+    plot_df <- newdata %>%
+      pivot_longer(
+        cols = c(Mammal, Bird),
+        names_to = "taxa",
+        values_to = "frug_div"
+      )
+    
+    plot_points <- dplyr::bind_rows(
+      mammal_plant,
+      bird_plant
+    )
+    
+    r2_df <- data.frame(
+      taxa = c("Mammal", "Bird"),
+      r2 = c(summary(m1)$r.sq, summary(m2)$r.sq)
+    )
+    
+    r2_df$dev_expl <- c(summary(m1)$dev.expl, summary(m2)$dev.expl)
+    
+    (plot <- ggplot(
+      data = plot_points,
+      aes(x = plant_div, y = frug_div, color = taxa)
+    ) +
+        geom_point(alpha = 0.5, size = 3) +
+        geom_line(
+          data = plot_df,
+          aes(x = plant_div, y = frug_div, color = taxa),
+          size = 1.2
+        ) +
+        scale_color_manual(values = c('lightsteelblue2', 'burlywood3')) +
+        scale_x_continuous(expand = c(0, 0), limits = c(0, 1600)) +
+        scale_y_continuous(expand = c(0, 0), limits = c(0, 400)) +
+        labs(
+          x = 'Plant richness by cell',
+          y = 'Frugivore richness by cell',
+          color = 'Taxa',
+          title = paste0('[', resolution, 'km]')
+        ) +
+        theme_classic() +
+        theme(
+          axis.title = element_text(size = 18),
+          axis.text = element_text(size = 12),
+          legend.title = element_text(size = 18),
+          legend.text = element_text(size = 16)
+        ))
+  } else {
+    coords <- as.data.frame(st_coordinates(st_centroid(plant_div)))
+    
+    mammal_plant <- data.frame(
+      cell_id = plant_div$cellid,
+      x = coords$X,
+      y = coords$Y,
+      plant_div = plant_div$fdis,
+      frug_div = mammal_div$fdis,
+      taxa = c(rep('Mammal', nrow(mammal_div)))
+    ) %>%
+      dplyr::filter(plant_div > 0 & frug_div > 0)
+    
+    m1 <- gam(
+      frug_div ~ plant_div + s(x, y, bs = "tp", k = 30),
+      data = mammal_plant,
+      family = betar(link = "logit"),
+      method = "REML"
+    )
+    
+    m1_vario <- create_variogram(mammal_plant, m1)
+    
+    bird_plant <- data.frame(
+      cell_id = plant_div$cellid,
+      x = coords$X,
+      y = coords$Y,
+      plant_div = plant_div$fdis,
+      frug_div = bird_div$fdis,
+      taxa = c(rep('Bird', nrow(bird_div)))
+    ) %>%
+      dplyr::filter(plant_div > 0 & frug_div > 0)
+    
+    m2 <- gam(
+      frug_div ~ plant_div + s(x, y, bs = "tp", k = 30),
+      data = bird_plant,
+      family = betar(link = "logit"),
+      method = "REML"
+    )
+    
+    m2_vario <- create_variogram(bird_plant, m2)
+    
+    rng <- range(plant_div$fdis, na.rm = TRUE)
+    
+    newdata <- data.frame(
+      plant_div = seq(rng[1], rng[2], length.out = 100),
+      x = mean(coords$X, na.rm = TRUE),
+      y = mean(coords$Y, na.rm = TRUE)
+    )
+    
+    newdata$Mammal <- predict(m1, newdata = newdata, type = "response", exclude = "s(x,y)")
+    newdata$Bird <- predict(m2, newdata = newdata, type = "response", exclude = "s(x,y)")
+    
+    plot_df <- newdata %>%
+      pivot_longer(
+        cols = c(Mammal, Bird),
+        names_to = "taxa",
+        values_to = "frug_div"
+      )
+    
+    plot_points <- dplyr::bind_rows(
+      mammal_plant,
+      bird_plant
+    )
+    
+    r2_df <- data.frame(
+      taxa = c("Mammal", "Bird"),
+      r2 = c(summary(m1)$r.sq, summary(m2)$r.sq)
+    )
+    
+    r2_df$dev_expl <- c(summary(m1)$dev.expl, summary(m2)$dev.expl)
+    
+    (plot <- ggplot(
+      data = plot_points,
+      aes(x = plant_div, y = frug_div, color = taxa)
+    ) +
+        geom_point(alpha = 0.5, size = 3) +
+        geom_line(
+          data = plot_df,
+          aes(x = plant_div, y = frug_div, color = taxa),
+          size = 1.2
+        ) +
+        scale_color_manual(values = c('lightsteelblue2', 'burlywood3')) +
+        scale_x_continuous(expand = c(0, 0), limits = c(0, 0.8)) +
+        scale_y_continuous(expand = c(0, 0), limits = c(0, 0.8)) +
+        labs(
+          x = 'Plant richness by cell',
+          y = 'Frugivore richness by cell',
+          color = 'Taxa',
+          title = paste0('[', resolution, 'km]')
+        ) +
+        theme_classic() +
+        theme(
+          axis.title = element_text(size = 18),
+          axis.text = element_text(size = 12),
+          legend.title = element_text(size = 18),
+          legend.text = element_text(size = 16)
+        ))
+  }
+  
+  result <- list(
+    plot = plot,
+    r2_df = r2_df,
+    m1 = m1,
+    m2 = m2,
+    m1_vario = m1_vario,
+    m2_vario = m2_vario
+  )
+  
+  return(result)
+}
+
 
 # A function to examine spatial autocorrelation in the residuals of the model
 create_variogram <- function(df, mod) {

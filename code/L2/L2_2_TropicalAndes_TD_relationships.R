@@ -9,7 +9,19 @@
 
 
 # load required packages
-library(dplyr); library(ggplot2); library(smoothr); library(purrr); library(ggtrendline); library(ggpubr); library(tidyr); library(patchwork); library(mgcv); library(DHARMa); library(sf)
+library(dplyr)
+library(ggplot2)
+library(smoothr)
+library(purrr)
+library(ggtrendline)
+library(ggpubr)
+library(tidyr)
+library(patchwork)
+library(mgcv)
+library(DHARMa)
+library(sf)
+library(gstat)
+library(sp)
 
 
 # set file paths
@@ -513,7 +525,7 @@ simulateResiduals(comparison_5km_gam$m2, plot=T)
     plot_layout(guides='collect', axis_titles = 'collect') & 
     theme(plot.margin = margin(5, 15, 15, 15),legend.position='bottom'))
 
-ggsave('all_taxa_richness_gam_plots.png', all_taxa_richness_gam_plots, path = all_data_figure_path, width = 13, height = 8, units = "in", dpi=1000)
+ggsave('all_taxa_richness_gam_plots2.png', all_taxa_richness_gam_plots, path = all_data_figure_path, width = 13, height = 8, units = "in", dpi=1000)
 
 
 #### repeat TD plots with obs cutoff ####
@@ -793,6 +805,9 @@ cutoff_comparison_100km_gam <- div_comparison_gam(plant_cutoff_cell_TD_100km, ma
 plot(cutoff_comparison_100km_gam$m1_vario)
 plot(cutoff_comparison_100km_gam$m2_vario)
 
+gam.check(cutoff_comparison_100km_gam$m1)
+gam.check(cutoff_comparison_100km_gam$m2)
+
 cutoff_comparison_100km_gam_plot <- cutoff_comparison_100km_gam$plot
 (cutoff_comparison_100km_gam_plot <- cutoff_comparison_100km_gam_plot + 
     ylab('Frugivore richness by cell') + 
@@ -823,11 +838,59 @@ simulateResiduals(cutoff_comparison_100km_gam$m1, plot=T)
 simulateResiduals(cutoff_comparison_100km_gam$m2, plot=T)
 
 
+# spatial autocorrelation
+cutoff_comparison_100km_gam_sa <- div_comparison_gam_sa(plant_cutoff_cell_TD_100km, mammal_cutoff_cell_TD_100km, bird_cutoff_cell_TD_100km, 100)
+
+plot(cutoff_comparison_100km_gam_sa$m1_vario)
+plot(cutoff_comparison_100km_gam_sa$m2_vario)
+
+gam.check(cutoff_comparison_100km_gam_sa$m1)
+gam.check(cutoff_comparison_100km_gam_sa$m2)
+
+cutoff_comparison_100km_gam_sa_plot <- cutoff_comparison_100km_gam_sa$plot
+(cutoff_comparison_100km_gam_sa_plot <- cutoff_comparison_100km_gam_sa_plot + 
+    ylab('Frugivore richness by cell') + 
+    xlab('Plant richness by cell') + 
+    theme(
+      axis.title.y = element_blank(),
+      axis.text.y = element_blank(), 
+      axis.ticks.y = element_blank(), 
+      axis.line.y = element_blank()
+    ) +   
+    annotate(
+      "text", 
+      x = 1200, 
+      y = 300, 
+      label = paste('Bird D² =', round(cutoff_comparison_100km_gam_sa$r2_df$dev_expl[2], 3)), 
+      size=5
+    ) + 
+    annotate(
+      "text", 
+      x = 1200, 
+      y = 100, 
+      label = paste('Mammal D² =', round(cutoff_comparison_100km_gam_sa$r2_df$dev_expl[1], 3)), 
+      size=5
+    ) + 
+    theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
+
+simulateResiduals(cutoff_comparison_100km_gam_sa$m1, plot=T)
+simulateResiduals(cutoff_comparison_100km_gam_sa$m2, plot=T)
+
+AIC(cutoff_comparison_100km$m1, cutoff_comparison_100km_gam$m1, cutoff_comparison_100km_gam_sa$m1)
+AIC(cutoff_comparison_100km$m2, cutoff_comparison_100km_gam$m2, cutoff_comparison_100km_gam_sa$m2)
+
+summary(cutoff_comparison_100km_gam_sa$m1)
+summary(cutoff_comparison_100km_gam_sa$m2)
+
+
 # 75 km
 cutoff_comparison_75km_gam <- div_comparison_gam(plant_cutoff_cell_TD_75km, mammal_cutoff_cell_TD_75km, bird_cutoff_cell_TD_75km, 75)
 
 plot(cutoff_comparison_75km_gam$m1_vario)
 plot(cutoff_comparison_75km_gam$m2_vario)
+
+gam.check(cutoff_comparison_75km_gam$m1)
+gam.check(cutoff_comparison_75km_gam$m2)
 
 cutoff_comparison_75km_gam_plot <- cutoff_comparison_75km_gam$plot
 (cutoff_comparison_75km_gam_plot <- cutoff_comparison_75km_gam_plot + 
@@ -858,12 +921,59 @@ cutoff_comparison_75km_gam_plot <- cutoff_comparison_75km_gam$plot
 simulateResiduals(cutoff_comparison_75km_gam$m1, plot=T)
 simulateResiduals(cutoff_comparison_75km_gam$m2, plot=T)
 
+# spatial autocorrelation
+cutoff_comparison_75km_gam_sa <- div_comparison_gam_sa(plant_cutoff_cell_TD_75km, mammal_cutoff_cell_TD_75km, bird_cutoff_cell_TD_75km, 75)
+
+plot(cutoff_comparison_75km_gam_sa$m1_vario)
+plot(cutoff_comparison_75km_gam_sa$m2_vario)
+
+gam.check(cutoff_comparison_75km_gam_sa$m1)
+gam.check(cutoff_comparison_75km_gam_sa$m2)
+
+cutoff_comparison_75km_gam_sa_plot <- cutoff_comparison_75km_gam_sa$plot
+(cutoff_comparison_75km_gam_sa_plot <- cutoff_comparison_75km_gam_sa_plot + 
+    ylab('Frugivore richness by cell') + 
+    xlab('Plant richness by cell') + 
+    theme(
+      axis.title.y = element_blank(),
+      axis.text.y = element_blank(), 
+      axis.ticks.y = element_blank(), 
+      axis.line.y = element_blank()
+    ) +   
+    annotate(
+      "text", 
+      x = 1200, 
+      y = 300, 
+      label = paste('Bird D² =', round(cutoff_comparison_75km_gam_sa$r2_df$dev_expl[2], 3)), 
+      size=5
+    ) + 
+    annotate(
+      "text", 
+      x = 1200, 
+      y = 130, 
+      label = paste('Mammal D² =', round(cutoff_comparison_75km_gam_sa$r2_df$dev_expl[1], 3)), 
+      size=5
+    ) + 
+    theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
+
+simulateResiduals(cutoff_comparison_75km_gam_sa$m1, plot=T)
+simulateResiduals(cutoff_comparison_75km_gam_sa$m2, plot=T)
+
+AIC(cutoff_comparison_75km$m1, cutoff_comparison_75km_gam$m1, cutoff_comparison_75km_gam_sa$m1)
+AIC(cutoff_comparison_75km$m2, cutoff_comparison_75km_gam$m2, cutoff_comparison_75km_gam_sa$m2)
+
+summary(cutoff_comparison_75km_gam_sa$m1)
+summary(cutoff_comparison_75km_gam_sa$m2)
+
 
 # 50 km
 cutoff_comparison_50km_gam <- div_comparison_gam(plant_cutoff_cell_TD_50km, mammal_cutoff_cell_TD_50km, bird_cutoff_cell_TD_50km, 50)
 
 plot(cutoff_comparison_50km_gam$m1_vario)
 plot(cutoff_comparison_50km_gam$m2_vario)
+
+gam.check(cutoff_comparison_50km_gam$m1)
+gam.check(cutoff_comparison_50km_gam$m2)
 
 cutoff_comparison_50km_gam_plot <- cutoff_comparison_50km_gam$plot
 (cutoff_comparison_50km_gam_plot <- cutoff_comparison_50km_gam_plot + 
@@ -888,12 +998,53 @@ cutoff_comparison_50km_gam_plot <- cutoff_comparison_50km_gam$plot
 simulateResiduals(cutoff_comparison_50km_gam$m1, plot=T)
 simulateResiduals(cutoff_comparison_50km_gam$m2, plot=T)
 
+# spatial autocorrelation
+cutoff_comparison_50km_gam_sa <- div_comparison_gam_sa(plant_cutoff_cell_TD_50km, mammal_cutoff_cell_TD_50km, bird_cutoff_cell_TD_50km, 50)
+
+plot(cutoff_comparison_50km_gam_sa$m1_vario)
+plot(cutoff_comparison_50km_gam_sa$m2_vario)
+
+gam.check(cutoff_comparison_50km_gam_sa$m1)
+gam.check(cutoff_comparison_50km_gam_sa$m2)
+
+cutoff_comparison_50km_gam_sa_plot <- cutoff_comparison_50km_gam_sa$plot
+(cutoff_comparison_50km_gam_sa_plot <- cutoff_comparison_50km_gam_sa_plot + 
+    ylab('Frugivore richness by cell') + 
+    xlab('Plant richness by cell') + 
+    annotate(
+      "text", 
+      x = 1200, 
+      y = 290, 
+      label = paste('Bird D² =', round(cutoff_comparison_50km_gam_sa$r2_df$dev_expl[2], 3)), 
+      size=5
+    ) + 
+    annotate(
+      "text", 
+      x = 1200, 
+      y = 110, 
+      label = paste('Mammal D² =', round(cutoff_comparison_50km_gam_sa$r2_df$dev_expl[1], 3)), 
+      size=5
+    ) + 
+    theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
+
+simulateResiduals(cutoff_comparison_50km_gam_sa$m1, plot=T)
+simulateResiduals(cutoff_comparison_50km_gam_sa$m2, plot=T)
+
+AIC(cutoff_comparison_50km$m1, cutoff_comparison_50km_gam$m1, cutoff_comparison_50km_gam_sa$m1)
+AIC(cutoff_comparison_50km$m2, cutoff_comparison_50km_gam$m2, cutoff_comparison_50km_gam_sa$m2)
+
+summary(cutoff_comparison_50km_gam_sa$m1)
+summary(cutoff_comparison_50km_gam_sa$m2)
+
 
 # 25 km
 cutoff_comparison_25km_gam <- div_comparison_gam(plant_cutoff_cell_TD_25km, mammal_cutoff_cell_TD_25km, bird_cutoff_cell_TD_25km, 25)
 
 plot(cutoff_comparison_25km_gam$m1_vario)
 plot(cutoff_comparison_25km_gam$m2_vario)
+
+gam.check(cutoff_comparison_25km_gam$m1)
+gam.check(cutoff_comparison_25km_gam$m2)
 
 cutoff_comparison_25km_gam_plot <- cutoff_comparison_25km_gam$plot
 (cutoff_comparison_25km_gam_plot <- cutoff_comparison_25km_gam_plot + 
@@ -928,12 +1079,63 @@ cutoff_comparison_25km_gam_plot <- cutoff_comparison_25km_gam$plot
 simulateResiduals(cutoff_comparison_25km_gam$m1, plot=T)
 simulateResiduals(cutoff_comparison_25km_gam$m2, plot=T)
 
+# spatial autocorrelation
+cutoff_comparison_25km_gam_sa <- div_comparison_gam_sa(plant_cutoff_cell_TD_25km, mammal_cutoff_cell_TD_25km, bird_cutoff_cell_TD_25km, 25)
+
+plot(cutoff_comparison_25km_gam_sa$m1_vario)
+plot(cutoff_comparison_25km_gam_sa$m2_vario)
+
+gam.check(cutoff_comparison_25km_gam_sa$m1)
+gam.check(cutoff_comparison_25km_gam_sa$m2)
+
+cutoff_comparison_25km_gam_sa_plot <- cutoff_comparison_25km_gam_sa$plot
+(cutoff_comparison_25km_gam_sa_plot <- cutoff_comparison_25km_gam_sa_plot + 
+    ylab('Frugivore richness by cell') + 
+    xlab('Plant richness by cell') + 
+    theme(
+      axis.title.y = element_blank(),
+      axis.text.y = element_blank(), 
+      axis.ticks.y = element_blank(), 
+      axis.line.y = element_blank(),
+      axis.title.x = element_blank(),
+      axis.text.x = element_blank(), 
+      axis.ticks.x = element_blank(), 
+      axis.line.x = element_blank()
+    ) +   
+    annotate(
+      "text", 
+      x = 1200, 
+      y = 320, 
+      label = paste('Bird D² =', round(cutoff_comparison_25km_gam_sa$r2_df$dev_expl[2], 3)), 
+      size=5
+    ) + 
+    annotate(
+      "text", 
+      x = 1200, 
+      y = 100, 
+      label = paste('Mammal D² =', round(cutoff_comparison_25km_gam_sa$r2_df$dev_expl[1], 3)), 
+      size=5
+    ) + 
+    theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
+
+simulateResiduals(cutoff_comparison_25km_gam_sa$m1, plot=T)
+simulateResiduals(cutoff_comparison_25km_gam_sa$m2, plot=T)
+
+AIC(cutoff_comparison_25km$m1, cutoff_comparison_25km_gam$m1, cutoff_comparison_25km_gam_sa$m1)
+AIC(cutoff_comparison_25km$m2, cutoff_comparison_25km_gam$m2, cutoff_comparison_25km_gam_sa$m2)
+
+summary(cutoff_comparison_25km_gam_sa$m1)
+summary(cutoff_comparison_25km_gam_sa$m2)
+
 
 # 10 km
 cutoff_comparison_10km_gam <- div_comparison_gam(plant_cutoff_cell_TD_10km, mammal_cutoff_cell_TD_10km, bird_cutoff_cell_TD_10km, 10)
 
 plot(cutoff_comparison_10km_gam$m1_vario)
 plot(cutoff_comparison_10km_gam$m2_vario)
+
+gam.check(cutoff_comparison_10km_gam$m1)
+gam.check(cutoff_comparison_10km_gam$m2)
 
 cutoff_comparison_10km_gam_plot <- cutoff_comparison_10km_gam$plot
 (cutoff_comparison_10km_gam_plot <- cutoff_comparison_10km_gam_plot + 
@@ -968,13 +1170,63 @@ cutoff_comparison_10km_gam_plot <- cutoff_comparison_10km_gam$plot
 simulateResiduals(cutoff_comparison_10km_gam$m1, plot=T)
 simulateResiduals(cutoff_comparison_10km_gam$m2, plot=T)
 
+# spatial autocorrelation
+cutoff_comparison_10km_gam_sa <- div_comparison_gam_sa(plant_cutoff_cell_TD_10km, mammal_cutoff_cell_TD_10km, bird_cutoff_cell_TD_10km, 10)
+
+plot(cutoff_comparison_10km_gam_sa$m1_vario)
+plot(cutoff_comparison_10km_gam_sa$m2_vario)
+
+gam.check(cutoff_comparison_10km_gam_sa$m1)
+gam.check(cutoff_comparison_10km_gam_sa$m2)
+
+cutoff_comparison_10km_gam_sa_plot <- cutoff_comparison_10km_gam_sa$plot
+(cutoff_comparison_10km_gam_sa_plot <- cutoff_comparison_10km_gam_sa_plot + 
+    ylab('Frugivore richness by cell') + 
+    xlab('Plant richness by cell') + 
+    theme(
+      axis.title.y = element_blank(),
+      axis.text.y = element_blank(), 
+      axis.ticks.y = element_blank(), 
+      axis.line.y = element_blank(),
+      axis.title.x = element_blank(),
+      axis.text.x = element_blank(), 
+      axis.ticks.x = element_blank(), 
+      axis.line.x = element_blank()
+    ) +   
+    annotate(
+      "text", 
+      x = 1200, 
+      y = 200, 
+      label = paste('Bird D² =', round(cutoff_comparison_10km_gam_sa$r2_df$dev_expl[2], 3)), 
+      size=5
+    ) + 
+    annotate(
+      "text", 
+      x = 1200, 
+      y = 100, 
+      label = paste('Mammal D² =', round(cutoff_comparison_10km_gam_sa$r2_df$dev_expl[1], 3)), 
+      size=5
+    ) + 
+    theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
+
+simulateResiduals(cutoff_comparison_10km_gam_sa$m1, plot=T)
+simulateResiduals(cutoff_comparison_10km_gam_sa$m2, plot=T)
+
+AIC(cutoff_comparison_10km$m1, cutoff_comparison_10km_gam$m1, cutoff_comparison_10km_gam_sa$m1)
+AIC(cutoff_comparison_10km$m2, cutoff_comparison_10km_gam$m2, cutoff_comparison_10km_gam_sa$m2)
+
+summary(cutoff_comparison_10km_gam_sa$m1)
+summary(cutoff_comparison_10km_gam_sa$m2)
+
 
 # 5 km
 cutoff_comparison_5km_gam <- div_comparison_gam(plant_cutoff_cell_TD_5km, mammal_cutoff_cell_TD_5km, bird_cutoff_cell_TD_5km, 5)
-# need to change k value
 
 plot(cutoff_comparison_5km_gam$m1_vario)
 plot(cutoff_comparison_5km_gam$m2_vario)
+
+gam.check(cutoff_comparison_5km_gam$m1)
+gam.check(cutoff_comparison_5km_gam$m2)
 
 cutoff_comparison_5km_gam_plot <- cutoff_comparison_5km_gam$plot
 (cutoff_comparison_5km_gam_plot <- cutoff_comparison_5km_gam_plot + 
@@ -1005,6 +1257,50 @@ cutoff_comparison_5km_gam_plot <- cutoff_comparison_5km_gam$plot
 simulateResiduals(cutoff_comparison_5km_gam$m1, plot=T)
 simulateResiduals(cutoff_comparison_5km_gam$m2, plot=T)
 
+# spatial autocorrelation
+cutoff_comparison_5km_gam_sa <- div_comparison_gam_sa(plant_cutoff_cell_TD_5km, mammal_cutoff_cell_TD_5km, bird_cutoff_cell_TD_5km, 5)
+
+plot(cutoff_comparison_5km_gam_sa$m1_vario)
+plot(cutoff_comparison_5km_gam_sa$m2_vario)
+
+gam.check(cutoff_comparison_5km_gam_sa$m1)
+gam.check(cutoff_comparison_5km_gam_sa$m2)
+
+cutoff_comparison_5km_gam_sa_plot <- cutoff_comparison_5km_gam_sa$plot
+(cutoff_comparison_5km_gam_sa_plot <- cutoff_comparison_5km_gam_sa_plot + 
+    ylab('Frugivore richness by cell') + 
+    xlab('Plant richness by cell') + 
+    theme(
+      axis.title.x = element_blank(),
+      axis.text.x = element_blank(), 
+      axis.ticks.x = element_blank(), 
+      axis.line.x = element_blank()
+    ) +   
+    annotate(
+      "text", 
+      x = 1200, 
+      y = 190,
+      label = paste('Bird D² =', round(cutoff_comparison_5km_gam_sa$r2_df$dev_expl[2], 3)), 
+      size=5
+    ) + 
+    annotate(
+      "text", 
+      x = 1200, 
+      y = 110, 
+      label = paste('Mammal D² =', round(cutoff_comparison_5km_gam_sa$r2_df$dev_expl[1], 3)), 
+      size=5
+    ) + 
+    theme(plot.title = element_text(face = "bold", hjust=0.5, size=16)))
+
+simulateResiduals(cutoff_comparison_5km_gam_sa$m1, plot=T)
+simulateResiduals(cutoff_comparison_5km_gam_sa$m2, plot=T)
+
+AIC(cutoff_comparison_5km$m1, cutoff_comparison_5km_gam$m1, cutoff_comparison_5km_gam_sa$m1)
+AIC(cutoff_comparison_5km$m2, cutoff_comparison_5km_gam$m2, cutoff_comparison_5km_gam_sa$m2)
+
+summary(cutoff_comparison_5km_gam_sa$m1)
+summary(cutoff_comparison_5km_gam_sa$m2)
+
 
 # combined plot
 (all_taxa_cutoff_richness_gam_plots <- wrap_plots(
@@ -1014,6 +1310,19 @@ simulateResiduals(cutoff_comparison_5km_gam$m2, plot=T)
   cutoff_comparison_50km_gam_plot, 
   cutoff_comparison_75km_gam_plot, 
   cutoff_comparison_100km_gam_plot, 
+  ncol=3, 
+  nrow=2
+) + 
+    plot_layout(guides='collect', axis_titles = 'collect') & 
+    theme(plot.margin = margin(5, 15, 15, 15),legend.position='bottom'))
+
+(all_taxa_cutoff_richness_gam_plots <- wrap_plots(
+  cutoff_comparison_5km_gam_sa_plot, 
+  cutoff_comparison_10km_gam_sa_plot, 
+  cutoff_comparison_25km_gam_sa_plot, 
+  cutoff_comparison_50km_gam_sa_plot, 
+  cutoff_comparison_75km_gam_sa_plot, 
+  cutoff_comparison_100km_gam_sa_plot, 
   ncol=3, 
   nrow=2
   ) + 
