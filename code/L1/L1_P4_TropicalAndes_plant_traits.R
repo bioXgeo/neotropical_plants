@@ -736,6 +736,7 @@ ggsave("plant_trait_visual_missing.png", plot = last_plot(), path = figure_path)
 # count the number of traits per DatabaseSource and TraitName
 trait_counts <- unaveraged_traits %>%
   count(DatabaseSource, TraitName)
+write.csv(trait_counts, file.path(output_path_L1, "trait_counts_per_database.csv"))
 
 
 # customize fill color of database
@@ -745,9 +746,9 @@ custom_colors <- c("BIEN" = "#a6cf3c" , "GIFT" = "#009900", "TRY" = "#40a353")
 # create the faceted bar plot
 ggplot(trait_counts, aes(x = DatabaseSource, y = n, fill = DatabaseSource)) +
   geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Trait counts per database",
-       x = "Trait name",
-       y = "Trait count",
+  labs(title = "Trait records per database",
+       x = "Database",
+       y = "Number of records",
        fill = "Database Source") +
   scale_fill_manual(values = custom_colors) +
   theme_minimal() +
@@ -755,10 +756,10 @@ ggplot(trait_counts, aes(x = DatabaseSource, y = n, fill = DatabaseSource)) +
         legend.position = "none",
         plot.title = element_text(hjust = 0.5, size=20),
         axis.text = element_text(size=12),
-        strip.text = element_text(size=14),
+        strip.text = element_text(size=14, face = "bold"),
         axis.title = element_text(size=18)) +
   facet_wrap(~ TraitName, scales = "free_y", nrow = 2)
-ggsave("plant_trait_counts_per_database.png", plot = last_plot(), path = figure_path, width = 18, height = 8)
+ggsave("plant_trait_counts_per_database.png", plot = last_plot(), path = figure_path, width = 19, height = 9)
 
 
 # write data to csv
