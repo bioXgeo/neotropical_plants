@@ -321,37 +321,37 @@ bird_cutoff_cell_TD_100km <- readRDS(file = file.path(filtered_data_path_L2, pas
 # combine all plots 
 
 # individual plot edits
-mammal_cutoff_div_map_100km <- mammal_cutoff_div_map_100km + labs(title='[100km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20)) 
+mammal_cutoff_div_map_100km <- mammal_cutoff_div_map_100km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20)) 
 
-plant_cutoff_div_map_100km <- plant_cutoff_div_map_100km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+plant_cutoff_div_map_100km <- plant_cutoff_div_map_100km + labs(title='[100km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
 bird_cutoff_div_map_100km <- bird_cutoff_div_map_100km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
 
 
-mammal_cutoff_div_map_75km <- mammal_cutoff_div_map_75km + labs(title='[75km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
+mammal_cutoff_div_map_75km <- mammal_cutoff_div_map_75km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
 
-plant_cutoff_div_map_75km <- plant_cutoff_div_map_75km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+plant_cutoff_div_map_75km <- plant_cutoff_div_map_75km + labs(title='[75km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
 bird_cutoff_div_map_75km <- bird_cutoff_div_map_75km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
 
 
-mammal_cutoff_div_map_50km <- mammal_cutoff_div_map_50km + labs(title='[50km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
+mammal_cutoff_div_map_50km <- mammal_cutoff_div_map_50km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
 
-plant_cutoff_div_map_50km <- plant_cutoff_div_map_50km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+plant_cutoff_div_map_50km <- plant_cutoff_div_map_50km + labs(title='[50km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
 bird_cutoff_div_map_50km <- bird_cutoff_div_map_50km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
 
 
-mammal_cutoff_div_map_25km <- mammal_cutoff_div_map_25km + labs(title='[25km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
+mammal_cutoff_div_map_25km <- mammal_cutoff_div_map_25km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
 
-plant_cutoff_div_map_25km <- plant_cutoff_div_map_25km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+plant_cutoff_div_map_25km <- plant_cutoff_div_map_25km + labs(title='[25km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
 bird_cutoff_div_map_25km <- bird_cutoff_div_map_25km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16)) + labs(x = "Longitude")
 
 
-mammal_cutoff_div_map_10km <- mammal_cutoff_div_map_10km + labs(title='[10km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
+mammal_cutoff_div_map_10km <- mammal_cutoff_div_map_10km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20))
 
-plant_cutoff_div_map_10km <- plant_cutoff_div_map_10km + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
+plant_cutoff_div_map_10km <- plant_cutoff_div_map_10km + labs(title='[10km]') + theme(axis.title = element_blank(), axis.text = element_blank(), axis.ticks = element_blank(), plot.margin = margin(0,0,0,0))
 
 bird_cutoff_div_map_10km <- bird_cutoff_div_map_10km + theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16))
 
@@ -359,12 +359,12 @@ bird_cutoff_div_map_10km <- bird_cutoff_div_map_10km + theme(axis.text.y = eleme
 # mammal picture
 mammal <- pick_phylopic(name='Potos flavus', n=2, auto=2)
 
-mammal_cutoff_div_map_5km <- mammal_cutoff_div_map_5km + labs(title='[5km]') + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20), axis.text = element_text(size=16)) + add_phylopic(img=mammal, x=-79, y=12, height=8)
+mammal_cutoff_div_map_5km <- mammal_cutoff_div_map_5km + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), plot.title = element_text(size=20), axis.text = element_text(size=16)) + labs(y = "Latitude") + add_phylopic(img=mammal, x=-79, y=12, height=8)
 
 # plant picture
 plant <- pick_phylopic(name='Coffea alleizettei')
 
-plant_cutoff_div_map_5km <- plant_cutoff_div_map_5km + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16)) + labs(y = "Latitude") + add_phylopic(img=plant, x=-79, y=12, height=8)
+plant_cutoff_div_map_5km <- plant_cutoff_div_map_5km + labs(title='[5km]') + theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(), plot.margin = margin(0,0,0,0), axis.text = element_text(size=16)) + add_phylopic(img=plant, x=-79, y=12, height=8)
 
 # bird picture
 bird <- pick_phylopic(name='Ramphastos sulfuratus', n=2, auto=1)
@@ -373,9 +373,9 @@ bird_cutoff_div_map_5km <- bird_cutoff_div_map_5km + annotation_scale(location =
 
 
 # arrange
-all_cutoff_div_plots <-  mammal_cutoff_div_map_5km + mammal_cutoff_div_map_10km + mammal_cutoff_div_map_25km + mammal_cutoff_div_map_50km + mammal_cutoff_div_map_75km + mammal_cutoff_div_map_100km + plant_cutoff_div_map_5km + plant_cutoff_div_map_10km + plant_cutoff_div_map_25km + plant_cutoff_div_map_50km + plant_cutoff_div_map_75km + plant_cutoff_div_map_100km + bird_cutoff_div_map_5km + bird_cutoff_div_map_10km + bird_cutoff_div_map_25km + bird_cutoff_div_map_50km + bird_cutoff_div_map_75km + bird_cutoff_div_map_100km + plot_layout(ncol = 6, nrow = 3, guides = 'collect', axis_titles = 'collect', heights = c(1, 1, 1)) & theme(legend.position = 'left', axis.title = element_text(size=20), legend.title = element_text(size=20), legend.text = element_text(size=16)) & plot_annotation(theme = theme(plot.title = element_text(hjust = 0.5, size=30, face='bold')))
+all_cutoff_div_plots <-  plant_cutoff_div_map_5km + plant_cutoff_div_map_10km + plant_cutoff_div_map_25km + plant_cutoff_div_map_50km + plant_cutoff_div_map_75km + plant_cutoff_div_map_100km + mammal_cutoff_div_map_5km + mammal_cutoff_div_map_10km + mammal_cutoff_div_map_25km + mammal_cutoff_div_map_50km + mammal_cutoff_div_map_75km + mammal_cutoff_div_map_100km + bird_cutoff_div_map_5km + bird_cutoff_div_map_10km + bird_cutoff_div_map_25km + bird_cutoff_div_map_50km + bird_cutoff_div_map_75km + bird_cutoff_div_map_100km + plot_layout(ncol = 6, nrow = 3, guides = 'collect', axis_titles = 'collect', heights = c(1, 1, 1)) & theme(legend.position = 'left', axis.title = element_text(size=20), legend.title = element_text(size=20), legend.text = element_text(size=16)) & plot_annotation(theme = theme(plot.title = element_text(hjust = 0.5, size=30, face='bold')))
 
 all_cutoff_div_plots
 
-ggsave(paste0('div_', cutoff_obs,'_comparison_maps.png'), all_div_plots, path = filtered_data_figure_path, width = 14, height = 11.8, units = "in", dpi=1000)
+ggsave(paste0('div_', cutoff_obs,'_comparison_maps.png'), all_cutoff_div_plots, path = filtered_data_figure_path, width = 14, height = 11.8, units = "in", dpi=1000)
 
