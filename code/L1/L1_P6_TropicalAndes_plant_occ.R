@@ -118,7 +118,7 @@ custom_colors <- c("Data" = "seagreen", "Checklist" = "darkgrey")
 ggplot(combined_summary_long, aes(x = source, y = count, fill = source)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(x = "Source",
-       y = "Count",
+       y = "Taxa count",
        fill = "Source") +
   scale_fill_manual(values = custom_colors) + 
   theme_minimal() +
