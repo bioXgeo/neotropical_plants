@@ -1080,7 +1080,7 @@ trait_counts <- all_traits_with_NAs2 %>%
     geom_bar(stat = "identity", position = "dodge") +
     scale_fill_viridis(discrete = TRUE) +
     labs(x = "Trait level",
-         y = "Trait count",
+         y = "Number of trait records",
          fill = "Level") +
     facet_wrap(~ TraitName, scales = "free_y", nrow = 2) +
     theme_minimal() +
@@ -1105,7 +1105,7 @@ trait_counts_overall <- all_traits_with_NAs2 %>%
     scale_fill_viridis(discrete = TRUE) +
     labs(title = "All traits",
          x = "Trait level",
-         y = "Trait count",
+         y = "Number of trait records",
          fill = "Level") +
     theme_minimal() +
     theme(plot.title = element_text(hjust = 0.5, size=16),
@@ -1116,7 +1116,7 @@ ggsave("plant_trait_counts_per_level_overall.png", plot = all_trait_count_plot, 
 
 
 # combine plots
-trait_counts <- wrap_plots(trait_count_level_plot, all_trait_count_plot) + plot_annotation(tag_levels=list(c('(a)','(b)'))) + plot_layout(guides='collect', axis_titles = 'collect', ncol=2, widths = c(2, 1)) & theme(plot.tag = element_text(size = 18))
+(trait_counts <- wrap_plots(trait_count_level_plot, all_trait_count_plot) + plot_annotation(tag_levels=list(c('(a)','(b)'))) + plot_layout(guides='collect', axis_titles = 'collect', ncol=2, widths = c(2, 1)) & theme(plot.tag = element_text(size = 18)))
 
 ggsave('trait_counts_imputation.png', trait_counts, path = figure_path, width = 16, height = 10, units = "in", dpi=1000)
 
