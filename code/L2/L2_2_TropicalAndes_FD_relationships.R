@@ -1146,8 +1146,8 @@ gam.check(cutoff_comparison_100km_gam_sa$m2)
 
 cutoff_comparison_100km_gam_sa_plot <- cutoff_comparison_100km_gam_sa$plot
 (cutoff_comparison_100km_gam_sa_plot <- cutoff_comparison_100km_gam_sa_plot + 
-    ylab('Frugivore fdis by cell') + 
-    xlab('Plant fdis by cell') + 
+    ylab('Frugivore FDis by cell') + 
+    xlab('Plant FDis by cell') + 
     theme(
       axis.title.y = element_blank(),
       axis.text.y = element_blank(), 
@@ -1240,8 +1240,8 @@ gam.check(cutoff_comparison_75km_gam_sa$m2)
 
 cutoff_comparison_75km_gam_sa_plot <- cutoff_comparison_75km_gam_sa$plot
 (cutoff_comparison_75km_gam_sa_plot <- cutoff_comparison_75km_gam_sa_plot + 
-    ylab('Frugivore fdis by cell') + 
-    xlab('Plant fdis by cell') + 
+    ylab('Frugivore FDis by cell') + 
+    xlab('Plant FDis by cell') + 
     theme(
       axis.title.y = element_blank(),
       axis.text.y = element_blank(), 
@@ -1328,8 +1328,8 @@ gam.check(cutoff_comparison_50km_gam_sa$m2)
 
 cutoff_comparison_50km_gam_sa_plot <- cutoff_comparison_50km_gam_sa$plot
 (cutoff_comparison_50km_gam_sa_plot <- cutoff_comparison_50km_gam_sa_plot + 
-    ylab('Frugivore fdis by cell') + 
-    xlab('Plant fdis by cell') + 
+    ylab('Frugivore FDis by cell') + 
+    xlab('Plant FDis by cell') + 
     annotate(
       "text", 
       x = 0.4,
@@ -1420,8 +1420,8 @@ gam.check(cutoff_comparison_25km_gam_sa$m2)
 
 cutoff_comparison_25km_gam_sa_plot <- cutoff_comparison_25km_gam_sa$plot
 (cutoff_comparison_25km_gam_sa_plot <- cutoff_comparison_25km_gam_sa_plot + 
-    ylab('Frugivore fdis by cell') + 
-    xlab('Plant fdis by cell') + 
+    ylab('Frugivore FDis by cell') + 
+    xlab('Plant FDis by cell') + 
     theme(
       axis.title.y = element_blank(),
       axis.text.y = element_blank(),
@@ -1522,8 +1522,8 @@ gam.check(cutoff_comparison_10km_gam_sa$m2)
 
 cutoff_comparison_10km_gam_sa_plot <- cutoff_comparison_10km_gam_sa$plot
 (cutoff_comparison_10km_gam_sa_plot <- cutoff_comparison_10km_gam_sa_plot + 
-    ylab('Frugivore fdis by cell') + 
-    xlab('Plant fdis by cell') + 
+    ylab('Frugivore FDis by cell') + 
+    xlab('Plant FDis by cell') + 
     theme(
       axis.title.y = element_blank(),
       axis.text.y = element_blank(),
@@ -1620,8 +1620,8 @@ gam.check(cutoff_comparison_5km_gam_sa$m2)
 
 cutoff_comparison_5km_gam_sa_plot <- cutoff_comparison_5km_gam_sa$plot
 (cutoff_comparison_5km_gam_sa_plot <- cutoff_comparison_5km_gam_sa_plot + 
-    ylab('Frugivore fdis by cell') + 
-    xlab('Plant fdis by cell') + 
+    ylab('Frugivore FDis by cell') + 
+    xlab('Plant FDis by cell') + 
     theme(
       axis.title.x = element_blank(),
       axis.text.x = element_blank(),
