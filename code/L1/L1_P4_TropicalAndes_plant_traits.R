@@ -740,7 +740,7 @@ write.csv(trait_counts, file.path(output_path_L1, "trait_counts_per_database.csv
 
 
 # customize fill color of database
-custom_colors <- c("BIEN" = "#a6cf3c" , "GIFT" = "#009900", "TRY" = "#40a353")
+custom_colors <- c("BIEN" = "darkseagreen1" , "GIFT" = "darkseagreen", "TRY" = "darkseagreen4")
 
 
 # create the faceted bar plot
